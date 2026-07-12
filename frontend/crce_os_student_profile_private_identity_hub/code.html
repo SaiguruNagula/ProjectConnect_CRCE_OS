@@ -1,0 +1,474 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Student Profile | CRCE OS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Hanken+Grotesk:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@100..900&amp;family=Inter:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "background": "#f7f9fb",
+                "secondary-fixed": "#dae2fd",
+                "on-primary": "#ffffff",
+                "surface-container-high": "#e6e8ea",
+                "primary": "#3525cd",
+                "on-tertiary-container": "#dbdae4",
+                "tertiary-container": "#5f5f68",
+                "outline": "#777587",
+                "inverse-surface": "#2d3133",
+                "on-error": "#ffffff",
+                "surface-dim": "#d8dadc",
+                "secondary-fixed-dim": "#bec6e0",
+                "error": "#ba1a1a",
+                "on-secondary": "#ffffff",
+                "on-primary-fixed-variant": "#3323cc",
+                "surface": "#f7f9fb",
+                "on-secondary-fixed": "#131b2e",
+                "inverse-on-surface": "#eff1f3",
+                "surface-container-lowest": "#ffffff",
+                "on-secondary-fixed-variant": "#3f465c",
+                "primary-container": "#4f46e5",
+                "surface-container-low": "#f2f4f6",
+                "outline-variant": "#c7c4d8",
+                "tertiary-fixed": "#e3e1ec",
+                "on-error-container": "#93000a",
+                "surface-tint": "#4d44e3",
+                "tertiary-fixed-dim": "#c6c5cf",
+                "on-surface": "#191c1e",
+                "primary-fixed": "#e2dfff",
+                "on-surface-variant": "#464555",
+                "inverse-primary": "#c3c0ff",
+                "surface-container-highest": "#e0e3e5",
+                "surface-variant": "#e0e3e5",
+                "surface-container": "#eceef0",
+                "secondary-container": "#dae2fd",
+                "on-tertiary-fixed-variant": "#46464e",
+                "error-container": "#ffdad6",
+                "on-tertiary-fixed": "#1a1b22",
+                "on-background": "#191c1e",
+                "on-tertiary": "#ffffff",
+                "on-primary-fixed": "#0f0069",
+                "secondary": "#565e74",
+                "surface-bright": "#f7f9fb",
+                "tertiary": "#474750",
+                "primary-fixed-dim": "#c3c0ff",
+                "on-secondary-container": "#5c647a",
+                "on-primary-container": "#dad7ff"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+            },
+            "spacing": {
+                "gutter": "24px",
+                "margin-desktop": "48px",
+                "margin-mobile": "16px",
+                "md": "24px",
+                "lg": "40px",
+                "xs": "8px",
+                "sm": "16px",
+                "base": "4px",
+                "xl": "64px"
+            },
+            "fontFamily": {
+                "body-md": ["Inter"],
+                "body-sm": ["Inter"],
+                "headline-sm": ["Hanken Grotesk"],
+                "headline-md": ["Hanken Grotesk"],
+                "display-lg-mobile": ["Hanken Grotesk"],
+                "display-lg": ["Hanken Grotesk"],
+                "label-sm": ["JetBrains Mono"],
+                "label-md": ["JetBrains Mono"],
+                "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "label-sm": ["10px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-headline { font-family: 'Hanken Grotesk', sans-serif; }
+        .bento-card {
+            background-color: #ffffff;
+            border: 1px solid #e4e4e7; /* zinc-200 */
+            box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        .bento-card:hover {
+            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for data heavy sections */
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-md border-b border-outline-variant flex items-center justify-between px-md h-16 w-full">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary">menu</span>
+<h1 class="font-headline-md text-headline-md font-bold tracking-tight text-primary">CRCE OS</h1>
+</div>
+<div class="flex items-center gap-sm">
+<div class="hidden md:flex gap-md mr-md">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Projects</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Directory</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Reports</a>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden ring-2 ring-primary/10">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a young computer science student with a friendly expression. The lighting is soft and natural, emphasizing a modern light-mode aesthetic. The background is a minimalist, out-of-focus academic environment with clean lines and a cool color palette of whites and soft blues." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3BPpRxVf8GLuowzmCFWshcM8BZyjFaPfG8QwXqJvmRM70jwBM5mOLKAzD1AQzQNst2wU3rCIY1YnIPlwNm1_FIFmVCXmF7h6lLwcSkljZ8v0TUY6R8ycuvPcWiz5TXBPyNgieFoEsWW9Rays0M6BIXo3vARfXdfsrNAPIe8TIxQYDAK9m5E7lBu7-84Ij_BymjDLlEnhNWCnvnDWN1O7e_lzeOdoB3-rtj0Sa7UlsEO1llFSRycjDryn0vLSlvkU37Cio43fwGtym">
+</div>
+</div>
+</header>
+<main class="mt-20 px-margin-mobile md:px-margin-desktop max-w-[1440px] mx-auto py-md">
+<!-- Private Identity Status Header -->
+<div class="mb-lg flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<div class="flex items-center gap-xs mb-xs">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: &quot;FILL&quot; 1;">lock</span>
+<span class="font-label-md text-label-md text-primary uppercase tracking-widest">Private Identity Hub</span>
+</div>
+<h2 class="font-headline-md text-display-lg-mobile md:text-headline-md text-on-surface">Alex Rivera</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage your institutional data and portfolio visibility.</p>
+</div>
+<div class="bento-card p-sm flex items-center gap-md border-primary/20 bg-primary/5">
+<div class="relative w-12 h-12">
+<svg class="w-full h-full" viewBox="0 0 36 36">
+<path class="text-zinc-200" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-primary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="85, 100" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center font-label-sm text-label-sm font-bold text-primary">85%</div>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-bold">Profile Completion</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Add a portfolio link to reach 100%</p>
+</div>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-md">
+<!-- Stats Row (Quick View) -->
+<div class="md:col-span-12 grid grid-cols-2 lg:grid-cols-4 gap-md mb-xs">
+<div class="bento-card p-md flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Credits</span>
+<div class="flex items-baseline gap-xs mt-sm">
+<span class="font-headline-md text-headline-md text-primary">120</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">/ 160</span>
+</div>
+</div>
+<div class="bento-card p-md flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Platform Rank</span>
+<div class="flex items-baseline gap-xs mt-sm">
+<span class="font-headline-md text-headline-md text-on-surface">#42</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Top 5%</span>
+</div>
+</div>
+<div class="bento-card p-md flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Project Contributions</span>
+<div class="flex items-baseline gap-xs mt-sm">
+<span class="font-headline-md text-headline-md text-on-surface">18</span>
+<span class="material-symbols-outlined text-green-600 text-sm">trending_up</span>
+</div>
+</div>
+<div class="bento-card p-md flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Verified Badges</span>
+<div class="flex items-baseline gap-xs mt-sm">
+<span class="font-headline-md text-headline-md text-on-surface">7</span>
+</div>
+</div>
+</div>
+<!-- Identity & Bio (Large Card) -->
+<div class="md:col-span-8 flex flex-col gap-md">
+<div class="bento-card p-md">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-headline-sm text-headline-sm">Identity Management</h3>
+<button class="text-primary hover:bg-primary/5 p-xs rounded-lg transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm">edit</span>
+<span class="font-label-md text-label-md">Edit Profile</span>
+</button>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-md">
+<div class="lg:col-span-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-base uppercase">Bio</label>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+                                Junior Computer Science student passionate about distributed systems and architectural design. Currently lead developer for the Campus Resource Hub project. Exploring the intersection of edge computing and educational accessibility.
+                            </p>
+</div>
+<div class="space-y-md">
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-base uppercase">Pronouns</label>
+<p class="font-body-md text-body-md text-on-surface">He / Him</p>
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-base uppercase">Location</label>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">location_on</span>
+<p class="font-body-md text-body-md text-on-surface">Mumbai, IN</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Academic Info -->
+<div class="bento-card p-md">
+<h3 class="font-headline-sm text-headline-sm mb-md">Academic Registry</h3>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-md">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Department</p>
+<p class="font-body-md text-body-md text-on-surface font-semibold">Comp. Science</p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Batch / Year</p>
+<p class="font-body-md text-body-md text-on-surface font-semibold">2021-2025 (3rd Yr)</p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Roll Number</p>
+<p class="font-body-md text-body-md text-on-surface font-semibold">CS21-042</p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Institutional Email</p>
+<div class="flex items-center gap-xs">
+<p class="font-body-md text-body-md text-on-surface font-semibold">a.rivera@crce.edu</p>
+<span class="material-symbols-outlined text-green-600 text-sm" style="font-variation-settings: &quot;FILL&quot; 1;" title="Verified">verified</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Connectivity & Privacy (Sidebar) -->
+<div class="md:col-span-4 flex flex-col gap-md">
+<!-- Connectivity -->
+<div class="bento-card p-md">
+<h3 class="font-headline-sm text-headline-sm mb-md">Connected Accounts</h3>
+<div class="space-y-sm">
+<div class="flex items-center justify-between p-sm rounded-lg bg-surface-container-low border border-zinc-100">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface">code</span>
+<span class="font-body-sm text-body-sm">GitHub</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary">@arivera-dev</span>
+</div>
+<div class="flex items-center justify-between p-sm rounded-lg bg-surface-container-low border border-zinc-100">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface">link</span>
+<span class="font-body-sm text-body-sm">LinkedIn</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary">/in/alex-rivera</span>
+</div>
+<button class="w-full flex items-center justify-center gap-sm p-sm rounded-lg border border-dashed border-outline-variant hover:border-primary text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined">add</span>
+<span class="font-label-md text-label-md">Add Portfolio Link</span>
+</button>
+</div>
+</div>
+<!-- Portfolio Controls -->
+<div class="bento-card p-md bg-zinc-900 text-white border-none">
+<h3 class="font-headline-sm text-headline-sm mb-sm text-white">Public Visibility</h3>
+<p class="font-body-sm text-body-sm text-zinc-400 mb-md">Controls which data points are visible on your public Portfolio module.</p>
+<div class="space-y-md">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm">Global Visibility</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox">
+<div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-zinc-300">Show Contact Info</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox">
+<div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<button class="mt-md w-full bg-white text-zinc-900 font-label-md text-label-md py-sm rounded-lg hover:bg-zinc-200 transition-colors">
+                        View Public Profile
+                    </button>
+</div>
+</div>
+<!-- Skill Matrix (Full Width Section) -->
+<div class="md:col-span-12 bento-card p-md">
+<h3 class="font-headline-sm text-headline-sm mb-md">Skill Matrix</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Verified Skills -->
+<div>
+<div class="flex items-center gap-xs mb-md">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: &quot;FILL&quot; 1;">workspace_premium</span>
+<h4 class="font-label-md text-label-md font-bold uppercase tracking-wider text-on-surface-variant">Verified Institutional Skills</h4>
+</div>
+<div class="flex flex-wrap gap-sm">
+<div class="px-sm py-xs bg-primary/10 text-primary border border-primary/20 rounded-full flex items-center gap-xs">
+<span class="font-label-sm text-label-sm font-bold">Distributed Systems</span>
+<span class="material-symbols-outlined text-xs">check_circle</span>
+</div>
+<div class="px-sm py-xs bg-primary/10 text-primary border border-primary/20 rounded-full flex items-center gap-xs">
+<span class="font-label-sm text-label-sm font-bold">PostgreSQL</span>
+<span class="material-symbols-outlined text-xs">check_circle</span>
+</div>
+<div class="px-sm py-xs bg-primary/10 text-primary border border-primary/20 rounded-full flex items-center gap-xs">
+<span class="font-label-sm text-label-sm font-bold">Rust Architecture</span>
+<span class="material-symbols-outlined text-xs">check_circle</span>
+</div>
+<div class="px-sm py-xs bg-primary/10 text-primary border border-primary/20 rounded-full flex items-center gap-xs">
+<span class="font-label-sm text-label-sm font-bold">Agile Project Management</span>
+<span class="material-symbols-outlined text-xs">check_circle</span>
+</div>
+</div>
+<p class="mt-sm font-label-sm text-label-sm text-on-surface-variant italic">These skills are earned through verified project completions and academic performance.</p>
+</div>
+<!-- Personal Skills -->
+<div>
+<div class="flex items-center justify-between mb-md">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">person</span>
+<h4 class="font-label-md text-label-md font-bold uppercase tracking-wider text-on-surface-variant">Personal Skills</h4>
+</div>
+<button class="text-primary font-label-sm text-label-sm">+ Add Skill</button>
+</div>
+<div class="flex flex-wrap gap-sm">
+<span class="px-sm py-xs bg-zinc-100 text-on-surface-variant border border-zinc-200 rounded-full font-label-sm text-label-sm">UI/UX Design</span>
+<span class="px-sm py-xs bg-zinc-100 text-on-surface-variant border border-zinc-200 rounded-full font-label-sm text-label-sm">Docker</span>
+<span class="px-sm py-xs bg-zinc-100 text-on-surface-variant border border-zinc-200 rounded-full font-label-sm text-label-sm">Next.js</span>
+<span class="px-sm py-xs bg-zinc-100 text-on-surface-variant border border-zinc-200 rounded-full font-label-sm text-label-sm">System Documentation</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Achievements Hub (Bento Row) -->
+<div class="md:col-span-8 bento-card p-md">
+<h3 class="font-headline-sm text-headline-sm mb-md">Verified Achievements</h3>
+<div class="space-y-md h-[300px] overflow-y-auto custom-scroll pr-sm">
+<div class="flex items-start gap-md p-sm hover:bg-surface-container-low transition-colors rounded-xl border border-transparent hover:border-zinc-200">
+<div class="w-12 h-12 flex-shrink-0 bg-primary/5 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">military_tech</span>
+</div>
+<div>
+<h4 class="font-body-md text-body-md font-bold text-on-surface">Dean's List - Fall 2023</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Maintained a 9.4 CGPA across advanced core computer science subjects.</p>
+<span class="mt-xs inline-block px-xs py-[2px] bg-secondary-container text-on-secondary-container font-label-sm text-label-sm rounded uppercase">Verified by Registry</span>
+</div>
+</div>
+<div class="flex items-start gap-md p-sm hover:bg-surface-container-low transition-colors rounded-xl border border-transparent hover:border-zinc-200">
+<div class="w-12 h-12 flex-shrink-0 bg-primary/5 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">rocket_launch</span>
+</div>
+<div>
+<h4 class="font-body-md text-body-md font-bold text-on-surface">Smart Campus Hackathon - 1st Place</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Developed an automated attendance tracking system using BLE mesh networking.</p>
+<span class="mt-xs inline-block px-xs py-[2px] bg-secondary-container text-on-secondary-container font-label-sm text-label-sm rounded uppercase">Project Excellence</span>
+</div>
+</div>
+<div class="flex items-start gap-md p-sm hover:bg-surface-container-low transition-colors rounded-xl border border-transparent hover:border-zinc-200">
+<div class="w-12 h-12 flex-shrink-0 bg-primary/5 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">groups</span>
+</div>
+<div>
+<h4 class="font-body-md text-body-md font-bold text-on-surface">Student Mentor Program</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Mentored 15 freshmen in Data Structures &amp; Algorithms (DSA) over 12 weeks.</p>
+<span class="mt-xs inline-block px-xs py-[2px] bg-secondary-container text-on-secondary-container font-label-sm text-label-sm rounded uppercase">Community Service</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Account & Security -->
+<div class="md:col-span-4 bento-card p-md">
+<h3 class="font-headline-sm text-headline-sm mb-md">Account Settings</h3>
+<div class="space-y-md">
+<div class="p-sm hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">notifications</span>
+<div>
+<p class="font-body-sm text-body-sm font-bold text-on-surface">Notification Preferences</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Email &amp; push notification rules</p>
+</div>
+</div>
+</div>
+<div class="p-sm hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">security</span>
+<div>
+<p class="font-body-sm text-body-sm font-bold text-on-surface">Security &amp; Auth</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Password, MFA, and active sessions</p>
+</div>
+</div>
+</div>
+<div class="p-sm hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">database</span>
+<div>
+<p class="font-body-sm text-body-sm font-bold text-on-surface">Data &amp; Privacy</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Export or request data deletion</p>
+</div>
+</div>
+</div>
+<div class="mt-lg pt-md border-t border-zinc-100">
+<button class="w-full flex items-center justify-center gap-sm text-error p-sm rounded-lg hover:bg-error/5 transition-colors">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md font-bold">Sign Out</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 pb-safe md:hidden bg-surface/80 backdrop-blur-lg border-t border-outline-variant flex justify-around items-center h-16 px-sm">
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="font-label-md text-label-md">Academics</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">folder_shared</span>
+<span class="font-label-md text-label-md">Resources</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary font-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for active states
+        document.querySelectorAll('nav a, header a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // In a real app, this would handle routing
+                // For demo, we just add a small click effect
+                this.classList.add('scale-90');
+                setTimeout(() => this.classList.remove('scale-90'), 150);
+            });
+        });
+    </script>
+
+
+</body></html>

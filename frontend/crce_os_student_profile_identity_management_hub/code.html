@@ -1,0 +1,494 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Student Profile | CRCE OS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Hanken+Grotesk:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "background": "#f7f9fb",
+                "secondary-fixed": "#dae2fd",
+                "on-primary": "#ffffff",
+                "surface-container-high": "#e6e8ea",
+                "primary": "#4f46e5",
+                "on-tertiary-container": "#dbdae4",
+                "tertiary-container": "#5f5f68",
+                "outline": "#777587",
+                "inverse-surface": "#2d3133",
+                "on-error": "#ffffff",
+                "surface-dim": "#d8dadc",
+                "secondary-fixed-dim": "#bec6e0",
+                "error": "#ba1a1a",
+                "on-secondary": "#ffffff",
+                "on-primary-fixed-variant": "#3323cc",
+                "surface": "#f7f9fb",
+                "on-secondary-fixed": "#131b2e",
+                "inverse-on-surface": "#eff1f3",
+                "surface-container-lowest": "#ffffff",
+                "on-secondary-fixed-variant": "#3f465c",
+                "primary-container": "#4f46e5",
+                "surface-container-low": "#f2f4f6",
+                "outline-variant": "#c7c4d8",
+                "tertiary-fixed": "#e3e1ec",
+                "on-error-container": "#93000a",
+                "surface-tint": "#4d44e3",
+                "tertiary-fixed-dim": "#c6c5cf",
+                "on-surface": "#191c1e",
+                "primary-fixed": "#e2dfff",
+                "on-surface-variant": "#464555",
+                "inverse-primary": "#c3c0ff",
+                "surface-container-highest": "#e0e3e5",
+                "surface-variant": "#e0e3e5",
+                "surface-container": "#eceef0",
+                "secondary-container": "#dae2fd",
+                "on-tertiary-fixed-variant": "#46464e",
+                "error-container": "#ffdad6",
+                "on-tertiary-fixed": "#1a1b22",
+                "on-background": "#191c1e",
+                "on-tertiary": "#ffffff",
+                "on-primary-fixed": "#0f0069",
+                "secondary": "#565e74",
+                "surface-bright": "#f7f9fb",
+                "tertiary": "#474750",
+                "primary-fixed-dim": "#c3c0ff",
+                "on-secondary-container": "#5c647a",
+                "on-primary-container": "#dad7ff"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+            },
+            "spacing": {
+                "gutter": "24px",
+                "margin-desktop": "48px",
+                "margin-mobile": "16px",
+                "md": "24px",
+                "lg": "40px",
+                "xs": "8px",
+                "sm": "16px",
+                "base": "4px",
+                "xl": "64px"
+            },
+            "fontFamily": {
+                "body-md": ["Inter"],
+                "body-sm": ["Inter"],
+                "headline-sm": ["Hanken Grotesk"],
+                "headline-md": ["Hanken Grotesk"],
+                "display-lg-mobile": ["Hanken Grotesk"],
+                "display-lg": ["Hanken Grotesk"],
+                "label-sm": ["JetBrains Mono"],
+                "label-md": ["JetBrains Mono"],
+                "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "label-sm": ["10px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-headline { font-family: 'Hanken Grotesk', sans-serif; }
+        .bento-card {
+            background-color: #ffffff;
+            border: 1px solid rgba(199, 196, 216, 0.3); /* border-outline-variant/30 */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        .bento-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #4f46e5; }
+        .toggle-checkbox:checked + .toggle-label:after { transform: translateX(100%); }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-md border-b border-outline-variant/30 flex items-center justify-between px-md h-16">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary">menu</span>
+<h1 class="font-headline-md text-headline-md font-bold tracking-tight text-primary">CRCE OS</h1>
+</div>
+<div class="flex items-center gap-sm">
+<div class="hidden md:flex gap-md mr-md">
+<a class="font-label-md text-label-md text-primary font-bold transition-colors" href="#">Profile</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Security</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Preferences</a>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden ring-2 ring-primary/10">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3BPpRxVf8GLuowzmCFWshcM8BZyjFaPfG8QwXqJvmRM70jwBM5mOLKAzD1AQzQNst2wU3rCIY1YnIPlwNm1_FIFmVCXmF7h6lLwcSkljZ8v0TUY6R8ycuvPcWiz5TXBPyNgieFoEsWW9Rays0M6BIXo3vARfXdfsrNAPIe8TIxQYDAK9m5E7lBu7-84Ij_BymjDLlEnhNWCnvnDWN1O7e_lzeOdoB3-rtj0Sa7UlsEO1llFSRycjDryn0vLSlvkU37Cio43fwGtym">
+</div>
+</div>
+</header>
+<main class="mt-20 px-margin-mobile md:px-margin-desktop max-w-[1440px] mx-auto py-md">
+<!-- Identity & Completion Row -->
+<div class="mb-lg flex flex-col md:grid md:grid-cols-12 gap-md items-start">
+<div class="md:col-span-8">
+<div class="flex items-center gap-xs mb-xs">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: &quot;FILL&quot; 1;">lock</span>
+<span class="font-label-md text-label-md text-primary uppercase tracking-widest">Private Identity Hub</span>
+</div>
+<h2 class="font-headline-md text-display-lg-mobile md:text-display-lg text-on-surface">Alex Rivera</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage your institutional data and portfolio visibility.</p>
+</div>
+<div class="md:col-span-4 w-full">
+<div class="bento-card p-sm flex items-center gap-md border-primary/20 bg-primary/5">
+<div class="relative w-12 h-12 flex-shrink-0">
+<svg class="w-full h-full" viewBox="0 0 36 36">
+<path class="text-zinc-200" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-primary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="85, 100" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center font-label-sm text-label-sm font-bold text-primary">85%</div>
+</div>
+<div class="flex-1">
+<p class="font-label-md text-label-md text-on-surface font-bold">Profile Completion</p>
+<div class="mt-xs space-y-1">
+<div class="flex items-center justify-between text-[11px] text-primary hover:underline cursor-pointer">
+<span>Complete GitHub Profile</span><span>+5%</span>
+</div>
+<div class="flex items-center justify-between text-[11px] text-primary hover:underline cursor-pointer">
+<span>Add Resume</span><span>+10%</span>
+</div>
+<div class="flex items-center justify-between text-[11px] text-primary hover:underline cursor-pointer">
+<span>Add Skills</span><span>+5%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-md">
+<!-- Main Content Area -->
+<div class="md:col-span-8 flex flex-col gap-md">
+<!-- Identity Management -->
+<div class="bento-card p-md">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-headline-sm text-headline-sm">Identity Details</h3>
+<button class="text-primary hover:bg-primary/5 p-xs rounded-lg transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm">edit</span>
+<span class="font-label-md text-label-md">Edit Profile</span>
+</button>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-x-lg gap-y-md">
+<div class="lg:col-span-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-base uppercase">Bio</label>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+                                Junior Computer Science student passionate about distributed systems and architectural design. Currently lead developer for the Campus Resource Hub project.
+                            </p>
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-base uppercase">Preferred Name</label>
+<p class="font-body-md text-body-md text-on-surface">Alex</p>
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-base uppercase">Pronouns (Optional)</label>
+<p class="font-body-md text-body-md text-on-surface">He / Him</p>
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-base uppercase">Location</label>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">location_on</span>
+<p class="font-body-md text-body-md text-on-surface">Mumbai, IN</p>
+</div>
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-base uppercase">Personal Website</label>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">language</span>
+<a class="font-body-md text-body-md text-primary hover:underline" href="#">alexrivera.dev</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Academic Registry (Read Only) -->
+<div class="bento-card p-md bg-surface-container-low/50">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-headline-sm text-headline-sm">Academic Registry</h3>
+<div class="flex items-center gap-xs px-xs py-1 bg-primary-container/10 border border-primary-container/20 rounded-full">
+<span class="material-symbols-outlined text-primary text-[16px]">verified_user</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">Verified by CRCE Registry</span>
+</div>
+</div>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-md">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Department</p>
+<p class="font-body-md text-body-md text-on-surface font-semibold">Comp. Science</p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Batch / Year</p>
+<p class="font-body-md text-body-md text-on-surface font-semibold">2021-2025 (3rd Yr)</p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Roll Number</p>
+<p class="font-body-md text-body-md text-on-surface font-semibold">CS21-042</p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Institutional Email</p>
+<p class="font-body-md text-body-md text-on-surface font-semibold">a.rivera@crce.edu</p>
+</div>
+</div>
+</div>
+<!-- Skills Architecture -->
+<div class="bento-card p-md">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-headline-sm text-headline-sm">Skill Matrix</h3>
+<button class="text-primary font-label-sm text-label-sm flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm">add</span> Add Personal Skill
+</button>
+</div>
+<div class="space-y-lg">
+<!-- Verified Skills -->
+<div>
+<div class="flex items-center gap-xs mb-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+<h4 class="font-label-md text-label-md font-bold uppercase text-on-surface">Verified Institutional Skills</h4>
+</div>
+<div class="flex flex-wrap gap-sm">
+<span class="px-sm py-1 bg-primary/5 text-primary border border-primary/20 rounded-full font-label-sm text-label-sm flex items-center gap-xs">Distributed Systems <span class="material-symbols-outlined text-[14px]">check</span></span>
+<span class="px-sm py-1 bg-primary/5 text-primary border border-primary/20 rounded-full font-label-sm text-label-sm flex items-center gap-xs">PostgreSQL <span class="material-symbols-outlined text-[14px]">check</span></span>
+<span class="px-sm py-1 bg-primary/5 text-primary border border-primary/20 rounded-full font-label-sm text-label-sm flex items-center gap-xs">Rust Architecture <span class="material-symbols-outlined text-[14px]">check</span></span>
+</div>
+</div>
+<!-- Endorsed Skills -->
+<div>
+<div class="flex items-center gap-xs mb-sm">
+<span class="material-symbols-outlined text-secondary text-[18px]">workspace_premium</span>
+<h4 class="font-label-md text-label-md font-bold uppercase text-on-surface">Faculty Endorsed</h4>
+</div>
+<div class="flex flex-wrap gap-sm">
+<div class="group relative px-sm py-1 bg-secondary/5 text-secondary border border-secondary/20 rounded-full font-label-sm text-label-sm">
+                                System Documentation
+<span class="ml-xs opacity-60">Endorsed by 3 Faculty Members</span>
+</div>
+</div>
+</div>
+<!-- Personal Skills -->
+<div>
+<div class="flex items-center gap-xs mb-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">person</span>
+<h4 class="font-label-md text-label-md font-bold uppercase text-on-surface">Personal Skills</h4>
+</div>
+<div class="flex flex-wrap gap-sm">
+<span class="px-sm py-1 bg-surface-container text-on-surface-variant border border-outline-variant/30 rounded-full font-label-sm text-label-sm">UI/UX Design</span>
+<span class="px-sm py-1 bg-surface-container text-on-surface-variant border border-outline-variant/30 rounded-full font-label-sm text-label-sm">Docker</span>
+<span class="px-sm py-1 bg-surface-container text-on-surface-variant border border-outline-variant/30 rounded-full font-label-sm text-label-sm">Next.js</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sidebar Area -->
+<div class="md:col-span-4 flex flex-col gap-md">
+<!-- Public Portfolio Connection -->
+<div class="bento-card p-md">
+<h3 class="font-headline-sm text-headline-sm mb-md">Public Portfolio</h3>
+<div class="space-y-sm">
+<div class="p-sm rounded-lg bg-surface-container-low border border-outline-variant/20">
+<label class="font-label-sm text-label-sm text-on-surface-variant block uppercase mb-1">Public Portfolio URL</label>
+<p class="font-label-md text-label-md text-primary font-bold truncate">portfolio.crce.edu/alex-rivera</p>
+</div>
+<div class="flex items-center justify-between p-sm">
+<span class="font-label-md text-label-md">Visibility Status</span>
+<span class="px-xs py-1 bg-green-50 text-green-700 text-[10px] font-bold rounded border border-green-200">ACTIVE</span>
+</div>
+<button class="w-full bg-primary text-white font-label-md text-label-md py-sm rounded-lg hover:bg-primary/90 transition-colors">
+                            View Public Profile
+                        </button>
+</div>
+</div>
+<!-- Resume Management -->
+<div class="bento-card p-md">
+<h3 class="font-headline-sm text-headline-sm mb-md">Resume</h3>
+<div class="p-md border-2 border-dashed border-outline-variant/30 rounded-xl flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-outline text-3xl mb-xs">description</span>
+<p class="font-body-sm text-body-sm font-bold">Alex_Rivera_CV_2024.pdf</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-md">Last Updated: 12 Oct 2023</p>
+<div class="flex gap-sm w-full">
+<button class="flex-1 bg-surface-container-high font-label-md text-label-md py-xs rounded hover:bg-surface-dim transition-colors">Download</button>
+<button class="flex-1 border border-outline-variant/50 font-label-md text-label-md py-xs rounded hover:bg-surface-container-low transition-colors">Replace</button>
+</div>
+</div>
+</div>
+<!-- Granular Visibility Matrix -->
+<div class="bento-card p-md bg-zinc-900 text-white border-none">
+<h3 class="font-headline-sm text-headline-sm mb-sm text-white">Public Visibility Matrix</h3>
+<p class="font-body-sm text-body-sm text-zinc-400 mb-md">Configure data points visible on your portfolio.</p>
+<div class="space-y-md">
+<!-- Visibility Toggle Component -->
+<div class="flex items-center justify-between group">
+<div>
+<p class="font-body-sm text-body-sm text-white">Projects &amp; Hackathons</p>
+<p class="text-[10px] text-zinc-500 uppercase">Visible on Public Portfolio</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox">
+<div class="w-9 h-5 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between group">
+<div>
+<p class="font-body-sm text-body-sm text-white">Academic Achievements</p>
+<p class="text-[10px] text-zinc-500 uppercase">Visible on Public Portfolio</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox">
+<div class="w-9 h-5 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between group">
+<div>
+<p class="font-body-sm text-body-sm text-white">Research Papers</p>
+<p class="text-[10px] text-zinc-500 uppercase">Visible on Public Portfolio</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox">
+<div class="w-9 h-5 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between group">
+<div>
+<p class="font-body-sm text-body-sm text-white">Skills Matrix</p>
+<p class="text-[10px] text-zinc-500 uppercase">Visible on Public Portfolio</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox">
+<div class="w-9 h-5 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between group">
+<div>
+<p class="font-body-sm text-body-sm text-white">Leaderboard Rank</p>
+<p class="text-[10px] text-zinc-500 uppercase">Visible on Public Portfolio</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox">
+<div class="w-9 h-5 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between group">
+<div>
+<p class="font-body-sm text-body-sm text-white">Contact Information</p>
+<p class="text-[10px] text-zinc-500 uppercase">Visible on Public Portfolio</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox">
+<div class="w-9 h-5 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Account Settings Organized Sections -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md mt-lg">
+<!-- Security -->
+<div class="bento-card p-md">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-primary">security</span>
+<h3 class="font-headline-sm text-headline-sm">Security</h3>
+</div>
+<div class="space-y-md">
+<button class="w-full flex justify-between items-center text-left hover:bg-surface-container-low p-sm rounded transition-colors">
+<span class="font-body-sm text-body-sm">Change Password</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+<button class="w-full flex justify-between items-center text-left hover:bg-surface-container-low p-sm rounded transition-colors">
+<span class="font-body-sm text-body-sm">Two-Factor Authentication</span>
+<span class="font-label-sm text-label-sm text-green-600">ON</span>
+</button>
+</div>
+</div>
+<!-- Notifications -->
+<div class="bento-card p-md">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-primary">notifications</span>
+<h3 class="font-headline-sm text-headline-sm">Notifications</h3>
+</div>
+<div class="space-y-md">
+<button class="w-full flex justify-between items-center text-left hover:bg-surface-container-low p-sm rounded transition-colors">
+<span class="font-body-sm text-body-sm">Email Preferences</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+<button class="w-full flex justify-between items-center text-left hover:bg-surface-container-low p-sm rounded transition-colors">
+<span class="font-body-sm text-body-sm">In-App Alerts</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Privacy & Data -->
+<div class="bento-card p-md">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-primary">database</span>
+<h3 class="font-headline-sm text-headline-sm">Privacy &amp; Data</h3>
+</div>
+<div class="space-y-md">
+<button class="w-full flex justify-between items-center text-left hover:bg-surface-container-low p-sm rounded transition-colors">
+<span class="font-body-sm text-body-sm">Export Institutional Data</span>
+<span class="material-symbols-outlined text-sm">download</span>
+</button>
+<button class="w-full flex justify-between items-center text-left hover:bg-surface-container-low p-sm rounded transition-colors">
+<span class="font-body-sm text-body-sm">Sessions &amp; Devices</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">2 Active</span>
+</button>
+</div>
+</div>
+</div>
+<div class="mt-lg flex justify-center">
+<button class="flex items-center gap-sm text-error px-md py-sm rounded-lg hover:bg-error/5 transition-colors border border-transparent hover:border-error/20">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md font-bold uppercase">Sign Out of All Sessions</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 pb-safe md:hidden bg-surface/80 backdrop-blur-lg border-t border-outline-variant/30 flex justify-around items-center h-16 px-sm">
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="font-label-md text-label-md">Academics</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary font-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<script>
+        document.querySelectorAll('nav a, header a').forEach(link => {
+            link.addEventListener('click', function() {
+                this.classList.add('scale-95');
+                setTimeout(() => this.classList.remove('scale-95'), 150);
+            });
+        });
+    </script>
+</body></html>

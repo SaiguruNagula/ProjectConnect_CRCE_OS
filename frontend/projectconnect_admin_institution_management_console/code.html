@@ -1,0 +1,503 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Institutions | ProjectConnect Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Geist:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#d8dadc",
+                        "inverse-primary": "#bec6e0",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "on-secondary-fixed-variant": "#3323cc",
+                        "on-primary-container": "#7c839b",
+                        "inverse-surface": "#2d3133",
+                        "secondary": "#4b41e1",
+                        "background": "#f7f9fb",
+                        "on-secondary-container": "#fffbff",
+                        "on-background": "#191c1e",
+                        "tertiary-fixed": "#e1e0ff",
+                        "surface-container-high": "#e6e8ea",
+                        "secondary-fixed-dim": "#c3c0ff",
+                        "on-primary": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e0e3e5",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "surface-bright": "#f7f9fb",
+                        "primary": "#000000",
+                        "surface-container-low": "#f2f4f6",
+                        "primary-container": "#131b2e",
+                        "tertiary": "#000000",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "surface-tint": "#565e74",
+                        "primary-fixed": "#dae2fd",
+                        "on-tertiary-fixed": "#07006c",
+                        "on-tertiary-container": "#7073ff",
+                        "on-surface": "#191c1e",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#e2dfff",
+                        "outline-variant": "#c6c6cd",
+                        "on-surface-variant": "#45464d",
+                        "on-secondary-fixed": "#0f0069",
+                        "tertiary-container": "#07006c",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "outline": "#76777d",
+                        "surface-container-highest": "#e0e3e5",
+                        "secondary-container": "#645efb",
+                        "surface-container": "#eceef0",
+                        "inverse-on-surface": "#eff1f3",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "md": "24px",
+                        "sm": "16px",
+                        "lg": "40px",
+                        "gutter": "24px",
+                        "container-max": "1440px",
+                        "xl": "64px",
+                        "xs": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "display": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "mono": ["Geist"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "label-md": ["Geist"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-header { backdrop-filter: blur(20px); background-color: rgba(255, 255, 255, 0.8); border-bottom: 1px solid #e2e8f0; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-background bg-background min-h-screen">
+<!-- Top Navigation -->
+<header class="w-full top-0 sticky z-50 glass-header bg-surface-container-lowest border-b border-outline-variant">
+<div class="flex justify-between items-center px-lg py-sm w-full max-w-container-max mx-auto h-16">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary font-bold text-headline-lg" data-icon="admin_panel_settings">admin_panel_settings</span>
+<span class="font-headline-lg text-headline-lg font-bold text-primary">ProjectConnect Admin</span>
+</div>
+<div class="flex items-center gap-md">
+<nav class="hidden md:flex gap-md">
+<a class="text-on-surface-variant hover:bg-surface-container-high transition-colors px-xs py-1 rounded" href="#">Dashboard</a>
+<a class="text-primary font-bold border-b-2 border-primary px-xs py-1" href="#">Institutions</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high transition-colors px-xs py-1 rounded" href="#">Users</a>
+</nav>
+<div class="flex items-center gap-sm border-l border-outline-variant pl-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-xs rounded-full transition-all" data-icon="search">search</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-xs rounded-full transition-all" data-icon="notifications">notifications</button>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container text-label-md font-bold">SA</div>
+</div>
+</div>
+</div>
+</header>
+<div class="flex min-h-[calc(100vh-64px)]">
+<!-- Sidebar Navigation -->
+<aside class="h-[calc(100vh-64px)] w-xl sticky top-16 left-0 bg-surface-container-low border-r border-outline-variant hidden lg:flex flex-col p-md gap-xs">
+<div class="flex items-center gap-sm px-xs py-sm mb-md">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a high-level administrator with a neutral backdrop. The lighting is sophisticated and directional, highlighting facial features with a clean, light-mode studio aesthetic. The image is crisp, with a subtle high-end corporate feel consistent with premium dashboard design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvugsOwJjDFjGHbv0d3d8Us2Gg4n5d2mJa7uM4I6NgJmuCAamAW_M1G2TcJ2-zu-72S5EYHrcGdsSTqQn_O53H0BokxjBlr3VY31BiDmu-QqAVopLU0rzDEfmXOUyGOfrU8jf0q8gZCJHGegPsp5MF0SrQVL_uLEwD66XF1MwZl9fYcl_mNDHEjOZck7TYYw7TXD_6uvSmCiCOKm3s9teMObuy5E1dYed4ILBrFEtT1TjpKKzCrk2mqB_rOEV7KfkL-bxok5GnNeo9">
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm font-black text-on-surface">Super Admin</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Global Controls</span>
+</div>
+</div>
+<nav class="flex flex-col gap-xs flex-1">
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Platform Overview</span>
+</a>
+<a class="flex items-center gap-sm p-sm bg-secondary-container text-on-secondary-container font-semibold rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+<span class="font-label-md text-label-md">Institutions</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-md text-label-md">Users</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings_heart">settings_heart</span>
+<span class="font-label-md text-label-md">System Health</span>
+</a>
+</nav>
+<div class="mt-auto pt-md border-t border-outline-variant flex justify-between items-center px-xs">
+<span class="font-label-md text-label-md text-outline">v2.4.0</span>
+<button class="material-symbols-outlined text-outline hover:text-primary transition-colors" data-icon="logout">logout</button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 overflow-x-hidden">
+<div class="max-w-container-max mx-auto p-lg">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-xl">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-primary mb-1">Institutions</h1>
+<p class="text-body-lg text-on-surface-variant">Manage campus identities, principal assignments, and institutional scale.</p>
+</div>
+<div class="flex gap-sm">
+<button class="bg-white border border-slate-200 px-sm py-2 rounded-lg font-body-md text-primary hover:bg-slate-50 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]" data-icon="download">download</span> Export
+                        </button>
+<button class="bg-white border border-slate-200 px-sm py-2 rounded-lg font-body-md text-primary hover:bg-slate-50 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]" data-icon="layers">layers</span> Bulk Actions
+                        </button>
+<button class="bg-primary text-white px-md py-2 rounded-lg font-body-md font-semibold hover:opacity-90 transition-all flex items-center gap-2 shadow-sm border-t border-white/10">
+<span class="material-symbols-outlined text-[20px]" data-icon="add_business">add_business</span> Add Institution
+                        </button>
+</div>
+</div>
+<!-- KPI Cards Section -->
+<div class="grid grid-cols-2 lg:grid-cols-6 gap-gutter mb-xl">
+<div class="bg-white border border-slate-200 p-md rounded-xl hover:shadow-sm transition-shadow">
+<p class="text-label-md text-on-surface-variant uppercase tracking-wider mb-2">Total Institutions</p>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-md text-headline-md">42</span>
+<span class="text-xs text-green-600 font-mono flex items-center">+2 <span class="material-symbols-outlined text-[12px]" data-icon="arrow_upward">arrow_upward</span></span>
+</div>
+</div>
+<div class="bg-white border border-slate-200 p-md rounded-xl">
+<p class="text-label-md text-on-surface-variant uppercase tracking-wider mb-2">Active</p>
+<span class="font-headline-md text-headline-md">38</span>
+</div>
+<div class="bg-white border border-slate-200 p-md rounded-xl border-l-4 border-l-amber-400">
+<p class="text-label-md text-on-surface-variant uppercase tracking-wider mb-2">Pending Verification</p>
+<span class="font-headline-md text-headline-md">4</span>
+</div>
+<div class="bg-white border border-slate-200 p-md rounded-xl">
+<p class="text-label-md text-on-surface-variant uppercase tracking-wider mb-2">Total Students</p>
+<span class="font-headline-md text-headline-md">12.8k</span>
+</div>
+<div class="bg-white border border-slate-200 p-md rounded-xl">
+<p class="text-label-md text-on-surface-variant uppercase tracking-wider mb-2">Total Faculty</p>
+<span class="font-headline-md text-headline-md">1,124</span>
+</div>
+<div class="bg-white border border-slate-200 p-md rounded-xl">
+<p class="text-label-md text-on-surface-variant uppercase tracking-wider mb-2">Total Projects</p>
+<span class="font-headline-md text-headline-md">842</span>
+</div>
+</div>
+<!-- Search & Filters -->
+<div class="bg-white border border-slate-200 p-sm rounded-xl mb-md flex flex-col md:flex-row gap-sm items-center">
+<div class="relative flex-1 w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-transparent focus:border-primary-container focus:ring-0 rounded-lg pl-10 py-2 text-body-md transition-all" placeholder="Search by institution name or code..." type="text">
+</div>
+<div class="flex gap-sm w-full md:w-auto">
+<select class="bg-surface-container-low border-transparent rounded-lg py-2 pl-3 pr-8 text-body-md focus:ring-0 cursor-pointer">
+<option>Type</option>
+<option>Engineering</option>
+<option>Design</option>
+</select>
+<select class="bg-surface-container-low border-transparent rounded-lg py-2 pl-3 pr-8 text-body-md focus:ring-0 cursor-pointer">
+<option>State</option>
+<option>Maharashtra</option>
+<option>Karnataka</option>
+</select>
+<select class="bg-surface-container-low border-transparent rounded-lg py-2 pl-3 pr-8 text-body-md focus:ring-0 cursor-pointer">
+<option>Status</option>
+<option>Active</option>
+<option>Pending</option>
+</select>
+</div>
+</div>
+<!-- Directory Table -->
+<div class="bg-white border border-slate-200 rounded-xl overflow-hidden mb-xl">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-slate-200">
+<th class="px-md py-4 text-label-md font-medium text-on-surface-variant uppercase">Institution Name</th>
+<th class="px-md py-4 text-label-md font-medium text-on-surface-variant uppercase">Code</th>
+<th class="px-md py-4 text-label-md font-medium text-on-surface-variant uppercase">Principal</th>
+<th class="px-md py-4 text-label-md font-medium text-on-surface-variant uppercase text-right">Students</th>
+<th class="px-md py-4 text-label-md font-medium text-on-surface-variant uppercase text-right">Faculty</th>
+<th class="px-md py-4 text-label-md font-medium text-on-surface-variant uppercase text-right">Projects</th>
+<th class="px-md py-4 text-label-md font-medium text-on-surface-variant uppercase">Status</th>
+<th class="px-md py-4 text-label-md font-medium text-on-surface-variant uppercase text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<tr class="hover:bg-slate-50 transition-colors group cursor-pointer" onclick="openDrawer()">
+<td class="px-md py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center font-bold text-slate-400">CR</div>
+<span class="font-body-md text-primary font-semibold group-hover:text-secondary transition-colors">CRCE</span>
+</div>
+</td>
+<td class="px-md py-4 font-mono text-xs text-on-surface-variant">IN-MUM-01</td>
+<td class="px-md py-4 font-body-md text-on-surface-variant">Dr. Srija Unnikrishnan</td>
+<td class="px-md py-4 font-mono text-xs text-on-surface-variant text-right">4.2k</td>
+<td class="px-md py-4 font-mono text-xs text-on-surface-variant text-right">86</td>
+<td class="px-md py-4 font-mono text-xs text-on-surface-variant text-right">124</td>
+<td class="px-md py-4">
+<span class="bg-[#ECFDF5] text-[#065F46] px-2 py-0.5 rounded-full text-[10px] font-bold uppercase">Active</span>
+</td>
+<td class="px-md py-4 text-right">
+<button class="material-symbols-outlined text-outline hover:text-primary" data-icon="more_vert">more_vert</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors group cursor-pointer" onclick="openDrawer()">
+<td class="px-md py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center font-bold text-slate-400">VE</div>
+<span class="font-body-md text-primary font-semibold group-hover:text-secondary transition-colors">VESIT</span>
+</div>
+</td>
+<td class="px-md py-4 font-mono text-xs text-on-surface-variant">IN-MUM-02</td>
+<td class="px-md py-4 font-body-md text-on-surface-variant">Dr. J. M. Nair</td>
+<td class="px-md py-4 font-mono text-xs text-on-surface-variant text-right">3.8k</td>
+<td class="px-md py-4 font-mono text-xs text-on-surface-variant text-right">72</td>
+<td class="px-md py-4 font-mono text-xs text-on-surface-variant text-right">98</td>
+<td class="px-md py-4">
+<span class="bg-[#ECFDF5] text-[#065F46] px-2 py-0.5 rounded-full text-[10px] font-bold uppercase">Active</span>
+</td>
+<td class="px-md py-4 text-right">
+<button class="material-symbols-outlined text-outline hover:text-primary" data-icon="more_vert">more_vert</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors group cursor-pointer">
+<td class="px-md py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center font-bold text-slate-400">DJ</div>
+<span class="font-body-md text-primary font-semibold group-hover:text-secondary transition-colors">D.J. Sanghvi</span>
+</div>
+</td>
+<td class="px-md py-4 font-mono text-xs text-on-surface-variant">IN-MUM-03</td>
+<td class="px-md py-4 font-body-md text-on-surface-variant">Dr. Hari Vasudevan</td>
+<td class="px-md py-4 font-mono text-xs text-on-surface-variant text-right">3.2k</td>
+<td class="px-md py-4 font-mono text-xs text-on-surface-variant text-right">64</td>
+<td class="px-md py-4 font-mono text-xs text-on-surface-variant text-right">102</td>
+<td class="px-md py-4">
+<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase">Pending</span>
+</td>
+<td class="px-md py-4 text-right">
+<button class="material-symbols-outlined text-outline hover:text-primary" data-icon="more_vert">more_vert</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors group cursor-pointer">
+<td class="px-md py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center font-bold text-slate-400">KJ</div>
+<span class="font-body-md text-primary font-semibold group-hover:text-secondary transition-colors">K. J. Somaiya</span>
+</div>
+</td>
+<td class="px-md py-4 font-mono text-xs text-on-surface-variant">IN-MUM-04</td>
+<td class="px-md py-4 font-body-md text-on-surface-variant">Dr. Shubha Pandit</td>
+<td class="px-md py-4 font-mono text-xs text-on-surface-variant text-right">4.5k</td>
+<td class="px-md py-4 font-mono text-xs text-on-surface-variant text-right">92</td>
+<td class="px-md py-4 font-mono text-xs text-on-surface-variant text-right">156</td>
+<td class="px-md py-4">
+<span class="bg-[#ECFDF5] text-[#065F46] px-2 py-0.5 rounded-full text-[10px] font-bold uppercase">Active</span>
+</td>
+<td class="px-md py-4 text-right">
+<button class="material-symbols-outlined text-outline hover:text-primary" data-icon="more_vert">more_vert</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="bg-surface-container-low px-md py-sm border-t border-slate-200 flex items-center justify-between">
+<span class="text-body-md text-on-surface-variant font-mono text-xs">Showing 1-10 of 42 entries</span>
+<div class="flex gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded border border-slate-300 bg-white hover:bg-slate-50 text-outline disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[20px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-slate-300 bg-white hover:bg-slate-50 text-outline">
+<span class="material-symbols-outlined text-[20px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Audit Section -->
+<section class="mb-xl">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-outline" data-icon="history">history</span>
+<h2 class="font-headline-sm text-headline-sm text-primary">System Audit Log</h2>
+</div>
+<div class="bg-white border border-slate-200 rounded-xl divide-y divide-slate-100">
+<div class="p-md flex items-center justify-between group">
+<div class="flex items-center gap-md">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+<div class="flex flex-col">
+<span class="text-body-md text-primary font-medium">Principal Transfer</span>
+<span class="text-xs text-on-surface-variant">Fr. Conceicao Rodrigues College of Engineering (IN-MUM-01)</span>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<span class="font-mono text-xs text-outline">Super Admin</span>
+<span class="font-mono text-xs text-outline">2 hours ago</span>
+</div>
+</div>
+<div class="p-md flex items-center justify-between group">
+<div class="flex items-center gap-md">
+<div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+<div class="flex flex-col">
+<span class="text-body-md text-primary font-medium">New Institution Verified</span>
+<span class="text-xs text-on-surface-variant">Don Bosco Institute of Technology (IN-MUM-05)</span>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<span class="font-mono text-xs text-outline">Super Admin</span>
+<span class="font-mono text-xs text-outline">Yesterday</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+<!-- Institution Details Drawer -->
+<div class="fixed inset-0 bg-black/20 opacity-0 pointer-events-none transition-opacity z-[60]" id="details-drawer-overlay" onclick="closeDrawer()"></div>
+<div class="fixed top-0 right-0 h-full w-[420px] bg-white shadow-2xl z-[70] translate-x-full transition-transform duration-300 flex flex-col" id="details-drawer">
+<div class="p-lg border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white">
+<h3 class="font-headline-sm text-headline-sm text-primary">Institution Details</h3>
+<button class="material-symbols-outlined text-outline hover:text-primary transition-colors" data-icon="close" onclick="closeDrawer()">close</button>
+</div>
+<div class="flex-1 overflow-y-auto p-lg hide-scrollbar">
+<!-- Identity -->
+<div class="flex flex-col items-center text-center mb-xl">
+<div class="w-24 h-24 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-md overflow-hidden p-2">
+<img class="w-full h-full object-contain" data-alt="A clean, minimalist logo of an educational institution, primarily using navy blue and gray. The design is geometric and modern, suggesting excellence and technological focus, presented on a subtle parchment or off-white background with professional studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAT1uIDFtSbltkuYbRm237scnl9I6uLS3uDL1SMWwOeTdXYVN9SwHWKauQN4BY3hgbx4GlpJn0bqDJcqV_3Koiv7ZVSck7T3jx4b6srDWdObXlKn0UCZ-uRF_CzDLFlxCkBHBWCGA-Fzle128Z2WoHz4SryZeS1AUQtsiHWEWC26Xwg1lFxXxei5oPB-F2Nzf3BkhYCzWZgMeVCuMlgkaqdF6_gXS4Zb4ljsJXWAMORJkxtQqcz70qvJDv9n1wcX3b8c4srZWpbb2Xo">
+</div>
+<h4 class="font-headline-sm text-headline-sm text-primary mb-1">Fr. Conceicao Rodrigues College of Engineering</h4>
+<div class="flex gap-2 justify-center">
+<span class="font-mono text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">IN-MUM-01</span>
+<span class="font-mono text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Engineering</span>
+</div>
+</div>
+<!-- Principal Section -->
+<div class="mb-xl">
+<div class="flex items-center justify-between mb-sm">
+<h5 class="text-label-md text-on-surface-variant uppercase font-semibold">Principal Identity</h5>
+<button class="text-secondary font-label-md hover:underline">Transfer</button>
+</div>
+<div class="bg-surface-container-low p-md rounded-xl">
+<div class="flex items-center gap-md mb-sm">
+<div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary font-bold">SU</div>
+<div class="flex flex-col">
+<span class="text-body-md text-primary font-bold">Dr. Srija Unnikrishnan</span>
+<span class="text-xs text-on-surface-variant">principal@crce.edu.in</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span class="text-xs font-medium text-green-700">Identity Verified</span>
+</div>
+</div>
+</div>
+<!-- Stats Grid -->
+<div class="mb-xl">
+<h5 class="text-label-md text-on-surface-variant uppercase font-semibold mb-sm">Ecosystem Snapshot</h5>
+<div class="grid grid-cols-2 gap-sm">
+<div class="border border-slate-100 p-sm rounded-lg">
+<span class="text-xs text-outline block mb-1">Students</span>
+<span class="font-mono text-lg font-bold">4,284</span>
+</div>
+<div class="border border-slate-100 p-sm rounded-lg">
+<span class="text-xs text-outline block mb-1">Faculty</span>
+<span class="font-mono text-lg font-bold">86</span>
+</div>
+<div class="border border-slate-100 p-sm rounded-lg">
+<span class="text-xs text-outline block mb-1">Projects</span>
+<span class="font-mono text-lg font-bold">124</span>
+</div>
+<div class="border border-slate-100 p-sm rounded-lg">
+<span class="text-xs text-outline block mb-1">Reviews</span>
+<span class="font-mono text-lg font-bold">4.8/5</span>
+</div>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="flex flex-col gap-sm">
+<button class="w-full text-left p-sm border border-slate-200 rounded-lg hover:bg-slate-50 flex items-center justify-between transition-colors">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline" data-icon="group">group</span>
+<span class="text-body-md font-medium">View Users</span>
+</div>
+<span class="material-symbols-outlined text-outline text-[18px]" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="w-full text-left p-sm border border-slate-200 rounded-lg hover:bg-slate-50 flex items-center justify-between transition-colors">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline" data-icon="assignment">assignment</span>
+<span class="text-body-md font-medium">View Projects</span>
+</div>
+<span class="material-symbols-outlined text-outline text-[18px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="p-lg bg-surface-container-low border-t border-slate-200 flex flex-col gap-sm">
+<button class="w-full bg-primary text-white py-2 rounded-lg font-semibold hover:opacity-90 transition-all">Edit Institution</button>
+<button class="w-full bg-white border border-error text-error py-2 rounded-lg font-semibold hover:bg-error/5 transition-all">Suspend Access</button>
+</div>
+</div>
+<script>
+        function openDrawer() {
+            document.getElementById('details-drawer').classList.remove('translate-x-full');
+            document.getElementById('details-drawer-overlay').classList.add('opacity-100');
+            document.getElementById('details-drawer-overlay').classList.remove('pointer-events-none');
+        }
+
+        function closeDrawer() {
+            document.getElementById('details-drawer').classList.add('translate-x-full');
+            document.getElementById('details-drawer-overlay').classList.remove('opacity-100');
+            document.getElementById('details-drawer-overlay').classList.add('pointer-events-none');
+        }
+
+        // Add some micro-interactions
+        document.querySelectorAll('tr').forEach(row => {
+            row.addEventListener('mousedown', () => {
+                row.classList.add('scale-[0.99]', 'duration-150');
+            });
+            row.addEventListener('mouseup', () => {
+                row.classList.remove('scale-[0.99]');
+            });
+        });
+    </script>
+</body></html>

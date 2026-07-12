@@ -1,0 +1,391 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><svg class="inline-defs-container" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"></svg><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Solution Hub | CampusOS Problem Marketplace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Geist:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=Inter:wght@100..900&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .glass-header {
+            background: rgba(247, 249, 251, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#131b2e",
+                        "surface": "#f7f9fb",
+                        "on-secondary-fixed-variant": "#3323cc",
+                        "secondary": "#4b41e1",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#131b2e",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-secondary-container": "#fffbff",
+                        "primary": "#000000",
+                        "on-secondary-fixed": "#0f0069",
+                        "secondary-fixed": "#e2dfff",
+                        "secondary-fixed-dim": "#c3c0ff",
+                        "on-tertiary-container": "#7073ff",
+                        "outline-variant": "#c6c6cd",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f2f4f6",
+                        "on-background": "#191c1e",
+                        "surface-dim": "#d8dadc",
+                        "tertiary-container": "#07006c",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e6e8ea",
+                        "surface-bright": "#f7f9fb",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "inverse-surface": "#2d3133",
+                        "on-surface": "#191c1e",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary-fixed": "#07006c",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "primary-fixed": "#dae2fd",
+                        "background": "#f7f9fb",
+                        "tertiary": "#000000",
+                        "surface-container-highest": "#e0e3e5",
+                        "secondary-container": "#645efb",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "surface-tint": "#565e74",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#e1e0ff",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#76777d",
+                        "on-surface-variant": "#45464d",
+                        "on-primary-container": "#7c839b",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#bec6e0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "64px",
+                        "lg": "40px",
+                        "container-max": "1440px",
+                        "sm": "16px",
+                        "md": "24px",
+                        "base": "4px",
+                        "xs": "8px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Geist"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "mono": ["Geist"],
+                        "display": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body-md selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- TopAppBar -->
+<header class="sticky top-0 w-full bg-surface/60 backdrop-blur-md border-b border-outline-variant z-50">
+<div class="flex justify-between items-center px-lg py-sm max-w-container-max mx-auto">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary text-2xl">hub</span>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">Solution Hub</h1>
+</div>
+<nav class="hidden md:flex gap-lg items-center">
+
+<a class="text-on-surface-variant hover:text-primary transition-colors font-medium" href="#">Leaderboard</a>
+
+<div class="h-8 w-[1px] bg-outline-variant mx-sm"></div>
+<button class="cursor-pointer active:opacity-70">
+<span class="material-symbols-outlined">search</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-xs">JS</div>
+</nav>
+<button class="md:hidden">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<!-- Sidebar Navigation (Desktop) -->
+<aside class="fixed left-0 top-0 h-full hidden lg:flex flex-col w-64 bg-surface-container-lowest border-r border-outline-variant shadow-sm pt-24 z-40">
+<div class="px-md mb-lg">
+<h3 class="font-headline-sm text-headline-sm font-black text-on-surface mb-md">Navigation</h3>
+<div class="space-y-base">
+<a class="flex items-center gap-md bg-secondary-container text-on-secondary-container rounded-lg px-4 py-2 transition-all" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<span class="font-label-md text-label-md">Marketplace</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-2 hover:bg-surface-container transition-all" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-label-md text-label-md">Leaderboard</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-4 py-2 hover:bg-surface-container transition-all" href="#">
+<span class="material-symbols-outlined">lightbulb</span>
+<span class="font-label-md text-label-md">Campus Solutions</span>
+</a>
+</div>
+</div>
+</aside>
+<main class="lg:pl-64 min-h-screen">
+<div class="max-w-container-max mx-auto px-lg py-lg space-y-xl">
+<!-- Hero Header -->
+<section class="space-y-xs">
+<h2 class="font-display text-display text-primary">Solution Hub</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+                    Discover and deploy faculty-approved innovations built by students. High-performance tools engineered for CRCE's daily operations.
+                </p>
+</section>
+<!-- Search & Filter Bar -->
+<section class="space-y-md">
+<div class="relative max-w-2xl">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-xl pl-12 pr-4 py-4 focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all shadow-sm" placeholder="Search for solutions, tools, or creators..." type="text">
+</div>
+<div class="flex gap-sm overflow-x-auto hide-scrollbar pb-2">
+<button class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-md text-label-md whitespace-nowrap">All Solutions</button>
+<button class="bg-surface-container-high text-on-surface-variant hover:bg-surface-variant px-6 py-2 rounded-full font-label-md text-label-md whitespace-nowrap transition-colors">Artificial Intelligence</button>
+<button class="bg-surface-container-high text-on-surface-variant hover:bg-surface-variant px-6 py-2 rounded-full font-label-md text-label-md whitespace-nowrap transition-colors">Campus Management</button>
+<button class="bg-surface-container-high text-on-surface-variant hover:bg-surface-variant px-6 py-2 rounded-full font-label-md text-label-md whitespace-nowrap transition-colors">Research Tools</button>
+<button class="bg-surface-container-high text-on-surface-variant hover:bg-surface-variant px-6 py-2 rounded-full font-label-md text-label-md whitespace-nowrap transition-colors">Utilities</button>
+<button class="bg-surface-container-high text-on-surface-variant hover:bg-surface-variant px-6 py-2 rounded-full font-label-md text-label-md whitespace-nowrap transition-colors">Student Life</button>
+</div>
+</section>
+<!-- Editor's Choice -->
+<section class="space-y-md">
+
+
+</section>
+<!-- Main Catalog -->
+<section class="space-y-md">
+<h3 class="font-headline-md text-headline-md text-primary">Live Solutions</h3>
+<div class="space-y-md">
+<!-- Catalog Item 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-md md:p-lg flex flex-col md:flex-row items-start md:items-center gap-md md:gap-lg hover:border-outline transition-all group">
+<img alt="App Icon" class="w-16 h-16 rounded-xl object-cover bg-surface-container shadow-sm" data-alt="A professional student portal application icon featuring a stylized crest and a digital network pattern. The color palette consists of elegant charcoal and vibrant indigo. The design is sleek, modern, and high-contrast, conveying academic authority and technological precision in a corporate dashboard style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsdO_d0ZRDjvCrZBVYvhSwZ1XegAA3l-dgj96OQNt0V5LmUyG59RqKSZCHo5kA0tEMYP5bwGD7SvIpyM0XHb9oPXEU_vA42GwGiWZMLuaHswcauiJUnQT_xZHYMk5C2kyYkJKPYrUyBjM_d6cpcEyWoDE4TATcaFQrZjJ02dc378XDxG1mfIuzFg2LVKgNjkpGYgJHHHZyZ0LcTm_O_nm9UhD866sWQtVnxHgweEQIlIvvInTZ78a-pHRkTsgMvXdm8QNBEQOYy8JU">
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-xs flex-wrap">
+<h4 class="font-headline-sm text-headline-sm text-on-surface truncate">Attendance Ledger Pro</h4>
+<span class="text-green-600"><span class="material-symbols-outlined text-lg">check_circle</span></span>
+</div>
+<p class="text-on-surface-variant text-body-md line-clamp-1">Automated RFID-sync for student attendance tracking and predictive burnout analytics.</p>
+<div class="flex gap-md mt-2">
+<span class="text-on-surface-variant text-xs flex items-center gap-1"><span class="material-symbols-outlined text-xs">group</span> 1.2k Active Users</span>
+
+<span class="hidden md:inline text-outline text-xs">• Dev: Team Alpha</span>
+<span class="hidden md:inline text-outline text-xs">• Mentor: Dr. Rajesh K.</span>
+</div>
+</div>
+<div class="flex items-center gap-sm w-full md:w-auto justify-end">
+<div class="flex gap-1">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" title="Source Code">
+<span class="material-symbols-outlined">code</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" title="Documentation">
+<span class="material-symbols-outlined">description</span>
+</button>
+</div>
+<button class="bg-secondary text-on-secondary px-6 py-2.5 rounded-lg font-bold hover:bg-secondary/90 transition-all shadow-sm active:scale-[0.98]">Open App</button>
+</div>
+</div>
+<!-- Catalog Item 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-md md:p-lg flex flex-col md:flex-row items-start md:items-center gap-md md:gap-lg hover:border-outline transition-all group">
+<img alt="App Icon" class="w-16 h-16 rounded-xl object-cover bg-surface-container shadow-sm" data-alt="A futuristic and minimal icon for a campus resource analytics tool. The icon shows a set of three vertical bars of varying heights, encased in a sleek circular frame. The palette uses deep obsidian and sharp neon violet, creating a sense of advanced data science and technical sophistication." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB95SRbIKE81Zbz049plB2BLQlrWHvTLafD8O4Z5pjXA6E8zX3TEDPK0qWTpzDr7k_4QhQWTkRSdbVnacaX_6X7Hatxd1038DF0q69MqL-meKKfmmW4WFzNhskJDQ9UtyQ7jLm2rgHBPO-pt3MJqDEfgWY91xiG3DRFuz66VJfmHgv6yyqcn5YrLnRgx3weVtd0t3DESf9GxpVXTAJkPDEWQdItf2Z8tMysxZ-VTLmD79qjR2fvE9Cu21YhG7W2RJ1sbZSM0VjDvTAp">
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-xs flex-wrap">
+<h4 class="font-headline-sm text-headline-sm text-on-surface truncate">Res-Analytics Engine</h4>
+<span class="text-green-600"><span class="material-symbols-outlined text-lg">check_circle</span></span>
+</div>
+<p class="text-on-surface-variant text-body-md line-clamp-1">Visual dashboard for library resource allocation and high-traffic zone heatmaps.</p>
+<div class="flex gap-md mt-2">
+<span class="text-on-surface-variant text-xs flex items-center gap-1"><span class="material-symbols-outlined text-xs">group</span> 850 Active Users</span>
+
+<span class="hidden md:inline text-outline text-xs">• Dev: QuantumBits</span>
+<span class="hidden md:inline text-outline text-xs">• Mentor: Prof. Meera S.</span>
+</div>
+</div>
+<div class="flex items-center gap-sm w-full md:w-auto justify-end">
+<div class="flex gap-1">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" title="Source Code">
+<span class="material-symbols-outlined">code</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" title="Documentation">
+<span class="material-symbols-outlined">description</span>
+</button>
+</div>
+<button class="bg-secondary text-on-secondary px-6 py-2.5 rounded-lg font-bold hover:bg-secondary/90 transition-all shadow-sm active:scale-[0.98]">Open App</button>
+</div>
+</div>
+<!-- Catalog Item 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-md md:p-lg flex flex-col md:flex-row items-start md:items-center gap-md md:gap-lg hover:border-outline transition-all group">
+<img alt="App Icon" class="w-16 h-16 rounded-xl object-cover bg-surface-container shadow-sm" data-alt="A clean, secure-looking app icon for a student ID wallet. It features a stylized digital card with a shield emblem. The style is inspired by modern banking apps, utilizing a crisp white background with accents of emerald green and slate blue, emphasizing trust and technical reliability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYXUUqyCh63SCd0HQfpfOEmMX7rZJwvMkBWHErzllpqPpzBOBsF8FWalFWGSR_o_gKLWqLR5b1LyBIUpwu9hHu20S9IromeTHij6FZDgYQd70z5S01NnstBhOfRYVV1Kc8yWhZpAZadJUKjm8SKrRrWz6m8v8uyNl8d0C4yD99-Xf1jnyw1t7z-_2uF2jthRmrLCNmrQpL0qzeCEjiO0HA4E2USZlE3yLKKYAyG8YgZa0A12HrNocjSkaKI2AXwArP3XFEoOiouKhB">
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-xs flex-wrap">
+<h4 class="font-headline-sm text-headline-sm text-on-surface truncate">CRCE Digital Vault</h4>
+<span class="text-green-600"><span class="material-symbols-outlined text-lg">check_circle</span></span>
+</div>
+<p class="text-on-surface-variant text-body-md line-clamp-1">Secure encrypted storage for official certificates, identity documents, and transcripts.</p>
+<div class="flex gap-md mt-2">
+<span class="text-on-surface-variant text-xs flex items-center gap-1"><span class="material-symbols-outlined text-xs">group</span> 3.1k Active Users</span>
+
+<span class="hidden md:inline text-outline text-xs">• Dev: SecureLayer</span>
+<span class="hidden md:inline text-outline text-xs">• Mentor: Dr. Amit T.</span>
+</div>
+</div>
+<div class="flex items-center gap-sm w-full md:w-auto justify-end">
+<div class="flex gap-1">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" title="Source Code">
+<span class="material-symbols-outlined">code</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" title="Documentation">
+<span class="material-symbols-outlined">description</span>
+</button>
+</div>
+<button class="bg-secondary text-on-secondary px-6 py-2.5 rounded-lg font-bold hover:bg-secondary/90 transition-all shadow-sm active:scale-[0.98]">Open App</button>
+</div>
+</div>
+<!-- Catalog Item 4 -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-md md:p-lg flex flex-col md:flex-row items-start md:items-center gap-md md:gap-lg hover:border-outline transition-all group">
+<img alt="App Icon" class="w-16 h-16 rounded-xl object-cover bg-surface-container shadow-sm" data-alt="A bright and friendly app icon for a student community platform. The icon features a stylized speech bubble with a vibrant light-bulb inside. The aesthetic is clean and modern, using a color palette of soft sky blue and sunny yellow against a white backdrop, designed to feel approachable yet technically robust." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQXaadQikMbCPDT6BsD3Ww6gxRCzzydIQM9xpPvX2lgah6KEWk6R2OC5e10a9FiZ2Q_xQyw4ZApOHGB7FwRa7Z7HSAVbbJzOnNbtLG7XrBKcHCko6Gpcnk4LZ7JKIuZbn8dLsfa4vln7yv9vH5cEHOUIJskF-Te_HFRljz_JeNunH2c9AcWZOmgsaemscBto4miJmINvpTn94sqh2sDmC948weqigDYX4znl3nEMIwDKGiYVmgbyUjbnsN_IbAisC13SsVNnrHmoKP">
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-xs flex-wrap">
+<h4 class="font-headline-sm text-headline-sm text-on-surface truncate">Peer-to-Peer Hub</h4>
+<span class="text-green-600"><span class="material-symbols-outlined text-lg">check_circle</span></span>
+</div>
+<p class="text-on-surface-variant text-body-md line-clamp-1">Decentralized marketplace for trading study materials, notes, and local services.</p>
+<div class="flex gap-md mt-2">
+<span class="text-on-surface-variant text-xs flex items-center gap-1"><span class="material-symbols-outlined text-xs">group</span> 2.4k Active Users</span>
+
+<span class="hidden md:inline text-outline text-xs">• Dev: SocialNode</span>
+<span class="hidden md:inline text-outline text-xs">• Mentor: Prof. Anita D.</span>
+</div>
+</div>
+<div class="flex items-center gap-sm w-full md:w-auto justify-end">
+<div class="flex gap-1">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" title="Source Code">
+<span class="material-symbols-outlined">code</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" title="Documentation">
+<span class="material-symbols-outlined">description</span>
+</button>
+</div>
+<button class="bg-secondary text-on-secondary px-6 py-2.5 rounded-lg font-bold hover:bg-secondary/90 transition-all shadow-sm active:scale-[0.98]">Open App</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom CTA -->
+<section class="py-xl">
+<div class="bg-primary-container text-on-secondary-container rounded-2xl p-xl flex flex-col items-center text-center space-y-md shadow-2xl relative overflow-hidden">
+<!-- Subtle background decoration -->
+<div class="absolute inset-0 opacity-10">
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+<defs>
+<pattern height="10" id="grid" patternUnits="userSpaceOnUse" width="10">
+<path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" stroke-width="0.5"></path>
+</pattern>
+</defs>
+<rect fill="url(#grid)" height="100" width="100"></rect>
+</svg>
+</div>
+<h3 class="font-display text-headline-lg text-white relative z-10">Have a better solution?</h3>
+<p class="text-on-primary-container max-w-xl relative z-10">
+                        The Marketplace is always open for fresh perspectives. Browse unsolved challenges and start building the future of CRCE today.
+                    </p>
+<a class="inline-flex items-center gap-md bg-white text-primary px-8 py-4 rounded-xl font-bold hover:bg-secondary-fixed transition-all group relative z-10" href="#">
+                        Explore Open Problems
+                        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+</section>
+</div>
+<!-- Footer -->
+<footer class="w-full py-xl bg-surface-dim border-t border-outline-variant">
+<div class="flex flex-col md:flex-row justify-between items-center px-lg max-w-container-max mx-auto gap-md">
+<div class="flex items-center gap-md">
+<span class="font-mono text-mono text-on-surface font-bold tracking-tighter">CAMPUSOS.v1</span>
+<span class="text-on-surface-variant text-body-md">© 2024 Problem Marketplace.</span>
+</div>
+<div class="flex gap-lg">
+<a class="text-on-surface-variant hover:underline hover:text-on-surface transition-opacity font-medium" href="#">Privacy</a>
+<a class="text-on-surface-variant hover:underline hover:text-on-surface transition-opacity font-medium" href="#">Terms</a>
+<a class="text-on-surface-variant hover:underline hover:text-on-surface transition-opacity font-medium" href="#">API Docs</a>
+<a class="text-on-surface-variant hover:underline hover:text-on-surface transition-opacity font-medium" href="#">Support</a>
+</div>
+</div>
+</footer>
+</main>
+<!-- Mobile Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 md:hidden bg-surface-container-lowest border-t border-outline-variant px-md py-xs flex justify-around items-center z-50">
+<a class="flex flex-col items-center text-primary" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<span class="text-[10px] font-bold">Market</span>
+</a>
+<a class="flex flex-col items-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="text-[10px]">Stats</span>
+</a>
+<a class="flex flex-col items-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">lightbulb</span>
+<span class="text-[10px]">Ideas</span>
+</a>
+<a class="flex flex-col items-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="text-[10px]">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions and effects
+        document.querySelectorAll('.group').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                // Subtle scale or highlight if needed beyond CSS
+            });
+        });
+
+        // Search highlight logic placeholder
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('input', (e) => {
+            console.log('Searching for:', e.target.value);
+            // In a real app, this would filter the catalog list
+        });
+    </script>
+
+
+</body></html>

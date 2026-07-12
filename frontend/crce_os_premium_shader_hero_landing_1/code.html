@@ -1,0 +1,896 @@
+<html class="light" lang="en" style=""><head></head><body class="antialiased text-on-surface">```html
+
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CRCE OS | The Campus Operating System</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#000000",
+                        "inverse-primary": "#bec6e0",
+                        "outline": "#76777d",
+                        "on-secondary-fixed": "#0f0069",
+                        "tertiary": "#000000",
+                        "surface-bright": "#f7f9fb",
+                        "background": "#f7f9fb",
+                        "on-surface": "#191c1e",
+                        "on-primary-fixed": "#131b2e",
+                        "on-primary-container": "#7c839b",
+                        "surface-container-high": "#e6e8ea",
+                        "surface-container-low": "#f2f4f6",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-container-highest": "#e0e3e5",
+                        "tertiary-fixed": "#e1e0ff",
+                        "surface-dim": "#d8dadc",
+                        "primary-container": "#131b2e",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "tertiary-container": "#07006c",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#e2dfff",
+                        "inverse-surface": "#2d3133",
+                        "primary-fixed-dim": "#bec6e0",
+                        "surface": "#f7f9fb",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "secondary": "#4b41e1",
+                        "on-tertiary-container": "#7073ff",
+                        "on-background": "#191c1e",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed": "#07006c",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#fffbff",
+                        "surface-tint": "#565e74",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#645efb",
+                        "secondary-fixed-dim": "#c3c0ff",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "primary-fixed": "#dae2fd",
+                        "outline-variant": "#c6c6cd",
+                        "surface-container": "#eceef0",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#3323cc",
+                        "on-surface-variant": "#45464d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "40px",
+                        "md": "24px",
+                        "container-max": "1440px",
+                        "sm": "16px",
+                        "base": "4px",
+                        "xs": "8px",
+                        "xl": "64px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "mono": ["Geist"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "display": ["Inter"],
+                        "label-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                        "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-nav {
+            background: rgba(247, 249, 251, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .text-gradient {
+            background: linear-gradient(180deg, #000 0%, #4b41e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stripe-border {
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        .product-preview-mask {
+            mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+        }
+        
+        /* Dark nav adjustments when over black hero */
+        .nav-scrolled {
+            background: rgba(247, 249, 251, 0.8);
+            border-bottom-color: rgba(0, 0, 0, 0.1);
+        }
+        .nav-scrolled .nav-text {
+            color: #191c1e;
+        }
+        .nav-transparent {
+            background: transparent;
+            border-bottom-color: transparent;
+        }
+        .nav-transparent .nav-text {
+            color: #ffffff;
+        }
+        .nav-transparent .nav-logo-text {
+            color: #ffffff;
+        }
+        .nav-transparent .nav-logo-icon {
+            color: #ffffff;
+        }
+        .nav-transparent .nav-link-active {
+            border-color: #ffffff;
+        }
+    </style>
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 glass-nav border-b border-outline-variant transition-all duration-300 nav-transparent" id="main-nav">
+<div class="max-w-container-max mx-auto px-md h-xl flex items-center justify-between">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined nav-logo-icon" style='font-variation-settings: "FILL" 1;'>school</span>
+<span class="font-headline-md text-headline-md font-bold nav-logo-text">CRCE CAMPUSCONNECT</span>
+</div>
+<button class="lg:hidden p-xs text-white" onclick="toggleMenu()">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="hidden lg:flex items-center gap-md">
+<a class="nav-text font-bold border-b-2 nav-link-active py-xs" href="#">Home</a>
+<a class="nav-text font-medium opacity-80 hover:opacity-100 transition-all" href="#">About</a>
+<a class="nav-text font-medium opacity-80 hover:opacity-100 transition-all" href="#">Open Problems</a>
+<a class="nav-text font-medium opacity-80 hover:opacity-100 transition-all" href="#">Leaderboard</a>
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+<span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+</span>
+<span class="text-emerald-400 font-medium text-body-md">4 SaaS Deployed</span>
+</div><button class="bg-white text-black px-md py-xs rounded-lg font-medium hover:opacity-90 transition-opacity">Login</button>
+</div>
+</div>
+</nav>
+<!-- NavigationDrawer (Mobile) -->
+<div class="fixed inset-0 z-[60] bg-surface hidden" id="mobile-menu">
+<div class="flex flex-col h-full p-md">
+<div class="flex justify-between items-center mb-xl">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">CRCE OS</span>
+<button class="" onclick="toggleMenu()"><span class="material-symbols-outlined">close</span></button>
+</div>
+<div class="flex flex-col gap-sm">
+<a class="flex items-center gap-sm p-sm bg-secondary-container text-on-secondary-container rounded-lg" href="#">
+<span class="material-symbols-outlined">info</span>
+<span class="font-body-md text-body-md">About</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span class="font-body-md text-body-md">Open Problems</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-body-md text-body-md">Campus Impact</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-body-md text-body-md">Leaderboard</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg" href="#">
+<span class="material-symbols-outlined">verified</span>
+<span class="font-body-md text-body-md">Success Stories</span>
+</a>
+<hr class="border-outline-variant my-xs"/>
+<button class="w-full bg-primary text-on-primary p-sm rounded-lg font-bold flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined">login</span>
+                    Login
+                </button>
+</div>
+</div>
+</div>
+<main>
+<!-- New Premium Hero Section -->
+<section class="relative w-full h-screen overflow-hidden bg-black">
+<!-- STITCH_SHADER_START:ANIMATION_9 class="absolute inset-0 w-full h-full object-cover touch-none" -->
+<div class="absolute inset-0 w-full h-full object-cover touch-none" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_9" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_9');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `#version 300 es
+precision highp float;
+out vec4 O;
+uniform vec2 u_resolution;
+uniform float u_time;
+uniform vec2 u_mouse;
+uniform int u_pointerCount;
+
+#define FC gl_FragCoord.xy
+#define T u_time
+#define R u_resolution
+#define MN min(R.x,R.y)
+
+float rnd(vec2 p) {
+  p=fract(p*vec2(12.9898,78.233));
+  p+=dot(p,p+34.56);
+  return fract(p.x*p.y);
+}
+
+float noise(in vec2 p) {
+  vec2 i=floor(p), f=fract(p), u=f*f*(3.-2.*f);
+  float
+  a=rnd(i),
+  b=rnd(i+vec2(1,0)),
+  c=rnd(i+vec2(0,1)),
+  d=rnd(i+1.);
+  return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);
+}
+
+float fbm(vec2 p) {
+  float t=.0, a=1.; mat2 m=mat2(1.,-.5,.2,1.2);
+  for (int i=0; i<5; i++) {
+    t+=a*noise(p);
+    p*=2.*m;
+    a*=.5;
+  }
+  return t;
+}
+
+float clouds(vec2 p) {
+	float d=1., t=.0;
+	for (float i=.0; i<3.; i++) {
+		float a=d*fbm(i*10.+p.x*.2+.2*(1.+i)*p.y+d+i*i+p);
+		t=mix(t,d,a);
+		d=a;
+		p*=2./(i+1.);
+	}
+	return t;
+}
+
+void main(void) {
+	vec2 uv=(FC-.5*R)/MN,st=uv*vec2(2,1);
+	vec3 col=vec3(0);
+	float bg=clouds(vec2(st.x+T*.5,-st.y));
+	uv*=1.-.3*(sin(T*.2)*.5+.5);
+	for (float i=1.; i<12.; i++) {
+		uv+=.1*cos(i*vec2(.1+.01*i, .8)+i*i+T*.5+.1*uv.x);
+		vec2 p=uv;
+		float d=length(p);
+		col+=.00125/d*(cos(sin(i)*vec3(1,2,3))+1.);
+		float b=noise(i+p+bg*1.731);
+		col+=.002*b/length(max(p,vec2(b*p.x*.02,p.y)));
+		col=mix(col,vec3(bg*.25,bg*.137,bg*.05),d);
+	}
+	O=vec4(col,1);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_9 -->
+<div class="absolute inset-0 z-10 flex flex-col items-center justify-center text-white text-center px-4">
+<!-- Trust Badge -->
+<div class="animate-fade-in-up inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-300/30 mb-8 backdrop-blur-sm" style="animation-delay: 0.2s;">
+<span class="text-sm font-medium text-orange-200">Trusted by forward-thinking teams. ✨</span>
+</div>
+<!-- Headline -->
+<h1 class="flex flex-col gap-2">
+<span class="animate-fade-in-up text-5xl md:text-7xl font-bold bg-gradient-to-r from-orange-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent leading-tight" style="animation-delay: 0.4s;">
+                Solve Real Problems.
+            </span>
+<span class="animate-fade-in-up text-5xl md:text-7xl font-bold bg-gradient-to-r from-yellow-300 via-orange-400 to-red-400 bg-clip-text text-transparent leading-tight" style="animation-delay: 0.6s;">
+                Build Real Impact.
+            </span>
+</h1>
+<!-- Subtitle -->
+<p class="animate-fade-in-up text-lg text-orange-100/90 max-w-2xl mt-8 mb-10" style="animation-delay: 0.8s;">
+            The Campus Operating System for CRCE. Connect students, faculty, and administration through real-world innovation.
+        </p>
+<!-- CTA Buttons -->
+<div class="animate-fade-in-up flex flex-col sm:flex-row gap-4" style="animation-delay: 1s;">
+<button class="px-8 py-4 bg-gradient-to-r from-orange-500 to-yellow-500 text-black rounded-full font-semibold text-lg hover:scale-105 transition-transform shadow-lg shadow-orange-500/20">
+                Login to Portal
+            </button>
+<button class="px-8 py-4 bg-orange-500/10 border border-orange-300/30 text-orange-100 rounded-full font-semibold text-lg backdrop-blur-sm hover:bg-orange-500/20 transition-all">
+                Explore Problems
+            </button>
+</div>
+</div>
+</section>
+<!-- About Pillars -->
+<section class="py-xl px-md max-w-container-max mx-auto">
+<div class="space-y-xl">
+<!-- How CRCE OS Works -->
+<div class="py-lg">
+<h3 class="font-headline-lg text-center mb-lg">How CRCE OS Works</h3>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-lg">
+<div class="relative group cursor-pointer transition-transform duration-300 hover:scale-105 flex flex-col items-center justify-center p-md">
+<div class="absolute inset-0 rounded-xl bg-white/10 shadow-[0_0_6px_rgba(0,0,0,0.03),0_2px_6px_rgba(0,0,0,0.08),inset_3px_3px_0.5px_-3px_rgba(0,0,0,0.9),inset_-3px_-3px_0.5px_-3px_rgba(0,0,0,0.85),inset_1px_1px_1px_-0.5px_rgba(0,0,0,0.6),inset_-1px_-1px_1px_-0.5px_rgba(0,0,0,0.6),inset_0_0_6px_6px_rgba(0,0,0,0.12),inset_0_0_2px_2px_rgba(0,0,0,0.06),0_0_12px_rgba(255,255,255,0.15)]"></div>
+<div class="relative z-10 flex flex-col items-center gap-xs">
+<div class="w-12 h-12 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">search</span>
+</div>
+<div class="font-bold text-on-surface">Discover</div>
+</div>
+</div>
+<div class="relative group cursor-pointer transition-transform duration-300 hover:scale-105 flex flex-col items-center justify-center p-md">
+<div class="absolute inset-0 rounded-xl bg-white/10 shadow-[0_0_6px_rgba(0,0,0,0.03),0_2px_6px_rgba(0,0,0,0.08),inset_3px_3px_0.5px_-3px_rgba(0,0,0,0.9),inset_-3px_-3px_0.5px_-3px_rgba(0,0,0,0.85),inset_1px_1px_1px_-0.5px_rgba(0,0,0,0.6),inset_-1px_-1px_1px_-0.5px_rgba(0,0,0,0.6),inset_0_0_6px_6px_rgba(0,0,0,0.12),inset_0_0_2px_2px_rgba(0,0,0,0.06),0_0_12px_rgba(255,255,255,0.15)]"></div>
+<div class="relative z-10 flex flex-col items-center gap-xs">
+<div class="w-12 h-12 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<div class="font-bold text-on-surface">Collaborate</div>
+</div>
+</div>
+<div class="relative group cursor-pointer transition-transform duration-300 hover:scale-105 flex flex-col items-center justify-center p-md">
+<div class="absolute inset-0 rounded-xl bg-white/10 shadow-[0_0_6px_rgba(0,0,0,0.03),0_2px_6px_rgba(0,0,0,0.08),inset_3px_3px_0.5px_-3px_rgba(0,0,0,0.9),inset_-3px_-3px_0.5px_-3px_rgba(0,0,0,0.85),inset_1px_1px_1px_-0.5px_rgba(0,0,0,0.6),inset_-1px_-1px_1px_-0.5px_rgba(0,0,0,0.6),inset_0_0_6px_6px_rgba(0,0,0,0.12),inset_0_0_2px_2px_rgba(0,0,0,0.06),0_0_12px_rgba(255,255,255,0.15)]"></div>
+<div class="relative z-10 flex flex-col items-center gap-xs">
+<div class="w-12 h-12 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">build</span>
+</div>
+<div class="font-bold text-on-surface">Build</div>
+</div>
+</div>
+<div class="relative group cursor-pointer transition-transform duration-300 hover:scale-105 flex flex-col items-center justify-center p-md">
+<div class="absolute inset-0 rounded-xl bg-white/10 shadow-[0_0_6px_rgba(0,0,0,0.03),0_2px_6px_rgba(0,0,0,0.08),inset_3px_3px_0.5px_-3px_rgba(0,0,0,0.9),inset_-3px_-3px_0.5px_-3px_rgba(0,0,0,0.85),inset_1px_1px_1px_-0.5px_rgba(0,0,0,0.6),inset_-1px_-1px_1px_-0.5px_rgba(0,0,0,0.6),inset_0_0_6px_6px_rgba(0,0,0,0.12),inset_0_0_2px_2px_rgba(0,0,0,0.06),0_0_12px_rgba(255,255,255,0.15)]"></div>
+<div class="relative z-10 flex flex-col items-center gap-xs">
+<div class="w-12 h-12 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<div class="font-bold text-on-surface">Earn</div>
+</div>
+</div>
+<div class="relative group cursor-pointer transition-transform duration-300 hover:scale-110 flex flex-col items-center justify-center p-md">
+<div class="absolute inset-0 rounded-xl bg-white/10 shadow-[0_0_6px_rgba(0,0,0,0.03),0_2px_6px_rgba(0,0,0,0.08),inset_3px_3px_0.5px_-3px_rgba(0,0,0,0.9),inset_-3px_-3px_0.5px_-3px_rgba(0,0,0,0.85),inset_1px_1px_1px_-0.5px_rgba(0,0,0,0.6),inset_-1px_-1px_1px_-0.5px_rgba(0,0,0,0.6),inset_0_0_6px_6px_rgba(0,0,0,0.12),inset_0_0_2px_2px_rgba(0,0,0,0.06),0_0_12px_rgba(255,255,255,0.15)]"></div>
+<div class="relative z-10 flex flex-col items-center gap-xs">
+<div class="w-12 h-12 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined">folder_shared</span>
+</div>
+<div class="font-bold text-on-surface group-hover:text-secondary transition-colors">Portfolio</div>
+</div>
+</div>
+<div class="relative group cursor-pointer transition-transform duration-300 hover:scale-105 flex flex-col items-center justify-center p-md">
+<div class="absolute inset-0 rounded-xl bg-white/10 shadow-[0_0_6px_rgba(0,0,0,0.03),0_2px_6px_rgba(0,0,0,0.08),inset_3px_3px_0.5px_-3px_rgba(0,0,0,0.9),inset_-3px_-3px_0.5px_-3px_rgba(0,0,0,0.85),inset_1px_1px_1px_-0.5px_rgba(0,0,0,0.6),inset_-1px_-1px_1px_-0.5px_rgba(0,0,0,0.6),inset_0_0_6px_6px_rgba(0,0,0,0.12),inset_0_0_2px_2px_rgba(0,0,0,0.06),0_0_12px_rgba(255,255,255,0.15)]"></div>
+<div class="relative z-10 flex flex-col items-center gap-xs">
+<div class="w-12 h-12 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">trending_up</span>
+</div>
+<div class="font-bold text-on-surface">Impact</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Why CRCE OS? -->
+<div class="py-lg">
+<h3 class="font-headline-lg text-center mb-lg">Why CRCE OS?</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<div class="flex gap-sm items-start">
+<span class="material-symbols-outlined text-secondary">check_circle</span>
+<div>
+<div class="font-bold">Real-World Experience</div>
+<p class="text-on-surface-variant font-body-md">Work on actual problems faced by the campus and industry partners.</p>
+</div>
+</div>
+<div class="flex gap-sm items-start">
+<span class="material-symbols-outlined text-secondary">check_circle</span>
+<div>
+<div class="font-bold">Verified Skillset</div>
+<p class="text-on-surface-variant font-body-md">Build a portfolio backed by faculty-verified project completions.</p>
+</div>
+</div>
+<div class="flex gap-sm items-start">
+<span class="material-symbols-outlined text-secondary">check_circle</span>
+<div>
+<div class="font-bold">Academic Integration</div>
+<p class="text-on-surface-variant font-body-md">Earn credits that contribute directly to your academic transcript.</p>
+</div>
+</div>
+<div class="flex gap-sm items-start">
+<span class="material-symbols-outlined text-secondary">check_circle</span>
+<div>
+<div class="font-bold">Mentorship Access</div>
+<p class="text-on-surface-variant font-body-md">Direct guidance from experienced faculty and industry experts.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Open Problems -->
+<section class="py-xl px-md max-w-container-max mx-auto">
+<div class="flex justify-between items-end mb-lg">
+<div>
+<h2 class="font-headline-lg text-headline-lg mb-xs">Open Problems</h2>
+<p class="text-on-surface-variant">Available challenges waiting for innovation.</p>
+</div>
+<button class="hidden md:flex text-secondary font-bold items-center gap-xs">
+                    View All <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+<!-- Problem Card 1 -->
+<div class="bg-white p-lg rounded-xl stripe-border hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-md">
+<span class="bg-green-100 text-green-800 px-sm py-1 rounded-full font-label-md text-label-md uppercase">High Priority</span>
+<span class="font-mono text-label-md text-on-surface-variant">ID: #402</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm mb-sm group-hover:text-secondary transition-colors">Automated Attendance OS</h4>
+<p class="font-body-md text-on-surface-variant mb-md">System for real-time tracking using geo-fencing and biometric authentication.</p>
+<div class="flex flex-wrap gap-xs mb-lg">
+<span class="bg-surface-container px-sm py-1 rounded text-label-md font-label-md">IT Dept</span>
+<span class="bg-surface-container px-sm py-1 rounded text-label-md font-label-md">4 Credits</span>
+<span class="bg-surface-container px-sm py-1 rounded text-label-md font-label-md">Hard</span>
+</div>
+<button class="w-full bg-primary text-on-primary py-sm rounded-lg font-bold">Apply Now</button>
+</div>
+<!-- Problem Card 2 -->
+<div class="bg-white p-lg rounded-xl stripe-border hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-md">
+<span class="bg-blue-100 text-blue-800 px-sm py-1 rounded-full font-label-md text-label-md uppercase">Active</span>
+<span class="font-mono text-label-md text-on-surface-variant">ID: #388</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm mb-sm group-hover:text-secondary transition-colors">Lab Resource Scheduler</h4>
+<p class="font-body-md text-on-surface-variant mb-md">Web platform to manage lab inventory and student slot booking dynamically.</p>
+<div class="flex flex-wrap gap-xs mb-lg">
+<span class="bg-surface-container px-sm py-1 rounded text-label-md font-label-md">Computers</span>
+<span class="bg-surface-container px-sm py-1 rounded text-label-md font-label-md">2 Credits</span>
+<span class="bg-surface-container px-sm py-1 rounded text-label-md font-label-md">Medium</span>
+</div>
+<button class="w-full bg-primary text-on-primary py-sm rounded-lg font-bold">Apply Now</button>
+</div>
+<!-- Problem Card 3 -->
+<div class="bg-white p-lg rounded-xl stripe-border hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-md">
+<span class="bg-purple-100 text-purple-800 px-sm py-1 rounded-full font-label-md text-label-md uppercase">Complex</span>
+<span class="font-mono text-label-md text-on-surface-variant">ID: #412</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm mb-sm group-hover:text-secondary transition-colors">Smart Energy Monitor</h4>
+<p class="font-body-md text-on-surface-variant mb-md">IoT solution for monitoring and optimizing electricity usage in Building A.</p>
+<div class="flex flex-wrap gap-xs mb-lg">
+<span class="bg-surface-container px-sm py-1 rounded text-label-md font-label-md">Electronics</span>
+<span class="bg-surface-container px-sm py-1 rounded text-label-md font-label-md">6 Credits</span>
+<span class="bg-surface-container px-sm py-1 rounded text-label-md font-label-md">Expert</span>
+</div>
+<button class="w-full bg-primary text-on-primary py-sm rounded-lg font-bold">Apply Now</button>
+</div>
+</div>
+<button class="md:hidden w-full mt-lg border border-outline-variant py-md rounded-lg font-bold">View All Problems</button>
+</section>
+<!-- Campus Impact Stats -->
+<section class="bg-primary text-on-primary py-xl">
+<div class="max-w-container-max mx-auto px-md overflow-x-auto no-scrollbar">
+<div class="flex justify-between gap-xl min-w-max md:min-w-0">
+<div class="flex flex-col">
+<span class="font-display text-headline-lg-mobile md:text-headline-lg mb-xs">124+</span>
+<span class="font-label-md text-on-primary-container uppercase">Problems Solved</span>
+</div>
+<div class="flex flex-col">
+<span class="font-display text-headline-lg-mobile md:text-headline-lg mb-xs">82</span>
+<span class="font-label-md text-on-primary-container uppercase">Projects Built</span>
+</div>
+<div class="flex flex-col">
+<span class="font-display text-headline-lg-mobile md:text-headline-lg mb-xs">45</span>
+<span class="font-label-md text-on-primary-container uppercase">Faculty Mentors</span>
+</div>
+<div class="flex flex-col">
+<span class="font-display text-headline-lg-mobile md:text-headline-lg mb-xs">600+</span>
+<span class="font-label-md text-on-primary-container uppercase">Students</span>
+</div>
+<div class="flex flex-col">
+<span class="font-display text-headline-lg-mobile md:text-headline-lg mb-xs">420</span>
+<span class="font-label-md text-on-primary-container uppercase">Credits Earned</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Leaderboard Preview -->
+<section class="py-xl px-md max-w-container-max mx-auto">
+<h2 class="font-headline-lg text-headline-lg mb-lg text-center">Leaderboard Highlights</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<div class="bg-white rounded-xl stripe-border p-md">
+<h3 class="font-label-md uppercase text-on-surface-variant mb-md border-b pb-xs">Top Students</h3>
+<div class="space-y-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 bg-surface-container rounded-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a college student against a minimalist gray background, capturing a look of determination and intelligence, lit with soft natural light, consistent with a clean academic UI aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7QYcNuA-J9lnlQekevfoce5Se55FxE7zD496v8Ro-HuZ4r9Xt_51VHmpa-QX95-JVXLIQ274roKgI_n_LK5f9yPVr1iL8ffN_gBQ_sSgb5zer_K8LypaSHUgwMUic6WSeZKn2t9lg5mzYsiueOYcxIe2dXw8O8jCZOdhDUwtTn98dcyri-qDCCizR-tp7fXv6edu_2A1zpB0DdvLTrQSrwlvXyD_v68ri_efMUF45fasV2qNtjOQejf_ZOQ5KcMn8MlpYEd7LPeA9"/>
+</div>
+<span class="font-body-md font-medium">Aryan S.</span>
+</div>
+<span class="font-mono text-secondary font-bold">1,240 pts</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 bg-surface-container rounded-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A portrait of a young female engineering student in a modern workspace, with a focused expression, wearing professional attire, set against a blurred high-tech background with soft blue tones, embodying technical excellence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdRxby0sUlF9lyW_OcWIMDrftQ0rTTHcEegCXZewHvnN_21eT8JHs-9J3I1FP4a4oHrlAsG-x0QfsToJTT6kFBk2TsSerekLhG88PdQw4BzMazJjhHm0HrrlZrWcTHaB5DHEfLHeI_3vcz0M8HklUGwynJEt4ezMuF-ikoanJ_GWbrc6lmlr2uED3wDIK-DkDb7Ql_oCuuCRbYSGH-xiMW7X8UzkND-G_Sx2NyhjCYj9w55FdUf3nYpWhFh_cW-XGAJmQYmV3ayG0u"/>
+</div>
+<span class="font-body-md font-medium">Siddhi K.</span>
+</div>
+<span class="font-mono text-secondary font-bold">1,120 pts</span>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-xl stripe-border p-md">
+<h3 class="font-label-md uppercase text-on-surface-variant mb-md border-b pb-xs">Top Departments</h3>
+<div class="space-y-sm">
+<div class="flex items-center justify-between">
+<span class="font-body-md font-medium">Computer Eng.</span>
+<span class="font-mono text-secondary font-bold">4.8 Impact</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-body-md font-medium">Electronics</span>
+<span class="font-mono text-secondary font-bold">4.2 Impact</span>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-xl stripe-border p-md">
+<h3 class="font-label-md uppercase text-on-surface-variant mb-md border-b pb-xs">Top Mentors</h3>
+<div class="space-y-sm">
+<div class="flex items-center justify-between">
+<span class="font-body-md font-medium">Dr. R. Mehta</span>
+<span class="font-mono text-secondary font-bold">12 Projects</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-body-md font-medium">Prof. S. Patil</span>
+<span class="font-mono text-secondary font-bold">9 Projects</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Success Stories -->
+<section class="bg-surface-container-low py-xl px-md">
+<div class="max-w-container-max mx-auto">
+<h2 class="font-headline-lg text-headline-lg mb-lg text-center">SaaS Launched</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<!-- Story 1 -->
+<div class="bg-white p-lg rounded-xl stripe-border flex flex-col">
+<div class="mb-md">
+<img class="w-full h-48 object-cover rounded-lg mb-md" data-alt="A team of students working on a robotics project in a clean, modern lab environment with natural light pouring in, showcasing technical collaboration and high-end engineering components, in a professional and minimalist photographic style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBjDexdXdM2PoyoQjFsm77knVSJ2Gm3kDtv4o1j30XamT4-ZuYEVLVBss9mv16Jw6LwOWAVLBMDzwxPf8_TtLUgAiRT6fWM7Dwzk6x9gqbjxGPR57KDnlsByhGmdcK4B7kjJz90g6yxMgCqWkNL93g-PA4BC-BLMKtQ8-hUS82IiWFKxYIzKWa1XQy3u-ZgmC97s5PjpnlqUYgxaB_NQJKWIIYRpxWvLByFkzfjGVYb3V7MSohDo6QR-LKOg704X3lKUeBrON1_ICb"/>
+<h4 class="font-headline-sm text-headline-sm mb-xs">Smart Canteen Payment</h4>
+<p class="font-body-md text-on-surface-variant mb-md">Reduced queue times by 40% through NFC-based student wallets.</p>
+</div>
+<div class="mt-auto pt-md border-t border-outline-variant">
+<div class="flex justify-between text-label-md font-label-md text-on-surface-variant">
+<span class="">Team Alpha</span>
+<span class="">Impact: Operational</span>
+</div>
+</div>
+</div>
+<!-- Story 2 -->
+<div class="bg-white p-lg rounded-xl stripe-border flex flex-col">
+<div class="mb-md">
+<img class="w-full h-48 object-cover rounded-lg mb-md" data-alt="A clean, minimalist dashboard UI displayed on a high-resolution tablet, showing campus energy metrics and analytics, set against a blurred office background with a cool blue and slate color palette, reflecting a high-performance software aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQSVpOqvdwiRnetbtO90YvjKXxkZcoZ7vfUN2oOJusNsRsd1KpLXM4JZUGtX4pK10WISGIsV-13GBz_snCLP3qbRTJstKWQiNY1kvPPYOLbwpZqTxcSj8C6cW7cplGWd1FL-i5r8i4rLhbT02bGIvGq4aocjYuAlU-vkoymKK-I8AArmzAYe9EVXc6y4GfwkkD31II40H37A7AwUibdaNnta_CXvtuI6bo-3u8uKZOvGfSaN_6z5dqD5JITGbPE8WOpvszF5LLoHvc"/>
+<h4 class="font-headline-sm text-headline-sm mb-xs">CRCE Library Bot</h4>
+<p class="font-body-md text-on-surface-variant mb-md">AI-powered assistant handling 500+ book queries daily.</p>
+</div>
+<div class="mt-auto pt-md border-t border-outline-variant">
+<div class="flex justify-between text-label-md font-label-md text-on-surface-variant">
+<span class="">Coders Hub</span>
+<span class="">Impact: Support</span>
+</div>
+</div>
+</div>
+<!-- Story 3 -->
+<div class="bg-white p-lg rounded-xl stripe-border flex flex-col">
+<div class="mb-md">
+<img class="w-full h-48 object-cover rounded-lg mb-md" data-alt="A collaborative meeting room with faculty and students discussing innovation, with whiteboards filled with diagrams and code, professional lighting and a modern, airy atmosphere, consistent with a Stripe-like premium aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdX8J2PS0VCZnEJC22-BY-qocu7H_9liB6JPGR1hbREuZsZaET8qEv1ExwNZUgihqV_9aE5VyiBoUE4Mo_BCXbV0BmKdKbVrrqwGeRynFVSrCVEIIvC9atUKp43DSoufv24BJEhFLaYDq2VipNME9gKTNQSmTlcnT6I8v1cVHqPIK6H1Vayj1a2FVtt6OkRANgpbDT-cZtjpENie6CLmhVabLLPockXccTorAeH908preIUOfyDSqmqKv6mLok6NT2otMwXg26cQnL"/>
+<h4 class="font-headline-sm text-headline-sm mb-xs">Alumni Portal 2.0</h4>
+<p class="font-body-md text-on-surface-variant mb-md">Connected 2000+ alumni for internship referrals and mentorship.</p>
+</div>
+<div class="mt-auto pt-md border-t border-outline-variant">
+<div class="flex justify-between text-label-md font-label-md text-on-surface-variant">
+<span class="">WebDev Collective</span>
+<span class="">Impact: Network</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Role-based Login Preview -->
+<section class="py-xl px-md max-w-container-max mx-auto text-center">
+<h2 class="font-headline-lg text-headline-lg mb-lg">Access Your Workspace</h2>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-md">
+<div class="bg-white p-lg rounded-xl stripe-border hover:bg-surface-container transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[40px] text-secondary mb-sm">person</span>
+<h3 class="font-headline-sm text-headline-sm mb-xs">Student</h3>
+<p class="font-body-md text-on-surface-variant mb-md">Solve problems, track credits, and build your portfolio.</p>
+<button class="text-primary font-bold hover:underline">Login <span class="material-symbols-outlined align-middle text-sm">arrow_forward</span></button>
+</div>
+<div class="bg-white p-lg rounded-xl stripe-border hover:bg-surface-container transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[40px] text-secondary mb-sm">school</span>
+<h3 class="font-headline-sm text-headline-sm mb-xs">Faculty</h3>
+<p class="font-body-md text-on-surface-variant mb-md">Mentor projects, post problems, and track outcomes.</p>
+<button class="text-primary font-bold hover:underline">Login <span class="material-symbols-outlined align-middle text-sm">arrow_forward</span></button>
+</div>
+<div class="bg-white p-lg rounded-xl stripe-border hover:bg-surface-container transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[40px] text-secondary mb-sm">admin_panel_settings</span>
+<h3 class="font-headline-sm text-headline-sm mb-xs">Admin</h3>
+<p class="font-body-md text-on-surface-variant mb-md">Manage campus resources and system permissions.</p>
+<button class="text-primary font-bold hover:underline">Login <span class="material-symbols-outlined align-middle text-sm">arrow_forward</span></button>
+</div>
+<div class="bg-white p-lg rounded-xl stripe-border hover:bg-surface-container transition-all cursor-pointer">
+<span class="material-symbols-outlined text-[40px] text-secondary mb-sm">stars</span>
+<h3 class="font-headline-sm text-headline-sm mb-xs">Principal</h3>
+<p class="font-body-md text-on-surface-variant mb-md">High-level insights into campus innovation metrics.</p>
+<button class="text-primary font-bold hover:underline">Login <span class="material-symbols-outlined align-middle text-sm">arrow_forward</span></button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low border-t border-outline-variant mt-xl">
+<div class="max-w-container-max mx-auto px-lg py-xl">
+<div class="grid grid-cols-2 md:grid-cols-5 gap-gutter mb-xl">
+<div class="col-span-2">
+<div class="flex items-center gap-xs mb-md">
+<span class="material-symbols-outlined text-primary">school</span>
+<span class="font-headline-sm text-headline-sm font-bold text-primary">CRCE OS</span>
+</div>
+<p class="text-on-surface-variant font-label-md max-w-xs mb-md">
+                        The definitive platform for campus-driven innovation. Built by students, for students, powered by Fr. CRCE.
+                    </p>
+</div>
+<div>
+<h5 class="font-label-md uppercase font-bold text-primary mb-sm">Academic</h5>
+<ul class="space-y-xs font-label-md text-on-surface-variant">
+<li class=""><a class="hover:text-secondary transition-colors" href="#">Curriculum</a></li>
+<li class=""><a class="hover:text-secondary transition-colors" href="#">Credits</a></li>
+<li class=""><a class="hover:text-secondary transition-colors" href="#">Departments</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-label-md uppercase font-bold text-primary mb-sm">Campus</h5>
+<ul class="space-y-xs font-label-md text-on-surface-variant">
+<li class=""><a class="hover:text-secondary transition-colors" href="#">Resources</a></li>
+<li class=""><a class="hover:text-secondary transition-colors" href="#">Labs</a></li>
+<li class=""><a class="hover:text-secondary transition-colors" href="#">Impact</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-label-md uppercase font-bold text-primary mb-sm">Support</h5>
+<ul class="space-y-xs font-label-md text-on-surface-variant">
+<li class=""><a class="hover:text-secondary transition-colors" href="#">Contact</a></li>
+<li class=""><a class="hover:text-secondary transition-colors" href="#">FAQ</a></li>
+<li class=""><a class="hover:text-secondary transition-colors" href="#">Help Center</a></li>
+</ul>
+</div>
+</div>
+<div class="border-t border-outline-variant pt-md flex flex-col md:flex-row justify-between items-center gap-md">
+<span class="text-on-surface-variant font-label-md">© 2026 CRCE. Engineered for Academic Excellence.</span>
+<div class="flex gap-md text-on-surface-variant font-label-md">
+<a class="hover:text-primary" href="#">Privacy Policy</a>
+<a class="hover:text-primary" href="#">Terms of Service</a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+            if (!menu.classList.contains('hidden')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Handle navigation transparency on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('main-nav');
+            const heroHeight = window.innerHeight - 80; // Rough hero height
+            
+            if (window.scrollY > 50) {
+                nav.classList.add('nav-scrolled', 'shadow-sm');
+                nav.classList.remove('nav-transparent');
+            } else {
+                nav.classList.remove('nav-scrolled', 'shadow-sm');
+                nav.classList.add('nav-transparent');
+            }
+        });
+        
+        // Shader support
+        class WebGLShader extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+            }
+
+            async connectedCallback() {
+                const src = this.getAttribute('src');
+                if (!src) return;
+
+                const canvas = document.createElement('canvas');
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+                canvas.style.display = 'block';
+                this.shadowRoot.appendChild(canvas);
+
+                const gl = canvas.getContext('webgl2');
+                if (!gl) return;
+
+                const program = await this.createProgram(gl, src);
+                if (!program) return;
+
+                const positionBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+
+                const positionLocation = gl.getAttribLocation(program, 'a_position');
+                const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
+                const timeLocation = gl.getUniformLocation(program, 'u_time');
+
+                const render = (time) => {
+                    const width = this.clientWidth * window.devicePixelRatio;
+                    const height = this.clientHeight * window.devicePixelRatio;
+                    
+                    if (canvas.width !== width || canvas.height !== height) {
+                        canvas.width = width;
+                        canvas.height = height;
+                        gl.viewport(0, 0, width, height);
+                    }
+
+                    gl.clear(gl.COLOR_BUFFER_BIT);
+                    gl.useProgram(program);
+
+                    gl.enableVertexAttribArray(positionLocation);
+                    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+                    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+                    gl.uniform2f(resolutionLocation, width, height);
+                    gl.uniform1f(timeLocation, time * 0.001);
+
+                    gl.drawArrays(gl.TRIANGLES, 0, 6);
+                    requestAnimationFrame(render);
+                };
+
+                requestAnimationFrame(render);
+            }
+
+            async createProgram(gl, shaderSource) {
+                const vs = `#version 300 es
+                    in vec4 a_position;
+                    void main() { gl_Position = a_position; }
+                `;
+                
+                const vertexShader = this.createShader(gl, gl.VERTEX_SHADER, vs);
+                const fragmentShader = this.createShader(gl, gl.FRAGMENT_SHADER, shaderSource);
+                
+                const program = gl.createProgram();
+                gl.attachShader(program, vertexShader);
+                gl.attachShader(program, fragmentShader);
+                gl.linkProgram(program);
+                
+                if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                    console.error(gl.getProgramInfoLog(program));
+                    return null;
+                }
+                return program;
+            }
+
+            createShader(gl, type, source) {
+                const shader = gl.createShader(type);
+                gl.shaderSource(shader, source);
+                gl.compileShader(shader);
+                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                    console.error(gl.getShaderInfoLog(shader));
+                    gl.deleteShader(shader);
+                    return null;
+                }
+                return shader;
+            }
+        }
+        customElements.define('webgl-shader', WebGLShader);
+    </script>
+
+
+```</body></html>

@@ -1,0 +1,320 @@
+<html class="light" lang="en"><head></head><body class="font-body-md text-body-md">```html
+
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CRCE OS | Problem Marketplace</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#191c1e",
+                        "secondary-fixed": "#e2dfff",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "on-tertiary-container": "#7073ff",
+                        "on-primary-container": "#7c839b",
+                        "outline": "#76777d",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "on-secondary-fixed-variant": "#3323cc",
+                        "on-secondary-container": "#fffbff",
+                        "surface-variant": "#e0e3e5",
+                        "secondary-container": "#645efb",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#d8dadc",
+                        "surface-container-low": "#f2f4f6",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#131b2e",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#000000",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface-container-high": "#e6e8ea",
+                        "outline-variant": "#c6c6cd",
+                        "on-surface-variant": "#45464d",
+                        "surface-bright": "#f7f9fb",
+                        "surface": "#f7f9fb",
+                        "error": "#ba1a1a",
+                        "tertiary-container": "#07006c",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-secondary-fixed": "#0f0069",
+                        "tertiary-fixed": "#e1e0ff",
+                        "on-tertiary-fixed": "#07006c",
+                        "primary-fixed": "#dae2fd",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "secondary-fixed-dim": "#c3c0ff",
+                        "inverse-primary": "#bec6e0",
+                        "background": "#f7f9fb",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "inverse-on-surface": "#eff1f3",
+                        "inverse-surface": "#2d3133",
+                        "on-background": "#191c1e",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "primary": "#000000",
+                        "secondary": "#4b41e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "40px",
+                        "container-max": "1440px",
+                        "sm": "16px",
+                        "md": "24px",
+                        "xs": "8px",
+                        "xl": "64px",
+                        "gutter": "24px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Geist"],
+                        "headline-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "display": ["Inter"],
+                        "mono": ["Geist Mono"],
+                        "headline-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                        "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #f7f9fb;
+            color: #191c1e;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-nav {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .bento-card {
+            transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1);
+        }
+        .bento-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.05), 0px 2px 4px -2px rgba(0, 0, 0, 0.05);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<!-- TopAppBar -->
+<header class="sticky top-0 w-full bg-surface/60 backdrop-blur-md border-b border-outline-variant z-50">
+<div class="flex justify-between items-center px-lg py-sm max-w-container-max mx-auto h-16">
+<a class="flex items-center gap-xs" href="{{DATA:SCREEN:SCREEN_42}}">
+<span class="material-symbols-outlined text-primary" data-icon="hub">hub</span>
+<span class="font-headline-md text-headline-md font-bold text-on-surface">Innovation Hub</span>
+</a>
+<nav class="hidden md:flex items-center gap-md">
+<a class="text-on-surface border-b-2 border-on-surface pb-1 font-medium transition-colors" href="{{DATA:SCREEN:SCREEN_130}}">Marketplace</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="{{DATA:SCREEN:SCREEN_31}}">Leaderboard</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="{{DATA:SCREEN:SCREEN_11}}">Campus Solutions</a>
+</nav>
+<div class="flex items-center gap-sm">
+<button class="material-symbols-outlined p-xs hover:bg-surface-container rounded-full cursor-pointer" data-icon="search">search</button>
+<a class="h-8 w-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-xs" href="{{DATA:SCREEN:SCREEN_126}}">JD</a>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-lg pb-xl">
+<!-- Hero Section -->
+<section class="py-xl flex flex-col items-center text-center">
+<h1 class="font-display text-display max-w-3xl mb-md">Solve Real Campus Problems. <span class="text-secondary">Build Products That Matter.</span></h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-2xl mb-lg">Discover, Collaborate, Build, Deploy, Create Campus Impact. Connect with faculty, form cross-departmental teams, and solve technical challenges that improve our university ecosystem.</p>
+<div class="flex flex-wrap gap-md justify-center">
+<a class="px-xl h-10 bg-on-surface text-on-primary rounded-lg font-medium flex items-center gap-xs transition-all hover:opacity-90" href="{{DATA:SCREEN:SCREEN_130}}">
+                    Explore Problems
+                </a>
+<a class="px-xl h-10 bg-surface-container-lowest border border-outline-variant text-on-surface rounded-lg font-medium flex items-center gap-xs transition-all hover:bg-surface-container-low" href="{{DATA:SCREEN:SCREEN_11}}">
+                    View Campus Solutions
+                </a>
+</div>
+</section>
+<!-- Search & Global Toggle -->
+<section class="mb-xl">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col md:flex-row gap-md items-stretch md:items-center relative">
+<div class="relative flex-1">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline" data-icon="search">search</span>
+<input class="w-full pl-12 pr-4 h-12 bg-surface-container-low border border-outline-variant rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary transition-all outline-none" placeholder="Search by title, faculty, or technology stack..." type="text"/>
+</div>
+<div class="flex items-center bg-surface-container-low p-1 rounded-lg border border-outline-variant">
+<a class="px-md py-2 bg-surface-container-lowest shadow-sm rounded-md text-label-md font-medium text-on-surface transition-all" href="{{DATA:SCREEN:SCREEN_130}}">Problems</a>
+<a class="px-md py-2 text-label-md font-medium text-on-surface-variant hover:text-on-surface transition-all" href="{{DATA:SCREEN:SCREEN_11}}">Campus Solutions</a>
+</div>
+</div>
+</section>
+<!-- Quick Filters -->
+<section class="mb-lg">
+<div class="flex items-center gap-sm overflow-x-auto no-scrollbar pb-2">
+<span class="text-label-md font-bold text-on-surface-variant uppercase tracking-wider shrink-0 mr-xs">Filter by:</span>
+<button class="shrink-0 px-md py-2 bg-on-surface text-on-primary rounded-full text-label-md">All Problems</button>
+<button class="shrink-0 px-md py-2 bg-surface-container-high hover:bg-surface-container-highest transition-colors rounded-full text-label-md">Academic Tech</button>
+<button class="shrink-0 px-md py-2 bg-surface-container-high hover:bg-surface-container-highest transition-colors rounded-full text-label-md">AI / ML</button>
+<button class="shrink-0 px-md py-2 bg-surface-container-high hover:bg-surface-container-highest transition-colors rounded-full text-label-md">Library Management</button>
+<button class="shrink-0 px-md py-2 bg-surface-container-high hover:bg-surface-container-highest transition-colors rounded-full text-label-md">IoT &amp; Infrastructure</button>
+<button class="shrink-0 px-md py-2 bg-surface-container-high hover:bg-surface-container-highest transition-colors rounded-full text-label-md">Student Welfare</button>
+<button class="shrink-0 px-md py-2 bg-surface-container-high hover:bg-surface-container-highest transition-colors rounded-full text-label-md">Security</button>
+</div>
+</section>
+<!-- Featured Problems -->
+<section class="mb-xl">
+<h2 class="font-headline-lg text-headline-lg mb-lg">Featured High-Impact Problems</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Featured Card 1 -->
+<a class="bento-card group block relative overflow-hidden bg-surface-container-lowest border border-outline-variant rounded-xl p-lg" href="{{DATA:SCREEN:SCREEN_127}}">
+<div class="absolute top-0 right-0 p-4">
+<span class="px-2 py-1 bg-secondary-container text-on-secondary-container rounded text-[10px] font-bold uppercase">🔥 Trending</span>
+</div>
+<div class="w-12 h-12 bg-secondary-fixed rounded-lg flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-secondary" data-icon="fingerprint">fingerprint</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm mb-xs">Smart Attendance Platform</h3>
+<p class="text-on-surface-variant text-body-md mb-lg">Build a seamless, high-security BLE/NFC attendance system integrated with student IDs.</p>
+<div class="flex items-center justify-between pt-lg border-t border-outline-variant">
+<div class="flex -space-x-2">
+<div class="h-8 w-8 rounded-full border-2 border-surface-container-lowest bg-surface-dim"></div>
+<div class="h-8 w-8 rounded-full border-2 border-surface-container-lowest bg-surface-dim"></div>
+<div class="h-8 w-8 rounded-full border-2 border-surface-container-lowest bg-surface-dim flex items-center justify-center text-[10px] font-bold">+5</div>
+</div>
+<span class="font-mono text-mono text-secondary font-bold">500 Credits</span>
+</div>
+</a>
+<!-- Featured Card 2 -->
+<a class="bento-card group block relative overflow-hidden bg-surface-container-lowest border border-outline-variant rounded-xl p-lg" href="{{DATA:SCREEN:SCREEN_127}}"><div class="absolute top-0 right-0 p-4"><span class="px-2 py-1 bg-secondary-container text-on-secondary-container rounded text-[10px] font-bold uppercase">⭐ Faculty Pick</span></div>
+<div class="w-12 h-12 bg-on-tertiary-container/10 rounded-lg flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-on-tertiary-container" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm mb-xs">Library AI Assistant</h3>
+<p class="text-on-surface-variant text-body-md mb-lg">An LLM-based agent for deep searching university archives and predicting book availability.</p>
+<div class="flex items-center justify-between pt-lg border-t border-outline-variant">
+<div class="flex -space-x-2">
+<div class="h-8 w-8 rounded-full border-2 border-surface-container-lowest bg-surface-dim"></div>
+</div>
+<span class="font-mono text-mono text-secondary font-bold">450 Credits</span>
+</div>
+</a>
+<!-- Featured Card 3 -->
+<a class="bento-card group block relative overflow-hidden bg-surface-container-lowest border border-outline-variant rounded-xl p-lg" href="{{DATA:SCREEN:SCREEN_127}}"><div class="absolute top-0 right-0 p-4"><span class="px-2 py-1 bg-secondary-container text-on-secondary-container rounded text-[10px] font-bold uppercase">💎 High Impact</span></div>
+<div class="w-12 h-12 bg-primary-container rounded-lg flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-white" data-icon="energy_savings_leaf">energy_savings_leaf</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm mb-xs">Smart Campus Grid</h3>
+<p class="text-on-surface-variant text-body-md mb-lg">IoT dashboard for monitoring and optimizing energy consumption across department blocks.</p>
+<div class="flex items-center justify-between pt-lg border-t border-outline-variant">
+<div class="flex -space-x-2">
+<div class="h-8 w-8 rounded-full border-2 border-surface-container-lowest bg-surface-dim"></div>
+<div class="h-8 w-8 rounded-full border-2 border-surface-container-lowest bg-surface-dim"></div>
+</div>
+<span class="font-mono text-mono text-secondary font-bold">600 Credits</span>
+</div>
+</a>
+</div><div class="mt-md flex justify-end"><a class="text-secondary font-medium hover:underline flex items-center gap-xs" href="{{DATA:SCREEN:SCREEN_130}}">View All Problems <span class="material-symbols-outlined text-[18px]">arrow_forward</span></a></div>
+</section>
+<!-- Innovation Flow -->
+<section class="mb-xl"> <div class="flex justify-between items-end mb-lg"> <div> <h2 class="font-headline-lg text-headline-lg">Campus Solutions</h2> <p class="text-on-surface-variant">Real products built by CRCE students and actively used across campus.</p> </div> <a class="text-secondary font-medium hover:underline" href="{{DATA:SCREEN:SCREEN_11}}">View All Solutions →</a> </div> <div class="grid grid-cols-1 md:grid-cols-3 gap-md"> <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex flex-col"> <div class="flex justify-between items-start mb-md"> <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center"> <span class="material-symbols-outlined text-green-700">check_circle</span> </div> <span class="px-2 py-1 bg-green-50 text-green-700 text-[10px] font-bold rounded uppercase">LIVE</span> </div> <h3 class="font-headline-sm text-headline-sm mb-xs">Smart Attendance</h3> <p class="text-on-surface-variant text-body-md mb-lg flex-1">Automated NFC-based attendance system deployed in Block A.</p> <a class="w-full py-2 bg-surface-container-low text-on-surface rounded-lg font-medium hover:bg-surface-container transition-colors text-center" href="{{DATA:SCREEN:SCREEN_11}}">Open Solution</a> </div> <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex flex-col"> <div class="flex justify-between items-start mb-md"> <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center"> <span class="material-symbols-outlined text-green-700">check_circle</span> </div> <span class="px-2 py-1 bg-green-50 text-green-700 text-[10px] font-bold rounded uppercase">LIVE</span> </div> <h3 class="font-headline-sm text-headline-sm mb-xs">Library AI</h3> <p class="text-on-surface-variant text-body-md mb-lg flex-1">Intelligent book recommendation and search agent for the central library.</p> <a class="w-full py-2 bg-surface-container-low text-on-surface rounded-lg font-medium hover:bg-surface-container transition-colors text-center" href="{{DATA:SCREEN:SCREEN_11}}">Open Solution</a> </div> <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex flex-col"> <div class="flex justify-between items-start mb-md"> <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center"> <span class="material-symbols-outlined text-green-700">check_circle</span> </div> <span class="px-2 py-1 bg-green-50 text-green-700 text-[10px] font-bold rounded uppercase">LIVE</span> </div> <h3 class="font-headline-sm text-headline-sm mb-xs">Lab Booking</h3> <p class="text-on-surface-variant text-body-md mb-lg flex-1">Real-time slot management for computer and electronics laboratories.</p> <a class="w-full py-2 bg-surface-container-low text-on-surface rounded-lg font-medium hover:bg-surface-container transition-colors text-center" href="{{DATA:SCREEN:SCREEN_11}}">Open Solution</a> </div> </div> </section><section class="mb-xl py-lg bg-surface-container-low rounded-2xl px-lg border border-outline-variant overflow-hidden relative">
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-secondary via-primary to-secondary"></div>
+<div class="text-center mb-xl"><h2 class="font-headline-sm text-headline-sm text-on-surface-variant opacity-80 uppercase tracking-widest">Innovation Pipeline</h2><p class="text-body-md text-on-surface-variant mt-xs">Every campus innovation starts with an idea.</p></div>
+<div class="flex flex-col md:flex-row justify-between items-center gap-lg relative">
+<!-- Line background for desktop -->
+<div class="hidden md:block absolute top-1/2 left-0 w-full h-[1px] bg-outline-variant -translate-y-1/2 -z-10"></div>
+<a class="flex flex-col items-center gap-xs" href="{{DATA:SCREEN:SCREEN_130}}">
+<div class="w-14 h-14 rounded-full bg-surface-container-lowest border-2 border-secondary flex items-center justify-center z-10 shadow-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="search">search</span>
+</div>
+<span class="font-bold text-label-md">Problem</span>
+</a>
+<a class="flex flex-col items-center gap-xs" href="{{DATA:SCREEN:SCREEN_113}}">
+<div class="w-14 h-14 rounded-full bg-surface-container-lowest border-2 border-outline-variant flex items-center justify-center z-10 shadow-sm">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="groups">groups</span>
+</div>
+<span class="font-bold text-label-md">Team</span>
+</a>
+<a class="flex flex-col items-center gap-xs" href="{{DATA:SCREEN:SCREEN_119}}">
+<div class="w-14 h-14 rounded-full bg-surface-container-lowest border-2 border-outline-variant flex items-center justify-center z-10 shadow-sm">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="developer_mode">developer_mode</span>
+</div>
+<span class="font-bold text-label-md">Project</span>
+</a>
+<a class="flex flex-col items-center gap-xs" href="{{DATA:SCREEN:SCREEN_11}}">
+<div class="w-14 h-14 rounded-full bg-surface-container-lowest border-2 border-outline-variant flex items-center justify-center z-10 shadow-sm">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="package_2">package_2</span>
+</div>
+<span class="font-bold text-label-md">Product</span>
+</a>
+<a class="flex flex-col items-center gap-xs" href="{{DATA:SCREEN:SCREEN_31}}">
+<div class="w-14 h-14 rounded-full bg-surface-container-lowest border-2 border-primary flex items-center justify-center z-10 shadow-sm">
+<span class="material-symbols-outlined text-primary" data-icon="auto_graph">auto_graph</span>
+</div>
+<span class="font-bold text-label-md">Impact</span>
+</a>
+</div>
+</section>
+<!-- Open Problems Grid -->
+<!-- Suggest Problem CTA -->
+<section class="mt-xl flex justify-center">
+<div class="bg-primary-container text-on-primary border border-outline-variant rounded-2xl p-lg flex flex-col md:flex-row items-center gap-lg max-w-4xl w-full">
+<div class="flex-1"><h3 class="font-headline-sm text-headline-sm mb-xs text-white">Have an idea?</h3><p class="text-on-primary-container text-body-md mb-xs">Many campus innovations begin with students identifying everyday challenges.</p><p class="text-[12px] text-on-primary-container opacity-80 italic">Suggestions are reviewed by faculty before becoming official campus challenges.</p></div>
+<a class="shrink-0 px-xl h-12 bg-white text-primary-container rounded-lg font-bold hover:bg-surface-bright transition-colors flex items-center gap-xs" href="{{DATA:SCREEN:SCREEN_130}}">Suggest a Problem <span class="material-symbols-outlined">arrow_forward</span></a>
+</div>
+</section>
+<section class="mt-xl py-md border-t border-outline-variant"> <div class="flex flex-wrap justify-center gap-xl text-label-md font-bold text-on-surface-variant uppercase tracking-widest"> <span class="">420 Problems</span> <span class="">82 Products</span> <span class="">600 Students</span> <span class="">45 Faculty</span> <span class="">1200 Credits</span> </div> </section></main>
+<!-- Footer -->
+<footer class="w-full py-xl bg-surface-dim border-t border-outline-variant">
+<div class="flex flex-col md:flex-row justify-between items-center px-lg max-w-container-max mx-auto gap-md">
+<div class="flex flex-col items-center md:items-start">
+<span class="font-mono text-mono text-on-surface font-bold">CRCE OS v2.4.1</span>
+<p class="font-body-md text-body-md text-on-surface-variant text-center md:text-left mt-xs">© 2024 CampusOS Problem Marketplace. Built for technical precision.</p>
+</div>
+<div class="flex gap-md">
+<a class="text-on-surface-variant hover:underline hover:text-on-surface transition-opacity duration-300" href="#">Privacy</a>
+<a class="text-on-surface-variant hover:underline hover:text-on-surface transition-opacity duration-300" href="#">Terms</a>
+<a class="text-on-surface-variant hover:underline hover:text-on-surface transition-opacity duration-300" href="#">API Docs</a>
+<a class="text-on-surface-variant hover:underline hover:text-on-surface transition-opacity duration-300" href="#">Support</a>
+</div>
+</div>
+</footer>
+
+```</body></html>

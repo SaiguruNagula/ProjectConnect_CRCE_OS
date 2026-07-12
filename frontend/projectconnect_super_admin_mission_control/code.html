@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ProjectConnect | SaaS Platform Control Center</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter & Geist -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+            vertical-align: middle;
+            font-size: 18px;
+        }
+        /* Custom scrollbar for high-density UI */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        
+        .table-row-hover:hover { background-color: #f8fafc; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#000000",
+                        "secondary": "#4F46E5",
+                        "background": "#f7f9fb",
+                        "surface": "#ffffff",
+                        "surface-container": "#f1f5f9",
+                        "outline-variant": "#e2e8f0",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#64748b",
+                        "error": "#ef4444",
+                        "success": "#10b981",
+                        "warning": "#f59e0b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "mono": ["Geist"],
+                        "body": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-secondary/10 text-[13px]">
+<!-- Navigation Drawer (Desktop) -->
+<aside class="hidden md:flex flex-col h-screen w-[240px] fixed left-0 top-0 bg-surface border-r border-outline-variant z-50 overflow-y-auto">
+<div class="p-4 border-b border-outline-variant flex items-center gap-2">
+<div class="w-8 h-8 bg-secondary rounded flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="shield_person">shield_person</span>
+</div>
+<h1 class="font-bold text-sm tracking-tight">Platform Control</h1>
+</div>
+<nav class="flex-1 p-3 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 bg-secondary/5 text-secondary font-semibold rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+<span>Institutions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>Users</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span>Audit Logs</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-outline-variant bg-surface-container/30">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary text-white flex items-center justify-center text-xs font-bold">SA</div>
+<div class="flex-1 min-w-0">
+<p class="font-semibold truncate">Super Admin</p>
+<p class="text-[10px] text-on-surface-variant">Global Access</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="md:ml-[240px] min-h-screen">
+<!-- Top Bar -->
+<header class="h-14 border-b border-outline-variant bg-surface flex items-center justify-between px-6 sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<button class="md:hidden"><span class="material-symbols-outlined">menu</span></button>
+<h2 class="font-semibold text-sm">Dashboard Overview</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-1.5 px-2 py-1 bg-success/10 text-success rounded text-[11px] font-medium border border-success/20">
+<span class="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></span>
+                System Operational
+            </div>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container rounded transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-error rounded-full ring-2 ring-surface"></span>
+</button>
+<div class="h-6 w-[1px] bg-outline-variant mx-1"></div>
+<button class="text-xs font-medium text-secondary hover:underline">Support</button>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-6 max-w-[1600px] mx-auto space-y-6">
+<!-- Header & Quick Actions -->
+<div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+<div>
+<h1 class="text-xl font-bold tracking-tight">Platform Snapshot</h1>
+<p class="text-on-surface-variant text-xs mt-0.5">Control and monitoring of global SaaS infrastructure.</p>
+</div>
+<div class="flex flex-wrap items-center gap-2 bg-surface p-1.5 rounded-lg border border-outline-variant">
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-secondary text-white rounded text-[11px] font-bold hover:bg-secondary/90 transition-colors">
+<span class="material-symbols-outlined text-[16px]">add</span> Add Institution
+                </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 border border-outline-variant bg-surface hover:bg-surface-container text-[11px] font-bold rounded transition-colors">
+<span class="material-symbols-outlined text-[16px]">person_add</span> Invite Principal
+                </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 border border-outline-variant bg-surface hover:bg-surface-container text-[11px] font-bold rounded transition-colors">
+<span class="material-symbols-outlined text-[16px]">admin_panel_settings</span> Create Admin
+                </button>
+<div class="w-[1px] h-6 bg-outline-variant mx-1"></div>
+<button class="flex items-center gap-1.5 px-3 py-1.5 text-on-surface-variant hover:bg-surface-container text-[11px] font-bold rounded transition-colors">
+<span class="material-symbols-outlined text-[16px]">download</span> Export Reports
+                </button>
+</div>
+</div>
+<!-- KPI Grid -->
+<section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+<div class="bg-surface border border-outline-variant p-4 rounded-lg">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Total Institutions</p>
+<h3 class="text-2xl font-bold mt-1">42</h3>
+<p class="text-[10px] text-success font-medium mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +2 this month
+                </p>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Total Users</p>
+<h3 class="text-2xl font-bold mt-1">14,320</h3>
+<p class="text-[10px] text-success font-medium mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +12% growth
+                </p>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Active Projects</p>
+<h3 class="text-2xl font-bold mt-1">840</h3>
+<p class="text-[10px] text-on-surface-variant font-medium mt-1">Live environments</p>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Total Solutions</p>
+<h3 class="text-2xl font-bold mt-1">2,104</h3>
+<p class="text-[10px] text-on-surface-variant font-medium mt-1">Vetted modules</p>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Credits Issued</p>
+<h3 class="text-2xl font-bold mt-1">125k</h3>
+<p class="text-[10px] text-secondary font-medium mt-1">Institutional credit</p>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg ring-1 ring-error/20 bg-error/[0.02]">
+<p class="text-[10px] font-bold text-error uppercase tracking-wider">Pending Approvals</p>
+<h3 class="text-2xl font-bold mt-1">65</h3>
+<p class="text-[10px] text-error font-medium mt-1">Action required</p>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Pending Approvals Module -->
+<section class="lg:col-span-12">
+<div class="flex items-center justify-between mb-3">
+<h3 class="font-bold text-[13px] flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">pending_actions</span>
+                        Operational Queue
+                    </h3>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="bg-surface border border-outline-variant p-3 rounded-lg flex items-center gap-4 hover:border-secondary/30 transition-colors cursor-pointer group">
+<div class="w-10 h-10 rounded-lg bg-error/10 flex items-center justify-center text-error">
+<span class="material-symbols-outlined">domain_add</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<span class="text-xs font-semibold">Inst. Requests</span>
+<span class="text-[10px] font-bold text-error bg-error/10 px-1 rounded uppercase">High</span>
+</div>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="text-lg font-bold">3</span>
+<span class="text-[10px] text-on-surface-variant">new</span>
+</div>
+</div>
+</div>
+<div class="bg-surface border border-outline-variant p-3 rounded-lg flex items-center gap-4 hover:border-secondary/30 transition-colors cursor-pointer group">
+<div class="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center text-warning">
+<span class="material-symbols-outlined">how_to_reg</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<span class="text-xs font-semibold">Principal Verif.</span>
+<span class="text-[10px] font-bold text-warning bg-warning/10 px-1 rounded uppercase">Med</span>
+</div>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="text-lg font-bold">12</span>
+<span class="text-[10px] text-on-surface-variant">pending</span>
+</div>
+</div>
+</div>
+<div class="bg-surface border border-outline-variant p-3 rounded-lg flex items-center gap-4 hover:border-secondary/30 transition-colors cursor-pointer group">
+<div class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">badge</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<span class="text-xs font-semibold">Faculty Verif.</span>
+<span class="text-[10px] font-bold text-secondary bg-secondary/10 px-1 rounded uppercase">Urgent</span>
+</div>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="text-lg font-bold">45</span>
+<span class="text-[10px] text-on-surface-variant">waiting</span>
+</div>
+</div>
+</div>
+<div class="bg-surface border border-outline-variant p-3 rounded-lg flex items-center gap-4 hover:border-secondary/30 transition-colors cursor-pointer group">
+<div class="w-10 h-10 rounded-lg bg-error/10 flex items-center justify-center text-error">
+<span class="material-symbols-outlined">report</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<span class="text-xs font-semibold">Reported Acc.</span>
+<span class="text-[10px] font-bold text-error bg-error/10 px-1 rounded uppercase">High</span>
+</div>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="text-lg font-bold">5</span>
+<span class="text-[10px] text-on-surface-variant">flagged</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Institution Management Table -->
+<section class="lg:col-span-8 bg-surface border border-outline-variant rounded-lg flex flex-col">
+<div class="p-4 border-b border-outline-variant flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<h3 class="font-bold text-sm">Institution Management</h3>
+<div class="flex items-center gap-2">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px]">search</span>
+<input class="pl-8 pr-3 py-1.5 border border-outline-variant rounded bg-background text-[11px] w-48 xl:w-64 focus:outline-none focus:ring-1 focus:ring-secondary/50" placeholder="Search..." type="text"/>
+</div>
+<button class="px-3 py-1.5 border border-outline-variant rounded flex items-center gap-1.5 text-[11px] font-medium hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto flex-1">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead class="bg-surface-container/30 text-[10px] font-bold text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">
+<tr>
+<th class="px-4 py-3">Institution</th>
+<th class="px-4 py-3">Principal</th>
+<th class="px-4 py-3 text-center">Students</th>
+<th class="px-4 py-3 text-center">Faculty</th>
+<th class="px-4 py-3 text-center">Projects</th>
+<th class="px-4 py-3">Status</th>
+<th class="px-4 py-3">Plan</th>
+<th class="px-4 py-3 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="table-row-hover transition-colors">
+<td class="px-4 py-3">
+<div class="font-bold">CRCE</div>
+<div class="text-[10px] text-on-surface-variant">Bandra, Mumbai</div>
+</td>
+<td class="px-4 py-3 text-on-surface-variant">Dr. Srija Unnikrishnan</td>
+<td class="px-4 py-3 text-center font-mono">1,240</td>
+<td class="px-4 py-3 text-center font-mono">85</td>
+<td class="px-4 py-3 text-center font-mono">42</td>
+<td class="px-4 py-3">
+<span class="px-2 py-0.5 bg-success/10 text-success text-[10px] font-bold rounded-full border border-success/20">Active</span>
+</td>
+<td class="px-4 py-3">
+<span class="text-[10px] font-bold text-secondary uppercase">Enterprise</span>
+</td>
+<td class="px-4 py-3 text-right">
+<button class="text-secondary text-[11px] font-bold hover:underline">View Details</button>
+</td>
+</tr>
+<tr class="table-row-hover transition-colors">
+<td class="px-4 py-3">
+<div class="font-bold">VESIT</div>
+<div class="text-[10px] text-on-surface-variant">Chembur, Mumbai</div>
+</td>
+<td class="px-4 py-3 text-on-surface-variant">Dr. J. M. Nair</td>
+<td class="px-4 py-3 text-center font-mono">2,100</td>
+<td class="px-4 py-3 text-center font-mono">120</td>
+<td class="px-4 py-3 text-center font-mono">56</td>
+<td class="px-4 py-3">
+<span class="px-2 py-0.5 bg-success/10 text-success text-[10px] font-bold rounded-full border border-success/20">Active</span>
+</td>
+<td class="px-4 py-3">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase">Premium</span>
+</td>
+<td class="px-4 py-3 text-right">
+<button class="text-secondary text-[11px] font-bold hover:underline">View Details</button>
+</td>
+</tr>
+<tr class="table-row-hover transition-colors">
+<td class="px-4 py-3">
+<div class="font-bold">SPIT</div>
+<div class="text-[10px] text-on-surface-variant">Andheri, Mumbai</div>
+</td>
+<td class="px-4 py-3 text-on-surface-variant">Dr. B. N. Chaudhari</td>
+<td class="px-4 py-3 text-center font-mono">1,850</td>
+<td class="px-4 py-3 text-center font-mono">98</td>
+<td class="px-4 py-3 text-center font-mono">38</td>
+<td class="px-4 py-3">
+<span class="px-2 py-0.5 bg-warning/10 text-warning text-[10px] font-bold rounded-full border border-warning/20">Inactive</span>
+</td>
+<td class="px-4 py-3">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase">Pilot</span>
+</td>
+<td class="px-4 py-3 text-right">
+<button class="text-secondary text-[11px] font-bold hover:underline">View Details</button>
+</td>
+</tr>
+<tr class="table-row-hover transition-colors">
+<td class="px-4 py-3">
+<div class="font-bold">DJ Sanghvi</div>
+<div class="text-[10px] text-on-surface-variant">Vile Parle, Mumbai</div>
+</td>
+<td class="px-4 py-3 text-on-surface-variant">Dr. Hari Vasudevan</td>
+<td class="px-4 py-3 text-center font-mono">2,400</td>
+<td class="px-4 py-3 text-center font-mono">145</td>
+<td class="px-4 py-3 text-center font-mono">64</td>
+<td class="px-4 py-3">
+<span class="px-2 py-0.5 bg-success/10 text-success text-[10px] font-bold rounded-full border border-success/20">Active</span>
+</td>
+<td class="px-4 py-3">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase">Free</span>
+</td>
+<td class="px-4 py-3 text-right">
+<button class="text-secondary text-[11px] font-bold hover:underline">View Details</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-3 border-t border-outline-variant bg-surface-container/10 flex items-center justify-between">
+<p class="text-[10px] text-on-surface-variant font-medium">Showing 1-4 of 42 institutions</p>
+<div class="flex gap-1">
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container text-[10px]">Prev</button>
+<button class="px-2 py-1 border border-secondary bg-secondary text-white rounded text-[10px]">1</button>
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container text-[10px]">2</button>
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container text-[10px]">Next</button>
+</div>
+</div>
+</section>
+<!-- Platform Health & System Logs -->
+<section class="lg:col-span-4 space-y-6">
+<!-- Platform Health Card -->
+<div class="bg-surface border border-outline-variant rounded-lg p-4">
+<h3 class="font-bold text-sm mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-success">analytics</span>
+                        Platform Health
+                    </h3>
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<span class="text-[11px] text-on-surface-variant">API Gateway</span>
+<div class="flex items-center gap-1.5">
+<span class="text-[11px] font-bold text-success">99.9%</span>
+<div class="w-8 h-1 bg-success/20 rounded-full overflow-hidden"><div class="w-[99%] h-full bg-success"></div></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[11px] text-on-surface-variant">Database Cluster</span>
+<div class="flex items-center gap-1.5">
+<span class="text-[11px] font-bold text-success">Healthy</span>
+<div class="w-8 h-1 bg-success/20 rounded-full overflow-hidden"><div class="w-full bg-success"></div></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[11px] text-on-surface-variant">S3 Storage</span>
+<div class="flex items-center gap-1.5">
+<span class="text-[11px] font-bold text-on-surface">4.2 TB</span>
+<div class="w-8 h-1 bg-on-surface/10 rounded-full overflow-hidden"><div class="w-[45%] h-full bg-secondary"></div></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[11px] text-on-surface-variant">Active Sessions</span>
+<span class="text-[11px] font-bold text-on-surface">1,429</span>
+</div>
+</div>
+</div>
+<!-- Mini Audit Log -->
+<div class="bg-surface border border-outline-variant rounded-lg overflow-hidden flex flex-col">
+<div class="p-4 border-b border-outline-variant flex items-center justify-between">
+<h3 class="font-bold text-sm">System Logs</h3>
+<button class="text-secondary text-[10px] font-bold hover:underline">View All</button>
+</div>
+<div class="flex-1 divide-y divide-outline-variant overflow-y-auto max-h-[300px]">
+<div class="p-3 table-row-hover transition-colors">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-mono text-on-surface-variant">14:02:12</span>
+<span class="text-[9px] font-bold text-success border border-success/20 px-1 rounded">SUCCESS</span>
+</div>
+<p class="text-[11px] mt-1"><span class="font-bold">SuperAdmin</span> updated <span class="font-medium text-secondary">CRCE</span> configuration</p>
+</div>
+<div class="p-3 table-row-hover transition-colors">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-mono text-on-surface-variant">13:58:44</span>
+<span class="text-[9px] font-bold text-success border border-success/20 px-1 rounded">SUCCESS</span>
+</div>
+<p class="text-[11px] mt-1"><span class="font-bold">System</span> auto-approved <span class="font-medium">User_9921</span> verification</p>
+</div>
+<div class="p-3 table-row-hover transition-colors">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-mono text-on-surface-variant">13:45:01</span>
+<span class="text-[9px] font-bold text-error border border-error/20 px-1 rounded">FLAGGED</span>
+</div>
+<p class="text-[11px] mt-1"><span class="font-bold">SecurityAudit</span> suspended account <span class="font-medium">ID_10292</span> (Anomalous traffic)</p>
+</div>
+<div class="p-3 table-row-hover transition-colors">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-mono text-on-surface-variant">13:12:30</span>
+<span class="text-[9px] font-bold text-success border border-success/20 px-1 rounded">SUCCESS</span>
+</div>
+<p class="text-[11px] mt-1"><span class="font-bold">Admin_Rahul</span> invited Principal to <span class="font-medium">VESIT</span></p>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Full Audit Log Table (Formal System Log) -->
+<section class="bg-surface border border-outline-variant rounded-lg overflow-hidden">
+<div class="p-4 border-b border-outline-variant flex items-center justify-between">
+<h3 class="font-bold text-sm">Full Transaction Audit</h3>
+<button class="text-secondary text-[11px] font-bold hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">file_download</span> Export CSV
+                </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container/30 text-[10px] font-bold text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">
+<tr>
+<th class="px-4 py-2.5">Timestamp</th>
+<th class="px-4 py-2.5">Action</th>
+<th class="px-4 py-2.5">Actor</th>
+<th class="px-4 py-2.5">Target</th>
+<th class="px-4 py-2.5">Result</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant font-mono text-[11px]">
+<tr class="table-row-hover">
+<td class="px-4 py-2.5 text-on-surface-variant whitespace-nowrap">2023-11-24 14:02:12</td>
+<td class="px-4 py-2.5"><span class="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded border border-blue-100">INSTITUTION_UPDATE</span></td>
+<td class="px-4 py-2.5">SuperAdmin (ID:002)</td>
+<td class="px-4 py-2.5">Institution: CRCE</td>
+<td class="px-4 py-2.5 text-success font-bold">SUCCESS</td>
+</tr>
+<tr class="table-row-hover">
+<td class="px-4 py-2.5 text-on-surface-variant whitespace-nowrap">2023-11-24 13:58:44</td>
+<td class="px-4 py-2.5"><span class="px-1.5 py-0.5 bg-green-50 text-green-700 rounded border border-green-100">USER_VERIFIED</span></td>
+<td class="px-4 py-2.5">System-Auto</td>
+<td class="px-4 py-2.5">User_9921</td>
+<td class="px-4 py-2.5 text-success font-bold">SUCCESS</td>
+</tr>
+<tr class="table-row-hover">
+<td class="px-4 py-2.5 text-on-surface-variant whitespace-nowrap">2023-11-24 13:45:01</td>
+<td class="px-4 py-2.5"><span class="px-1.5 py-0.5 bg-red-50 text-red-700 rounded border border-red-100">ACCOUNT_SUSPENSION</span></td>
+<td class="px-4 py-2.5">SecurityAudit</td>
+<td class="px-4 py-2.5">User: ID_10292</td>
+<td class="px-4 py-2.5 text-error font-bold">FAILURE_BLOCK</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+<!-- Mobile Navigation -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant flex justify-around p-2 z-50">
+<button class="flex flex-col items-center gap-0.5 text-secondary">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[9px] font-bold">Dash</span>
+</button>
+<button class="flex flex-col items-center gap-0.5 text-on-surface-variant">
+<span class="material-symbols-outlined">account_balance</span>
+<span class="text-[9px] font-medium">Inst.</span>
+</button>
+<button class="flex flex-col items-center gap-0.5 text-on-surface-variant">
+<span class="material-symbols-outlined">group</span>
+<span class="text-[9px] font-medium">Users</span>
+</button>
+<button class="flex flex-col items-center gap-0.5 text-on-surface-variant">
+<span class="material-symbols-outlined">terminal</span>
+<span class="text-[9px] font-medium">Logs</span>
+</button>
+</nav>
+<script>
+    // Navigation and simple interactive state
+    document.querySelectorAll('.table-row-hover').forEach(row => {
+        row.addEventListener('click', () => {
+            // Placeholder for row navigation
+            console.log('Accessing record details...');
+        });
+    });
+</script>
+</body></html>

@@ -1,0 +1,1182 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>ProjectConnect | SaaS Platform Control Center</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter & Geist -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+            vertical-align: middle;
+            font-size: 18px;
+        }
+        /* Custom scrollbar for high-density UI */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        
+        .table-row-hover:hover { background-color: #f8fafc; cursor: pointer; }
+        
+        /* Modal & Drawer Transitions */
+        .drawer-overlay { transition: opacity 0.3s ease; }
+        .drawer-content { transition: transform 0.3s ease-in-out; transform: translateX(100%); }
+        .drawer-open .drawer-content { transform: translateX(0); }
+        .drawer-open .drawer-overlay { opacity: 1; visibility: visible; }
+
+        .modal-overlay { transition: opacity 0.2s ease; opacity: 0; pointer-events: none; }
+        .modal-open .modal-overlay { opacity: 1; pointer-events: auto; }
+
+        /* Alpine-like behavior simulation for the interactive part */
+        [x-cloak] { display: none !important; }
+
+        /* Toast notifications */
+        @keyframes slideInUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .toast { animation: slideInUp 0.3s ease-out forwards; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#000000",
+                        "secondary": "#4F46E5",
+                        "background": "#f7f9fb",
+                        "surface": "#ffffff",
+                        "surface-container": "#f1f5f9",
+                        "outline-variant": "#e2e8f0",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#64748b",
+                        "error": "#ef4444",
+                        "success": "#10b981",
+                        "warning": "#f59e0b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "mono": ["Geist"],
+                        "body": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-secondary/10 text-[13px] relative overflow-x-hidden">
+<!-- Toast Container -->
+<div class="fixed bottom-6 right-6 z-[100] flex flex-col gap-2" id="toast-container"></div>
+<!-- Search Results Dropdown -->
+<div class="hidden absolute top-14 left-72 w-80 bg-surface border border-outline-variant shadow-lg rounded-lg z-[60] py-2" id="search-results">
+<div class="px-3 py-1.5 text-[10px] font-bold text-on-surface-variant uppercase tracking-wider border-b border-outline-variant/50">Recent Results</div>
+<div class="p-2 hover:bg-surface-container cursor-pointer transition-colors" onclick="InstitutionService.view('CRCE')">
+<p class="font-semibold text-xs">CRCE Bandra</p>
+<p class="text-[10px] text-on-surface-variant">Institution • Mumbai</p>
+</div>
+<div class="p-2 hover:bg-surface-container cursor-pointer transition-colors" onclick="UserService.view('9921')">
+<p class="font-semibold text-xs">User_9921</p>
+<p class="text-[10px] text-on-surface-variant">Student • Verified</p>
+</div>
+</div>
+<!-- Notification Dropdown -->
+<div class="hidden absolute top-14 right-12 w-80 bg-surface border border-outline-variant shadow-xl rounded-lg z-[60] flex flex-col overflow-hidden" id="notification-dropdown">
+<div class="p-4 border-b border-outline-variant bg-surface-container/30 flex justify-between items-center">
+<h4 class="font-bold">Notifications</h4>
+<button class="text-[10px] text-secondary font-bold">Mark all read</button>
+</div>
+<div class="max-h-[300px] overflow-y-auto divide-y divide-outline-variant/50">
+<div class="p-4 hover:bg-surface-container/50 cursor-pointer" onclick="QueueService.view('requests')">
+<div class="flex gap-3">
+<div class="w-8 h-8 rounded bg-error/10 text-error flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">domain_add</span>
+</div>
+<div>
+<p class="text-xs font-semibold">New Institution Request</p>
+<p class="text-[11px] text-on-surface-variant mt-0.5">St. Xavier's Mumbai requested access.</p>
+<p class="text-[10px] text-secondary font-medium mt-1">2m ago</p>
+</div>
+</div>
+</div>
+<div class="p-4 hover:bg-surface-container/50 cursor-pointer" onclick="QueueService.view('verifications')">
+<div class="flex gap-3">
+<div class="w-8 h-8 rounded bg-warning/10 text-warning flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+</div>
+<div>
+<p class="text-xs font-semibold">Principal Verification</p>
+<p class="text-[11px] text-on-surface-variant mt-0.5">12 profiles awaiting verification.</p>
+<p class="text-[10px] text-secondary font-medium mt-1">1h ago</p>
+</div>
+</div>
+</div>
+</div>
+<div class="p-3 border-t border-outline-variant text-center bg-surface-container/10">
+<button class="text-[11px] font-bold text-on-surface-variant hover:text-on-surface">View All Alerts</button>
+</div>
+</div>
+<!-- Add Institution Drawer -->
+<div class="fixed inset-0 z-[70] invisible" id="add-institution-drawer">
+<div class="drawer-overlay fixed inset-0 bg-primary/20 backdrop-blur-sm opacity-0 cursor-pointer" onclick="DrawerService.close('add-institution-drawer')"></div>
+<div class="drawer-content fixed top-0 right-0 h-screen w-full max-w-md bg-surface shadow-2xl border-l border-outline-variant flex flex-col">
+<div class="p-6 border-b border-outline-variant flex items-center justify-between">
+<h3 class="text-lg font-bold">Add New Institution</h3>
+<button class="p-1 hover:bg-surface-container rounded-full" onclick="DrawerService.close('add-institution-drawer')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-5">
+<div>
+<label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Institution Name</label>
+<input class="w-full px-3 py-2 bg-background border border-outline-variant rounded focus:ring-1 focus:ring-secondary/50 focus:outline-none text-[13px]" placeholder="e.g. Harvard University" type="text">
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Inst. Code</label>
+<input class="w-full px-3 py-2 bg-background border border-outline-variant rounded focus:ring-1 focus:ring-secondary/50 focus:outline-none text-[13px]" placeholder="UNIV-01" type="text">
+</div>
+<div>
+<label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Location</label>
+<input class="w-full px-3 py-2 bg-background border border-outline-variant rounded focus:ring-1 focus:ring-secondary/50 focus:outline-none text-[13px]" placeholder="City, Country" type="text">
+</div>
+</div>
+<div>
+<label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Principal Details</label>
+<div class="grid grid-cols-1 gap-3 p-3 bg-surface-container/30 rounded border border-outline-variant/50">
+<input class="w-full px-3 py-1.5 bg-surface border border-outline-variant rounded text-[12px]" placeholder="Full Name" type="text">
+<input class="w-full px-3 py-1.5 bg-surface border border-outline-variant rounded text-[12px]" placeholder="Email Address" type="email">
+</div>
+</div>
+<div>
+<label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Institution Type</label>
+<select class="w-full px-3 py-2 bg-background border border-outline-variant rounded focus:ring-1 focus:ring-secondary/50 focus:outline-none text-[13px]">
+<option>University</option>
+<option>College</option>
+<option>Research Center</option>
+<option>Training Institute</option>
+</select>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Student Capacity</label>
+<input class="w-full px-3 py-2 bg-background border border-outline-variant rounded text-[13px]" placeholder="5000" type="number">
+</div>
+<div>
+<label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Status</label>
+<div class="flex items-center gap-4 mt-2">
+<label class="flex items-center gap-2 cursor-pointer">
+<input checked="" class="text-secondary focus:ring-secondary/20" name="status" type="radio">
+<span>Active</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="text-secondary focus:ring-secondary/20" name="status" type="radio">
+<span>Pilot</span>
+</label>
+</div>
+</div>
+</div>
+<div>
+<label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Logo</label>
+<div class="border-2 border-dashed border-outline-variant rounded-lg p-6 flex flex-col items-center justify-center gap-2 bg-surface-container/10">
+<span class="material-symbols-outlined text-on-surface-variant text-[32px]">cloud_upload</span>
+<p class="text-[11px] text-on-surface-variant">Click to upload or drag &amp; drop</p>
+</div>
+</div>
+</div>
+<div class="p-6 border-t border-outline-variant bg-surface-container/20 flex gap-3">
+<button class="flex-1 px-4 py-2.5 bg-secondary text-white rounded font-bold hover:bg-secondary/90 transition-colors" onclick="InstitutionService.create()">Save Institution</button>
+<button class="px-4 py-2.5 border border-outline-variant bg-surface rounded font-bold hover:bg-surface-container transition-colors" onclick="DrawerService.close('add-institution-drawer')">Cancel</button>
+</div>
+</div>
+</div>
+<!-- Modal Template (Generic for various actions) -->
+<div class="modal-overlay fixed inset-0 z-[80] bg-primary/40 backdrop-blur-sm flex items-center justify-center p-4" id="app-modal">
+<div class="bg-surface w-full max-w-lg rounded-xl shadow-2xl border border-outline-variant overflow-hidden">
+<div class="px-6 py-4 border-b border-outline-variant flex items-center justify-between bg-surface-container/10" id="modal-header">
+<h3 class="font-bold text-base" id="modal-title">Modal Title</h3>
+<button class="p-1 hover:bg-surface-container rounded-full" onclick="ModalService.close()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-6" id="modal-content">
+<!-- Dynamic Content Injected Here -->
+</div>
+<div class="px-6 py-4 bg-surface-container/30 border-t border-outline-variant flex justify-end gap-3" id="modal-footer">
+<!-- Dynamic Buttons Injected Here -->
+</div>
+</div>
+</div>
+<!-- Navigation Drawer (Desktop) -->
+<aside class="hidden md:flex flex-col h-screen w-[240px] fixed left-0 top-0 bg-surface border-r border-outline-variant z-50 overflow-y-auto">
+<div class="p-4 border-b border-outline-variant flex items-center gap-2">
+<div class="w-8 h-8 bg-secondary rounded flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="shield_person">shield_person</span>
+</div>
+<h1 class="font-bold text-sm tracking-tight">Platform Control</h1>
+</div>
+<nav class="flex-1 p-3 space-y-1" id="sidebar-nav">
+<a class="nav-item flex items-center gap-3 px-3 py-2 bg-secondary/5 text-secondary font-semibold rounded-lg" data-route="dashboard" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="nav-item flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" data-route="institutions" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+<span>Institutions</span>
+</a>
+<a class="nav-item flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" data-route="users" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>Users</span>
+</a>
+<a class="nav-item flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" data-route="projects" href="#">
+<span class="material-symbols-outlined">rocket_launch</span>
+<span>Projects</span>
+</a>
+<a class="nav-item flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" data-route="solutions" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span>Solutions</span>
+</a>
+<a class="nav-item flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" data-route="moderation" href="#">
+<span class="material-symbols-outlined">gavel</span>
+<span>Moderation</span>
+</a>
+<a class="nav-item flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" data-route="analytics" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span>Analytics</span>
+</a>
+<a class="nav-item flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" data-route="logs" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span>Audit Logs</span>
+</a>
+<a class="nav-item flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" data-route="settings" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-outline-variant bg-surface-container/30">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary text-white flex items-center justify-center text-xs font-bold">SA</div>
+<div class="flex-1 min-w-0">
+<p class="font-semibold truncate">Super Admin</p>
+<p class="text-[10px] text-on-surface-variant">Global Access</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="md:ml-[240px] min-h-screen">
+<!-- Top Bar -->
+<header class="h-14 border-b border-outline-variant bg-surface flex items-center justify-between px-6 sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<button class="md:hidden"><span class="material-symbols-outlined">menu</span></button>
+<h2 class="font-semibold text-sm" id="page-title">Dashboard Overview</h2>
+</div>
+<div class="hidden lg:flex items-center relative ml-4">
+<span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px]">search</span>
+<input class="pl-9 pr-3 py-1.5 bg-surface-container/50 border border-outline-variant rounded-lg text-[11px] w-80 focus:outline-none focus:ring-1 focus:ring-secondary/50" id="main-search" placeholder="Search institutions, users, projects..." type="text">
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-1.5 px-2 py-1 bg-success/10 text-success rounded text-[11px] font-medium border border-success/20 cursor-pointer" onclick="NavigationService.route('health')">
+<span class="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></span>
+                System Operational
+            </div>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container rounded transition-colors relative" id="notif-btn">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-error rounded-full ring-2 ring-surface"></span>
+</button>
+<div class="h-6 w-[1px] bg-outline-variant mx-1"></div>
+<button class="text-xs font-medium text-secondary hover:underline">Support</button>
+</div>
+</div>
+</header>
+<!-- Page Content Container -->
+<div class="p-6 max-w-[1600px] mx-auto space-y-6" id="main-view-container">
+<!-- Default Dashboard View -->
+<div class="space-y-6" id="view-dashboard">
+<!-- Header & Quick Actions -->
+<div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+<div>
+<h1 class="text-xl font-bold tracking-tight">Platform Snapshot</h1>
+<p class="text-on-surface-variant text-xs mt-0.5">Control and monitoring of global SaaS infrastructure.</p>
+</div>
+<div class="flex flex-wrap items-center gap-2 bg-surface p-1.5 rounded-lg border border-outline-variant">
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-secondary text-white rounded text-[11px] font-bold hover:bg-secondary/90 transition-colors" onclick="DrawerService.open('add-institution-drawer')">
+<span class="material-symbols-outlined text-[16px]">add</span> Add Institution
+                    </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 border border-outline-variant bg-surface hover:bg-surface-container text-[11px] font-bold rounded transition-colors" onclick="ModalService.openInvitePrincipal()">
+<span class="material-symbols-outlined text-[16px]">person_add</span> Invite Principal
+                    </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 border border-outline-variant bg-surface hover:bg-surface-container text-[11px] font-bold rounded transition-colors" onclick="ModalService.openCreateAdmin()">
+<span class="material-symbols-outlined text-[16px]">admin_panel_settings</span> Create Admin
+                    </button>
+<div class="w-[1px] h-6 bg-outline-variant mx-1"></div>
+<button class="flex items-center gap-1.5 px-3 py-1.5 text-on-surface-variant hover:bg-surface-container text-[11px] font-bold rounded transition-colors" onclick="ModalService.openExport()">
+<span class="material-symbols-outlined text-[16px]">download</span> Export Reports
+                    </button>
+</div>
+</div>
+<!-- KPI Grid -->
+<section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+<div class="bg-surface border border-outline-variant p-4 rounded-lg hover:border-secondary transition-all cursor-pointer group" onclick="NavigationService.route('institutions')">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider group-hover:text-secondary">Total Institutions</p>
+<h3 class="text-2xl font-bold mt-1">42</h3>
+<p class="text-[10px] text-success font-medium mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +2 this month
+                    </p>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg hover:border-secondary transition-all cursor-pointer group" onclick="NavigationService.route('users')">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider group-hover:text-secondary">Total Users</p>
+<h3 class="text-2xl font-bold mt-1">14,320</h3>
+<p class="text-[10px] text-success font-medium mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +12% growth
+                    </p>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg hover:border-secondary transition-all cursor-pointer group">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider group-hover:text-secondary">Active Projects</p>
+<h3 class="text-2xl font-bold mt-1">840</h3>
+<p class="text-[10px] text-on-surface-variant font-medium mt-1">Live environments</p>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg hover:border-secondary transition-all cursor-pointer group">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider group-hover:text-secondary">Total Solutions</p>
+<h3 class="text-2xl font-bold mt-1">2,104</h3>
+<p class="text-[10px] text-on-surface-variant font-medium mt-1">Vetted modules</p>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg hover:border-secondary transition-all cursor-pointer group">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider group-hover:text-secondary">Credits Issued</p>
+<h3 class="text-2xl font-bold mt-1">125k</h3>
+<p class="text-[10px] text-secondary font-medium mt-1">Institutional credit</p>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg ring-1 ring-error/20 bg-error/[0.02] hover:ring-error transition-all cursor-pointer group" onclick="QueueService.view('requests')">
+<p class="text-[10px] font-bold text-error uppercase tracking-wider">Pending Approvals</p>
+<h3 class="text-2xl font-bold mt-1">65</h3>
+<p class="text-[10px] text-error font-medium mt-1">Action required</p>
+</div>
+</section>
+<!-- Adoption Chart -->
+<section class="bg-surface border border-outline-variant rounded-lg p-4">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-bold text-sm flex items-center gap-2"><span class="material-symbols-outlined text-secondary">trending_up</span> Monthly Adoption Growth</h3>
+<span class="text-[10px] text-on-surface-variant font-medium">Jan - Jun 2023</span>
+</div>
+<div class="flex items-end justify-between h-24 gap-2 px-2">
+<div class="flex-1 flex flex-col items-center gap-2"><div class="w-full bg-secondary/20 rounded-t h-[30%]"></div><span class="text-[9px] font-bold">JAN</span></div>
+<div class="flex-1 flex flex-col items-center gap-2"><div class="w-full bg-secondary/40 rounded-t h-[45%]"></div><span class="text-[9px] font-bold">FEB</span></div>
+<div class="flex-1 flex flex-col items-center gap-2"><div class="w-full bg-secondary/60 rounded-t h-[60%]"></div><span class="text-[9px] font-bold">MAR</span></div>
+<div class="flex-1 flex flex-col items-center gap-2"><div class="w-full bg-secondary/80 rounded-t h-[75%]"></div><span class="text-[9px] font-bold">APR</span></div>
+<div class="flex-1 flex flex-col items-center gap-2"><div class="w-full bg-secondary rounded-t h-[90%]"></div><span class="text-[9px] font-bold">MAY</span></div>
+<div class="flex-1 flex flex-col items-center gap-2"><div class="w-full bg-secondary rounded-t h-[100%]"></div><span class="text-[9px] font-bold">JUN</span></div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Pending Approvals Module -->
+<section class="lg:col-span-12">
+<div class="flex items-center justify-between mb-3">
+<h3 class="font-bold text-[13px] flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">pending_actions</span>
+                            Operational Queue
+                        </h3>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="bg-surface border border-outline-variant p-3 rounded-lg flex items-center gap-4 hover:border-secondary transition-colors cursor-pointer group" onclick="QueueService.view('requests')">
+<div class="w-10 h-10 rounded-lg bg-error/10 flex items-center justify-center text-error group-hover:bg-error group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">domain_add</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<span class="text-xs font-semibold">Inst. Requests</span>
+<span class="text-[10px] font-bold text-error bg-error/10 px-1 rounded uppercase">High</span>
+</div>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="text-lg font-bold">3</span>
+<span class="text-[10px] text-on-surface-variant">new</span>
+</div>
+</div>
+</div>
+<div class="bg-surface border border-outline-variant p-3 rounded-lg flex items-center gap-4 hover:border-secondary transition-colors cursor-pointer group" onclick="QueueService.view('verifications')">
+<div class="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center text-warning group-hover:bg-warning group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">how_to_reg</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<span class="text-xs font-semibold">Principal Verif.</span>
+<span class="text-[10px] font-bold text-warning bg-warning/10 px-1 rounded uppercase">Med</span>
+</div>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="text-lg font-bold">12</span>
+<span class="text-[10px] text-on-surface-variant">pending</span>
+</div>
+</div>
+</div>
+<div class="bg-surface border border-outline-variant p-3 rounded-lg flex items-center gap-4 hover:border-secondary transition-colors cursor-pointer group">
+<div class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">badge</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<span class="text-xs font-semibold">Faculty Verif.</span>
+<span class="text-[10px] font-bold text-secondary bg-secondary/10 px-1 rounded uppercase">Urgent</span>
+</div>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="text-lg font-bold">45</span>
+<span class="text-[10px] text-on-surface-variant">waiting</span>
+</div>
+</div>
+</div>
+<div class="bg-surface border border-outline-variant p-3 rounded-lg flex items-center gap-4 hover:border-secondary transition-colors cursor-pointer group" onclick="NavigationService.route('moderation')">
+<div class="w-10 h-10 rounded-lg bg-error/10 flex items-center justify-center text-error group-hover:bg-error group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">report</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<span class="text-xs font-semibold">Reported Acc.</span>
+<span class="text-[10px] font-bold text-error bg-error/10 px-1 rounded uppercase">High</span>
+</div>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="text-lg font-bold">5</span>
+<span class="text-[10px] text-on-surface-variant">flagged</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Institution Management Table -->
+<section class="lg:col-span-8 bg-surface border border-outline-variant rounded-lg flex flex-col">
+<div class="p-4 border-b border-outline-variant flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<h3 class="font-bold text-sm">Institution Management</h3>
+<div class="hidden flex items-center gap-2 bg-secondary/5 px-2 py-1 rounded-full border border-secondary/20" id="bulk-actions">
+<span class="text-[10px] font-bold text-secondary px-1" id="selection-count">2 Selected</span>
+<button class="text-[10px] font-bold text-error hover:underline" onclick="InstitutionService.bulkSuspend()">Suspend</button>
+<button class="text-[10px] font-bold text-error hover:underline" onclick="InstitutionService.bulkDelete()">Delete</button>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px]">search</span>
+<input class="pl-8 pr-3 py-1.5 border border-outline-variant rounded bg-background text-[11px] w-48 xl:w-64 focus:outline-none focus:ring-1 focus:ring-secondary/50" placeholder="Search..." type="text">
+</div>
+<button class="px-3 py-1.5 border border-outline-variant rounded flex items-center gap-1.5 text-[11px] font-medium hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto flex-1">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead class="bg-surface-container/30 text-[10px] font-bold text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">
+<tr>
+<th class="px-4 py-3 w-10">
+<input class="rounded text-secondary focus:ring-secondary/20" onchange="TableService.toggleAll(this)" type="checkbox">
+</th>
+<th class="px-4 py-3">Institution</th>
+<th class="px-4 py-3">Principal</th>
+<th class="px-4 py-3 text-center">Students</th>
+<th class="px-4 py-3 text-center">Faculty</th>
+<th class="px-4 py-3">Status</th>
+<th class="px-4 py-3 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant" id="inst-table-body">
+<tr class="table-row-hover transition-colors group" onclick="InstitutionService.view('CRCE')">
+<td class="px-4 py-3" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded text-secondary focus:ring-secondary/20" onchange="TableService.updateSelection()" type="checkbox">
+</td>
+<td class="px-4 py-3">
+<div class="font-bold">CRCE</div>
+<div class="text-[10px] text-on-surface-variant">Bandra, Mumbai</div>
+</td>
+<td class="px-4 py-3 text-on-surface-variant">Dr. Srija Unnikrishnan</td>
+<td class="px-4 py-3 text-center font-mono">1,240</td>
+<td class="px-4 py-3 text-center font-mono">85</td>
+<td class="px-4 py-3">
+<span class="px-2 py-0.5 bg-success/10 text-success text-[10px] font-bold rounded-full border border-success/20">Active</span>
+</td>
+<td class="px-4 py-3 text-right" onclick="event.stopPropagation()">
+<div class="relative inline-block">
+<button class="p-1 hover:bg-surface-container rounded" onclick="TableService.toggleMenu(event, 'menu-1')"><span class="material-symbols-outlined">more_vert</span></button>
+<div class="hidden absolute right-0 bottom-full mb-1 w-48 bg-surface border border-outline-variant shadow-xl rounded-lg z-20 py-1 text-left" id="menu-1">
+<button class="w-full px-4 py-2 text-[11px] font-medium hover:bg-surface-container flex items-center gap-2" onclick="InstitutionService.view('CRCE')"><span class="material-symbols-outlined text-[16px]">visibility</span> View Full Details</button>
+<button class="w-full px-4 py-2 text-[11px] font-medium hover:bg-surface-container flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">edit</span> Edit Config</button>
+<div class="border-t border-outline-variant/50 my-1"></div>
+<button class="w-full px-4 py-2 text-[11px] font-medium text-error hover:bg-error/5 flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">block</span> Suspend Institution</button>
+</div>
+</div>
+</td>
+</tr>
+<tr class="table-row-hover transition-colors group" onclick="InstitutionService.view('VESIT')">
+<td class="px-4 py-3" onclick="event.stopPropagation()">
+<input class="row-checkbox rounded text-secondary focus:ring-secondary/20" onchange="TableService.updateSelection()" type="checkbox">
+</td>
+<td class="px-4 py-3">
+<div class="font-bold">VESIT</div>
+<div class="text-[10px] text-on-surface-variant">Chembur, Mumbai</div>
+</td>
+<td class="px-4 py-3 text-on-surface-variant">Dr. J. M. Nair</td>
+<td class="px-4 py-3 text-center font-mono">2,100</td>
+<td class="px-4 py-3 text-center font-mono">120</td>
+<td class="px-4 py-3">
+<span class="px-2 py-0.5 bg-success/10 text-success text-[10px] font-bold rounded-full border border-success/20">Active</span>
+</td>
+<td class="px-4 py-3 text-right" onclick="event.stopPropagation()">
+<button class="p-1 hover:bg-surface-container rounded"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-3 border-t border-outline-variant bg-surface-container/10 flex items-center justify-between">
+<p class="text-[10px] text-on-surface-variant font-medium">Showing 1-2 of 42 institutions</p>
+<div class="flex gap-1">
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container text-[10px]">Prev</button>
+<button class="px-2 py-1 border border-secondary bg-secondary text-white rounded text-[10px]">1</button>
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container text-[10px]">2</button>
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container text-[10px]">Next</button>
+</div>
+</div>
+</section>
+<!-- Platform Health & System Logs -->
+<section class="lg:col-span-4 space-y-6">
+<!-- Platform Health Card -->
+<div class="bg-surface border border-outline-variant rounded-lg p-4 cursor-pointer hover:border-secondary transition-all" onclick="NavigationService.route('health')">
+<h3 class="font-bold text-sm mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-success">analytics</span>
+                            Platform Health
+                        </h3>
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<span class="text-[11px] text-on-surface-variant">API Gateway</span>
+<div class="flex items-center gap-1.5">
+<span class="text-[11px] font-bold text-success">99.9%</span>
+<div class="w-8 h-1 bg-success/20 rounded-full overflow-hidden"><div class="w-[99%] h-full bg-success"></div></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[11px] text-on-surface-variant">Database Cluster</span>
+<div class="flex items-center gap-1.5">
+<span class="text-[11px] font-bold text-success">Healthy</span>
+<div class="w-8 h-1 bg-success/20 rounded-full overflow-hidden"><div class="w-full bg-success"></div></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[11px] text-on-surface-variant">S3 Storage</span>
+<div class="flex items-center gap-1.5">
+<span class="text-[11px] font-bold text-on-surface">4.2 TB</span>
+<div class="w-8 h-1 bg-on-surface/10 rounded-full overflow-hidden"><div class="w-[45%] h-full bg-secondary"></div></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[11px] text-on-surface-variant">Active Sessions</span>
+<span class="text-[11px] font-bold text-on-surface">1,429</span>
+</div>
+</div>
+</div>
+<!-- Mini Audit Log -->
+<div class="bg-surface border border-outline-variant rounded-lg overflow-hidden flex flex-col">
+<div class="p-4 border-b border-outline-variant flex items-center justify-between">
+<h3 class="font-bold text-sm">System Logs</h3>
+<button class="text-secondary text-[10px] font-bold hover:underline" onclick="NavigationService.route('logs')">View All</button>
+</div>
+<div class="flex-1 divide-y divide-outline-variant overflow-y-auto max-h-[300px]" id="mini-log-list">
+<div class="p-3 table-row-hover transition-colors" onclick="AuditService.viewDetail('LOG_1402')">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-mono text-on-surface-variant">14:02:12</span>
+<span class="text-[9px] font-bold text-success border border-success/20 px-1 rounded">SUCCESS</span>
+</div>
+<p class="text-[11px] mt-1"><span class="font-bold">SuperAdmin</span> updated <span class="font-medium text-secondary">CRCE</span> configuration</p>
+</div>
+<div class="p-3 table-row-hover transition-colors" onclick="AuditService.viewDetail('LOG_1358')">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-mono text-on-surface-variant">13:58:44</span>
+<span class="text-[9px] font-bold text-success border border-success/20 px-1 rounded">SUCCESS</span>
+</div>
+<p class="text-[11px] mt-1"><span class="font-bold">System</span> auto-approved <span class="font-medium">User_9921</span> verification</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Dynamic Content Area for "Routing" simulation -->
+<div class="hidden" id="dynamic-content-view">
+<!-- Content will be injected by NavigationService -->
+</div>
+</div>
+</main>
+<!-- Mobile Navigation -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant flex justify-around p-2 z-50">
+<button class="flex flex-col items-center gap-0.5 text-secondary" onclick="NavigationService.route('dashboard')">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[9px] font-bold">Dash</span>
+</button>
+<button class="flex flex-col items-center gap-0.5 text-on-surface-variant" onclick="NavigationService.route('institutions')">
+<span class="material-symbols-outlined">account_balance</span>
+<span class="text-[9px] font-medium">Inst.</span>
+</button>
+<button class="flex flex-col items-center gap-0.5 text-on-surface-variant" onclick="NavigationService.route('users')">
+<span class="material-symbols-outlined">group</span>
+<span class="text-[9px] font-medium">Users</span>
+</button>
+<button class="flex flex-col items-center gap-0.5 text-on-surface-variant" onclick="NavigationService.route('logs')">
+<span class="material-symbols-outlined">terminal</span>
+<span class="text-[9px] font-medium">Logs</span>
+</button>
+</nav>
+<script>
+    /**
+     * CORE SERVICES FOR SaaS LOGIC
+     */
+
+    const ToastService = {
+        show(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bg = type === 'success' ? 'bg-success' : 'bg-error';
+            toast.className = `toast ${bg} text-white px-4 py-2.5 rounded shadow-lg flex items-center gap-2 text-xs font-bold mb-2`;
+            toast.innerHTML = `
+                <span class="material-symbols-outlined text-[16px]">${type === 'success' ? 'check_circle' : 'error'}</span>
+                ${message}
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    };
+
+    const DrawerService = {
+        open(id) {
+            const drawer = document.getElementById(id);
+            drawer.classList.remove('invisible');
+            drawer.classList.add('drawer-open');
+            document.body.style.overflow = 'hidden';
+        },
+        close(id) {
+            const drawer = document.getElementById(id);
+            drawer.classList.remove('drawer-open');
+            setTimeout(() => drawer.classList.add('invisible'), 300);
+            document.body.style.overflow = '';
+        }
+    };
+
+    const ModalService = {
+        open(title, content, footer) {
+            const modal = document.getElementById('app-modal');
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-content').innerHTML = content;
+            document.getElementById('modal-footer').innerHTML = footer;
+            modal.classList.add('modal-open');
+            document.body.style.overflow = 'hidden';
+        },
+        close() {
+            const modal = document.getElementById('app-modal');
+            modal.classList.remove('modal-open');
+            document.body.style.overflow = '';
+        },
+        openInvitePrincipal() {
+            this.open(
+                'Invite Institution Principal',
+                `<div class="space-y-4">
+                    <p class="text-xs text-on-surface-variant">Send a secure invite to a new principal to onboard their institution.</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" placeholder="Full Name" class="w-full px-3 py-2 border border-outline-variant rounded text-xs focus:ring-1 focus:ring-secondary/50 focus:outline-none">
+                        <input type="email" placeholder="Email Address" class="w-full px-3 py-2 border border-outline-variant rounded text-xs focus:ring-1 focus:ring-secondary/50 focus:outline-none">
+                    </div>
+                    <select class="w-full px-3 py-2 border border-outline-variant rounded text-xs focus:ring-1 focus:ring-secondary/50 focus:outline-none">
+                        <option>Select Institution</option>
+                        <option>CRCE Bandra</option>
+                        <option>VESIT Chembur</option>
+                    </select>
+                </div>`,
+                `<button onclick="ModalService.close()" class="px-4 py-2 text-xs font-bold">Cancel</button>
+                 <button onclick="InstitutionService.sendInvite()" class="px-4 py-2 bg-secondary text-white rounded text-xs font-bold">Send Invite</button>`
+            );
+        },
+        openCreateAdmin() {
+            this.open(
+                'Create Global Admin',
+                `<div class="space-y-4">
+                    <input type="text" placeholder="Admin Username" class="w-full px-3 py-2 border border-outline-variant rounded text-xs mb-4">
+                    <p class="text-[10px] font-bold text-on-surface-variant uppercase mb-2">Permissions</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center gap-2 text-xs py-1"><input type="checkbox" checked class="rounded text-secondary"> User Management</label>
+                        <label class="flex items-center gap-2 text-xs py-1"><input type="checkbox" checked class="rounded text-secondary"> Moderation</label>
+                        <label class="flex items-center gap-2 text-xs py-1"><input type="checkbox" class="rounded text-secondary"> Financial Logs</label>
+                        <label class="flex items-center gap-2 text-xs py-1"><input type="checkbox" class="rounded text-secondary"> System Config</label>
+                    </div>
+                </div>`,
+                `<button onclick="ModalService.close()" class="px-4 py-2 text-xs font-bold">Cancel</button>
+                 <button onclick="ToastService.show('Admin account created')" class="px-4 py-2 bg-secondary text-white rounded text-xs font-bold">Create Admin</button>`
+            );
+        },
+        openExport() {
+            this.open(
+                'Export System Reports',
+                `<div class="space-y-4">
+                    <p class="text-xs text-on-surface-variant">Select data segments and format to export.</p>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-2 text-xs"><input type="checkbox" checked class="rounded text-secondary"> Institutions Data</label>
+                        <label class="flex items-center gap-2 text-xs"><input type="checkbox" checked class="rounded text-secondary"> User Growth Reports</label>
+                        <label class="flex items-center gap-2 text-xs"><input type="checkbox" class="rounded text-secondary"> Audit Logs (Last 30 days)</label>
+                    </div>
+                    <div class="pt-4 border-t border-outline-variant">
+                        <p class="text-[10px] font-bold text-on-surface-variant uppercase mb-2">Format</p>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1.5 border border-secondary bg-secondary/5 text-secondary text-[11px] font-bold rounded">CSV</button>
+                            <button class="px-3 py-1.5 border border-outline-variant text-[11px] font-bold rounded">Excel</button>
+                            <button class="px-3 py-1.5 border border-outline-variant text-[11px] font-bold rounded">PDF</button>
+                        </div>
+                    </div>
+                </div>`,
+                `<button onclick="ModalService.close()" class="px-4 py-2 text-xs font-bold">Close</button>
+                 <button onclick="ToastService.show('Report generation started...')" class="px-4 py-2 bg-secondary text-white rounded text-xs font-bold">Generate Report</button>`
+            );
+        }
+    };
+
+    const InstitutionService = {
+        create() {
+            ToastService.show('Sending creation request...');
+            // Simulating loading state
+            const btn = document.querySelector('#add-institution-drawer button.bg-secondary');
+            const originalText = btn.innerText;
+            btn.innerHTML = '<span class="animate-spin material-symbols-outlined text-[16px]">refresh</span> Processing...';
+            
+            setTimeout(() => {
+                btn.innerText = originalText;
+                DrawerService.close('add-institution-drawer');
+                ToastService.show('Institution added successfully!');
+                AuditService.log('SuperAdmin', 'Created new Institution: CRCE Bandra');
+            }, 1200);
+        },
+        view(name) {
+            NavigationService.route('institution-detail', { name });
+        },
+        sendInvite() {
+            ModalService.close();
+            ToastService.show('Invite sent to principal');
+        },
+        bulkSuspend() {
+            ToastService.show('Selected institutions suspended', 'error');
+            TableService.clearSelection();
+        },
+        bulkDelete() {
+            if(confirm('Are you sure you want to delete these institutions?')) {
+                ToastService.show('Institutions removed permanently');
+                TableService.clearSelection();
+            }
+        }
+    };
+
+    const AuditService = {
+        viewDetail(id) {
+            ModalService.open(
+                `Transaction Detail: ${id}`,
+                `<div class="space-y-4 font-mono text-[11px]">
+                    <div class="grid grid-cols-3 gap-2 bg-surface-container/30 p-3 rounded">
+                        <div class="text-on-surface-variant uppercase font-bold text-[9px]">IP Address</div>
+                        <div class="col-span-2">192.168.1.105</div>
+                        <div class="text-on-surface-variant uppercase font-bold text-[9px]">User Agent</div>
+                        <div class="col-span-2">Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)</div>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-on-surface-variant uppercase font-bold text-[9px]">Payload Changes</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-error/5 p-2 rounded border border-error/10">
+                                <p class="text-[9px] font-bold text-error mb-1">BEFORE</p>
+                                <code>{ status: "PILOT", capacity: 1000 }</code>
+                            </div>
+                            <div class="bg-success/5 p-2 rounded border border-success/10">
+                                <p class="text-[9px] font-bold text-success mb-1">AFTER</p>
+                                <code>{ status: "ACTIVE", capacity: 1500 }</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>`,
+                `<button onclick="ModalService.close()" class="px-4 py-2 bg-secondary text-white rounded text-xs font-bold">Done</button>`
+            );
+        },
+        log(actor, action) {
+            // Internal function to add to the visual log lists
+            console.log(`LOG: ${actor} -> ${action}`);
+        }
+    };
+
+    const QueueService = {
+        view(type) {
+            NavigationService.route('queue-detail', { type });
+        }
+    };
+
+    const TableService = {
+        updateSelection() {
+            const checked = document.querySelectorAll('.row-checkbox:checked');
+            const bulkBar = document.getElementById('bulk-actions');
+            const countLabel = document.getElementById('selection-count');
+            
+            if(checked.length > 0) {
+                bulkBar.classList.remove('hidden');
+                countLabel.innerText = `${checked.length} Selected`;
+            } else {
+                bulkBar.classList.add('hidden');
+            }
+        },
+        toggleAll(el) {
+            document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = el.checked);
+            this.updateSelection();
+        },
+        clearSelection() {
+            document.querySelectorAll('.row-checkbox, input[onchange*="toggleAll"]').forEach(cb => cb.checked = false);
+            this.updateSelection();
+        },
+        toggleMenu(e, id) {
+            e.stopPropagation();
+            const menu = document.getElementById(id);
+            const allMenus = document.querySelectorAll('[id^="menu-"]');
+            allMenus.forEach(m => { if(m.id !== id) m.classList.add('hidden') });
+            menu.classList.toggle('hidden');
+        }
+    };
+
+    const NavigationService = {
+        route(path, params = {}) {
+            const mainView = document.getElementById('view-dashboard');
+            const dynamicView = document.getElementById('dynamic-content-view');
+            const pageTitle = document.getElementById('page-title');
+            
+            // Show loading state first
+            dynamicView.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-20 space-y-4">
+                    <div class="w-10 h-10 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin"></div>
+                    <p class="text-xs font-medium text-on-surface-variant">Accessing secure module...</p>
+                </div>
+            `;
+            mainView.classList.add('hidden');
+            dynamicView.classList.remove('hidden');
+
+            // Simulate navigation delay
+            setTimeout(() => {
+                if(path === 'dashboard') {
+                    mainView.classList.remove('hidden');
+                    dynamicView.classList.add('hidden');
+                    pageTitle.innerText = 'Dashboard Overview';
+                    this.updateSidebar('dashboard');
+                } else if(path === 'institution-detail') {
+                    pageTitle.innerText = `Institution: ${params.name}`;
+                    this.renderInstitutionDetail(params.name);
+                    this.updateSidebar('institutions');
+                } else if(path === 'queue-detail') {
+                    pageTitle.innerText = params.type === 'requests' ? 'Institution Requests' : 'Verification Queue';
+                    this.renderQueueDetail(params.type);
+                } else if(path === 'logs') {
+                    pageTitle.innerText = 'Full System Audit Logs';
+                    this.renderAuditLogs();
+                    this.updateSidebar('logs');
+                } else if(path === 'health') {
+                    pageTitle.innerText = 'System Health Metrics';
+                    this.renderHealth();
+                } else {
+                    dynamicView.innerHTML = `
+                        <div class="bg-surface border border-outline-variant p-20 rounded-xl text-center">
+                            <span class="material-symbols-outlined text-[48px] text-on-surface-variant mb-4">construction</span>
+                            <h3 class="text-lg font-bold">${path.charAt(0).toUpperCase() + path.slice(1)} Module</h3>
+                            <p class="text-on-surface-variant text-sm mt-2">This interactive view is currently being provisioned for the Super Admin console.</p>
+                            <button onclick="NavigationService.route('dashboard')" class="mt-6 px-4 py-2 bg-secondary text-white rounded font-bold">Return to Dashboard</button>
+                        </div>
+                    `;
+                    this.updateSidebar(path);
+                }
+            }, 600);
+        },
+        updateSidebar(route) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if(item.dataset.route === route) {
+                    item.classList.add('bg-secondary/5', 'text-secondary', 'font-semibold');
+                    item.classList.remove('text-on-surface-variant');
+                } else {
+                    item.classList.remove('bg-secondary/5', 'text-secondary', 'font-semibold');
+                    item.classList.add('text-on-surface-variant');
+                }
+            });
+        },
+        renderInstitutionDetail(name) {
+            const container = document.getElementById('dynamic-content-view');
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <button onclick="NavigationService.route('dashboard')" class="p-2 hover:bg-surface-container rounded-lg">
+                                <span class="material-symbols-outlined">arrow_back</span>
+                            </button>
+                            <div>
+                                <h1 class="text-xl font-bold">${name} Control Panel</h1>
+                                <p class="text-[11px] text-on-surface-variant">Institution Management > ${name}</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                             <button class="px-4 py-2 border border-outline-variant rounded font-bold hover:bg-surface-container text-[11px]">Edit Details</button>
+                             <button class="px-4 py-2 bg-error text-white rounded font-bold hover:bg-error/90 text-[11px]">Suspend Access</button>
+                        </div>
+                    </div>
+                    <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden">
+                        <div class="flex border-b border-outline-variant overflow-x-auto bg-surface-container/10">
+                            <button class="px-6 py-3 text-[11px] font-bold border-b-2 border-secondary text-secondary">Overview</button>
+                            <button class="px-6 py-3 text-[11px] font-bold text-on-surface-variant hover:text-on-surface">Students</button>
+                            <button class="px-6 py-3 text-[11px] font-bold text-on-surface-variant hover:text-on-surface">Faculty</button>
+                            <button class="px-6 py-3 text-[11px] font-bold text-on-surface-variant hover:text-on-surface">Projects</button>
+                            <button class="px-6 py-3 text-[11px] font-bold text-on-surface-variant hover:text-on-surface">Credits</button>
+                            <button class="px-6 py-3 text-[11px] font-bold text-on-surface-variant hover:text-on-surface">Analytics</button>
+                        </div>
+                        <div class="p-8 grid grid-cols-3 gap-8">
+                            <div class="col-span-2 space-y-6">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="p-4 bg-background rounded-lg border border-outline-variant">
+                                        <p class="text-[10px] font-bold text-on-surface-variant uppercase">Storage Used</p>
+                                        <p class="text-lg font-bold mt-1">45.2 GB <span class="text-[10px] font-medium text-on-surface-variant">of 100 GB</span></p>
+                                        <div class="w-full h-1 bg-outline-variant rounded-full mt-2 overflow-hidden"><div class="w-[45%] h-full bg-secondary"></div></div>
+                                    </div>
+                                    <div class="p-4 bg-background rounded-lg border border-outline-variant">
+                                        <p class="text-[10px] font-bold text-on-surface-variant uppercase">Credit Balance</p>
+                                        <p class="text-lg font-bold mt-1">12,400 <span class="text-[10px] font-medium text-on-surface-variant">Available</span></p>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <h4 class="font-bold text-sm">Institution Health</h4>
+                                    <div class="p-4 bg-success/5 border border-success/20 rounded-lg flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full bg-success/10 text-success flex items-center justify-center"><span class="material-symbols-outlined">check_circle</span></div>
+                                            <div>
+                                                <p class="font-bold text-xs">Environment Fully Healthy</p>
+                                                <p class="text-[10px] text-on-surface-variant">All 42 project clusters are active.</p>
+                                            </div>
+                                        </div>
+                                        <button class="text-[10px] font-bold text-success hover:underline">View Node Map</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-6">
+                                <div class="p-4 bg-surface-container/30 rounded-xl border border-outline-variant">
+                                    <h4 class="font-bold text-xs mb-4">Quick Stats</h4>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between text-[11px]"><span class="text-on-surface-variant">Joined</span><span class="font-bold">Oct 24, 2022</span></div>
+                                        <div class="flex justify-between text-[11px]"><span class="text-on-surface-variant">Last Active</span><span class="font-bold">2 mins ago</span></div>
+                                        <div class="flex justify-between text-[11px]"><span class="text-on-surface-variant">Subscription</span><span class="font-bold text-secondary">Enterprise</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        },
+        renderQueueDetail(type) {
+            const isRequests = type === 'requests';
+            const container = document.getElementById('dynamic-content-view');
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <button onclick="NavigationService.route('dashboard')" class="flex items-center gap-2 px-3 py-1.5 hover:bg-surface-container rounded-lg font-bold text-xs">
+                            <span class="material-symbols-outlined text-[18px]">arrow_back</span> Back
+                        </button>
+                        <div class="flex gap-2">
+                             <button class="px-3 py-1.5 bg-secondary text-white rounded font-bold text-[11px]">Process Bulk</button>
+                        </div>
+                    </div>
+                    <div class="bg-surface border border-outline-variant rounded-xl">
+                        <div class="p-4 border-b border-outline-variant flex justify-between items-center">
+                            <h3 class="font-bold text-sm">${isRequests ? 'Access Requests' : 'Verification Queue'}</h3>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 bg-error/10 text-error text-[10px] font-bold rounded">${isRequests ? '3 Urgent' : '12 Pending'}</span>
+                            </div>
+                        </div>
+                        <div class="divide-y divide-outline-variant">
+                            ${isRequests ? `
+                            <div class="p-6 flex items-center justify-between hover:bg-surface-container/30 transition-colors">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded bg-error/10 text-error flex items-center justify-center font-bold text-lg">SX</div>
+                                    <div>
+                                        <p class="font-bold">St. Xavier's College</p>
+                                        <p class="text-[11px] text-on-surface-variant">Fort, Mumbai • Dr. Rajendra Shinde</p>
+                                        <p class="text-[10px] text-secondary font-medium mt-1 italic">"We need access for our upcoming tech fest projects."</p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="ToastService.show('Institution Approved')" class="px-4 py-2 bg-success text-white rounded text-[11px] font-bold hover:bg-success/90">Approve</button>
+                                    <button onclick="ToastService.show('Request Rejected', 'error')" class="px-4 py-2 border border-outline-variant text-error rounded text-[11px] font-bold hover:bg-error/5">Reject</button>
+                                </div>
+                            </div>
+                            ` : `
+                            <div class="p-6 flex items-center justify-between hover:bg-surface-container/30 transition-colors">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-secondary/10 text-secondary flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">person</span></div>
+                                    <div>
+                                        <p class="font-bold">Prof. Amit Verma</p>
+                                        <p class="text-[11px] text-on-surface-variant">IIT Bombay • Computer Science Dept.</p>
+                                        <p class="text-[10px] text-on-surface-variant mt-1">Uploaded ID: <span class="text-secondary hover:underline cursor-pointer">faculty_id_9901.pdf</span></p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="ToastService.show('Verified Successfully')" class="px-4 py-2 bg-secondary text-white rounded text-[11px] font-bold hover:bg-secondary/90">Verify Profile</button>
+                                    <button onclick="ToastService.show('Flagged for Review', 'error')" class="px-4 py-2 border border-outline-variant text-on-surface-variant rounded text-[11px] font-bold">Flag Account</button>
+                                </div>
+                            </div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
+        },
+        renderAuditLogs() {
+             const container = document.getElementById('dynamic-content-view');
+             container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <button onclick="NavigationService.route('dashboard')" class="p-2 hover:bg-surface-container rounded-lg">
+                                <span class="material-symbols-outlined">arrow_back</span>
+                            </button>
+                            <h1 class="text-xl font-bold">Central Audit Log</h1>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="date" class="px-3 py-1.5 border border-outline-variant rounded text-[11px]">
+                            <select class="px-3 py-1.5 border border-outline-variant rounded text-[11px]">
+                                <option>All Actors</option>
+                                <option>SuperAdmin</option>
+                                <option>System-Auto</option>
+                            </select>
+                            <button class="px-4 py-2 bg-secondary text-white rounded font-bold text-[11px]">Export Full CSV</button>
+                        </div>
+                    </div>
+                    <div class="bg-surface border border-outline-variant rounded-xl overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-surface-container/30 text-[10px] font-bold text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">
+                                <tr>
+                                    <th class="px-6 py-4">Timestamp</th>
+                                    <th class="px-6 py-4">Action</th>
+                                    <th class="px-6 py-4">Actor</th>
+                                    <th class="px-6 py-4">Target</th>
+                                    <th class="px-6 py-4">IP Address</th>
+                                    <th class="px-6 py-4 text-right">Result</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline-variant font-mono text-[11px]">
+                                <tr class="table-row-hover" onclick="AuditService.viewDetail('LOG_INF_01')">
+                                    <td class="px-6 py-4 text-on-surface-variant whitespace-nowrap">2023-11-24 14:02:12</td>
+                                    <td class="px-6 py-4"><span class="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded border border-blue-100">INST_UPDATE</span></td>
+                                    <td class="px-6 py-4 font-bold text-on-surface">SuperAdmin (ID:002)</td>
+                                    <td class="px-6 py-4">Institution: CRCE</td>
+                                    <td class="px-6 py-4 text-on-surface-variant">192.168.1.105</td>
+                                    <td class="px-6 py-4 text-right"><span class="text-success font-bold">SUCCESS</span></td>
+                                </tr>
+                                <tr class="table-row-hover" onclick="AuditService.viewDetail('LOG_INF_02')">
+                                    <td class="px-6 py-4 text-on-surface-variant whitespace-nowrap">2023-11-24 13:45:01</td>
+                                    <td class="px-6 py-4"><span class="px-1.5 py-0.5 bg-red-50 text-red-700 rounded border border-red-100">ACC_SUSPENSION</span></td>
+                                    <td class="px-6 py-4 font-bold text-on-surface">SecurityAudit</td>
+                                    <td class="px-6 py-4">User: ID_10292</td>
+                                    <td class="px-6 py-4 text-on-surface-variant">45.2.1.20</td>
+                                    <td class="px-6 py-4 text-right"><span class="text-error font-bold">DENIED</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+             `;
+        },
+        renderHealth() {
+             const container = document.getElementById('dynamic-content-view');
+             container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex items-center gap-4">
+                        <button onclick="NavigationService.route('dashboard')" class="p-2 hover:bg-surface-container rounded-lg">
+                            <span class="material-symbols-outlined">arrow_back</span>
+                        </button>
+                        <h1 class="text-xl font-bold">System Health & Infrastructure</h1>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-surface border border-outline-variant p-6 rounded-xl">
+                            <h4 class="text-[10px] font-bold text-on-surface-variant uppercase mb-4">Live Latency</h4>
+                            <div class="h-32 flex items-end gap-1">
+                                ${Array.from({length: 30}).map(() => `<div class="flex-1 bg-success rounded-t" style="height: ${Math.random()*100}%"></div>`).join('')}
+                            </div>
+                            <div class="mt-4 flex justify-between">
+                                <span class="text-[11px] font-bold">Global Avg: 42ms</span>
+                                <span class="text-[11px] text-success font-bold">Optimal</span>
+                            </div>
+                        </div>
+                        <div class="bg-surface border border-outline-variant p-6 rounded-xl col-span-2">
+                            <h4 class="text-[10px] font-bold text-on-surface-variant uppercase mb-4">Uptime History (Last 30 Days)</h4>
+                            <div class="grid grid-cols-30 gap-1 h-8">
+                                ${Array.from({length: 30}).map(() => `<div class="h-full bg-success rounded-sm opacity-80 hover:opacity-100 cursor-help" title="99.99% Uptime"></div>`).join('')}
+                            </div>
+                            <div class="mt-4 flex justify-between items-center">
+                                <p class="text-[11px] text-on-surface-variant font-medium">99.98% Monthly Average</p>
+                                <button class="text-secondary text-[10px] font-bold">View Incident Log</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             `;
+        }
+    };
+
+    /**
+     * INITIALIZATION & EVENT LISTENERS
+     */
+
+    document.getElementById('main-search').addEventListener('input', (e) => {
+        const results = document.getElementById('search-results');
+        if(e.target.value.length > 1) {
+            results.classList.remove('hidden');
+        } else {
+            results.classList.add('hidden');
+        }
+    });
+
+    document.getElementById('notif-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('notification-dropdown').classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+        // Global click handler to close dropdowns
+        if(!e.target.closest('#notif-btn') && !e.target.closest('#notification-dropdown')) {
+            document.getElementById('notification-dropdown').classList.add('hidden');
+        }
+        if(!e.target.closest('#main-search') && !e.target.closest('#search-results')) {
+            document.getElementById('search-results').classList.add('hidden');
+        }
+        if(!e.target.closest('[id^="menu-"]') && !e.target.closest('button[onclick*="toggleMenu"]')) {
+            document.querySelectorAll('[id^="menu-"]').forEach(m => m.classList.add('hidden'));
+        }
+    });
+
+    // Close modal on outside click (if clicking the overlay)
+    document.getElementById('app-modal').addEventListener('click', (e) => {
+        if(e.target === document.getElementById('app-modal')) ModalService.close();
+    });
+
+    // Initial Routing Logic for sidebar
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const route = item.dataset.route;
+            NavigationService.route(route);
+        });
+    });
+
+    // Sidebar toggle (for mobile)
+    document.querySelector('button.md\\:hidden').addEventListener('click', () => {
+        const sidebar = document.querySelector('aside');
+        sidebar.classList.toggle('hidden');
+        sidebar.classList.toggle('flex');
+    });
+
+</script>
+</body></html>

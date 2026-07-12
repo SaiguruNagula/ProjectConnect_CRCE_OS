@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CRCE OS Credit Engine</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-fixed": "#e2dfff",
+                      "on-primary-container": "#7c839b",
+                      "primary-container": "#131b2e",
+                      "on-secondary-fixed-variant": "#3323cc",
+                      "tertiary-fixed": "#e1e0ff",
+                      "error": "#ba1a1a",
+                      "surface-bright": "#f7f9fb",
+                      "background": "#f7f9fb",
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-on-surface": "#eff1f3",
+                      "primary-fixed": "#dae2fd",
+                      "inverse-surface": "#2d3133",
+                      "secondary": "#4b41e1",
+                      "on-tertiary": "#ffffff",
+                      "tertiary": "#000000",
+                      "on-surface-variant": "#45464d",
+                      "primary": "#000000",
+                      "outline": "#76777d",
+                      "outline-variant": "#c6c6cd",
+                      "on-error": "#ffffff",
+                      "surface-container-highest": "#e0e3e5",
+                      "on-primary-fixed": "#131b2e",
+                      "tertiary-fixed-dim": "#c0c1ff",
+                      "inverse-primary": "#bec6e0",
+                      "on-tertiary-fixed-variant": "#2f2ebe",
+                      "surface-tint": "#565e74",
+                      "on-secondary-fixed": "#0f0069",
+                      "surface-container-low": "#f2f4f6",
+                      "surface-container-high": "#e6e8ea",
+                      "on-background": "#191c1e",
+                      "on-tertiary-container": "#7073ff",
+                      "secondary-fixed-dim": "#c3c0ff",
+                      "tertiary-container": "#07006c",
+                      "error-container": "#ffdad6",
+                      "surface-variant": "#e0e3e5",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "surface": "#f7f9fb",
+                      "on-primary": "#ffffff",
+                      "surface-container": "#eceef0",
+                      "on-secondary-container": "#fffbff",
+                      "primary-fixed-dim": "#bec6e0",
+                      "on-tertiary-fixed": "#07006c",
+                      "on-error-container": "#93000a",
+                      "on-surface": "#191c1e",
+                      "surface-dim": "#d8dadc",
+                      "secondary-container": "#645efb"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "64px",
+                      "md": "24px",
+                      "container-max": "1440px",
+                      "lg": "40px",
+                      "sm": "16px",
+                      "gutter": "24px",
+                      "base": "4px",
+                      "xs": "8px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": ["Inter"],
+                      "body-md": ["Inter"],
+                      "display": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "mono": ["Geist"],
+                      "label-md": ["Geist"],
+                      "headline-sm": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #f7f9fb;
+            color: #191c1e;
+        }
+        .bento-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .bento-card:hover {
+            box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-body-md overflow-x-hidden">
+<!-- TopAppBar Shell -->
+<header class="fixed top-0 w-full z-50 backdrop-blur-xl bg-surface/60 border-b border-outline-variant">
+<div class="flex justify-between items-center px-md py-xs w-full max-w-container-max mx-auto h-16">
+<div class="flex items-center gap-sm cursor-pointer hover:bg-surface-container-low transition-colors p-2 rounded-lg active:scale-95 duration-100">
+<span class="material-symbols-outlined text-primary">account_balance</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">CRCE OS</h1>
+</div>
+<div class="flex items-center gap-sm">
+<button class="p-2 rounded-full hover:bg-surface-container-low transition-colors active:scale-95 duration-100">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC96CMLmjDDQYUWvhspoDFmYVXcGdiJID8isuD5XsyGnUrlEjeQNqPp0t5qEhZ0Sc1-m9_-L5CEbO1Le48SoZc2mSRc_iQAaycZGOTLNIscsZpUdxoSXtpp4IBEv0iV2xpNSbEFEp9JNEam7SwNnorrZO7tP-Dbxe5hKvj53hVGIVD_rn25HrG3D7knWkJT1Rt4L7O6FdYBvW-ELS15Vmda5yEKIWP_kzTOzJhQgLkxpRqHMSPEAUnOK7kNh6cDHUMl8uhm_8iUnSlU"/>
+</div>
+</div>
+</div>
+</header>
+<main class="mt-20 mb-32 max-w-container-max mx-auto px-md md:px-lg">
+<!-- Hero Section: Credit Progress -->
+<section class="mb-lg">
+<div class="bento-card rounded-xl p-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-md bg-gradient-to-br from-white to-surface-container-low">
+<div class="flex-1 w-full">
+<div class="mb-xs">
+<span class="text-label-md font-mono bg-secondary/10 text-secondary px-3 py-1 rounded-full uppercase">Credit Engine v4.2</span>
+</div>
+<h2 class="font-display text-display text-primary mb-xs">Total Credits: 320</h2>
+<p class="font-headline-sm text-headline-sm text-on-surface-variant mb-md">Level 4: Innovator</p>
+<div class="w-full max-w-2xl">
+<div class="flex justify-between items-center mb-2">
+<span class="font-label-md text-label-md text-secondary font-bold">80% to Mastership</span>
+<span class="font-label-md text-label-md text-on-surface-variant">80 credits to next milestone (400)</span>
+</div>
+<div class="h-3 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 80%"></div>
+</div>
+</div>
+</div>
+<div class="hidden md:block w-32 h-32 relative">
+<!-- Decorative Badge Image Placeholder -->
+<div class="w-full h-full bg-secondary-fixed rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-fixed-variant text-5xl" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Summary Grid & Categories -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter mb-lg">
+<!-- Summary Grid (2x2) -->
+<div class="lg:col-span-8 grid grid-cols-2 gap-gutter">
+<div class="bento-card rounded-xl p-md flex flex-col justify-between">
+<span class="text-on-surface-variant font-label-md uppercase tracking-wider">Current</span>
+<span class="text-headline-lg font-bold text-secondary">320</span>
+</div>
+<div class="bento-card rounded-xl p-md flex flex-col justify-between">
+<span class="text-on-surface-variant font-label-md uppercase tracking-wider">Pending</span>
+<span class="text-headline-lg font-bold text-[#D97706]">35</span>
+</div>
+<div class="bento-card rounded-xl p-md flex flex-col justify-between">
+<span class="text-on-surface-variant font-label-md uppercase tracking-wider">Locked</span>
+<span class="text-headline-lg font-bold text-outline">20</span>
+</div>
+<div class="bento-card rounded-xl p-md flex flex-col justify-between">
+<span class="text-on-surface-variant font-label-md uppercase tracking-wider">Lifetime</span>
+<span class="text-headline-lg font-bold text-primary">540</span>
+</div>
+</div>
+<!-- Categories Bento (Vertical List in Bento) -->
+<div class="lg:col-span-4 bento-card rounded-xl p-md">
+<h3 class="font-headline-sm text-headline-sm mb-md flex items-center gap-xs">
+<span class="material-symbols-outlined">category</span> Categories
+                </h3>
+<div class="space-y-sm">
+<div class="flex justify-between items-center p-sm bg-surface-container rounded-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">code</span>
+<span class="font-label-md">Projects</span>
+</div>
+<span class="font-mono font-bold text-primary">120</span>
+</div>
+<div class="flex justify-between items-center p-sm bg-surface-container rounded-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">lightbulb</span>
+<span class="font-label-md">Innovation</span>
+</div>
+<span class="font-mono font-bold text-primary">85</span>
+</div>
+<div class="flex justify-between items-center p-sm bg-surface-container rounded-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">emoji_events</span>
+<span class="font-label-md">Competitions</span>
+</div>
+<span class="font-mono font-bold text-primary">60</span>
+</div>
+<div class="flex justify-between items-center p-sm bg-surface-container rounded-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">location_city</span>
+<span class="font-label-md">Campus</span>
+</div>
+<span class="font-mono font-bold text-primary">55</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Activity Feed & Pipeline -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Activity Timeline -->
+<div class="lg:col-span-7 bento-card rounded-xl p-md">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-headline-sm text-headline-sm">Recent Activity</h3>
+<button class="text-secondary text-label-md hover:underline">View All</button>
+</div>
+<div class="space-y-0 relative">
+<!-- Timeline Line -->
+<div class="absolute left-6 top-4 bottom-4 w-[1px] bg-outline-variant"></div>
+<!-- Item 1 -->
+<div class="relative flex gap-md pb-md">
+<div class="z-10 w-12 h-12 rounded-full bg-white border-2 border-secondary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary text-sm">check</span>
+</div>
+<div class="flex-1 border-b border-outline-variant pb-md last:border-0">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-body-lg font-semibold text-primary">Smart Attendance Prototype</h4>
+<span class="font-mono text-xs text-secondary font-bold">+20 Credits</span>
+</div>
+<p class="text-body-md text-on-surface-variant">Faculty Approved • Dept. of Technology</p>
+<span class="text-label-md text-outline">Yesterday</span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="relative flex gap-md pb-md">
+<div class="z-10 w-12 h-12 rounded-full bg-white border-2 border-outline-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-outline text-sm">history_edu</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-body-lg font-semibold text-primary">Open Problem Submission</h4>
+<span class="font-mono text-xs text-secondary font-bold">+10 Credits</span>
+</div>
+<p class="text-body-md text-on-surface-variant">Innovation Contribution • Research Lab</p>
+<span class="text-label-md text-outline">3 days ago</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Pipeline Section -->
+<div class="lg:col-span-5 flex flex-col gap-gutter">
+<div class="bento-card rounded-xl p-md bg-secondary text-on-secondary h-full">
+<h3 class="font-headline-sm text-headline-sm mb-md flex items-center gap-xs">
+<span class="material-symbols-outlined">pending_actions</span> Pipeline
+                    </h3>
+<div class="bg-white/10 rounded-lg p-sm border border-white/20 transition-all hover:bg-white/15 cursor-pointer">
+<div class="flex justify-between items-center mb-xs">
+<span class="text-label-md font-bold text-secondary-fixed">Milestone 3 Submission</span>
+<span class="bg-secondary-container text-on-secondary-container text-[10px] px-2 py-0.5 rounded-full uppercase tracking-tighter">In Review</span>
+</div>
+<p class="text-body-md mb-xs text-white/90">Faculty Review Pending</p>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm">insights</span>
+<span class="font-mono text-sm font-bold">Potential: +20</span>
+</div>
+</div>
+<div class="mt-md">
+<button class="w-full py-3 bg-white text-primary font-semibold rounded-lg hover:bg-secondary-fixed transition-colors active:scale-[0.98]">
+                            Claim New Credits
+                        </button>
+</div>
+</div>
+<!-- Extra Context Card -->
+<div class="bento-card rounded-xl p-md border-dashed border-2 flex flex-col items-center justify-center text-center py-lg">
+<span class="material-symbols-outlined text-outline text-4xl mb-sm">auto_awesome</span>
+<p class="font-label-md text-on-surface-variant px-md">Auto-sync with CRCE Faculty Portal is active. New publications detected.</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Shell -->
+<footer class="w-full bg-surface-container-low border-t border-outline-variant/30 mb-[80px]">
+<div class="flex flex-col md:flex-row justify-between items-center px-md py-sm w-full max-w-container-max mx-auto opacity-80 gap-sm">
+<div class="flex items-center gap-md">
+<span class="font-mono text-mono text-on-surface-variant">CRCE OS Credit Engine • Data Sync: 12:45 PM</span>
+<span class="flex items-center gap-1 text-label-md text-green-600">
+<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    Sync Status: Online
+                </span>
+</div>
+<div class="flex items-center gap-md font-mono text-mono">
+<a class="text-on-surface-variant hover:text-primary" href="#">System Status</a>
+<a class="text-on-surface-variant hover:text-primary" href="#">Terms</a>
+<span class="text-on-surface-variant">Last Updated: 2:45 PM</span>
+</div>
+</div>
+</footer>
+<!-- BottomNavBar Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-surface-container-lowest dark:bg-primary-container border-t border-outline-variant rounded-t-xl shadow-sm flex justify-around items-center px-4 py-3 pb-safe">
+<!-- Dashboard -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary transition-colors active:translate-y-0.5 duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md mt-1">Dashboard</span>
+</a>
+<!-- Academics -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary transition-colors active:translate-y-0.5 duration-200" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="font-label-md text-label-md mt-1">Academics</span>
+</a>
+<!-- Resources -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 active:translate-y-0.5 duration-200" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label-md text-label-md mt-1">Resources</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary transition-colors active:translate-y-0.5 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md mt-1">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for credit claiming
+        document.querySelector('button.w-full')?.addEventListener('click', function() {
+            const originalText = this.innerText;
+            this.innerText = 'Scanning Repository...';
+            this.disabled = true;
+            this.classList.add('opacity-50');
+            
+            setTimeout(() => {
+                this.innerText = 'No new credits found';
+                setTimeout(() => {
+                    this.innerText = originalText;
+                    this.disabled = false;
+                    this.classList.remove('opacity-50');
+                }, 2000);
+            }, 1500);
+        });
+    </script>
+</body></html>

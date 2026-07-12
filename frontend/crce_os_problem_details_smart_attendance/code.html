@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Smart Attendance Platform | CRCE OS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-header {
+            background: rgba(247, 249, 251, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+            color: #191c1e;
+        }
+        .font-mono { font-family: 'Geist', monospace; }
+        .font-label-md { font-family: 'Geist'; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#000000",
+                        "surface-container-highest": "#e0e3e5",
+                        "error": "#ba1a1a",
+                        "secondary-fixed-dim": "#c3c0ff",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#565e74",
+                        "inverse-surface": "#2d3133",
+                        "secondary-container": "#645efb",
+                        "on-background": "#191c1e",
+                        "surface": "#f7f9fb",
+                        "primary-fixed": "#dae2fd",
+                        "on-primary-container": "#7c839b",
+                        "on-primary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e0e3e5",
+                        "surface-bright": "#f7f9fb",
+                        "on-surface": "#191c1e",
+                        "surface-container-low": "#f2f4f6",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#e6e8ea",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#07006c",
+                        "background": "#f7f9fb",
+                        "secondary-fixed": "#e2dfff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#45464d",
+                        "tertiary-fixed": "#e1e0ff",
+                        "outline-variant": "#c6c6cd",
+                        "primary-container": "#131b2e",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "outline": "#76777d",
+                        "on-secondary-fixed-variant": "#3323cc",
+                        "tertiary-container": "#07006c",
+                        "inverse-on-surface": "#eff1f3",
+                        "primary-fixed-dim": "#bec6e0",
+                        "inverse-primary": "#bec6e0",
+                        "on-tertiary-container": "#7073ff",
+                        "on-secondary-container": "#fffbff",
+                        "primary": "#000000",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#eceef0",
+                        "on-secondary-fixed": "#0f0069",
+                        "surface-dim": "#d8dadc",
+                        "on-primary-fixed": "#131b2e",
+                        "secondary": "#4b41e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "64px",
+                        "md": "24px",
+                        "lg": "40px",
+                        "container-max": "1440px",
+                        "base": "4px",
+                        "gutter": "24px",
+                        "xs": "8px",
+                        "sm": "16px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Geist"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "mono": ["Geist"],
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant shadow-sm h-16">
+<div class="flex justify-between items-center h-full px-md max-w-container-max mx-auto">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">hub</span>
+<span class="font-headline-md text-headline-md font-bold text-tertiary">CRCE OS</span>
+</div>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors" href="#">Innovation Hub</a>
+<a class="text-primary font-label-md text-label-md border-b-2 border-primary pb-1" href="#">Open Problems</a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors" href="#">Campus Solutions</a>
+</nav>
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">search</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChfJ-ou4dcYFZkhH3OwSjtxKwsvmL_OzF5UNCT7EtlsqoxByqn9Af_uMxWC5HeF5XfIlXTc0LEfvOCBgWVG_5CKybz80MLSr7w3ia4Vsrp65HTIg1vI616iwVWG3XNRpUQiblMidPeWmoBI_a9tVogF4SIhRbp1Rf3E6Wi4d8Z6g53szv-yqIZTAzCjAk7HUEpRtrcVynZMpsFi1GimhtCheo1e1DzmAjcd6B50fXfm3GR-5kraunzM314kmLK_Y9v_AWXWRS20OkG"/>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-md max-w-container-max mx-auto">
+<!-- Hero Header -->
+<section class="mb-xl">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<div class="flex flex-wrap gap-xs mb-sm">
+<span class="bg-[#ECFDF5] text-[#065F46] px-3 py-1 rounded-full font-label-md text-[10px] tracking-wider uppercase">Open</span>
+<span class="bg-surface-container-high text-on-surface-variant px-3 py-1 rounded-full font-label-md text-[10px] tracking-wider uppercase">Medium</span>
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-md text-[10px] tracking-wider uppercase">250 Credits</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-tertiary mb-xs">Smart Attendance Platform</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Develop a modern attendance tracking system for campus events and activities using cutting-edge edge-computing and mobile integration.</p>
+</div>
+<div class="flex gap-sm">
+<button class="bg-surface border border-outline-variant text-tertiary px-lg py-2.5 rounded-lg font-label-md hover:bg-surface-container-low transition-all active:scale-95 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">bookmark</span>
+                        Save Problem
+                    </button>
+<button class="bg-tertiary text-white px-xl py-2.5 rounded-lg font-label-md hover:opacity-90 transition-all active:scale-95 shadow-sm border-t border-white/10 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">group_add</span>
+                        Join Team
+                    </button>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+<!-- Left Column -->
+<div class="lg:col-span-8 space-y-lg">
+<!-- Section 1: Problem Overview -->
+<div class="bg-white border border-outline-variant rounded-xl p-lg">
+<div class="space-y-lg">
+<div>
+<h3 class="font-headline-sm text-headline-sm mb-md flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">description</span>
+                                Problem Statement
+                            </h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                                Current manual attendance systems at Father Agnel CRCE are prone to errors, time-consuming, and difficult to manage for high-volume events such as technical fests, guest lectures, and departmental workshops. We need a unified platform that eliminates the "pen-and-paper" bottleneck while ensuring data integrity and real-time reporting.
+                            </p>
+</div>
+<div class="grid md:grid-cols-2 gap-lg">
+<div>
+<h4 class="font-label-md text-label-md text-secondary uppercase tracking-widest mb-xs">Background</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">The campus currently utilizes disparate Google Sheets and physical registers, making it impossible to track cross-departmental participation trends.</p>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-secondary uppercase tracking-widest mb-xs">Why it matters</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Efficient tracking enables automated certificate generation, better resource allocation, and verifiable student participation records for accreditation.</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-md rounded-lg border-l-4 border-secondary">
+<h4 class="font-label-md text-headline-sm mb-xs">Expected campus impact</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">A 90% reduction in entry-time latency for large events and a centralized dashboard for faculty to monitor student engagement metrics across four years of undergraduate study.</p>
+</div>
+</div>
+</div>
+<!-- Section 2: Requirements -->
+<div class="bg-white border border-outline-variant rounded-xl p-lg">
+<h3 class="font-headline-sm text-headline-sm mb-md flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">psychology</span>
+                        Required Skills
+                    </h3>
+<div class="flex flex-wrap gap-sm">
+<span class="px-md py-1.5 bg-surface-container-high rounded-full font-mono text-label-md border border-outline-variant">Python</span>
+<span class="px-md py-1.5 bg-surface-container-high rounded-full font-mono text-label-md border border-outline-variant">React</span>
+<span class="px-md py-1.5 bg-surface-container-high rounded-full font-mono text-label-md border border-outline-variant">UI/UX</span>
+<span class="px-md py-1.5 bg-surface-container-high rounded-full font-mono text-label-md border border-outline-variant">Machine Learning</span>
+<span class="px-md py-1.5 bg-surface-container-high rounded-full font-mono text-label-md border border-outline-variant">Database</span>
+<span class="px-md py-1.5 bg-surface-container-high rounded-full font-mono text-label-md border border-outline-variant">Mobile Development</span>
+</div>
+</div>
+<!-- Section 6: Deliverables -->
+<div class="bg-white border border-outline-variant rounded-xl p-lg">
+<h3 class="font-headline-sm text-headline-sm mb-md">Expected Deliverables</h3>
+<div class="grid md:grid-cols-2 gap-md">
+<div class="flex items-start gap-md p-sm hover:bg-surface-container-low rounded-lg transition-colors group">
+<div class="mt-1 bg-surface-container-high p-1 rounded-md group-hover:bg-secondary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">search_check</span>
+</div>
+<div>
+<h5 class="font-label-md text-label-md font-bold">Research</h5>
+<p class="text-[12px] text-on-surface-variant">Comparative study of QR vs NFC solutions.</p>
+</div>
+</div>
+<div class="flex items-start gap-md p-sm hover:bg-surface-container-low rounded-lg transition-colors group">
+<div class="mt-1 bg-surface-container-high p-1 rounded-md group-hover:bg-secondary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">draw</span>
+</div>
+<div>
+<h5 class="font-label-md text-label-md font-bold">Prototype</h5>
+<p class="text-[12px] text-on-surface-variant">High-fidelity Figma wireframes for Admin &amp; Student.</p>
+</div>
+</div>
+<div class="flex items-start gap-md p-sm hover:bg-surface-container-low rounded-lg transition-colors group">
+<div class="mt-1 bg-surface-container-high p-1 rounded-md group-hover:bg-secondary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">code</span>
+</div>
+<div>
+<h5 class="font-label-md text-label-md font-bold">Development</h5>
+<p class="text-[12px] text-on-surface-variant">Cross-platform mobile app &amp; backend API.</p>
+</div>
+</div>
+<div class="flex items-start gap-md p-sm hover:bg-surface-container-low rounded-lg transition-colors group">
+<div class="mt-1 bg-surface-container-high p-1 rounded-md group-hover:bg-secondary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">bug_report</span>
+</div>
+<div>
+<h5 class="font-label-md text-label-md font-bold">Testing</h5>
+<p class="text-[12px] text-on-surface-variant">Unit testing and pilot run with 50 users.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 7: Join Team CTA -->
+<div class="relative overflow-hidden bg-tertiary text-white rounded-xl p-xl shadow-lg">
+
+<div class="relative z-10 text-center md:text-left">
+<h2 class="font-headline-lg text-headline-lg mb-sm">Interested in this project?</h2>
+<p class="font-body-md mb-lg text-white/70 max-w-xl">Join the project team and help build a real-world campus solution. Gain hands-on experience with production-grade technology stacks.</p>
+<div class="flex flex-col md:flex-row items-center gap-md">
+<button class="w-full md:w-auto bg-white text-tertiary px-xl py-3 rounded-lg font-bold hover:bg-surface-container-low transition-all active:scale-95">Request to Join</button>
+<span class="text-[12px] text-white/50 italic">Note: Faculty approval may be required based on your profile credits.</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column -->
+<aside class="lg:col-span-4 space-y-lg">
+<!-- Section 4: Project Details -->
+<div class="bg-white border border-outline-variant rounded-xl p-lg">
+<h3 class="font-label-md text-label-md text-secondary uppercase tracking-widest mb-md">Specifications</h3>
+<div class="space-y-sm">
+<div class="flex justify-between py-2 border-b border-surface-container-highest">
+<span class="text-on-surface-variant text-[14px]">Department</span>
+<span class="font-label-md text-label-md">Computer Engineering</span>
+</div>
+<div class="flex justify-between py-2 border-b border-surface-container-highest">
+<span class="text-on-surface-variant text-[14px]">Credits</span>
+<span class="font-mono text-label-md font-bold">250</span>
+</div>
+<div class="flex justify-between py-2 border-b border-surface-container-highest">
+<span class="text-on-surface-variant text-[14px]">Difficulty</span>
+<span class="font-label-md text-label-md text-secondary">Medium</span>
+</div>
+<div class="flex justify-between py-2 border-b border-surface-container-highest">
+<span class="text-on-surface-variant text-[14px]">Duration</span>
+<span class="font-label-md text-label-md">8 Weeks</span>
+</div>
+<div class="flex justify-between py-2 border-b border-surface-container-highest">
+<span class="text-on-surface-variant text-[14px]">Applicants</span>
+<span class="font-mono text-label-md">12</span>
+</div>
+<div class="flex justify-between py-2">
+<span class="text-on-surface-variant text-[14px]">Deadline</span>
+<span class="font-label-md text-label-md text-error">15 Days Left</span>
+</div>
+</div>
+</div>
+<!-- Section 3: Faculty Mentor -->
+<div class="bg-white border border-outline-variant rounded-xl p-lg">
+<h3 class="font-label-md text-label-md text-secondary uppercase tracking-widest mb-md">Faculty Mentor</h3>
+<div class="flex items-center gap-md mb-md">
+<div class="w-14 h-14 rounded-full bg-surface-container-highest overflow-hidden border-2 border-white shadow-sm">
+<img alt="Dr. A. Shah" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUIiejgWXK6mDDKjmsKPT1Dd7wWw1n8SfOiX55dvyAv7lR-G5WkBPy5uomk33kVD4GsnlFWcsOY1rneIm5scJrNVuJ9TGJV_E7v_wCsCf2aXQRW4KE0DPzuceAzHpvXrgJA5G26s9VF3oFdSgZxnxtl1RWlNJmc87PxSXyosY7vJfoOEuZDHwJimDWgHFWn-mT0SX1r0HSFT1s2i8pfMk8jeo6VGl5uSDMDQQOAshCv4mziw3J2C44U1gFgXMkihNPOAkUcNU7a6P5"/>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm">Dr. A. Shah</h4>
+<p class="text-[12px] text-on-surface-variant">Computer Engineering</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-sm rounded-lg mb-md">
+<span class="text-[11px] uppercase text-on-surface-variant font-bold block mb-1">Expertise</span>
+<p class="text-[13px]">AI and Smart Systems, Distributed Computing, Mobile Architecture.</p>
+</div>
+<button class="w-full border border-outline text-tertiary py-2 rounded-lg font-label-md hover:bg-surface-container-low transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+                        Contact Faculty
+                    </button>
+</div>
+<!-- Section 5: Current Team -->
+<div class="bg-white border border-outline-variant rounded-xl p-lg">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-label-md text-label-md text-secondary uppercase tracking-widest">Active Team</h3>
+<span class="bg-secondary text-white text-[10px] px-2 py-0.5 rounded-full font-mono">3 / 5</span>
+</div>
+<div class="space-y-sm mb-lg">
+<div class="flex items-center gap-sm p-xs hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer">
+<img alt="Alice" class="w-8 h-8 rounded-full bg-surface-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBswAbXO-affoQeovDqVtlnOYcu66MQnldVrVxXzKLyWaedPitTkgl38PCuMsA1JOoiWWIuir11qSi-37S5d4IVo64hU5pf2EVf_oOMOqs6Z-74vbmBu4dqBKPIhW4Pjqv9vEoz94EkITYNBfyrGH3HqrLUe23ElPoQKzTyB-HxaUKdl6wV9Vdi2ItHSGOv_h6UwrW0Gcg0ABzXYrtZ8DHyssfES8Ci3QMYxTL_SIwhDuW20-KOFMLf7iCCGHU91xB6Ut8NqZhbYm4j"/>
+<div>
+<p class="text-[13px] font-bold">Alice Cooper</p>
+<p class="text-[11px] text-on-surface-variant">Lead Developer</p>
+</div>
+</div>
+<div class="flex items-center gap-sm p-xs hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer">
+<img alt="Bob" class="w-8 h-8 rounded-full bg-surface-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARNFQ7FcjKCZZZsHvqMVYNAAEUQuOYY7ILVxYjg_EdLeYPB1HY6FBbzBnuZCoFYuVPwAWsAWrOo5f8hTyRTCrk-U0bkZMQEklmPQ-h8X0GtH3q2DE38pvWJM-1Q8lXanuZkCm4x3uKuy7mzalvZ8hH40Vn7k5QIdmN9ehcV9BLRKT6f4FaddHp8oD1R_Dk0e9lrHQMIAAcmDqq22w099_NjiS0kWZbtvUnvxklDm6yO8E7XKWWjZhjYc7jLj92vPhRp529w-j_hcjn"/>
+<div>
+<p class="text-[13px] font-bold">Bob Marshall</p>
+<p class="text-[11px] text-on-surface-variant">Backend Engineer</p>
+</div>
+</div>
+<div class="flex items-center gap-sm p-xs hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer">
+<img alt="Charlie" class="w-8 h-8 rounded-full bg-surface-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXarGaSn-dJf1ZQpHEPGq-i3gf12PW2rMdVh3GU7GLczzdkn4IvhQk2uoawggQg_o8wpAFn3Th4BFnRv_M8pztLV4a3MKd_GjcRoaBUi18onW5uv8g2DOtomCD3--KC_0LWYdufPGLuiC_DEDdFS9c2ZlISPWUy6K_kMFchT8bDSEMe1_kZr8Jm8l37UHlbGfv3IdYZPLh1UWe2grlczUBXzWInbUMmtCTau6-yTvSjYWg1b_UhcU6QyBZUUsQ5QrbzeBziwLm-ZCw"/>
+<div>
+<p class="text-[13px] font-bold">Charlie Day</p>
+<p class="text-[11px] text-on-surface-variant">UI Designer</p>
+</div>
+</div>
+</div>
+<div class="p-md bg-surface-container-high/50 border border-dashed border-outline-variant rounded-xl text-center">
+<span class="material-symbols-outlined text-outline mb-xs">person_add</span>
+<p class="text-[13px] text-on-surface-variant font-medium">2 Open Positions</p>
+<p class="text-[11px] text-outline">Frontend &amp; QA specialists needed</p>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface/80 backdrop-blur-md border-t border-outline-variant flex justify-around items-center py-xs px-sm pb-safe h-16">
+<div class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-md text-label-md">Feed</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<span class="font-label-md text-label-md">Problems</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-md text-label-md">Teams</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</div>
+</nav>
+<!-- Footer -->
+<footer class="bg-surface-container-low border-t border-outline-variant/30">
+<div class="flex flex-col md:flex-row justify-between items-center py-lg px-xl max-w-container-max mx-auto text-on-surface-variant font-mono text-label-md">
+<p>© 2024 CRCE Innovation Hub. All rights reserved.</p>
+<div class="flex gap-lg mt-md md:mt-0">
+<a class="hover:text-tertiary transition-colors underline-offset-4 hover:underline" href="#">Documentation</a>
+<a class="hover:text-tertiary transition-colors underline-offset-4 hover:underline" href="#">Support</a>
+<a class="hover:text-tertiary transition-colors underline-offset-4 hover:underline" href="#">Privacy Policy</a>
+</div>
+</div>
+</footer>
+<script>
+        // Simple scroll effect for header
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-md');
+                header.classList.remove('shadow-sm');
+            } else {
+                header.classList.remove('shadow-md');
+                header.classList.add('shadow-sm');
+            }
+        });
+
+        // CTA Button Interaction
+        const joinBtn = document.querySelector('.bg-tertiary');
+        if (joinBtn) {
+            joinBtn.addEventListener('click', () => {
+                const icon = joinBtn.querySelector('.material-symbols-outlined');
+                icon.textContent = 'pending';
+                joinBtn.innerHTML = `<span class="material-symbols-outlined text-[18px] animate-spin">sync</span> Requesting...`;
+                joinBtn.classList.add('opacity-70');
+                setTimeout(() => {
+                    joinBtn.innerHTML = `<span class="material-symbols-outlined text-[18px]">check_circle</span> Request Sent`;
+                    joinBtn.classList.replace('bg-tertiary', 'bg-green-600');
+                }, 1500);
+            });
+        }
+    </script>
+</body></html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>CRCE OS Faculty Dashboard</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Hanken+Grotesk:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@100..900&amp;family=Inter:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed": "#e2dfff",
+                    "on-tertiary-fixed": "#1a1b22",
+                    "surface-container": "#eceef0",
+                    "on-primary": "#ffffff",
+                    "on-secondary-container": "#5c647a",
+                    "inverse-surface": "#2d3133",
+                    "surface-container-highest": "#e0e3e5",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "primary-container": "#4f46e5",
+                    "surface-dim": "#d8dadc",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "on-tertiary-fixed-variant": "#46464e",
+                    "outline-variant": "#c7c4d8",
+                    "on-surface-variant": "#464555",
+                    "error-container": "#ffdad6",
+                    "surface-container-low": "#f2f4f6",
+                    "surface-container-high": "#e6e8ea",
+                    "secondary": "#565e74",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-container": "#dae2fd",
+                    "on-background": "#191c1e",
+                    "inverse-on-surface": "#eff1f3",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed": "#131b2e",
+                    "tertiary-fixed-dim": "#c6c5cf",
+                    "surface-variant": "#e0e3e5",
+                    "inverse-primary": "#c3c0ff",
+                    "secondary-fixed": "#dae2fd",
+                    "on-error-container": "#93000a",
+                    "on-surface": "#191c1e",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "tertiary": "#474750",
+                    "on-tertiary-container": "#dbdae4",
+                    "on-error": "#ffffff",
+                    "primary": "#3525cd",
+                    "surface": "#f7f9fb",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "on-primary-fixed": "#0f0069",
+                    "tertiary-fixed": "#e3e1ec",
+                    "outline": "#777587",
+                    "error": "#ba1a1a",
+                    "on-primary-container": "#dad7ff",
+                    "surface-tint": "#4d44e3",
+                    "tertiary-container": "#5f5f68",
+                    "surface-bright": "#f7f9fb",
+                    "on-secondary": "#ffffff",
+                    "background": "#f7f9fb"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "xs": "8px",
+                    "md": "24px",
+                    "xl": "64px",
+                    "base": "4px",
+                    "margin-mobile": "16px",
+                    "lg": "40px",
+                    "margin-desktop": "48px",
+                    "gutter": "24px",
+                    "sm": "16px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Hanken Grotesk"],
+                    "headline-sm": ["Hanken Grotesk"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "display-lg-mobile": ["Hanken Grotesk"],
+                    "label-md": ["JetBrains Mono"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["JetBrains Mono"],
+                    "body-md": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["10px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-headline { font-family: 'Hanken Grotesk', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .custom-scrollbar::-webkit-scrollbar { height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        .card-shadow { box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased min-h-screen pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 px-md md:px-margin-desktop py-base">
+<div class="max-w-7xl mx-auto flex items-center justify-between h-14">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional close-up portrait of a male professor in his late 40s, wearing glasses and a formal shirt. The lighting is soft and academic, set against a blurred background of a clean modern university library with light wood textures. The aesthetic is professional, sharp, and high-contrast to match a premium faculty dashboard interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvTKr3yFLD2z7FSZHZkhPB9iW6nn_LTjlzfZyBS6g3mlNDoS6JQfSZeCCN4y7fqJaGC4x1AmeemdiLXuRQzlee28liRXgbssBHZfNfX2tmIAkw6h33OKiVJlX9h7Tq-liUR1ZdKz8RqGHEBz5sGpxaAU_IDFIaI4Puhmrv5pq0GkXRv8NXcK8G7Z6gDgPFhxc13EiE2tV-QeBDTY9eO_felOXjoYhNIZePyWxjEckpG7ItfSQDu9-WpvNlAYsPMSfScuvPzt1KLWxS">
+</div>
+<h1 class="font-headline-md text-headline-sm md:text-headline-md tracking-tight text-on-surface">Faculty Dashboard</h1>
+</div>
+<div class="flex items-center gap-xs">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-md space-y-lg">
+<!-- Hero Section -->
+<section class="flex flex-col md:flex-row md:items-center justify-between gap-md py-md">
+<div>
+<h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface leading-tight">Welcome back, Prof. Shah</h2>
+<p class="font-body-md text-on-surface-variant mt-xs">You have several critical project reviews awaiting your attention today.</p>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-on-primary px-xl py-md rounded-xl font-semibold flex items-center gap-sm transition-all transform active:scale-95 shadow-lg shadow-primary/20 w-fit">
+                Start Reviewing (5 Pending)
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</section>
+<!-- Impact Metrics -->
+<section class="overflow-x-auto custom-scrollbar pb-xs">
+<div class="flex gap-md min-w-max">
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl w-64 card-shadow">
+<span class="material-symbols-outlined text-primary mb-xs" style="font-variation-settings: 'FILL' 1;">hub</span>
+<div class="font-display-lg text-display-lg text-on-surface">12</div>
+<div class="font-label-md text-on-surface-variant uppercase tracking-wider">Projects Mentored</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl w-64 card-shadow">
+<span class="material-symbols-outlined text-primary mb-xs" style="font-variation-settings: 'FILL' 1;">groups</span>
+<div class="font-display-lg text-display-lg text-on-surface">45</div>
+<div class="font-label-md text-on-surface-variant uppercase tracking-wider">Students Guided</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl w-64 card-shadow">
+<span class="material-symbols-outlined text-primary mb-xs" style="font-variation-settings: 'FILL' 1;">token</span>
+<div class="font-display-lg text-display-lg text-on-surface">1.2k</div>
+<div class="font-label-md text-on-surface-variant uppercase tracking-wider">Credits Awarded</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl w-64 card-shadow">
+<span class="material-symbols-outlined text-primary mb-xs" style="font-variation-settings: 'FILL' 1;">verified</span>
+<div class="font-display-lg text-display-lg text-on-surface">8</div>
+<div class="font-label-md text-on-surface-variant uppercase tracking-wider">Solutions Approved</div>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+<!-- Left Column: Queue & Active Problems -->
+<div class="lg:col-span-8 space-y-lg">
+<!-- Pending Review Queue -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden card-shadow">
+<div class="p-md border-b border-outline-variant flex items-center justify-between">
+<h3 class="font-headline-sm text-on-surface">Pending Review Queue</h3>
+<button class="text-primary font-semibold text-sm flex items-center gap-xs hover:underline">
+                            Open Review Queue
+                            <span class="material-symbols-outlined text-sm">open_in_new</span>
+</button>
+</div>
+<div class="divide-y divide-outline-variant/30">
+<div class="p-md flex items-center justify-between hover:bg-surface-container-low transition-colors group">
+<div class="flex gap-md">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold">AS</div>
+<div>
+<div class="font-body-md font-semibold text-on-surface">Aarav Sharma</div>
+<div class="font-body-sm text-on-surface-variant">Smart Attendance • <span class="text-primary">Prototype Review</span></div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</div>
+<div class="p-md flex items-center justify-between hover:bg-surface-container-low transition-colors group">
+<div class="flex gap-md">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-secondary font-bold">PK</div>
+<div>
+<div class="font-body-md font-semibold text-on-surface">Priya Kulkarni</div>
+<div class="font-body-sm text-on-surface-variant">Decentralized Voting • <span class="text-primary">Final Submission</span></div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</div>
+<div class="p-md flex items-center justify-between hover:bg-surface-container-low transition-colors group">
+<div class="flex gap-md">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center text-tertiary font-bold">RN</div>
+<div>
+<div class="font-body-md font-semibold text-on-surface">Rohan Nair</div>
+<div class="font-body-sm text-on-surface-variant">IoT Farm Guard • <span class="text-primary">Component Audit</span></div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- My Active Problems -->
+<section>
+<div class="flex items-center justify-between mb-md">
+<h3 class="font-headline-sm text-on-surface">My Active Problems</h3>
+<button class="bg-secondary text-on-secondary px-md py-sm rounded-lg text-sm font-semibold flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm">add</span>
+                            Post New Problem
+                        </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl card-shadow space-y-sm">
+<h4 class="font-body-lg font-bold text-on-surface line-clamp-1">Campus EV Charging Network Optimization</h4>
+<div class="flex gap-md border-t border-outline-variant/30 pt-sm">
+<div>
+<div class="text-on-surface font-bold text-lg">04</div>
+<div class="text-xs font-label-md text-on-surface-variant uppercase">Teams</div>
+</div>
+<div class="border-l border-outline-variant/30 pl-md">
+<div class="text-on-surface font-bold text-lg">02</div>
+<div class="text-xs font-label-md text-on-surface-variant uppercase">Solutions</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl card-shadow space-y-sm">
+<h4 class="font-body-lg font-bold text-on-surface line-clamp-1">Blockchain Transcript Verification System</h4>
+<div class="flex gap-md border-t border-outline-variant/30 pt-sm">
+<div>
+<div class="text-on-surface font-bold text-lg">12</div>
+<div class="text-xs font-label-md text-on-surface-variant uppercase">Teams</div>
+</div>
+<div class="border-l border-outline-variant/30 pl-md">
+<div class="text-on-surface font-bold text-lg">05</div>
+<div class="text-xs font-label-md text-on-surface-variant uppercase">Solutions</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Mentorship & Activity -->
+<div class="lg:col-span-4 space-y-lg">
+<!-- Projects Under Mentorship -->
+<section class="space-y-md">
+<h3 class="font-headline-sm text-on-surface">Mentorship Progress</h3>
+<div class="space-y-md">
+<!-- Project Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl card-shadow">
+<div class="flex justify-between items-start mb-sm">
+<h4 class="font-body-md font-bold text-on-surface leading-tight">EcoTrack App</h4>
+<span class="bg-green-100 text-green-700 px-xs py-0.5 rounded text-[10px] font-bold uppercase tracking-tighter">Healthy</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mb-xs">
+<div class="bg-green-500 h-1 rounded-full" style="width: 85%"></div>
+</div>
+<div class="flex justify-between text-[10px] font-label-md text-on-surface-variant">
+<span>MILESTONE 4/5</span>
+<span>85%</span>
+</div>
+</div>
+<!-- Project Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl card-shadow">
+<div class="flex justify-between items-start mb-sm">
+<h4 class="font-body-md font-bold text-on-surface leading-tight">Smart Library Bot</h4>
+<span class="bg-yellow-100 text-yellow-700 px-xs py-0.5 rounded text-[10px] font-bold uppercase tracking-tighter">Delayed</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mb-xs">
+<div class="bg-yellow-500 h-1 rounded-full" style="width: 42%"></div>
+</div>
+<div class="flex justify-between text-[10px] font-label-md text-on-surface-variant">
+<span>MILESTONE 2/5</span>
+<span>42%</span>
+</div>
+</div>
+<!-- Project Card 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl card-shadow border-l-4 border-l-error">
+<div class="flex justify-between items-start mb-sm">
+<h4 class="font-body-md font-bold text-on-surface leading-tight">AR Tour Guide</h4>
+<span class="bg-red-100 text-red-700 px-xs py-0.5 rounded text-[10px] font-bold uppercase tracking-tighter">At Risk</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mb-xs">
+<div class="bg-red-500 h-1 rounded-full" style="width: 15%"></div>
+</div>
+<div class="flex justify-between text-[10px] font-label-md text-on-surface-variant">
+<span>MILESTONE 1/5</span>
+<span>15%</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Activity Timeline -->
+<section class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl card-shadow">
+<h3 class="font-headline-sm text-on-surface mb-md">Recent Activity</h3>
+<div class="space-y-md">
+<div class="flex gap-md">
+<div class="relative flex flex-col items-center">
+<div class="w-2 h-2 rounded-full bg-primary mt-2"></div>
+<div class="w-[1px] h-full bg-outline-variant/50 mt-1"></div>
+</div>
+<div>
+<p class="text-sm text-on-surface">New Team Formed for <span class="font-bold">Blockchain Transcript</span></p>
+<p class="text-xs text-on-surface-variant">14 mins ago</p>
+</div>
+</div>
+<div class="flex gap-md">
+<div class="relative flex flex-col items-center">
+<div class="w-2 h-2 rounded-full bg-outline-variant mt-2"></div>
+<div class="w-[1px] h-full bg-outline-variant/50 mt-1"></div>
+</div>
+<div>
+<p class="text-sm text-on-surface">Prototype submitted: <span class="font-bold">Aarav Sharma</span></p>
+<p class="text-xs text-on-surface-variant">2 hours ago</p>
+</div>
+</div>
+<div class="flex gap-md">
+<div class="relative flex flex-col items-center">
+<div class="w-2 h-2 rounded-full bg-outline-variant mt-2"></div>
+<div class="w-[1px] h-full bg-outline-variant/50 mt-1"></div>
+</div>
+<div>
+<p class="text-sm text-on-surface">Milestone approved: <span class="font-bold">EcoTrack App</span></p>
+<p class="text-xs text-on-surface-variant">Yesterday</p>
+</div>
+</div>
+<div class="flex gap-md">
+<div class="relative flex flex-col items-center">
+<div class="w-2 h-2 rounded-full bg-outline-variant mt-2"></div>
+</div>
+<div>
+<p class="text-sm text-on-surface">Feedback sent to <span class="font-bold">Smart Library Bot</span></p>
+<p class="text-xs text-on-surface-variant">2 days ago</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Mobile Navigation -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-surface/95 backdrop-blur-lg border-t border-outline-variant/50 z-50">
+<div class="flex justify-around items-center h-16">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="text-[10px] font-label-md">Dashboard</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">folder</span>
+<span class="text-[10px] font-label-md">Projects</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="text-[10px] font-label-md">Leaders</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-label-md">Profile</span>
+</a>
+</div>
+</nav>
+<!-- Footer (Desktop Only) -->
+<footer class="hidden md:block border-t border-outline-variant/30 mt-xl py-lg bg-surface-container-lowest">
+<div class="max-w-7xl mx-auto px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-md">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">hub</span>
+<span class="font-headline-sm text-primary font-bold">CRCE OS</span>
+</div>
+<p class="font-label-md text-on-surface-variant">© 2024 CRCE OS. Built for Campus Innovation.</p>
+<div class="flex gap-md">
+<a class="text-sm text-on-surface-variant hover:text-primary" href="#">Contact Admin</a>
+<a class="text-sm text-on-surface-variant hover:text-primary" href="#">Privacy Policy</a>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interactions
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.classList.add('scale-95');
+            });
+            button.addEventListener('mouseup', () => {
+                button.classList.remove('scale-95');
+            });
+            button.addEventListener('mouseleave', () => {
+                button.classList.remove('scale-95');
+            });
+        });
+    </script>
+</body></html>

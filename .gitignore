@@ -1,0 +1,45 @@
+# === Node / Frontend ===
+node_modules/
+dist/
+build/
+.vite/
+*.local
+frontend/**/dist/
+
+# === Python / Backend ===
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# === Environment & secrets ===
+.env
+.env.*
+!.env.example
+
+# === Docker ===
+*.pid
+
+# === Editor / OS ===
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# === Logs & coverage ===
+*.log
+coverage/
+htmlcov/
+.coverage
+
+# === Build/tooling artifacts kept out of VCS ===
+*.vsix
+
+# === Local tooling / machine-specific ===
+.tokensave/
+.claude/settings.local.json

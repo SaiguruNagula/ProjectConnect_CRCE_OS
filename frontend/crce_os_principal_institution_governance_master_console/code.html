@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CRCE OS | Principal Governance</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-header {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .linear-shadow {
+            box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.05), 0px 2px 4px -2px rgba(0, 0, 0, 0.05);
+        }
+        body {
+            background-color: #f7f9fb;
+            color: #191c1e;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#e6e8ea",
+                      "on-tertiary-container": "#7073ff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "primary-fixed": "#dae2fd",
+                      "surface": "#f7f9fb",
+                      "error-container": "#ffdad6",
+                      "on-surface": "#191c1e",
+                      "on-primary": "#ffffff",
+                      "tertiary-fixed": "#e1e0ff",
+                      "tertiary": "#000000",
+                      "outline-variant": "#c6c6cd",
+                      "on-secondary-container": "#fffbff",
+                      "inverse-surface": "#2d3133",
+                      "tertiary-container": "#07006c",
+                      "secondary-fixed-dim": "#c3c0ff",
+                      "on-tertiary-fixed": "#07006c",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "on-secondary-fixed": "#0f0069",
+                      "inverse-on-surface": "#eff1f3",
+                      "primary-fixed-dim": "#bec6e0",
+                      "on-error": "#ffffff",
+                      "secondary": "#4b41e1",
+                      "on-primary-fixed": "#131b2e",
+                      "surface-container": "#eceef0",
+                      "error": "#ba1a1a",
+                      "background": "#f7f9fb",
+                      "on-tertiary-fixed-variant": "#2f2ebe",
+                      "outline": "#76777d",
+                      "surface-container-low": "#f2f4f6",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "on-secondary-fixed-variant": "#3323cc",
+                      "surface-tint": "#565e74",
+                      "secondary-fixed": "#e2dfff",
+                      "surface-bright": "#f7f9fb",
+                      "tertiary-fixed-dim": "#c0c1ff",
+                      "primary-container": "#131b2e",
+                      "on-surface-variant": "#45464d",
+                      "on-background": "#191c1e",
+                      "surface-dim": "#d8dadc",
+                      "secondary-container": "#645efb",
+                      "inverse-primary": "#bec6e0",
+                      "surface-variant": "#e0e3e5",
+                      "primary": "#000000",
+                      "on-primary-container": "#7c839b",
+                      "surface-container-highest": "#e0e3e5"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "base": "4px",
+                      "md": "24px",
+                      "sm": "16px",
+                      "lg": "40px",
+                      "gutter": "24px",
+                      "container-max": "1440px",
+                      "xl": "64px",
+                      "xs": "8px"
+              },
+              "fontFamily": {
+                      "headline-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "display": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "label-md": ["Geist"],
+                      "body-md": ["Inter"],
+                      "mono": ["Geist"]
+              }
+            }
+          }
+        }
+      </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm h-16">
+<div class="flex justify-between items-center px-gutter max-w-container-max mx-auto h-full">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="grid_view">grid_view</span>
+<h1 class="font-headline-md text-headline-md font-bold tracking-tight text-primary">CRCE OS</h1>
+</div>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="text-secondary font-semibold border-b-2 border-secondary pb-1 font-body-md text-body-md" href="#">Overview</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">Departments</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">Approvals</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">Reports</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-md text-body-md" href="#">More</a>
+</nav>
+<div class="flex items-center gap-sm">
+<div class="text-right hidden sm:block">
+<p class="font-headline-sm text-[14px] font-bold">Dr. Srija</p>
+<p class="text-label-md font-label-md text-outline">Principal</p>
+</div>
+<div class="w-10 h-10 rounded-full border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of an executive female academic leader, Dr. Srija, in a bright, modern office setting. She wears professional attire, with a warm yet authoritative expression. The lighting is soft and high-key, reflecting a light-mode, minimalist design aesthetic with neutral tones and clean lines." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCo7D_jJvZpXCjMLJaPErpg7dQyfPtVNe1CZTxtULiZsvZoKLPYPY5FzCtiDL6URG-1YF_mGTPCt2j5KcDpfme1FNAFwMydVXxxavSNDECEpoUIkrvOA_FokYsUET97A-9plWj9QUvQ2rITWWw3nQ_FMpy0-W7P-NQXVFsFx3HjJyDrneX5JJ82q-EEu3Wc-YX8Dsr3u2cfKl6TKI0rR8OVuaVQAnChXcDmwOMrjUDJZsEHcp_bwYO9xSXntpPASg9sK44rZmn6wISa"/>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-gutter max-w-container-max mx-auto">
+<!-- Section 1: Overview & High-Level KPIs -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-md mb-lg">
+<!-- Innovation Health Summary -->
+<div class="lg:col-span-4 bg-white border border-outline-variant/30 rounded-xl p-lg linear-shadow flex flex-col justify-between relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-md opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-8xl" data-icon="insights">insights</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-outline uppercase tracking-wider mb-xs">Innovation Health</p>
+<h2 class="font-display text-[40px] text-primary mb-sm">Healthy</h2>
+</div>
+<div class="flex items-center gap-xs">
+<div class="flex items-center justify-center bg-emerald-50 text-[#065F46] rounded-full px-sm py-1">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+<span class="font-mono text-label-md ml-1">+12%</span>
+</div>
+<span class="text-body-md font-body-md text-outline">vs last quarter</span>
+</div>
+</div>
+<!-- KPI Grid -->
+<div class="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-sm">
+<div class="bg-white border border-outline-variant/30 rounded-xl p-md linear-shadow flex flex-col justify-center">
+<span class="material-symbols-outlined text-secondary mb-xs" data-icon="groups">groups</span>
+<p class="font-label-md text-label-md text-outline">Total Students</p>
+<h3 class="font-headline-lg text-headline-lg mt-1">2,450</h3>
+</div>
+<div class="bg-white border border-outline-variant/30 rounded-xl p-md linear-shadow flex flex-col justify-center">
+<span class="material-symbols-outlined text-secondary mb-xs" data-icon="badge">badge</span>
+<p class="font-label-md text-label-md text-outline">Faculty</p>
+<h3 class="font-headline-lg text-headline-lg mt-1">128</h3>
+</div>
+<div class="bg-white border border-outline-variant/30 rounded-xl p-md linear-shadow flex flex-col justify-center">
+<span class="material-symbols-outlined text-secondary mb-xs" data-icon="task_alt">task_alt</span>
+<p class="font-label-md text-label-md text-outline">Projects Solved</p>
+<h3 class="font-headline-lg text-headline-lg mt-1">412</h3>
+</div>
+<div class="bg-white border border-outline-variant/30 rounded-xl p-md linear-shadow flex flex-col justify-center">
+<span class="material-symbols-outlined text-secondary mb-xs" data-icon="military_tech">military_tech</span>
+<p class="font-label-md text-label-md text-outline">Patents Filed</p>
+<h3 class="font-headline-lg text-headline-lg mt-1">18</h3>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+<!-- Section 2: Departments Table (Left & Center) -->
+<div class="lg:col-span-2">
+<div class="flex items-center justify-between mb-sm">
+<h2 class="font-headline-md text-headline-md">Department Performance</h2>
+<button class="text-secondary font-body-md text-body-md flex items-center gap-xs hover:opacity-80 transition-all">
+                        View Details <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<div class="bg-white border border-outline-variant/30 rounded-xl overflow-hidden linear-shadow">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low border-b border-outline-variant/20">
+<tr>
+<th class="px-md py-sm font-label-md text-label-md text-outline uppercase">Dept Name</th>
+<th class="px-md py-sm font-label-md text-label-md text-outline uppercase">Active Projects</th>
+<th class="px-md py-sm font-label-md text-label-md text-outline uppercase">Completion %</th>
+<th class="px-md py-sm font-label-md text-label-md text-outline uppercase">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-md py-md font-body-md text-body-md font-medium text-primary">Computer Engineering</td>
+<td class="px-md py-md font-mono text-body-md">48</td>
+<td class="px-md py-md">
+<div class="flex items-center gap-xs">
+<div class="w-24 h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 82%"></div>
+</div>
+<span class="font-mono text-label-md">82%</span>
+</div>
+</td>
+<td class="px-md py-md">
+<div class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-md py-md font-body-md text-body-md font-medium text-primary">Information Technology</td>
+<td class="px-md py-md font-mono text-body-md">32</td>
+<td class="px-md py-md">
+<div class="flex items-center gap-xs">
+<div class="w-24 h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 74%"></div>
+</div>
+<span class="font-mono text-label-md">74%</span>
+</div>
+</td>
+<td class="px-md py-md">
+<div class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-md py-md font-body-md text-body-md font-medium text-primary">Mechanical Engineering</td>
+<td class="px-md py-md font-mono text-body-md">24</td>
+<td class="px-md py-md">
+<div class="flex items-center gap-xs">
+<div class="w-24 h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 61%"></div>
+</div>
+<span class="font-mono text-label-md">61%</span>
+</div>
+</td>
+<td class="px-md py-md">
+<div class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-md py-md font-body-md text-body-md font-medium text-primary">Electronics Engineering</td>
+<td class="px-md py-md font-mono text-body-md">19</td>
+<td class="px-md py-md">
+<div class="flex items-center gap-xs">
+<div class="w-24 h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 88%"></div>
+</div>
+<span class="font-mono text-label-md">88%</span>
+</div>
+</td>
+<td class="px-md py-md">
+<div class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Section 3: Pending Approvals (Right) -->
+<div class="lg:col-span-1">
+<div class="flex items-center justify-between mb-sm">
+<h2 class="font-headline-md text-headline-md">Approvals</h2>
+<span class="bg-error-container text-on-error-container text-[10px] font-bold px-2 py-0.5 rounded-full">5 NEW</span>
+</div>
+<div class="space-y-sm">
+<!-- Item 1 -->
+<div class="bg-white border border-outline-variant/30 rounded-xl p-md linear-shadow">
+<div class="flex items-start justify-between mb-sm">
+<div class="flex items-center gap-xs text-primary">
+<span class="material-symbols-outlined" data-icon="how_to_reg">how_to_reg</span>
+<p class="font-body-md text-body-md font-semibold">Faculty Verification</p>
+</div>
+<span class="bg-surface-container text-on-surface-variant font-mono text-[10px] px-1.5 py-0.5 rounded">3 pending</span>
+</div>
+<button class="w-full py-2 bg-primary text-white font-body-md text-body-md rounded-lg hover:opacity-90 active:scale-95 transition-all">Review</button>
+</div>
+<!-- Item 2 -->
+<div class="bg-white border border-outline-variant/30 rounded-xl p-md linear-shadow">
+<div class="flex items-start justify-between mb-sm">
+<div class="flex items-center gap-xs text-primary">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<p class="font-body-md text-body-md font-semibold">Research Grants</p>
+</div>
+<span class="bg-surface-container text-on-surface-variant font-mono text-[10px] px-1.5 py-0.5 rounded">2 pending</span>
+</div>
+<button class="w-full py-2 bg-primary text-white font-body-md text-body-md rounded-lg hover:opacity-90 active:scale-95 transition-all">Review</button>
+</div>
+<!-- Item 3 -->
+<div class="bg-white border border-outline-variant/30 rounded-xl p-md linear-shadow">
+<div class="flex items-start justify-between mb-sm">
+<div class="flex items-center gap-xs text-primary">
+<span class="material-symbols-outlined" data-icon="security_update_good">security_update_good</span>
+<p class="font-body-md text-body-md font-semibold">Policy Update (v2.1)</p>
+</div>
+<span class="bg-surface-container text-on-surface-variant font-mono text-[10px] px-1.5 py-0.5 rounded">Action Req</span>
+</div>
+<button class="w-full py-2 bg-primary text-white font-body-md text-body-md rounded-lg hover:opacity-90 active:scale-95 transition-all">Review</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 4: Quick Controls -->
+<div class="mt-lg grid grid-cols-1 md:grid-cols-2 gap-md">
+<button class="flex items-center justify-between p-lg bg-secondary-container text-on-secondary-container rounded-xl hover:opacity-90 transition-all group">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="campaign">campaign</span>
+</div>
+<div class="text-left">
+<h4 class="font-headline-sm text-headline-sm text-white">Broadcast Banner</h4>
+<p class="text-white/70 font-body-md text-body-md">Push announcements to all students and faculty.</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-white group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="flex items-center justify-between p-lg bg-white border border-outline-variant rounded-xl hover:bg-surface-container-low transition-all group">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-surface-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="download">download</span>
+</div>
+<div class="text-left">
+<h4 class="font-headline-sm text-headline-sm text-primary">Institution Report</h4>
+<p class="text-outline font-body-md text-body-md">Export 2023-24 comprehensive analytics (PDF).</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface/80 backdrop-blur-md border-t border-outline-variant/20 shadow-lg lg:hidden">
+<div class="flex justify-around items-center py-xs pb-safe">
+<div class="flex flex-col items-center text-secondary">
+<span class="material-symbols-outlined" data-icon="home_app_logo">home_app_logo</span>
+<span class="font-label-md text-label-md">Home</span>
+</div>
+<div class="flex flex-col items-center text-outline">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-md text-label-md">Schedule</span>
+</div>
+<div class="flex flex-col items-center text-outline">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span class="font-label-md text-label-md">Notice</span>
+</div>
+<div class="flex flex-col items-center text-outline">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+<span class="font-label-md text-label-md">Profile</span>
+</div>
+</div>
+</nav>
+<script>
+        // Simple micro-interactions
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('mousedown', () => {
+                el.style.transform = 'scale(0.98)';
+            });
+            el.addEventListener('mouseup', () => {
+                el.style.transform = 'scale(1)';
+            });
+            el.addEventListener('mouseleave', () => {
+                el.style.transform = 'scale(1)';
+            });
+        });
+
+        // Dynamic time indicator for "last quarter"
+        const updateQuarter = () => {
+            const now = new Date();
+            const quarter = Math.floor((now.getMonth() + 3) / 3);
+            const quarterLabel = `Q${quarter} 2024`;
+            // This is just a placeholder for potential dynamic logic
+        };
+        updateQuarter();
+    </script>
+</body></html>

@@ -1,0 +1,1147 @@
+# 05_DECISIONS.md
+
+# 1. Document Information
+
+| Item | Details |
+|------|---------|
+| Document | Engineering Decisions |
+| Product | CRCE OS |
+| Version | 1.0 |
+| Status | Active |
+| Owner | CRCE OS Team |
+| Purpose | Record the rationale behind key engineering decisions to ensure long-term consistency and prevent architectural drift. |
+
+---
+
+# 2. Purpose
+
+This document captures the reasoning behind the most important technical and architectural decisions made during the development of CRCE OS.
+
+It serves as a permanent engineering reference for current and future contributors.
+
+Objectives:
+
+- Explain **why** specific technologies and patterns were selected.
+- Prevent accidental changes to core architecture.
+- Preserve project knowledge over time.
+- Ensure consistency across future development.
+- Provide context for design trade-offs.
+
+This document records decisions, not implementation details. When a decision changes, update the Decision Log while preserving the historical record.
+
+---
+
+# 3. Technology Decisions
+
+## Backend
+
+**Decision:** FastAPI
+
+**Reason:**
+
+- High performance
+- Modern Python ecosystem
+- Automatic OpenAPI documentation
+- Strong type safety with Pydantic
+- Excellent async support
+- Easy to maintain
+
+---
+
+## Frontend
+
+**Decision:** React + TypeScript + Vite
+
+**Reason:**
+
+- Component-based architecture
+- Large ecosystem
+- Strong typing
+- Fast development
+- Excellent maintainability
+- Ideal for modular applications
+
+---
+
+## Styling
+
+**Decision:** TailwindCSS + shadcn/ui
+
+**Reason:**
+
+- Reusable components
+- Consistent design system
+- Easy customization
+- Responsive by default
+- Minimal CSS maintenance
+
+---
+
+## Database
+
+**Decision:** PostgreSQL
+
+**Reason:**
+
+- Relational data integrity
+- ACID compliance
+- Excellent indexing
+- Mature ecosystem
+- Scalable for institutional data
+
+---
+
+## ORM
+
+**Decision:** SQLAlchemy + Alembic
+
+**Reason:**
+
+- Strong ORM support
+- Migration management
+- Flexible relationships
+- Production-proven
+
+---
+
+## State Management
+
+**Decision:** TanStack Query + Zustand
+
+**Reason:**
+
+- Clear separation of server and client state
+- Efficient caching
+- Minimal boilerplate
+- High performance
+
+---
+
+# 4. Architecture Decisions
+
+## Modular Architecture
+
+**Decision**
+
+The system is divided into Public, Shared, Student, Faculty, Admin, and Principal layers.
+
+**Reason**
+
+Improves maintainability, scalability, and role separation.
+
+---
+
+## Shared Core Modules
+
+**Decision**
+
+Modules such as Innovation Hub, Credit Engine, Review Engine, Leaderboard, and Portfolio are shared across all roles.
+
+**Reason**
+
+Avoids duplication and ensures a single implementation for common functionality.
+
+---
+
+## Service Layer Architecture
+
+**Decision**
+
+Business logic resides exclusively in service classes.
+
+**Reason**
+
+Keeps API routes lightweight, improves testability, and separates responsibilities.
+
+---
+
+## Repository Pattern
+
+**Decision**
+
+Database access is isolated within repository classes.
+
+**Reason**
+
+Decouples business logic from persistence and simplifies future database changes.
+
+---
+
+## Event-Driven Flow
+
+**Decision**
+
+Major business events trigger downstream updates automatically.
+
+Example:
+
+Project Approved
+
+↓
+
+Credit Engine
+
+↓
+
+Leaderboard
+
+↓
+
+Portfolio
+
+↓
+
+Analytics
+
+**Reason**
+
+Maintains data consistency and reduces duplicated update logic.
+
+---
+
+# 5. Database Decisions
+
+## Single Production Database
+
+**Decision**
+
+Use one PostgreSQL database for Version 1.0.
+
+**Reason**
+
+Simplifies deployment, maintenance, and backups.
+
+---
+
+## Normalized Schema
+
+**Decision**
+
+Normalize data wherever practical.
+
+**Reason**
+
+Reduces duplication and preserves consistency.
+
+---
+
+## Soft Deletes
+
+**Decision**
+
+Use soft deletes for critical business entities.
+
+**Reason**
+
+Allows auditability and recovery of important records.
+
+---
+
+## UUID Strategy
+
+**Decision**
+
+Use UUIDs for public-facing entities where appropriate while retaining integer primary keys internally if beneficial for performance.
+
+**Reason**
+
+Improves security and flexibility for external APIs.
+
+---
+
+## Migration Strategy
+
+**Decision**
+
+All schema changes must be performed through Alembic migrations.
+
+**Reason**
+
+Ensures reproducible deployments and controlled database evolution.
+
+---
+
+## Indexing Strategy
+
+**Decision**
+
+Create indexes only for frequently queried columns.
+
+**Reason**
+
+Balance read performance with write efficiency.
+
+Never create indexes without measuring their benefit.
+
+# 6. Authentication Decisions
+
+## Authentication Strategy
+
+**Decision**
+
+Use JWT (JSON Web Token) with Refresh Tokens for authentication.
+
+**Reason**
+
+- Stateless authentication
+- Easy frontend integration
+- Scalable architecture
+- Secure session management
+
+---
+
+## Role-Based Access Control (RBAC)
+
+**Decision**
+
+Every authenticated user belongs to one primary role.
+
+Supported roles:
+
+- Student
+- Faculty
+- Admin
+- Principal
+
+**Reason**
+
+Provides clear authorization boundaries and simplifies permission management.
+
+---
+
+## Authorization
+
+**Decision**
+
+Authorization must always be enforced on the backend.
+
+The frontend should only control visibility of UI elements.
+
+**Reason**
+
+Frontend can never be trusted for security.
+
+---
+
+## Password Security
+
+**Decision**
+
+Passwords are never stored in plain text.
+
+Use modern hashing algorithms (bcrypt via Passlib).
+
+**Reason**
+
+Protect user credentials in the event of database compromise.
+
+---
+
+## Session Management
+
+**Decision**
+
+Support short-lived access tokens with longer-lived refresh tokens.
+
+**Reason**
+
+Balances usability with security.
+
+---
+
+## Future Authentication
+
+Future versions may support:
+
+- Google OAuth
+- Microsoft Login
+- College SSO
+- Two-Factor Authentication (2FA)
+
+These are outside Version 1.0.
+
+---
+
+# 7. API Decisions
+
+## API Style
+
+**Decision**
+
+Use RESTful APIs for Version 1.0.
+
+**Reason**
+
+REST is simple, widely supported, easy to document, and sufficient for the platform's requirements.
+
+---
+
+## API Versioning
+
+**Decision**
+
+Every endpoint must be versioned.
+
+Example:
+
+```
+/api/v1/projects
+/api/v1/leaderboard
+```
+
+**Reason**
+
+Allows future evolution without breaking existing clients.
+
+---
+
+## Response Format
+
+**Decision**
+
+Use a standardized response structure for all endpoints.
+
+```json
+{
+  "success": true,
+  "message": "Request completed successfully.",
+  "data": {}
+}
+```
+
+**Reason**
+
+Provides consistency across frontend and backend.
+
+---
+
+## Validation
+
+**Decision**
+
+All request validation is performed using Pydantic schemas.
+
+**Reason**
+
+Ensures strong typing, automatic validation, and better API documentation.
+
+---
+
+## Error Handling
+
+**Decision**
+
+Implement centralized exception handling.
+
+**Reason**
+
+Produces predictable API responses and simplifies debugging.
+
+---
+
+## Pagination
+
+**Decision**
+
+Paginate all endpoints returning collections.
+
+**Reason**
+
+Improves performance and reduces unnecessary data transfer.
+
+---
+
+## Documentation
+
+**Decision**
+
+Maintain automatic OpenAPI documentation through FastAPI.
+
+**Reason**
+
+Keeps API documentation synchronized with implementation.
+
+---
+
+# 8. Frontend Decisions
+
+## Framework
+
+**Decision**
+
+Use React with TypeScript.
+
+**Reason**
+
+Provides modular architecture, type safety, and long-term maintainability.
+
+---
+
+## Build Tool
+
+**Decision**
+
+Use Vite.
+
+**Reason**
+
+Fast development server, optimized builds, and modern tooling.
+
+---
+
+## Routing
+
+**Decision**
+
+Use React Router for client-side routing.
+
+**Reason**
+
+Supports nested layouts and role-based navigation.
+
+---
+
+## State Management
+
+**Decision**
+
+Separate server state and client state.
+
+Server State:
+
+- TanStack Query
+
+Client State:
+
+- Zustand
+
+**Reason**
+
+Reduces complexity and improves scalability.
+
+---
+
+## Forms
+
+**Decision**
+
+All forms must use controlled components with schema-based validation.
+
+**Reason**
+
+Improves consistency and user experience.
+
+---
+
+## Component Philosophy
+
+**Decision**
+
+Build small, reusable, feature-driven components.
+
+**Reason**
+
+Simplifies maintenance and reduces duplication.
+
+---
+
+## Responsive Design
+
+**Decision**
+
+Mobile-first responsive development.
+
+**Reason**
+
+Most students will access CRCE OS using mobile devices.
+
+---
+
+# 9. UI Decisions
+
+## Design Language
+
+**Decision**
+
+Adopt a consistent visual identity inspired by:
+
+- 70% Linear
+- 20% Stripe
+- 10% Notion
+
+**Reason**
+
+Creates a modern, minimal, and professional interface.
+
+---
+
+## Design System
+
+**Decision**
+
+Maintain a single reusable component library.
+
+**Reason**
+
+Ensures visual consistency and faster development.
+
+---
+
+## Existing UI
+
+**Decision**
+
+The current Stitch-generated UI is the foundation for Version 1.0.
+
+**Reason**
+
+Development effort should focus on integration rather than redesign.
+
+---
+
+## Accessibility
+
+**Decision**
+
+Target WCAG 2.1 AA compliance.
+
+**Reason**
+
+Ensure the platform is usable by all users.
+
+---
+
+## Theme
+
+**Decision**
+
+Support Light Mode in Version 1.0.
+
+Dark Mode may be introduced in a future release.
+
+---
+
+## Responsiveness
+
+**Decision**
+
+Every page must function across:
+
+- Mobile
+- Tablet
+- Laptop
+- Desktop
+
+---
+
+## Navigation
+
+**Decision**
+
+Navigation adapts to user roles while preserving shared modules.
+
+**Reason**
+
+Maintains a consistent experience across the platform.
+
+---
+
+# 10. Business Logic Decisions
+
+## Credit Engine
+
+**Decision**
+
+The Credit Engine is the only system responsible for calculating contribution scores.
+
+**Reason**
+
+Prevents duplicate scoring logic and guarantees consistency.
+
+---
+
+## Leaderboard
+
+**Decision**
+
+The Leaderboard never calculates rankings.
+
+It only displays data received from the Credit Engine.
+
+**Reason**
+
+Maintains a single source of truth.
+
+---
+
+## Portfolio
+
+**Decision**
+
+Portfolios are automatically generated from verified platform activity.
+
+Users cannot manually add verified achievements.
+
+**Reason**
+
+Ensures authenticity and credibility.
+
+---
+
+## Review Engine
+
+**Decision**
+
+Credits are awarded only after successful faculty review and approval.
+
+**Reason**
+
+Prevents unverified work from influencing rankings or portfolios.
+
+---
+
+## Shared Modules
+
+**Decision**
+
+Shared modules must remain role-agnostic.
+
+Role-specific behavior should be controlled through permissions and UI, not duplicate implementations.
+
+**Reason**
+
+Reduces maintenance overhead and ensures consistent business logic.
+
+---
+
+## Innovation Lifecycle
+
+**Decision**
+
+Every project must follow the predefined lifecycle:
+
+```
+Problem
+↓
+
+Team Formation
+↓
+
+Project Development
+↓
+
+Faculty Review
+↓
+
+Credit Allocation
+↓
+
+Leaderboard Update
+↓
+
+Portfolio Generation
+```
+
+**Reason**
+
+Maintains consistency across all innovation activities and ensures every contribution is traceable.
+
+# 11. Deployment Decisions
+
+## Deployment Strategy
+
+**Decision**
+
+Deploy CRCE OS on the college-managed server using Docker containers.
+
+**Reason**
+
+- Consistent environments
+- Easy deployment
+- Simplified maintenance
+- Future scalability
+- Easy rollback
+
+---
+
+## Containerization
+
+**Decision**
+
+Every major service should run inside its own container.
+
+Services include:
+
+- Frontend
+- Backend
+- PostgreSQL
+- NGINX
+
+**Reason**
+
+Improves isolation and maintainability.
+
+---
+
+## Reverse Proxy
+
+**Decision**
+
+Use NGINX as the reverse proxy.
+
+**Reason**
+
+- HTTPS support
+- Static file serving
+- Load balancing
+- Security headers
+- Compression
+
+---
+
+## Environment Configuration
+
+**Decision**
+
+All configuration must come from environment variables.
+
+Never hardcode:
+
+- Secrets
+- API Keys
+- Database Credentials
+- JWT Keys
+
+**Reason**
+
+Improves security and deployment flexibility.
+
+---
+
+## Logging
+
+**Decision**
+
+Maintain centralized application logs.
+
+Log:
+
+- API Requests
+- Authentication Events
+- Business Events
+- Errors
+
+Never log:
+
+- Passwords
+- JWT Tokens
+- Personal Information
+- Secrets
+
+---
+
+## Backup Strategy
+
+**Decision**
+
+Schedule automatic PostgreSQL backups.
+
+Maintain:
+
+- Daily Backup
+- Weekly Backup
+- Monthly Backup
+
+**Reason**
+
+Protect institutional data from accidental loss.
+
+---
+
+# 12. Security Decisions
+
+## Security Philosophy
+
+**Decision**
+
+Security is designed into the system from the beginning rather than added later.
+
+**Reason**
+
+Prevent vulnerabilities instead of reacting to them.
+
+---
+
+## Authentication
+
+**Decision**
+
+Every protected endpoint requires valid authentication.
+
+**Reason**
+
+Unauthorized users should never access protected resources.
+
+---
+
+## Authorization
+
+**Decision**
+
+Every request must verify:
+
+Authentication
+
+↓
+
+Role
+
+↓
+
+Permission
+
+↓
+
+Ownership (when applicable)
+
+**Reason**
+
+Prevents privilege escalation.
+
+---
+
+## Input Validation
+
+**Decision**
+
+Validate every request received by the backend.
+
+Including:
+
+- Request Body
+- Query Parameters
+- URL Parameters
+- File Uploads
+
+**Reason**
+
+Protects against malicious input.
+
+---
+
+## Database Protection
+
+**Decision**
+
+Use SQLAlchemy ORM and parameterized queries exclusively.
+
+**Reason**
+
+Prevents SQL Injection.
+
+---
+
+## File Uploads
+
+**Decision**
+
+Accept only approved file types.
+
+Validate:
+
+- Extension
+- MIME Type
+- File Size
+
+Future versions may include virus scanning.
+
+---
+
+## Audit Trail
+
+**Decision**
+
+Maintain audit logs for important actions.
+
+Examples:
+
+- Login
+- Problem Creation
+- Reviews
+- Credit Updates
+- Admin Operations
+
+---
+
+# 13. Performance Decisions
+
+## Performance Philosophy
+
+**Decision**
+
+Build for maintainability first, optimize after measuring.
+
+**Reason**
+
+Avoid premature optimization and unnecessary complexity.
+
+---
+
+## Frontend Performance
+
+**Decision**
+
+Implement:
+
+- Lazy Loading
+- Route Splitting
+- Image Optimization
+- Code Splitting
+- Asset Compression
+
+---
+
+## Backend Performance
+
+**Decision**
+
+Optimize:
+
+- Database Queries
+- Service Logic
+- Background Tasks
+- API Responses
+
+---
+
+## Database Performance
+
+**Decision**
+
+Use:
+
+- Proper Indexes
+- Query Optimization
+- Pagination
+- Connection Pooling
+
+Avoid:
+
+- N+1 Queries
+- Full Table Scans
+- Duplicate Reads
+
+---
+
+## Caching
+
+**Decision**
+
+Version 1.0 uses minimal caching.
+
+Future versions may introduce Redis where measurable performance benefits exist.
+
+---
+
+## Monitoring
+
+**Decision**
+
+Monitor:
+
+- Response Times
+- Error Rates
+- Database Performance
+- Resource Usage
+
+Performance improvements should always be based on real metrics.
+
+---
+
+# 14. Future Decisions
+
+These decisions are intentionally deferred until after Version 1.0.
+
+They should not influence current implementation.
+
+---
+
+## Planned Enhancements
+
+- Mobile Application
+- Progressive Web App (PWA)
+- Multi-College Support
+- AI Assistant
+- AI Project Recommendations
+- AI Review Assistance
+- Alumni Portal
+- Startup Incubator
+- Internship Portal
+- Placement Portal
+- Patent Management
+- Industry Collaboration Portal
+- ERP Integration
+- Public API
+- Real-Time Collaboration
+- WebSocket Support
+- Redis Caching
+- Microservices Architecture
+
+---
+
+## Guiding Principle
+
+Version 1.0 should prioritize:
+
+- Stability
+- Maintainability
+- Simplicity
+- Complete Feature Set
+
+Future complexity should only be introduced when justified by real usage.
+
+---
+
+# 15. Decision Log
+
+The Decision Log records significant architectural or engineering changes made during the project's lifecycle.
+
+Each entry should include:
+
+| Date | Decision | Reason | Impact | Approved By |
+|------|----------|--------|--------|-------------|
+
+---
+
+## Initial Decisions (Version 1.0)
+
+| Decision | Rationale |
+|-----------|-----------|
+| FastAPI selected as backend framework | High performance, modern Python ecosystem, automatic OpenAPI support |
+| React + TypeScript selected for frontend | Component-based architecture, strong typing, maintainability |
+| PostgreSQL selected as primary database | Reliable relational database with strong ACID guarantees |
+| SQLAlchemy + Alembic selected | Mature ORM with robust migration support |
+| TailwindCSS + shadcn/ui selected | Consistent, reusable design system |
+| JWT Authentication selected | Stateless, scalable authentication mechanism |
+| Role-Based Access Control implemented | Clear separation of permissions across Student, Faculty, Admin, and Principal |
+| Modular Architecture adopted | Improves scalability and maintainability |
+| Credit Engine designated as Single Source of Truth | Prevents duplicate scoring logic across the platform |
+| Shared Leaderboard adopted | One leaderboard with Student/Faculty toggle, driven entirely by the Credit Engine |
+| Auto-Generated Portfolio adopted | Portfolios generated only from verified platform activity |
+| Docker-based deployment selected | Consistent deployments across environments |
+| NGINX selected as reverse proxy | HTTPS, security, static asset serving, and request routing |
+
+---
+
+## Change Management Rules
+
+When making future architectural changes:
+
+1. Document the proposed change.
+2. Explain the reason.
+3. Assess the impact on existing modules.
+4. Update Architecture, TRD, and related documentation if necessary.
+5. Record the decision in this log before implementation.
+
+The Decision Log is the historical memory of the project and should be maintained throughout the lifecycle of CRCE OS.
+

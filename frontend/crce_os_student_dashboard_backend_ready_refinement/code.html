@@ -1,0 +1,384 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>CRCE OS | Student Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Hanken+Grotesk:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f7f9fb;
+            font-family: 'Inter', sans-serif;
+            min-height: 100dvh;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#0f0069",
+                        "secondary-container": "#dae2fd",
+                        "secondary-fixed": "#dae2fd",
+                        "on-tertiary-container": "#dbdae4",
+                        "inverse-primary": "#c3c0ff",
+                        "tertiary-fixed-dim": "#c6c5cf",
+                        "surface-dim": "#d8dadc",
+                        "inverse-on-surface": "#eff1f3",
+                        "inverse-surface": "#2d3133",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#191c1e",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#464555",
+                        "surface-bright": "#f7f9fb",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#46464e",
+                        "primary-container": "#4f46e5",
+                        "on-primary-container": "#dad7ff",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "on-tertiary-fixed": "#1a1b22",
+                        "outline": "#777587",
+                        "background": "#f7f9fb",
+                        "surface-variant": "#e0e3e5",
+                        "surface-container-high": "#e6e8ea",
+                        "tertiary-fixed": "#e3e1ec",
+                        "surface-container-low": "#f2f4f6",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "on-secondary-container": "#5c647a",
+                        "error": "#ba1a1a",
+                        "outline-variant": "#c7c4d8",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#131b2e",
+                        "on-surface": "#191c1e",
+                        "tertiary": "#474750",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "primary-fixed": "#e2dfff",
+                        "tertiary-container": "#5f5f68",
+                        "secondary": "#565e74",
+                        "surface-tint": "#4d44e3",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary": "#3525cd"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "base": "4px",
+                        "xs": "8px",
+                        "sm": "16px",
+                        "xl": "64px",
+                        "md": "24px",
+                        "margin-desktop": "48px",
+                        "gutter": "24px",
+                        "lg": "40px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "body-sm": ["Inter"],
+                        "display-lg-mobile": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["JetBrains Mono"],
+                        "label-md": ["JetBrains Mono"],
+                        "display-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-sm": ["10px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30">
+<div class="flex justify-between items-center px-lg h-16 max-w-[1440px] mx-auto">
+<div class="flex items-center gap-sm">
+<button class="material-symbols-outlined text-primary p-xs hover:bg-surface-container-high/50 transition-colors active:scale-95 duration-150">grid_view</button>
+<h1 class="text-headline-md font-headline-md font-bold tracking-tight text-primary">CRCE OS</h1>
+</div>
+<div class="flex items-center gap-md">
+<nav class="hidden md:flex items-center gap-lg">
+<a class="text-secondary font-semibold font-label-md text-label-md" href="#">Dashboard</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors font-label-md text-label-md" href="#">Academics</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors font-label-md text-label-md" href="#">Resources</a>
+</nav>
+<div class="w-10 h-10 rounded-full border border-outline-variant/30 overflow-hidden cursor-pointer active:scale-95 duration-150">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3p62FrET_vJvF2i5_o9A3ELj-T_4DHnV2KAi-yVBufq39sEnFEBMrpIebTjC1Nt3T-QxVGKJMXAshMMESZjbLDG846gVsfRst74UIN34J8nDvH0AUxvMpjAVAeF195deN0Heof8qXKYZ_LlJn4H-uDqYMW7Uvz7hADole1gz-Ba17jyoZ5820O45q3NJ4OeIc0QxZJpa50iVdpkdb0MKnFgtufges-cGOwYWWPRySXYOJibAeCm2BDF2QK0sDrHHfVgxGm3zpzS4x">
+</div>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-sm md:px-lg max-w-[1440px] mx-auto">
+<!-- Welcome Header -->
+<section class="flex flex-col md:flex-row items-center md:items-start gap-md mb-xl animate-fade-in" style="opacity: 1; transform: translateY(0px); transition: opacity 0.6s ease-out, transform 0.6s ease-out;">
+<div class="relative">
+<div class="w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden border-2 border-primary-fixed">
+<img alt="Aarav Sharma" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSUVXnmv-s_YIwXoSmBL3kz56Cliryj3MxMJufr8bql509BsAAl9TA8wHf6vxTnV2_6lrzVYx1CPFJHkPNg5Q6THB_RpUtvFFxTRTskuLAn8TOZTv76bTzwcMHGcWV3qXD5EDe1LASjcf3Fm8Ndz3bLfaBPUNumTFUYmj9hftJwwhU9B0zP5ho1Wg6UiIJS7xr5Nk9E_c0PUjgM2FcdVaTib-xxXPawK-FlsZyo57N__Q1l-UdtGyuY8MtCadb2nUibjbFBlj58u-p">
+</div>
+
+</div>
+<div class="flex-1 text-center md:text-left">
+<div class="flex flex-col md:flex-row md:items-baseline gap-xs md:gap-sm justify-center md:justify-start">
+<h2 class="font-headline-md text-headline-md md:text-display-lg font-bold">Aarav Sharma</h2>
+<span class="font-label-md text-label-md bg-secondary-fixed/20 text-on-secondary-fixed px-3 py-1 rounded-full uppercase">Computer Engg • TE</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-xs max-w-2xl">
+<span class="text-primary font-bold">3 Active Projects</span> • <span class="text-primary font-bold">120 Credits this week</span>&nbsp;
+</p>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Stats & Projects (8 Cols) -->
+<div class="lg:col-span-8 flex flex-col gap-gutter">
+<!-- Quick Stats Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-sm">
+<div class="bg-surface-container-low border border-outline-variant/20 p-md rounded-xl hover:shadow-sm transition-all">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-xs">Total Credits</p>
+<h3 class="font-headline-md text-headline-md text-primary">2,450</h3>
+
+</div>
+<div class="bg-surface-container-low border border-outline-variant/20 p-md rounded-xl hover:shadow-sm transition-all">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-xs">Leaderboard Rank</p>
+<h3 class="font-headline-md text-headline-md text-primary">#12</h3>
+
+</div>
+
+<div class="bg-surface-container-low border border-outline-variant/20 p-md rounded-xl hover:shadow-sm transition-all">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-xs">Active Projects</p>
+<h3 class="font-headline-md text-headline-md text-primary">03</h3>
+
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-sm">
+<button class="flex items-center justify-center gap-xs bg-white border border-outline-variant py-sm px-md rounded-lg font-label-md text-label-md text-on-surface hover:bg-primary/5 hover:border-primary transition-all active:scale-95">
+<span class="material-symbols-outlined text-[20px]">search</span> Browse Problems
+                    </button>
+<button class="flex items-center justify-center gap-xs bg-white border border-outline-variant py-sm px-md rounded-lg font-label-md text-label-md text-on-surface hover:bg-primary/5 hover:border-primary transition-all active:scale-95">
+<span class="material-symbols-outlined text-[20px]">rocket_launch</span> My Projects
+                    </button>
+<button class="flex items-center justify-center gap-xs bg-white border border-outline-variant py-sm px-md rounded-lg font-label-md text-label-md text-on-surface hover:bg-primary/5 hover:border-primary transition-all active:scale-95">
+<span class="material-symbols-outlined text-[20px]">badge</span> Portfolio
+                    </button>
+<button class="flex items-center justify-center gap-xs bg-white border border-outline-variant py-sm px-md rounded-lg font-label-md text-label-md text-on-surface hover:bg-primary/5 hover:border-primary transition-all active:scale-95">
+<span class="material-symbols-outlined text-[20px]">leaderboard</span> Leaderboard
+                    </button>
+</div>
+<!-- Active Projects -->
+<div class="bg-white border border-outline-variant p-md md:p-lg rounded-xl">
+<div class="flex justify-between items-center mb-md">
+<h4 class="font-headline-sm text-headline-sm">Active Projects</h4>
+<a class="font-label-md text-label-md text-primary hover:underline" href="#">View All</a>
+</div>
+<div class="space-y-sm">
+<!-- Project 1 -->
+<div class="flex flex-col md:flex-row md:items-center justify-between p-md bg-surface-container-low rounded-xl border border-transparent hover:border-outline-variant transition-all group">
+<div class="flex-1">
+<div class="flex items-center gap-xs mb-1">
+<h5 class="font-body-lg font-semibold text-on-surface">Smart Attendance System</h5>
+<span class="bg-primary-container text-white text-[10px] px-2 py-0.5 rounded-full uppercase">On Track</span>
+</div>
+<p class="text-xs text-on-surface-variant mb-3">Milestone: Alpha Deployment (Friday)</p>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 75%"></div>
+</div>
+</div>
+<div class="flex items-center gap-lg mt-md md:mt-0 md:ml-lg">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-200"></div>
+<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-300"></div>
+<div class="w-8 h-8 rounded-full border-2 border-white bg-primary text-white text-[10px] flex items-center justify-center font-bold">+2</div>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">arrow_forward_ios</button>
+</div>
+</div>
+<!-- Project 2 -->
+<div class="flex flex-col md:flex-row md:items-center justify-between p-md bg-surface-container-low rounded-xl border border-transparent hover:border-outline-variant transition-all group">
+<div class="flex-1">
+<div class="flex items-center gap-xs mb-1">
+<h5 class="font-body-lg font-semibold text-on-surface">Blockchain Certs</h5>
+<span class="bg-secondary text-white text-[10px] px-2 py-0.5 rounded-full uppercase">Testing</span>
+</div>
+<p class="text-xs text-on-surface-variant mb-3">Milestone: Smart Contract Audit</p>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 40%"></div>
+</div>
+</div>
+<div class="flex items-center gap-lg mt-md md:mt-0 md:ml-lg">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-200"></div>
+<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-400"></div>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">arrow_forward_ios</button>
+</div>
+</div>
+<!-- Project 3 -->
+<div class="flex flex-col md:flex-row md:items-center justify-between p-md bg-surface-container-low rounded-xl border border-transparent hover:border-outline-variant transition-all group">
+<div class="flex-1">
+<div class="flex items-center gap-xs mb-1">
+<h5 class="font-body-lg font-semibold text-on-surface">Campus Navigation AR</h5>
+<span class="bg-tertiary-container text-white text-[10px] px-2 py-0.5 rounded-full uppercase">Review</span>
+</div>
+<p class="text-xs text-on-surface-variant mb-3">Milestone: User Testing</p>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 90%"></div>
+</div>
+</div>
+<div class="flex items-center gap-lg mt-md md:mt-0 md:ml-lg">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-500"></div>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">arrow_forward_ios</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column (4 Cols) -->
+<div class="lg:col-span-4 flex flex-col gap-gutter">
+<!-- Portfolio Progress -->
+<div class="bg-white border border-outline-variant p-md rounded-xl">
+
+
+<button class="w-full py-sm bg-primary text-white rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors">VIEW PORTFOLIO</button>
+</div>
+<!-- Pending Actions -->
+<div class="bg-white border border-outline-variant p-md rounded-xl">
+<h4 class="font-headline-sm text-headline-sm mb-md">Pending Actions</h4>
+<div class="space-y-sm">
+<div class="flex items-center gap-sm p-sm bg-surface-container-low rounded-lg group cursor-pointer border border-transparent hover:border-outline-variant">
+<span class="material-symbols-outlined text-primary">person_add</span>
+<span class="text-body-sm font-medium">Accept Team Invite</span>
+</div>
+<div class="flex items-center gap-sm p-sm bg-surface-container-low rounded-lg group cursor-pointer border border-transparent hover:border-outline-variant">
+<span class="material-symbols-outlined text-primary">upload_file</span>
+<span class="text-body-sm font-medium">Submit Milestone</span>
+</div>
+<div class="flex items-center gap-sm p-sm bg-surface-container-low rounded-lg group cursor-pointer border border-transparent hover:border-outline-variant">
+<span class="material-symbols-outlined text-primary">forum</span>
+<span class="text-body-sm font-medium">View Faculty Feedback</span>
+</div>
+<div class="flex items-center gap-sm p-sm bg-surface-container-low rounded-lg group cursor-pointer border border-transparent hover:border-outline-variant">
+<span class="material-symbols-outlined text-primary">edit_square</span>
+<span class="text-body-sm font-medium">Complete Profile</span>
+</div>
+</div>
+</div>
+<!-- Recent Activity Feed -->
+<div class="bg-white border border-outline-variant p-md rounded-xl">
+<h4 class="font-headline-sm text-headline-sm mb-md">Recent Activity</h4>
+<div class="space-y-md">
+<div class="flex gap-sm">
+<div class="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+<div>
+<p class="text-body-sm text-on-surface">Credits earned <span class="text-primary font-bold">(50 pts)</span></p>
+<p class="text-[10px] text-on-surface-variant">2 hours ago</p>
+</div>
+</div>
+<div class="flex gap-sm">
+<div class="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+<div>
+<p class="text-body-sm text-on-surface">Milestone approved</p>
+<p class="text-[10px] text-on-surface-variant">Yesterday</p>
+</div>
+</div>
+<div class="flex gap-sm">
+<div class="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+<div>
+<p class="text-body-sm text-on-surface">Project joined</p>
+<p class="text-[10px] text-on-surface-variant">2 days ago</p>
+</div>
+</div>
+<div class="flex gap-sm">
+<div class="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+<div>
+<p class="text-body-sm text-on-surface">Solution published</p>
+<p class="text-[10px] text-on-surface-variant">3 days ago</p>
+</div>
+</div>
+<div class="flex gap-sm">
+<div class="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+<div>
+<p class="text-body-sm text-on-surface">Portfolio updated</p>
+<p class="text-[10px] text-on-surface-variant">4 days ago</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Mobile only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-t border-outline-variant/30 rounded-t-xl h-20 px-md pb-safe flex justify-around items-center">
+<div class="flex flex-col items-center justify-center text-primary bg-secondary-fixed/20 rounded-lg py-1 px-3">
+<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">dashboard</span>
+<span class="text-label-md font-label-md">Dashboard</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant py-1 px-3">
+<span class="material-symbols-outlined">school</span>
+<span class="text-label-md font-label-md">Academics</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant py-1 px-3">
+<span class="material-symbols-outlined">layers</span>
+<span class="text-label-md font-label-md">Resources</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant py-1 px-3">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="text-label-md font-label-md">Profile</span>
+</div>
+</nav>
+<!-- Footer -->
+<footer class="w-full mt-auto bg-surface-container-low border-t border-outline-variant/20">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md px-lg py-xl max-w-[1440px] mx-auto">
+<div>
+<p class="text-headline-sm font-headline-sm font-bold text-primary mb-xs">CRCE OS</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Fr. Conceicao Rodrigues College of Engineering Campus Operating System. Bridging the gap between academics and innovation.</p>
+</div>
+
+<div class="md:col-span-2 text-center md:text-left mt-md">
+<p class="font-body-md text-body-md text-on-surface-variant">© 2024 CRCE Campus Operating System. All rights reserved.</p>
+</div>
+</div>
+</footer>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const elements = document.querySelectorAll('.animate-fade-in');
+            elements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(10px)';
+                el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+        });
+    </script>
+
+
+</body></html>

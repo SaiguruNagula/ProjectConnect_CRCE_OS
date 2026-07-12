@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Management | ProjectConnect Admin</title>
+<!-- Tailwind & Fonts -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+            vertical-align: middle;
+            font-size: 18px;
+        }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        
+        .table-row-hover:hover { background-color: #f8fafc; cursor: pointer; }
+        
+        /* Drawer Transition */
+        .drawer-content { transition: transform 0.3s ease-in-out; transform: translateX(100%); }
+        .drawer-open .drawer-content { transform: translateX(0); }
+        .drawer-open .drawer-overlay { opacity: 1; visibility: visible; }
+
+        .modal-overlay { transition: opacity 0.2s ease; opacity: 0; pointer-events: none; }
+        .modal-open .modal-overlay { opacity: 1; pointer-events: auto; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#000000",
+                        "secondary": "#4F46E5",
+                        "background": "#f7f9fb",
+                        "surface": "#ffffff",
+                        "surface-container": "#f1f5f9",
+                        "outline-variant": "#e2e8f0",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#64748b",
+                        "error": "#ef4444",
+                        "success": "#10b981",
+                        "warning": "#f59e0b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "mono": ["Geist"],
+                        "body": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-secondary/10 text-[13px] relative">
+<!-- Modal: Invite User -->
+<div class="modal-overlay fixed inset-0 z-[80] bg-primary/40 backdrop-blur-sm flex items-center justify-center p-4" id="invite-modal">
+<div class="bg-surface w-full max-w-lg rounded-xl shadow-2xl border border-outline-variant overflow-hidden">
+<div class="px-6 py-4 border-b border-outline-variant flex items-center justify-between bg-surface-container/10">
+<h3 class="font-bold text-base">Invite New User</h3>
+<button class="p-1 hover:bg-surface-container rounded-full" onclick="toggleModal('invite-modal')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-6 space-y-4">
+<div>
+<label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Email Address</label>
+<input class="w-full px-3 py-2 bg-background border border-outline-variant rounded text-[13px] focus:ring-1 focus:ring-secondary/50 focus:outline-none" placeholder="user@institution.edu" type="email"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Role</label>
+<select class="w-full px-3 py-2 bg-background border border-outline-variant rounded text-[13px] focus:ring-1 focus:ring-secondary/50 focus:outline-none">
+<option>Student</option>
+<option>Faculty</option>
+<option>Principal</option>
+<option>Admin</option>
+</select>
+</div>
+<div>
+<label class="block text-[11px] font-bold text-on-surface-variant uppercase mb-1.5">Institution</label>
+<select class="w-full px-3 py-2 bg-background border border-outline-variant rounded text-[13px] focus:ring-1 focus:ring-secondary/50 focus:outline-none">
+<option>CRCE</option>
+<option>VESIT</option>
+<option>SPIT</option>
+<option>DJSCE</option>
+</select>
+</div>
+</div>
+</div>
+<div class="px-6 py-4 bg-surface-container/30 border-t border-outline-variant flex justify-end gap-3">
+<button class="px-4 py-2 text-xs font-bold" onclick="toggleModal('invite-modal')">Cancel</button>
+<button class="px-4 py-2 bg-secondary text-white rounded text-xs font-bold hover:bg-secondary/90 transition-colors">Send Invitation</button>
+</div>
+</div>
+</div>
+<!-- Navigation Drawer (Desktop) -->
+<aside class="hidden md:flex flex-col h-screen w-[240px] fixed left-0 top-0 bg-surface border-r border-outline-variant z-50 overflow-y-auto">
+<div class="p-4 border-b border-outline-variant flex items-center gap-2">
+<div class="w-8 h-8 bg-secondary rounded flex items-center justify-center text-white">
+<span class="material-symbols-outlined">shield_person</span>
+</div>
+<h1 class="font-bold text-sm tracking-tight">Platform Control</h1>
+</div>
+<nav class="flex-1 p-3 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">account_balance</span>
+<span>Institutions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-secondary/5 text-secondary font-semibold rounded-lg" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>Users</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span>Audit Logs</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-outline-variant bg-surface-container/30">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary text-white flex items-center justify-center text-xs font-bold">SA</div>
+<div class="flex-1 min-w-0">
+<p class="font-semibold truncate">Super Admin</p>
+<p class="text-[10px] text-on-surface-variant">Global Access</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="md:ml-[240px] min-h-screen">
+<!-- Top Bar -->
+<header class="h-14 border-b border-outline-variant bg-surface flex items-center justify-between px-6 sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<button class="md:hidden"><span class="material-symbols-outlined">menu</span></button>
+<h2 class="font-semibold text-sm">User Management</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-1.5 px-2 py-1 bg-success/10 text-success rounded text-[11px] font-medium border border-success/20">
+<span class="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></span>
+                System Operational
+            </div>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container rounded transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-error rounded-full ring-2 ring-surface"></span>
+</button>
+<div class="h-6 w-[1px] bg-outline-variant mx-1"></div>
+<button class="text-xs font-medium text-secondary hover:underline">Support</button>
+</div>
+</div>
+</header>
+<!-- Page Content Container -->
+<div class="p-6 max-w-[1600px] mx-auto space-y-6">
+<!-- Header & Quick Actions -->
+<div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+<div>
+<h1 class="text-xl font-bold tracking-tight">Access &amp; Identity</h1>
+<p class="text-on-surface-variant text-xs mt-0.5">Comprehensive control over students, faculty, and administrative accounts.</p>
+</div>
+<div class="flex flex-wrap items-center gap-2 bg-surface p-1.5 rounded-lg border border-outline-variant">
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-secondary text-white rounded text-[11px] font-bold hover:bg-secondary/90 transition-colors" onclick="toggleModal('invite-modal')">
+<span class="material-symbols-outlined text-[16px]">person_add</span> Invite User
+                </button>
+<div class="relative group">
+<button class="flex items-center gap-1.5 px-3 py-1.5 border border-outline-variant bg-surface hover:bg-surface-container text-[11px] font-bold rounded transition-colors">
+<span class="material-symbols-outlined text-[16px]">file_download</span> Export <span class="material-symbols-outlined text-[14px]">expand_more</span>
+</button>
+<div class="absolute right-0 mt-1 w-32 bg-white border border-outline-variant shadow-lg rounded-md hidden group-hover:block z-50 py-1">
+<button class="w-full text-left px-3 py-2 text-[11px] hover:bg-surface-container">Export CSV</button>
+<button class="w-full text-left px-3 py-2 text-[11px] hover:bg-surface-container">Export PDF</button>
+<button class="w-full text-left px-3 py-2 text-[11px] hover:bg-surface-container">Export Excel</button>
+</div>
+</div>
+<div class="w-[1px] h-6 bg-outline-variant mx-1"></div>
+<button class="flex items-center gap-1.5 px-3 py-1.5 text-on-surface-variant hover:bg-surface-container text-[11px] font-bold rounded transition-colors">
+<span class="material-symbols-outlined text-[16px]">layers</span> Bulk Actions
+                </button>
+</div>
+</div>
+<!-- KPI Grid (6 Cards) -->
+<section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+<div class="bg-surface border border-outline-variant p-4 rounded-lg hover:border-secondary transition-all cursor-pointer">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Total Users</p>
+<h3 class="text-2xl font-bold mt-1">14,320</h3>
+<p class="text-[10px] text-success font-medium mt-1">+2.4% vs LY</p>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Students</p>
+<h3 class="text-2xl font-bold mt-1">12,840</h3>
+<div class="w-full h-1 bg-secondary/10 rounded-full mt-2"><div class="bg-secondary h-full rounded-full" style="width: 89%"></div></div>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Faculty</p>
+<h3 class="text-2xl font-bold mt-1">1,124</h3>
+<div class="w-full h-1 bg-secondary/10 rounded-full mt-2"><div class="bg-secondary h-full rounded-full" style="width: 8%"></div></div>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Principals</p>
+<h3 class="text-2xl font-bold mt-1">356</h3>
+<div class="w-full h-1 bg-secondary/10 rounded-full mt-2"><div class="bg-secondary h-full rounded-full" style="width: 3%"></div></div>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg ring-1 ring-error/20 bg-error/[0.02]">
+<p class="text-[10px] font-bold text-error uppercase tracking-wider">Pending Verif.</p>
+<h3 class="text-2xl font-bold mt-1">45</h3>
+<p class="text-[10px] text-error font-medium mt-1">Action required</p>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Suspended</p>
+<h3 class="text-2xl font-bold mt-1">12</h3>
+<p class="text-[10px] text-error font-medium mt-1">High Risk</p>
+</div>
+</section>
+<!-- Verification High Priority Queue -->
+<section class="space-y-3">
+<h3 class="font-bold text-[13px] flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">verified_user</span>
+                Verification Center
+            </h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<button class="bg-surface border border-outline-variant p-3 rounded-lg flex items-center gap-4 hover:border-secondary transition-colors text-left group">
+<div class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">school</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<span class="text-xs font-semibold">Faculty Verif.</span>
+<span class="text-[10px] font-bold text-secondary bg-secondary/10 px-1 rounded uppercase">Urgent</span>
+</div>
+<div class="text-lg font-bold">45 <span class="text-[10px] text-on-surface-variant font-normal">waiting</span></div>
+</div>
+</button>
+<button class="bg-surface border border-outline-variant p-3 rounded-lg flex items-center gap-4 hover:border-secondary transition-colors text-left group">
+<div class="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center text-warning group-hover:bg-warning group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">account_balance</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<span class="text-xs font-semibold">Principal Verif.</span>
+<span class="text-[10px] font-bold text-warning bg-warning/10 px-1 rounded uppercase">Med</span>
+</div>
+<div class="text-lg font-bold">12 <span class="text-[10px] text-on-surface-variant font-normal">pending</span></div>
+</div>
+</button>
+<button class="bg-surface border border-outline-variant p-3 rounded-lg flex items-center gap-4 hover:border-secondary transition-colors text-left group">
+<div class="w-10 h-10 rounded-lg bg-error/10 flex items-center justify-center text-error group-hover:bg-error group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">report</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<span class="text-xs font-semibold">Reported Acc.</span>
+<span class="text-[10px] font-bold text-error bg-error/10 px-1 rounded uppercase">High</span>
+</div>
+<div class="text-lg font-bold">5 <span class="text-[10px] text-on-surface-variant font-normal">flagged</span></div>
+</div>
+</button>
+<button class="bg-surface border border-outline-variant p-3 rounded-lg flex items-center gap-4 hover:border-secondary transition-colors text-left group">
+<div class="w-10 h-10 rounded-lg bg-on-surface/5 flex items-center justify-center text-on-surface-variant group-hover:bg-on-surface group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">manage_accounts</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<span class="text-xs font-semibold">Role Changes</span>
+<span class="text-[10px] font-bold text-on-surface-variant bg-on-surface/10 px-1 rounded uppercase">Low</span>
+</div>
+<div class="text-lg font-bold">8 <span class="text-[10px] text-on-surface-variant font-normal">pending</span></div>
+</div>
+</button>
+</div>
+</section>
+<!-- Two Column Main Layout: Table + Side Panels -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- User Table Section -->
+<section class="lg:col-span-8 bg-surface border border-outline-variant rounded-lg flex flex-col h-fit">
+<div class="p-4 border-b border-outline-variant flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<h3 class="font-bold text-sm">User Directory</h3>
+</div>
+<div class="flex items-center gap-2">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px]">search</span>
+<input class="pl-8 pr-3 py-1.5 border border-outline-variant rounded bg-background text-[11px] w-48 xl:w-64 focus:outline-none focus:ring-1 focus:ring-secondary/50" placeholder="Search by name, email, institution..." type="text"/>
+</div>
+<div class="flex items-center gap-1 bg-surface-container rounded p-1">
+<button class="px-2 py-1 text-[10px] font-bold bg-white shadow-sm rounded">All</button>
+<button class="px-2 py-1 text-[10px] font-medium text-on-surface-variant hover:text-on-surface">CRCE</button>
+<button class="px-2 py-1 text-[10px] font-medium text-on-surface-variant hover:text-on-surface">VESIT</button>
+<button class="px-2 py-1 text-[10px] font-medium text-on-surface-variant hover:text-on-surface">SPIT</button>
+<button class="px-2 py-1 text-[10px] font-medium text-on-surface-variant hover:text-on-surface">DJSCE</button>
+</div>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead class="bg-surface-container/30 text-[10px] font-bold text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">
+<tr>
+<th class="px-4 py-3">Name</th>
+<th class="px-4 py-3">Institution</th>
+<th class="px-4 py-3">Role</th>
+<th class="px-4 py-3 text-center">Credits</th>
+<th class="px-4 py-3 text-center">Projects</th>
+<th class="px-4 py-3">Status</th>
+<th class="px-4 py-3 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="table-row-hover transition-colors" onclick="openUserSheet()">
+<td class="px-4 py-3">
+<div class="flex items-center gap-3">
+<img alt="Dr. Aris Thorne" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVZGyTA55VXp_tMnMKjrYet_4juOiilyvSK394vhfpsRR-KF4RITNkl08GaPMLGb9-E_XdLfNxQWaTkQTgX9oh86ayLkNsUuuvwZiJCHZ-o04pS1bul861BmOmIZ9r6FHpnVhgutAVNkWIbcvonbyVd3s3j9xn6TWk0BnYU947_syTNjalufRQu8Lct1Bn6ywqU4WAVQc2Ebhs8JjYSkP5aroH5jlj8nuQv4v2ItvDnGMZpRVIBa0jm33obWE7UHB8SQz774ttxKSS"/>
+<div>
+<p class="font-bold">Dr. Aris Thorne</p>
+<p class="text-[10px] text-on-surface-variant">aris.thorne@uni-tech.edu</p>
+</div>
+</div>
+</td>
+<td class="px-4 py-3 font-medium">CRCE</td>
+<td class="px-4 py-3">
+<span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 text-[10px] font-bold rounded uppercase border border-indigo-100">Faculty</span>
+</td>
+<td class="px-4 py-3 text-center font-mono font-medium">1,450</td>
+<td class="px-4 py-3 text-center font-mono font-medium">12</td>
+<td class="px-4 py-3">
+<span class="flex items-center gap-1.5 text-[10px] font-bold text-success">
+<span class="w-1.5 h-1.5 bg-success rounded-full"></span> Active
+                                    </span>
+</td>
+<td class="px-4 py-3 text-right">
+<button class="p-1 hover:bg-surface-container rounded"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="table-row-hover transition-colors">
+<td class="px-4 py-3">
+<div class="flex items-center gap-3">
+<img alt="Sarah Jenkins" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvtEvhW4zYLI7afn9yGgB5cPzygUcwf1VgaWxZOuO1hY1LEC37VzMbQrs7tpTqCvfxG6ej3HVFWv7eg2bzH3pTjBfYDHyLVNXxnmHZZd3V0lijUwm8oNSJ_zmuYZz3_BMJCw26Ohgv9Dr04xasVjDMYOmLar_sK15E6istDPtXgb_BQQK1G6YHfgbUS4GIaA-kYKlHEmAp0ALs8ZIiDcGSQEmXmjbA5u1I9-E6eqS0NW9tUcwveZ4AWEiX9yUXT-3jiSOxQ6xihJw1"/>
+<div>
+<p class="font-bold">Sarah Jenkins</p>
+<p class="text-[10px] text-on-surface-variant">s.jenkins@campus.id</p>
+</div>
+</div>
+</td>
+<td class="px-4 py-3 font-medium">VESIT</td>
+<td class="px-4 py-3">
+<span class="px-2 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-bold rounded uppercase border border-blue-100">Student</span>
+</td>
+<td class="px-4 py-3 text-center font-mono font-medium">450</td>
+<td class="px-4 py-3 text-center font-mono font-medium">3</td>
+<td class="px-4 py-3">
+<span class="flex items-center gap-1.5 text-[10px] font-bold text-warning">
+<span class="w-1.5 h-1.5 bg-warning rounded-full animate-pulse"></span> Pending
+                                    </span>
+</td>
+<td class="px-4 py-3 text-right">
+<button class="p-1 hover:bg-surface-container rounded"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-3 border-t border-outline-variant bg-surface-container/10 flex items-center justify-between">
+<p class="text-[10px] text-on-surface-variant font-medium">Showing 1-20 of 14,320 users</p>
+<div class="flex gap-1">
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container text-[10px]">Prev</button>
+<button class="px-2 py-1 border border-secondary bg-secondary text-white rounded text-[10px]">1</button>
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container text-[10px]">2</button>
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container text-[10px]">Next</button>
+</div>
+</div>
+</section>
+<!-- Audit & Health Right Panel -->
+<section class="lg:col-span-4 space-y-6">
+<!-- Platform Health Card -->
+<div class="bg-surface border border-outline-variant rounded-lg p-4">
+<h3 class="font-bold text-sm mb-4 flex items-center gap-2 text-success">
+<span class="material-symbols-outlined">analytics</span>
+                        Platform Identity Health
+                    </h3>
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<span class="text-[11px] text-on-surface-variant">Auth Gateway</span>
+<div class="flex items-center gap-1.5">
+<span class="text-[11px] font-bold text-success">99.99%</span>
+<div class="w-8 h-1 bg-success/20 rounded-full overflow-hidden"><div class="w-[99%] h-full bg-success"></div></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[11px] text-on-surface-variant">Directory Sync</span>
+<div class="flex items-center gap-1.5">
+<span class="text-[11px] font-bold text-success">Optimal</span>
+<div class="w-8 h-1 bg-success/20 rounded-full overflow-hidden"><div class="w-full bg-success"></div></div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[11px] text-on-surface-variant">Active Sessions</span>
+<span class="text-[11px] font-bold text-on-surface">1,429</span>
+</div>
+</div>
+</div>
+<!-- Recent Actions Module -->
+<div class="bg-surface border border-outline-variant rounded-lg overflow-hidden flex flex-col">
+<div class="p-4 border-b border-outline-variant flex items-center justify-between">
+<h3 class="font-bold text-sm">Audit Log</h3>
+<button class="text-secondary text-[10px] font-bold hover:underline">Full Logs</button>
+</div>
+<div class="flex-1 divide-y divide-outline-variant">
+<div class="p-3 hover:bg-surface-container transition-colors">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-mono text-on-surface-variant">14:02:12</span>
+<span class="text-[9px] font-bold text-success border border-success/20 px-1 rounded">VERIFIED</span>
+</div>
+<p class="text-[11px] mt-1"><span class="font-bold">Admin_Rahul</span> verified <span class="font-medium text-secondary">Prof. Patil</span></p>
+</div>
+<div class="p-3 hover:bg-surface-container transition-colors">
+<div class="flex justify-between items-start">
+<span class="text-[10px] font-mono text-on-surface-variant">13:45:01</span>
+<span class="text-[9px] font-bold text-error border border-error/20 px-1 rounded">SUSPENDED</span>
+</div>
+<p class="text-[11px] mt-1"><span class="font-bold">System</span> auto-flagged <span class="font-medium">User_8829</span></p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Right-Side Detail Sheet (420px) -->
+<div class="fixed inset-0 z-[70] invisible" id="user-sheet">
+<div class="drawer-overlay fixed inset-0 bg-primary/20 backdrop-blur-sm opacity-0 transition-opacity duration-300" onclick="toggleSheet()"></div>
+<div class="drawer-content fixed top-0 right-0 h-screen w-full max-w-[420px] bg-surface shadow-2xl border-l border-outline-variant flex flex-col">
+<div class="p-6 border-b border-outline-variant flex items-center justify-between bg-surface-container/10">
+<h3 class="text-lg font-bold">User Details</h3>
+<button class="p-1 hover:bg-surface-container rounded-full" onclick="toggleSheet()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+<!-- Profile Summary -->
+<div class="flex flex-col items-center text-center">
+<div class="relative mb-4">
+<img alt="Dr. Aris Thorne" class="w-20 h-20 rounded-2xl object-cover border-4 border-white shadow-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbNtpQi109kG6LSRT70oifXdrJZ_a4572esY7WVvrI8N0SaX02YAzkp8oWz74_UPnr-Of-E5aVDhfysuuQpuhyZA0o-L-Zd0wcL1bCoMWt1RslALgGeuYGciQSodXxKCx7vutPnbVx7-KhD9qw1cZKp-QPLvLdkweTt6-kEi9GrZV8iiMsYzXM3oM3peNzoOc2VdL5Ui7SozVCZEniFxsM97n3AKijhUKT6aHCx_Da3GwBT0Iw3UP8z0h00YCLGYFEsWNmzJTueK2l"/>
+<span class="absolute -bottom-1 -right-1 w-5 h-5 bg-success border-2 border-white rounded-full"></span>
+</div>
+<h4 class="text-lg font-bold">Dr. Aris Thorne</h4>
+<p class="text-[11px] font-mono text-on-surface-variant uppercase tracking-wider">#FAC-9921 • Verified</p>
+</div>
+<!-- Basic Details -->
+<div class="grid grid-cols-2 gap-4 bg-background p-4 rounded-xl border border-outline-variant">
+<div>
+<p class="text-[9px] font-bold text-on-surface-variant uppercase">Institution</p>
+<p class="text-xs font-semibold">CRCE Bandra</p>
+</div>
+<div>
+<p class="text-[9px] font-bold text-on-surface-variant uppercase">Primary Role</p>
+<p class="text-xs font-semibold">Senior Faculty</p>
+</div>
+</div>
+<!-- Stats -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface border border-outline-variant p-3 rounded-lg text-center">
+<p class="text-[9px] font-bold text-on-surface-variant uppercase">Platform Credits</p>
+<p class="text-lg font-bold">1,450</p>
+</div>
+<div class="bg-surface border border-outline-variant p-3 rounded-lg text-center">
+<p class="text-[9px] font-bold text-on-surface-variant uppercase">Projects Led</p>
+<p class="text-lg font-bold">12</p>
+</div>
+</div>
+<!-- Recent Activity -->
+<div class="space-y-3">
+<h5 class="text-[11px] font-bold uppercase text-on-surface-variant border-b border-outline-variant pb-1">Recent Activity</h5>
+<div class="space-y-4">
+<div class="flex gap-3">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary mt-1.5 shrink-0"></div>
+<div>
+<p class="text-xs font-semibold">Joined Team Alpha</p>
+<p class="text-[10px] text-on-surface-variant">Lead Technical Mentor • Smart City Initiative</p>
+<p class="text-[9px] text-on-surface-variant mt-1">Oct 24, 2023</p>
+</div>
+</div>
+<div class="flex gap-3">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary mt-1.5 shrink-0"></div>
+<div>
+<p class="text-xs font-semibold">Approved Final Stage</p>
+<p class="text-[10px] text-on-surface-variant">Verified student submission for Project #228</p>
+<p class="text-[9px] text-on-surface-variant mt-1">Oct 22, 2023</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Administrative Actions -->
+<div class="p-6 border-t border-outline-variant bg-surface-container/20 flex flex-col gap-2">
+<button class="w-full py-2.5 bg-secondary text-white rounded font-bold hover:bg-secondary/90 transition-colors text-xs flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[16px]">edit</span> Edit Profile
+            </button>
+<div class="grid grid-cols-2 gap-2">
+<button class="py-2 px-3 border border-outline-variant bg-white text-on-surface rounded font-bold hover:bg-surface-container text-[11px] flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">key</span> Reset PWD
+                </button>
+<button class="py-2 px-3 bg-error text-white rounded font-bold hover:bg-error/90 text-[11px] flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">block</span> Suspend
+                </button>
+</div>
+</div>
+</div>
+</div>
+<script>
+    function toggleSheet() {
+        const sheet = document.getElementById('user-sheet');
+        if (sheet.classList.contains('invisible')) {
+            sheet.classList.remove('invisible');
+            sheet.classList.add('drawer-open');
+        } else {
+            sheet.classList.remove('drawer-open');
+            setTimeout(() => sheet.classList.add('invisible'), 300);
+        }
+    }
+
+    function openUserSheet() {
+        toggleSheet();
+    }
+
+    function toggleModal(id) {
+        const modal = document.getElementById(id);
+        if (modal.classList.contains('modal-open')) {
+            modal.classList.remove('modal-open');
+        } else {
+            modal.classList.add('modal-open');
+        }
+    }
+</script>
+</body></html>

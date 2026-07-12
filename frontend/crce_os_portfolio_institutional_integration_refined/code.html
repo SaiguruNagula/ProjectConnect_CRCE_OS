@@ -1,0 +1,339 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Aarav Sharma | CRCE OS Portfolio</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;900&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@100..900&amp;family=Inter:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#eff1f3",
+                    "outline": "#777587",
+                    "on-secondary-fixed": "#131b2e",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "on-primary": "#ffffff",
+                    "surface-container-low": "#f2f4f6",
+                    "surface-variant": "#e0e3e5",
+                    "on-error-container": "#93000a",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container": "#eceef0",
+                    "secondary-fixed": "#dae2fd",
+                    "primary-container": "#4f46e5",
+                    "on-tertiary-fixed": "#1a1b22",
+                    "error": "#ba1a1a",
+                    "surface-tint": "#4d44e3",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed": "#0f0069",
+                    "tertiary": "#474750",
+                    "outline-variant": "#c7c4d8",
+                    "tertiary-fixed": "#e3e1ec",
+                    "inverse-surface": "#2d3133",
+                    "tertiary-fixed-dim": "#c6c5cf",
+                    "primary": "#3525cd",
+                    "on-surface-variant": "#464555",
+                    "on-tertiary-container": "#dbdae4",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "background": "#f7f9fb",
+                    "on-background": "#191c1e",
+                    "tertiary-container": "#5f5f68",
+                    "error-container": "#ffdad6",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "surface-bright": "#f7f9fb",
+                    "on-tertiary-fixed-variant": "#46464e",
+                    "on-surface": "#191c1e",
+                    "on-tertiary": "#ffffff",
+                    "secondary": "#565e74",
+                    "secondary-container": "#dae2fd",
+                    "surface-container-high": "#e6e8ea",
+                    "on-primary-container": "#dad7ff",
+                    "surface": "#f7f9fb",
+                    "on-secondary-container": "#5c647a",
+                    "on-error": "#ffffff",
+                    "surface-container-highest": "#e0e3e5",
+                    "primary-fixed": "#e2dfff",
+                    "surface-dim": "#d8dadc",
+                    "inverse-primary": "#c3c0ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "sm": "16px",
+                    "gutter": "24px",
+                    "margin-mobile": "16px",
+                    "xl": "64px",
+                    "xs": "8px",
+                    "margin-desktop": "48px",
+                    "lg": "40px",
+                    "md": "24px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "headline-sm": ["Hanken Grotesk"],
+                    "display-lg": ["Hanken Grotesk"],
+                    "display-lg-mobile": ["Hanken Grotesk"],
+                    "body-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["JetBrains Mono"],
+                    "body-md": ["Inter"],
+                    "label-md": ["JetBrains Mono"],
+                    "headline-md": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["10px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .card-shadow {
+            box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+        }
+        body {
+            background-color: #f7f9fb;
+            color: #191c1e;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30">
+<nav class="flex justify-between items-center px-lg h-[64px] max-w-[1280px] mx-auto">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: &quot;FILL&quot; 1;">school</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">CRCE OS</span>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden md:flex gap-sm">
+<a class="text-primary font-label-md text-label-md" href="#">Public Profile</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high/50 px-3 py-1 rounded transition-colors font-label-md text-label-md" href="#">Leaderboard</a>
+</div>
+<div class="w-10 h-10 rounded-full border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of Aarav Sharma, a male student in his early 20s with a confident expression, wearing a crisp white shirt and a navy blue blazer. He is positioned against a clean, softly lit architectural background with modern office aesthetics. The lighting is bright and high-key, emphasizing a modern, professional, and trustworthy light-mode look that aligns with high-end corporate design standards." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCr-0QGXD9CFg3Sc73-PGTOWoFsJyDDjQRuUwka7kkuLA3sPyIThxfXZDu3TZyQoCGVOi3ZPyM4Lfa_HucaspxdvpCB5KDNzYO9IxifJgCKk6rpZ8I_x88V0xmtkwRrFWWAEvEo8R-CJJTjG24kwsbE_Cog-Vn2D6928kYN_7OUjBAR_XjQqM5G9aDEmYgWUepxyUaNyYfB1vfqu2GuAZ3eXPpVIp5q5jBgbbJuq_Exj0DSC56MvWlaT5RmTYha45_LQdSpTcikBf-f">
+</div>
+</div>
+</nav>
+</header>
+<main class="pt-[80px] pb-[100px] px-sm md:px-lg max-w-[1280px] mx-auto space-y-md">
+<!-- Hero Section & Bento Header -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-md">
+<!-- Profile Info -->
+<div class="lg:col-span-2 bg-white border border-outline-variant/30 rounded-xl p-md card-shadow flex flex-col md:flex-row gap-md items-center md:items-start text-center md:text-left" style="transform: translateY(0px); transition: transform 0.2s ease-out;">
+<div class="w-32 h-32 md:w-40 md:h-40 rounded-xl overflow-hidden flex-shrink-0 border border-outline-variant/30">
+<img class="w-full h-full object-cover" data-alt="Close up professional portrait of a young computer engineer named Aarav Sharma, wearing smart casual attire. He has a warm, focused expression. The studio lighting is soft and diffused, creating a polished academic professional atmosphere. The color palette consists of whites, soft greys, and subtle indigo shadows, maintaining a minimalist and corporate design style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwtYeGw2K1oSE5_z6jLN_m37vNbQnILizGTzkwXpqZFYdAIV78vo1VHU9z7pelkIKf5387IgUNsB0FKwxjTwqvysemlxcvyOMhv2o5hpjMi93eue-gEg2CeAOH81_kOlgPiL8-OxRDew9h_8rtBFXJUSuE-S0brKwL33NdLLb221q91edtr7P2rHHnececIwLtfFCkoelJVG0szonzwbPtHkNVeQVOm6l5Wrrf58OiQ3aiOdZsQHzFXqJXa9T3gX_jHn0wonv45qCb">
+</div>
+<div class="flex-grow space-y-sm">
+<div>
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg tracking-tight">Aarav Sharma</h1>
+<p class="text-primary font-headline-sm text-headline-sm">Innovation Champion | Computer Engineering</p>
+</div>
+<p class="text-on-surface-variant font-body-md text-body-md max-w-xl">
+                        Passionate about building scalable campus solutions and open-source contributions. Currently leading the Smart Attendance project.
+                    </p>
+<div class="flex flex-wrap justify-center md:justify-start gap-sm">
+<a class="flex items-center gap-xs bg-surface-container text-on-surface hover:bg-surface-container-high px-3 py-2 rounded-lg transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[18px]">code</span> GitHub
+                        </a>
+<a class="flex items-center gap-xs bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed-dim px-3 py-2 rounded-lg transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[18px]">share</span> LinkedIn
+                        </a>
+
+</div>
+</div>
+</div>
+<!-- Faculty Validations & Badges -->
+<div class="flex flex-col gap-md">
+<!-- Faculty Validations Card -->
+
+<!-- Badges / Hall of Fame -->
+<div class="bg-white border border-outline-variant/30 rounded-xl p-md card-shadow flex-grow" style="transform: translateY(0px); transition: transform 0.2s ease-out;">
+<h3 class="font-label-md text-label-md text-outline uppercase tracking-widest mb-sm">Hall of Fame (Auto-Generated)</h3>
+<div class="flex flex-wrap gap-xs">
+<span class="px-3 py-1 bg-primary/5 text-primary border border-primary/20 rounded-full font-label-md text-label-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">military_tech</span> Innovation Champion
+                        </span>
+<span class="px-3 py-1 bg-primary/5 text-primary border border-primary/20 rounded-full font-label-md text-label-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">psychology</span> Top Researcher
+                        </span>
+<span class="px-3 py-1 bg-primary/5 text-primary border border-primary/20 rounded-full font-label-md text-label-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">star</span> Hackathon Hero
+                        </span>
+</div>
+</div>
+</div>
+</section>
+<!-- Key Metrics Grid -->
+<section class="grid grid-cols-2 md:grid-cols-4 gap-sm">
+<div class="bg-white border border-outline-variant/30 p-md rounded-xl card-shadow flex flex-col items-center justify-center text-center">
+<span class="text-outline font-label-md text-label-md uppercase">Total Credits</span>
+<span class="text-primary font-display-lg-mobile text-display-lg-mobile font-black">2,450</span>
+</div>
+<div class="bg-white border border-outline-variant/30 p-md rounded-xl card-shadow flex flex-col items-center justify-center text-center" style="transform: translateY(0px); transition: transform 0.2s ease-out;">
+<span class="text-outline font-label-md text-label-md uppercase">Global Rank</span>
+<span class="text-primary font-display-lg-mobile text-display-lg-mobile font-black">#1</span>
+</div>
+<div class="bg-white border border-outline-variant/30 p-md rounded-xl card-shadow flex flex-col items-center justify-center text-center" style="transform: translateY(0px); transition: transform 0.2s ease-out;">
+<span class="text-outline font-label-md text-label-md uppercase">Verified Solutions</span>
+<span class="text-primary font-display-lg-mobile text-display-lg-mobile font-black">12</span>
+</div>
+<div class="bg-white border border-outline-variant/30 p-md rounded-xl card-shadow flex flex-col items-center justify-center text-center" style="transform: translateY(0px); transition: transform 0.2s ease-out;">
+<span class="text-outline font-label-md text-label-md uppercase">Projects Built</span>
+<span class="text-primary font-display-lg-mobile text-display-lg-mobile font-black">8</span>
+</div>
+</section>
+<!-- Skills Cloud -->
+<section class="bg-white border border-outline-variant/30 p-md rounded-xl card-shadow" style="transform: translateY(0px); transition: transform 0.2s ease-out;">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-primary">terminal</span>
+<h2 class="font-headline-sm text-headline-sm">Verified Skills</h2>
+</div><p class="text-on-surface-variant font-body-sm text-body-sm -mt-md mb-md">Skills are automatically generated from projects and faculty validations.</p>
+<div class="flex flex-wrap gap-sm">
+<div class="flex items-center gap-xs px-4 py-2 bg-slate-50 border border-zinc-200 rounded-lg group hover:border-primary transition-colors cursor-default">
+<span class="font-label-md text-label-md">React</span>
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: &quot;FILL&quot; 1;">check_circle</span>
+</div>
+<div class="flex items-center gap-xs px-4 py-2 bg-slate-50 border border-zinc-200 rounded-lg group hover:border-primary transition-colors cursor-default">
+<span class="font-label-md text-label-md">Node.js</span>
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: &quot;FILL&quot; 1;">check_circle</span>
+</div>
+<div class="flex items-center gap-xs px-4 py-2 bg-slate-50 border border-zinc-200 rounded-lg group hover:border-primary transition-colors cursor-default">
+<span class="font-label-md text-label-md">System Architecture</span>
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: &quot;FILL&quot; 1;">check_circle</span>
+</div>
+<div class="flex items-center gap-xs px-4 py-2 bg-slate-50 border border-zinc-200 rounded-lg group hover:border-primary transition-colors cursor-default">
+<span class="font-label-md text-label-md">UI Design</span>
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: &quot;FILL&quot; 1;">check_circle</span>
+</div>
+<div class="flex items-center gap-xs px-4 py-2 bg-slate-50 border border-zinc-200 rounded-lg group hover:border-primary transition-colors cursor-default">
+<span class="font-label-md text-label-md">IoT</span>
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: &quot;FILL&quot; 1;">check_circle</span>
+</div>
+</div>
+</section>
+<!-- Main Content Area: Contributions & Timeline -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-md">
+<!-- Contributions Column -->
+<div class="lg:col-span-2 space-y-md">
+<!-- Live Solutions -->
+<section class="bg-white border border-outline-variant/30 rounded-xl overflow-hidden card-shadow" style="transform: translateY(0px); transition: transform 0.2s ease-out;">
+<div class="bg-slate-50 px-md py-sm border-b border-zinc-200 flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm">Live Solutions</h3>
+<span class="font-label-sm text-label-sm text-outline">CRCE OS VERIFIED</span>
+</div>
+<div class="divide-y divide-zinc-100">
+<div class="p-md flex flex-col md:flex-row justify-between items-start md:items-center gap-sm">
+<div>
+<h4 class="font-body-lg text-body-lg font-bold">Smart Canteen Payment</h4>
+<p class="text-on-surface-variant font-body-sm text-body-sm">Automated NFC-based wallet system for campus dining.</p>
+<div class="flex flex-wrap gap-xs mt-xs"><span class="text-[10px] font-label-sm px-2 py-0.5 bg-primary/5 text-primary rounded border border-primary/10">Faculty Approved</span><span class="text-[10px] font-label-sm px-2 py-0.5 bg-primary/5 text-primary rounded border border-primary/10">Campus Active</span><span class="text-[10px] font-label-sm px-2 py-0.5 bg-primary/5 text-primary rounded border border-primary/10">Credits Earned</span></div></div>
+<div class="flex gap-sm">
+<a class="text-primary font-label-md text-label-md flex items-center gap-xs" href="#">View App <span class="material-symbols-outlined text-[16px]">open_in_new</span></a>
+<a class="text-on-surface-variant font-label-md text-label-md flex items-center gap-xs" href="#">GitHub <span class="material-symbols-outlined text-[16px]">code</span></a>
+</div>
+</div>
+<div class="p-md flex flex-col md:flex-row justify-between items-start md:items-center gap-sm">
+<div>
+<h4 class="font-body-lg text-body-lg font-bold">CRCE Library Bot</h4>
+<p class="text-on-surface-variant font-body-sm text-body-sm">AI-driven search assistant for library resources.</p>
+<div class="flex flex-wrap gap-xs mt-xs"><span class="text-[10px] font-label-sm px-2 py-0.5 bg-primary/5 text-primary rounded border border-primary/10">Faculty Approved</span><span class="text-[10px] font-label-sm px-2 py-0.5 bg-primary/5 text-primary rounded border border-primary/10">Campus Active</span><span class="text-[10px] font-label-sm px-2 py-0.5 bg-primary/5 text-primary rounded border border-primary/10">Credits Earned</span></div></div>
+<div class="flex gap-sm">
+<a class="text-primary font-label-md text-label-md flex items-center gap-xs" href="#">View App <span class="material-symbols-outlined text-[16px]">open_in_new</span></a>
+<a class="text-on-surface-variant font-label-md text-label-md flex items-center gap-xs" href="#">GitHub <span class="material-symbols-outlined text-[16px]">code</span></a>
+</div>
+</div>
+</div>
+</section>
+<!-- Research & Hackathons -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<section class="bg-white border border-outline-variant/30 p-md rounded-xl card-shadow space-y-sm">
+<div class="flex items-center gap-xs text-outline font-label-md text-label-md uppercase tracking-wider">
+<span class="material-symbols-outlined text-[16px]">menu_book</span> Research
+                        </div>
+<h4 class="font-body-lg text-body-lg font-bold">AI-powered Traffic Management</h4>
+<p class="text-on-surface-variant font-body-sm text-body-sm">Published in IEEE Explorer 2024. Focused on dynamic lane switching algorithms.</p>
+<a class="inline-block text-primary font-label-md text-label-md mt-sm" href="#">Read Publication →</a>
+</section>
+<section class="bg-white border border-outline-variant/30 p-md rounded-xl card-shadow space-y-sm">
+<div class="flex items-center gap-xs text-outline font-label-md text-label-md uppercase tracking-wider">
+<span class="material-symbols-outlined text-[16px]">emoji_events</span> Hackathons
+                        </div>
+<h4 class="font-body-lg text-body-lg font-bold">Winner, SIH 2024</h4>
+<p class="text-on-surface-variant font-body-sm text-body-sm">National Smart India Hackathon. Developed a disaster management protocol using mesh networking.</p>
+<div class="bg-primary/10 text-primary px-3 py-1 rounded font-label-md text-label-md inline-block">1st Place | National</div>
+</section>
+</div>
+</div>
+<!-- Timeline Column -->
+
+</div>
+<!-- Footer CTA -->
+<section class="bg-primary py-lg px-md rounded-2xl text-center text-on-primary space-y-md"><h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg">Verified Portfolio</h2><p class="font-body-lg text-body-lg max-w-2xl mx-auto opacity-90">Portfolio automatically generated by CRCE OS. Built from verified contributions across projects, reviews, solutions, and innovation activities.</p><div class="flex flex-col sm:flex-row justify-center gap-sm pt-sm"><button class="bg-white text-primary px-lg py-sm rounded-lg font-label-md text-label-md font-bold hover:bg-slate-50 transition-transform active:scale-95 duration-150">Share Portfolio</button><button class="bg-primary-container text-on-primary-container border border-white/20 px-lg py-sm rounded-lg font-label-md text-label-md font-bold hover:bg-white/10 transition-transform active:scale-95 duration-150">Download PDF</button></div></section>
+</main>
+<!-- BottomNavBar (Mobile Only Responsive Pivot) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-md py-xs pb-safe bg-surface border-t border-outline-variant/30 shadow-sm z-50">
+<div class="flex flex-col items-center justify-center text-on-surface-variant py-1">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant py-1">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+<span class="font-label-md text-label-md">Academics</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant py-1">
+<span class="material-symbols-outlined" data-icon="library_books">library_books</span>
+<span class="font-label-md text-label-md">Resources</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1">
+<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: &quot;FILL&quot; 1;">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</div>
+</nav>
+<!-- Micro-interactions Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.card-shadow');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-2px)';
+                    card.style.transition = 'transform 0.2s ease-out';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0px)';
+                });
+            });
+        });
+    </script>
+
+
+</body></html>

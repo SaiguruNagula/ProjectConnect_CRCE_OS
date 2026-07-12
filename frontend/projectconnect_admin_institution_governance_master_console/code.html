@@ -1,0 +1,519 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Institutions | ProjectConnect Admin</title>
+<!-- Tailwind & Fonts -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+            vertical-align: middle;
+            font-size: 18px;
+        }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        
+        .table-row-hover:hover { background-color: #f8fafc; cursor: pointer; }
+        
+        /* Drawer Transition */
+        .drawer-content { transition: transform 0.3s ease-in-out; transform: translateX(100%); }
+        .drawer-open .drawer-content { transform: translateX(0); }
+        .drawer-open .drawer-overlay { opacity: 1; visibility: visible; }
+
+        .modal-overlay { transition: opacity 0.2s ease; opacity: 0; pointer-events: none; }
+        .modal-open .modal-overlay { opacity: 1; pointer-events: auto; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#0f172a",
+                        "secondary": "#4f46e5",
+                        "background": "#f7f9fb",
+                        "surface": "#ffffff",
+                        "surface-container": "#f1f5f9",
+                        "outline-variant": "#e2e8f0",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#64748b",
+                        "error": "#ef4444",
+                        "success": "#10b981",
+                        "warning": "#f59e0b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "mono": ["Geist"],
+                        "body": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-secondary/10 text-[13px] relative">
+<!-- Sidebar Navigation -->
+<aside class="hidden md:flex flex-col h-screen w-[240px] fixed left-0 top-0 bg-surface border-r border-outline-variant z-50 overflow-y-auto">
+<div class="p-4 border-b border-outline-variant flex items-center gap-2">
+<div class="w-8 h-8 bg-primary rounded flex items-center justify-center text-white">
+<span class="material-symbols-outlined">admin_panel_settings</span>
+</div>
+<h1 class="font-bold text-sm tracking-tight">ProjectConnect</h1>
+</div>
+<nav class="flex-1 p-3 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-secondary/5 text-secondary font-semibold rounded-lg" href="#">
+<span class="material-symbols-outlined">account_balance</span>
+<span>Institutions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>Users</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span>Audit Logs</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-outline-variant bg-surface-container/30">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary text-white flex items-center justify-center text-xs font-bold">SA</div>
+<div class="flex-1 min-w-0">
+<p class="font-semibold truncate text-[12px]">Super Admin</p>
+<p class="text-[10px] text-on-surface-variant">Global Access</p>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant text-[16px]">logout</button>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="md:ml-[240px] min-h-screen">
+<!-- Top Bar -->
+<header class="h-14 border-b border-outline-variant bg-surface flex items-center justify-between px-6 sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<button class="md:hidden"><span class="material-symbols-outlined">menu</span></button>
+<h2 class="font-semibold text-sm">Institutions Management</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-1.5 px-2 py-1 bg-success/10 text-success rounded text-[11px] font-medium border border-success/20">
+<span class="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></span>
+                System Operational
+            </div>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container rounded transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-error rounded-full ring-2 ring-surface"></span>
+</button>
+<div class="h-6 w-[1px] bg-outline-variant mx-1"></div>
+<button class="text-xs font-medium text-secondary hover:underline">Support</button>
+</div>
+</div>
+</header>
+<div class="p-6 max-w-[1600px] mx-auto space-y-6">
+<!-- Page Header -->
+<div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+<div>
+<h1 class="text-xl font-bold tracking-tight">Institutions</h1>
+<p class="text-on-surface-variant text-xs mt-0.5">Manage campus identities, principal assignments, and institutional scale.</p>
+</div>
+<div class="flex flex-wrap items-center gap-2 bg-surface p-1.5 rounded-lg border border-outline-variant">
+<button class="flex items-center gap-1.5 px-3 py-1.5 border border-outline-variant bg-surface hover:bg-surface-container text-[11px] font-bold rounded transition-colors">
+<span class="material-symbols-outlined text-[16px]">file_download</span> Export
+                </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 border border-outline-variant bg-surface hover:bg-surface-container text-[11px] font-bold rounded transition-colors">
+<span class="material-symbols-outlined text-[16px]">layers</span> Bulk Actions
+                </button>
+<div class="w-[1px] h-6 bg-outline-variant mx-1"></div>
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-secondary text-white rounded text-[11px] font-bold hover:bg-secondary/90 transition-colors">
+<span class="material-symbols-outlined text-[16px]">add_business</span> Add Institution
+                </button>
+</div>
+</div>
+<!-- KPI Grid -->
+<section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+<div class="bg-surface border border-outline-variant p-4 rounded-lg hover:border-secondary transition-all cursor-pointer">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Total Institutions</p>
+<h3 class="text-2xl font-bold mt-1">42</h3>
+<p class="text-[10px] text-success font-medium mt-1">+2 vs LY</p>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Active</p>
+<h3 class="text-2xl font-bold mt-1">38</h3>
+<div class="w-full h-1 bg-secondary/10 rounded-full mt-2"><div class="bg-secondary h-full rounded-full" style="width: 90%"></div></div>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg ring-1 ring-warning/20 bg-warning/[0.02]">
+<p class="text-[10px] font-bold text-warning uppercase tracking-wider">Pending Verification</p>
+<h3 class="text-2xl font-bold mt-1">4</h3>
+<p class="text-[10px] text-warning font-medium mt-1">Action required</p>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Total Students</p>
+<h3 class="text-2xl font-bold mt-1">12.8k</h3>
+<p class="text-[10px] text-on-surface-variant font-medium mt-1">Avg 304 / Campus</p>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Total Faculty</p>
+<h3 class="text-2xl font-bold mt-1">1,124</h3>
+<p class="text-[10px] text-on-surface-variant font-medium mt-1">Active Staff</p>
+</div>
+<div class="bg-surface border border-outline-variant p-4 rounded-lg">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Total Projects</p>
+<h3 class="text-2xl font-bold mt-1">842</h3>
+<p class="text-[10px] text-on-surface-variant font-medium mt-1">Active Repos</p>
+</div>
+</section>
+<!-- Directory Table Section -->
+<section class="bg-surface border border-outline-variant rounded-lg flex flex-col h-fit">
+<div class="p-4 border-b border-outline-variant flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<h3 class="font-bold text-sm">Institution Directory</h3>
+</div>
+<div class="flex flex-col sm:flex-row items-center gap-2">
+<div class="relative w-full sm:w-64">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px]">search</span>
+<input class="w-full pl-8 pr-3 py-1.5 border border-outline-variant rounded bg-background text-[11px] focus:outline-none focus:ring-1 focus:ring-secondary/50" placeholder="Search by name, code, or principal..." type="text">
+</div>
+<div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+<select class="bg-surface border border-outline-variant rounded px-2 py-1.5 text-[10px] font-medium focus:outline-none focus:ring-1 focus:ring-secondary/50 min-w-[80px]">
+<option>Type</option>
+<option>Engineering</option>
+<option>Design</option>
+</select>
+<select class="bg-surface border border-outline-variant rounded px-2 py-1.5 text-[10px] font-medium focus:outline-none focus:ring-1 focus:ring-secondary/50 min-w-[80px]">
+<option>State</option>
+<option>Maharashtra</option>
+<option>Karnataka</option>
+</select>
+<select class="bg-surface border border-outline-variant rounded px-2 py-1.5 text-[10px] font-medium focus:outline-none focus:ring-1 focus:ring-secondary/50 min-w-[80px]">
+<option>Status</option>
+<option>Active</option>
+<option>Pending</option>
+</select>
+</div>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[1000px]">
+<thead class="bg-surface-container/30 text-[10px] font-bold text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">
+<tr>
+<th class="px-4 py-3 w-8"><input class="rounded border-outline-variant text-secondary focus:ring-secondary/50" type="checkbox"></th>
+<th class="px-4 py-3">Institution</th>
+<th class="px-4 py-3">Type</th>
+<th class="px-4 py-3 text-center">Students</th>
+<th class="px-4 py-3 text-center">Faculty</th>
+<th class="px-4 py-3 text-center">Projects</th>
+<th class="px-4 py-3">Principal</th>
+<th class="px-4 py-3">Status</th>
+<th class="px-4 py-3 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="table-row-hover transition-colors" onclick="openDrawer()">
+<td class="px-4 py-3"><input class="rounded border-outline-variant text-secondary focus:ring-secondary/50" onclick="event.stopPropagation()" type="checkbox"></td>
+<td class="px-4 py-3">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center font-bold text-on-surface-variant text-[10px] shrink-0 uppercase border border-outline-variant">CR</div>
+<div>
+<p class="font-bold text-secondary hover:underline cursor-pointer">CRCE</p>
+<p class="text-[10px] text-on-surface-variant uppercase font-mono">IN-MUM-01 • Mumbai</p>
+</div>
+</div>
+</td>
+<td class="px-4 py-3"><span class="text-[11px] font-medium">Engineering</span></td>
+<td class="px-4 py-3 text-center font-mono font-medium">4.2k</td>
+<td class="px-4 py-3 text-center font-mono font-medium">86</td>
+<td class="px-4 py-3 text-center font-mono font-medium">124</td>
+<td class="px-4 py-3">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-[9px] font-bold">SU</div>
+<span class="text-[11px] font-medium">Dr. Srija Unnikrishnan</span>
+</div>
+</td>
+<td class="px-4 py-3">
+<span class="flex items-center gap-1.5 text-[10px] font-bold text-success">
+<span class="w-1.5 h-1.5 bg-success rounded-full"></span> ACTIVE
+                                </span>
+</td>
+<td class="px-4 py-3 text-right">
+<button class="p-1 hover:bg-surface-container rounded" onclick="event.stopPropagation()"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="table-row-hover transition-colors" onclick="openDrawer()">
+<td class="px-4 py-3"><input class="rounded border-outline-variant text-secondary focus:ring-secondary/50" onclick="event.stopPropagation()" type="checkbox"></td>
+<td class="px-4 py-3">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center font-bold text-on-surface-variant text-[10px] shrink-0 uppercase border border-outline-variant">VE</div>
+<div>
+<p class="font-bold text-secondary hover:underline cursor-pointer">VESIT</p>
+<p class="text-[10px] text-on-surface-variant uppercase font-mono">IN-MUM-02 • Mumbai</p>
+</div>
+</div>
+</td>
+<td class="px-4 py-3"><span class="text-[11px] font-medium">Engineering</span></td>
+<td class="px-4 py-3 text-center font-mono font-medium">3.8k</td>
+<td class="px-4 py-3 text-center font-mono font-medium">72</td>
+<td class="px-4 py-3 text-center font-mono font-medium">98</td>
+<td class="px-4 py-3">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-[9px] font-bold">JN</div>
+<span class="text-[11px] font-medium">Dr. J. M. Nair</span>
+</div>
+</td>
+<td class="px-4 py-3">
+<span class="flex items-center gap-1.5 text-[10px] font-bold text-success">
+<span class="w-1.5 h-1.5 bg-success rounded-full"></span> ACTIVE
+                                </span>
+</td>
+<td class="px-4 py-3 text-right">
+<button class="p-1 hover:bg-surface-container rounded" onclick="event.stopPropagation()"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+<tr class="table-row-hover transition-colors">
+<td class="px-4 py-3"><input class="rounded border-outline-variant text-secondary focus:ring-secondary/50" onclick="event.stopPropagation()" type="checkbox"></td>
+<td class="px-4 py-3">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-slate-100 flex items-center justify-center font-bold text-on-surface-variant text-[10px] shrink-0 uppercase border border-outline-variant">DJ</div>
+<div>
+<p class="font-bold text-secondary hover:underline cursor-pointer">D.J. Sanghvi</p>
+<p class="text-[10px] text-on-surface-variant uppercase font-mono">IN-MUM-03 • Mumbai</p>
+</div>
+</div>
+</td>
+<td class="px-4 py-3"><span class="text-[11px] font-medium">Engineering</span></td>
+<td class="px-4 py-3 text-center font-mono font-medium">3.2k</td>
+<td class="px-4 py-3 text-center font-mono font-medium">64</td>
+<td class="px-4 py-3 text-center font-mono font-medium">102</td>
+<td class="px-4 py-3">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary/10 flex items-center justify-center text-secondary text-[9px] font-bold">HV</div>
+<span class="text-[11px] font-medium">Dr. Hari Vasudevan</span>
+</div>
+</td>
+<td class="px-4 py-3">
+<span class="flex items-center gap-1.5 text-[10px] font-bold text-warning">
+<span class="w-1.5 h-1.5 bg-warning rounded-full animate-pulse"></span> PENDING
+                                </span>
+</td>
+<td class="px-4 py-3 text-right">
+<button class="p-1 hover:bg-surface-container rounded" onclick="event.stopPropagation()"><span class="material-symbols-outlined">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-3 border-t border-outline-variant bg-surface-container/10 flex items-center justify-between">
+<p class="text-[10px] text-on-surface-variant font-medium">Showing 1-10 of 42 entries</p>
+<div class="flex gap-1">
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container text-[10px]">Prev</button>
+<button class="px-2 py-1 border border-secondary bg-secondary text-white rounded text-[10px]">1</button>
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container text-[10px]">2</button>
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container text-[10px]">Next</button>
+</div>
+</div>
+</section>
+<!-- Audit Log -->
+<section class="space-y-3">
+<h3 class="font-bold text-[13px] flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">history</span>
+                System Audit Log
+            </h3>
+<div class="bg-surface border border-outline-variant rounded-lg divide-y divide-outline-variant overflow-hidden">
+<div class="p-4 flex items-center justify-between hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+<div>
+<p class="text-[11px] font-bold">Principal Transfer Completed</p>
+<p class="text-[10px] text-on-surface-variant">Fr. Conceicao Rodrigues College of Engineering (IN-MUM-01)</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-mono font-bold uppercase tracking-wider">Super Admin</p>
+<p class="text-[9px] text-on-surface-variant">2 hours ago</p>
+</div>
+</div>
+<div class="p-4 flex items-center justify-between hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-2 h-2 rounded-full bg-success"></div>
+<div>
+<p class="text-[11px] font-bold">New Institution Verified</p>
+<p class="text-[10px] text-on-surface-variant">Don Bosco Institute of Technology (IN-MUM-05)</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-mono font-bold uppercase tracking-wider">Super Admin</p>
+<p class="text-[9px] text-on-surface-variant">Yesterday</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Institution Details Drawer (420px) -->
+<div class="fixed inset-0 z-[70] invisible" id="details-drawer-wrapper">
+<div class="drawer-overlay fixed inset-0 bg-primary/20 backdrop-blur-sm opacity-0 transition-opacity duration-300" id="details-overlay" onclick="closeDrawer()"></div>
+<div class="drawer-content fixed top-0 right-0 h-screen w-full max-w-[420px] bg-surface shadow-2xl border-l border-outline-variant flex flex-col" id="details-drawer">
+<div class="p-6 border-b border-outline-variant flex items-center justify-between bg-surface-container/10">
+<h3 class="text-lg font-bold">Institution Details</h3>
+<button class="p-1 hover:bg-surface-container rounded-full" onclick="closeDrawer()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-8">
+<!-- Header Section -->
+<div class="flex flex-col items-center text-center">
+<div class="relative mb-4">
+<div class="w-24 h-24 rounded-2xl bg-slate-50 border border-outline-variant flex items-center justify-center p-2 shadow-sm">
+<img alt="Institution Logo" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAT1uIDFtSbltkuYbRm237scnl9I6uLS3uDL1SMWwOeTdXYVN9SwHWKauQN4BY3hgbx4GlpJn0bqDJcqV_3Koiv7ZVSck7T3jx4b6srDWdObXlKn0UCZ-uRF_CzDLFlxCkBHBWCGA-Fzle128Z2WoHz4SryZeS1AUQtsiHWEWC26Xwg1lFxXxei5oPB-F2Nzf3BkhYCzWZgMeVCuMlgkaqdF6_gXS4Zb4ljsJXWAMORJkxtQqcz70qvJDv9n1wcX3b8c4srZWpbb2Xo">
+</div>
+<span class="absolute -bottom-1 -right-1 w-7 h-7 bg-success text-white rounded-full flex items-center justify-center border-4 border-white">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+</span>
+</div>
+<h4 class="text-lg font-bold px-4">Fr. Conceicao Rodrigues College of Engineering</h4>
+<div class="flex gap-2 justify-center mt-2">
+<span class="px-2 py-0.5 bg-success/10 text-success text-[10px] font-bold rounded-full border border-success/20">VERIFIED</span>
+<span class="px-2 py-0.5 bg-secondary/5 text-secondary text-[10px] font-bold rounded-full border border-secondary/10">CAMPUS_LEVEL_01</span>
+</div>
+</div>
+<!-- Identity Section -->
+<div class="space-y-3">
+<h5 class="text-[11px] font-bold uppercase text-on-surface-variant border-b border-outline-variant pb-1">Institutional Identity</h5>
+<div class="grid grid-cols-1 gap-2.5">
+<div class="flex justify-between text-xs items-center"><span class="text-on-surface-variant">Institution Code</span><span class="font-mono font-bold bg-background px-1.5 py-0.5 rounded">IN-MUM-01</span></div>
+<div class="flex justify-between text-xs items-center"><span class="text-on-surface-variant">Type</span><span class="font-semibold">Engineering College</span></div>
+<div class="flex justify-between text-xs items-center"><span class="text-on-surface-variant">Official Website</span><a class="text-secondary font-medium hover:underline" href="#">crce.edu.in</a></div>
+<div class="flex justify-between text-xs items-center"><span class="text-on-surface-variant">Support Email</span><span class="font-medium">admin@crce.edu.in</span></div>
+<div class="flex justify-between text-xs items-start"><span class="text-on-surface-variant">Address</span><span class="font-medium text-right max-w-[200px]">Bandstand, Bandra (W), Mumbai, MH 400050</span></div>
+</div>
+</div>
+<!-- Principal Section -->
+<div class="space-y-3">
+<div class="flex items-center justify-between border-b border-outline-variant pb-1">
+<h5 class="text-[11px] font-bold uppercase text-on-surface-variant">Principal Authority</h5>
+<button class="text-secondary text-[10px] font-bold hover:underline">TRANSFER</button>
+</div>
+<div class="bg-background p-4 rounded-lg border border-outline-variant flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary font-bold text-lg">SU</div>
+<div class="flex-1">
+<p class="font-bold text-[13px]">Dr. Srija Unnikrishnan</p>
+<p class="text-[11px] text-on-surface-variant">principal@crce.edu.in</p>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="w-1.5 h-1.5 rounded-full bg-success"></span>
+<span class="text-[10px] text-success font-bold uppercase">Identity Verified</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Snapshot Metrics -->
+<div class="space-y-3">
+<h5 class="text-[11px] font-bold uppercase text-on-surface-variant border-b border-outline-variant pb-1">Ecosystem Snapshot</h5>
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-background p-3 rounded-lg border border-outline-variant">
+<p class="text-[9px] text-on-surface-variant uppercase font-bold tracking-wider">Students</p>
+<p class="text-lg font-bold font-mono">4,284</p>
+</div>
+<div class="bg-background p-3 rounded-lg border border-outline-variant">
+<p class="text-[9px] text-on-surface-variant uppercase font-bold tracking-wider">Faculty</p>
+<p class="text-lg font-bold font-mono">86</p>
+</div>
+<div class="bg-background p-3 rounded-lg border border-outline-variant">
+<p class="text-[9px] text-on-surface-variant uppercase font-bold tracking-wider">Projects</p>
+<p class="text-lg font-bold font-mono">124</p>
+</div>
+<div class="bg-background p-3 rounded-lg border border-outline-variant">
+<p class="text-[9px] text-on-surface-variant uppercase font-bold tracking-wider">Credits</p>
+<p class="text-lg font-bold font-mono text-secondary">2,840</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 pt-2">
+<button class="w-full text-left p-3 border border-outline-variant rounded-lg hover:bg-surface-container flex items-center justify-between transition-colors group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary">group</span>
+<span class="text-[12px] font-bold">View Associated Users</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">chevron_right</span>
+</button>
+<button class="w-full text-left p-3 border border-outline-variant rounded-lg hover:bg-surface-container flex items-center justify-between transition-colors group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary">assignment</span>
+<span class="text-[12px] font-bold">Review Institutional Projects</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Administrative Actions -->
+<div class="p-6 border-t border-outline-variant bg-surface-container/20 flex flex-col gap-3">
+<button class="w-full py-2.5 bg-primary text-white rounded font-bold text-xs flex items-center justify-center gap-2 shadow-sm hover:opacity-90">
+<span class="material-symbols-outlined text-[16px]">edit</span> Edit Institution Profile
+            </button>
+<div class="grid grid-cols-2 gap-3">
+<button class="py-2 border border-outline-variant bg-white rounded font-bold text-[11px] flex items-center justify-center gap-1.5 hover:bg-surface-container">
+<span class="material-symbols-outlined text-[16px]">person_pin</span> Assign Principal
+                </button>
+<button class="py-2 border border-outline-variant bg-white rounded font-bold text-[11px] flex items-center justify-center gap-1.5 hover:bg-surface-container">
+<span class="material-symbols-outlined text-[16px]">verified</span> Verify Again
+                </button>
+</div>
+<button class="w-full py-2.5 bg-white border border-error/50 text-error rounded font-bold text-xs flex items-center justify-center gap-2 hover:bg-error/5 transition-colors">
+<span class="material-symbols-outlined text-[16px]">block</span> Suspend Institution Access
+            </button>
+</div>
+</div>
+</div>
+<script>
+    function openDrawer() {
+        const wrapper = document.getElementById('details-drawer-wrapper');
+        const overlay = document.getElementById('details-overlay');
+        const drawer = document.getElementById('details-drawer');
+        
+        wrapper.classList.remove('invisible');
+        setTimeout(() => {
+            overlay.classList.add('opacity-100');
+            drawer.classList.add('translate-x-0');
+            wrapper.classList.add('drawer-open');
+        }, 10);
+    }
+
+    function closeDrawer() {
+        const wrapper = document.getElementById('details-drawer-wrapper');
+        const overlay = document.getElementById('details-overlay');
+        const drawer = document.getElementById('details-drawer');
+        
+        overlay.classList.remove('opacity-100');
+        drawer.classList.remove('translate-x-0');
+        wrapper.classList.remove('drawer-open');
+        
+        setTimeout(() => {
+            wrapper.classList.add('invisible');
+        }, 300);
+    }
+
+    // Micro-interactions for table rows
+    document.querySelectorAll('tbody tr').forEach(row => {
+        row.addEventListener('mousedown', () => {
+            if (!row.classList.contains('active')) {
+                row.classList.add('scale-[0.995]', 'duration-150');
+            }
+        });
+        row.addEventListener('mouseup', () => {
+            row.classList.remove('scale-[0.995]');
+        });
+    });
+</script>
+</body></html>

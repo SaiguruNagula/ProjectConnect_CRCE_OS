@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CRCE OS | Executive Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #f8fafc;
+            color: #0f172a;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .drawer-transition {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .custom-shadow {
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 24px;
+            bottom: 0;
+            width: 1px;
+            background-color: #e2e8f0;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#4f46e5",
+                        surface: "#ffffff",
+                        outline: "#e2e8f0",
+                        zinc: {
+                            50: '#fafafa',
+                            100: '#f4f4f5',
+                            200: '#e4e4e7',
+                            300: '#d4d4d8',
+                            400: '#a1a1aa',
+                            500: '#71717a',
+                            600: '#52525b',
+                            700: '#3f3f46',
+                            800: '#27272a',
+                            900: '#18181b',
+                        }
+                    },
+                    borderRadius: {
+                        'xl': '16px',
+                    },
+                    spacing: {
+                        'xs': '8px',
+                        'sm': '16px',
+                        'md': '24px',
+                        'lg': '32px',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="overflow-x-hidden">
+<!-- Drawer Overlay -->
+<div class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[60] hidden transition-opacity duration-300 opacity-0" id="drawerOverlay" onclick="toggleDrawer(null)"></div>
+<!-- Right Side Drawer -->
+<div class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-[70] drawer-transition translate-x-full flex flex-col border-l border-outline" id="sideDrawer">
+<div class="p-sm md:p-md border-b border-outline flex items-center justify-between">
+<h3 class="text-lg font-semibold text-zinc-900" id="drawerTitle">Details</h3>
+<button class="p-2 hover:bg-zinc-100 rounded-full transition-colors" onclick="toggleDrawer(null)">
+<span class="material-symbols-outlined text-zinc-500">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-md" id="drawerContent">
+<!-- Content injected via JS -->
+</div>
+</div>
+<!-- Header -->
+<header class="fixed top-0 w-full z-50 bg-white border-b border-outline h-14 md:h-16">
+<div class="flex items-center justify-between px-sm md:px-md h-full max-w-screen-2xl mx-auto gap-md">
+<div class="flex items-center gap-xs">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xl">layers</span>
+</div>
+<span class="font-bold text-lg tracking-tight text-zinc-900">CRCE OS</span>
+</div>
+<div class="hidden md:flex flex-1 max-w-md relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-lg">search</span>
+<input class="w-full bg-zinc-50 border border-outline rounded-lg pl-10 pr-4 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Search across institution..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 relative hover:bg-zinc-50 rounded-full transition-colors">
+<span class="material-symbols-outlined text-zinc-600">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+</button>
+<div class="hidden sm:block text-right">
+<p class="text-sm font-semibold text-zinc-900 leading-tight">Dr. Srija</p>
+<p class="text-[11px] text-zinc-500 font-medium">Principal</p>
+</div>
+<button class="w-9 h-9 rounded-full border border-outline overflow-hidden focus:ring-2 focus:ring-primary/50 transition-all">
+<img alt="Principal Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJxdbJYafsBJYymRlf_ZKsnV7vSqYUThQ4nJBcGMb1b3ilVSyMI9XqYDv6xCg_x-iClk3bUHU9JkXR9LoYRpP6kUB7mPPFnRrZJdcGL9tomRgBD_ObBKw1dDihw6oYGSsNWD0tdYR3vV8Ibbm7wJ6w_UNTw9kx8_QRhb_-5Bf7X6UyZOscx_qsvyTiBx66cbBms6-dEC-sO0GgdyPnNkF6_XmYwMMWKAA9TCc0LSq1Kcjz7ziDiG2_5hkElbqvAAnHDY23jnodZhD7"/>
+</button>
+</div>
+</div>
+</header>
+<main class="pt-14 md:pt-16 pb-24 md:pb-8">
+<div class="max-w-screen-2xl mx-auto p-sm md:p-md space-y-md">
+<!-- Section 1: Executive Summary Card -->
+<section class="bg-white rounded-xl border border-outline p-md custom-shadow" id="executive-summary">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-sm mb-md">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<h2 class="text-xs font-bold text-zinc-500 uppercase tracking-wider">Innovation Health: Excellent</h2>
+</div>
+<p class="text-sm text-zinc-400">Updated <span id="exec-timestamp">2 minutes ago</span></p>
+</div>
+<div class="flex flex-wrap gap-md">
+<div class="text-center md:text-left">
+<p class="text-xl font-bold text-zinc-900" data-health-status="excellent" id="exec-active-projects">124</p>
+<p class="text-[11px] font-medium text-zinc-500 uppercase">Active Projects</p>
+</div>
+<div class="text-center md:text-left">
+<p class="text-xl font-bold text-zinc-900" id="exec-reviews-completed">92%</p>
+<p class="text-[11px] font-medium text-zinc-500 uppercase">Reviews Completed</p>
+</div>
+<div class="text-center md:text-left">
+<p class="text-xl font-bold text-zinc-900" id="exec-reviews-pending">18</p>
+<p class="text-[11px] font-medium text-zinc-500 uppercase">Reviews Pending</p>
+</div>
+<div class="text-center md:text-left">
+<p class="text-xl font-bold text-zinc-900 text-primary" id="exec-principal-approvals">5</p>
+<p class="text-[11px] font-medium text-zinc-500 uppercase">Principal Approvals</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: KPI Grid (2x3) -->
+<section class="grid grid-cols-2 lg:grid-cols-6 gap-sm">
+<button class="bg-white p-sm rounded-xl border border-outline text-left hover:border-primary/40 hover:bg-zinc-50/50 transition-all group custom-shadow">
+<p class="text-[11px] font-bold text-zinc-400 uppercase tracking-wide mb-1">Active Projects</p>
+<div class="flex items-baseline gap-1">
+<span class="text-xl font-bold text-zinc-900" id="kpi-active">124</span>
+<span class="text-[10px] text-emerald-600 font-medium">+12%</span>
+</div>
+</button>
+<button class="bg-white p-sm rounded-xl border border-outline text-left hover:border-primary/40 hover:bg-zinc-50/50 transition-all group custom-shadow">
+<p class="text-[11px] font-bold text-zinc-400 uppercase tracking-wide mb-1">Completed</p>
+<div class="flex items-baseline gap-1">
+<span class="text-xl font-bold text-zinc-900" id="kpi-completed">482</span>
+</div>
+</button>
+<button class="bg-white p-sm rounded-xl border border-outline text-left hover:border-primary/40 hover:bg-zinc-50/50 transition-all group custom-shadow">
+<p class="text-[11px] font-bold text-zinc-400 uppercase tracking-wide mb-1">Faculty</p>
+<div class="flex items-baseline gap-1">
+<span class="text-xl font-bold text-zinc-900" id="kpi-faculty">86</span>
+</div>
+</button>
+<button class="bg-white p-sm rounded-xl border border-outline text-left hover:border-primary/40 hover:bg-zinc-50/50 transition-all group custom-shadow">
+<p class="text-[11px] font-bold text-zinc-400 uppercase tracking-wide mb-1">Students</p>
+<div class="flex items-baseline gap-1">
+<span class="text-xl font-bold text-zinc-900" id="kpi-students">2.4k</span>
+</div>
+</button>
+<button class="bg-white p-sm rounded-xl border border-outline text-left hover:border-primary/40 hover:bg-zinc-50/50 transition-all group custom-shadow">
+<p class="text-[11px] font-bold text-zinc-400 uppercase tracking-wide mb-1">Industry Prob.</p>
+<div class="flex items-baseline gap-1">
+<span class="text-xl font-bold text-zinc-900" id="kpi-industry">42</span>
+</div>
+</button>
+<button class="bg-white p-sm rounded-xl border border-outline text-left hover:border-primary/40 hover:bg-zinc-50/50 transition-all group custom-shadow">
+<p class="text-[11px] font-bold text-zinc-400 uppercase tracking-wide mb-1">Patents</p>
+<div class="flex items-baseline gap-1">
+<span class="text-xl font-bold text-zinc-900" id="kpi-patents">14</span>
+<span class="text-[10px] text-emerald-600 font-medium">New</span>
+</div>
+</button>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-md">
+<!-- Section 3: Department Performance -->
+<div class="lg:col-span-2 space-y-sm">
+<div class="flex items-center justify-between">
+<h3 class="font-bold text-zinc-900">Department Performance</h3>
+</div>
+<div class="bg-white border border-outline rounded-xl overflow-hidden custom-shadow">
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-zinc-50 border-b border-outline">
+<tr>
+<th class="px-md py-3 text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Dept Name</th>
+<th class="px-md py-3 text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Projects</th>
+<th class="px-md py-3 text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Completion</th>
+<th class="px-md py-3 text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline">
+<tr class="hover:bg-zinc-50 cursor-pointer transition-colors" onclick="toggleDrawer('Computer Engineering')">
+<td class="px-md py-4 text-sm font-medium text-zinc-900">Computer Engineering</td>
+<td class="px-md py-4 text-sm text-zinc-600">48</td>
+<td class="px-md py-4">
+<div class="flex items-center gap-xs">
+<div class="flex-1 h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 82%"></div>
+</div>
+<span class="text-[11px] font-medium text-zinc-500">82%</span>
+</div>
+</td>
+<td class="px-md py-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 uppercase">On Track</span>
+</td>
+</tr>
+<tr class="hover:bg-zinc-50 cursor-pointer transition-colors" onclick="toggleDrawer('Information Technology')">
+<td class="px-md py-4 text-sm font-medium text-zinc-900">Information Technology</td>
+<td class="px-md py-4 text-sm text-zinc-600">32</td>
+<td class="px-md py-4">
+<div class="flex items-center gap-xs">
+<div class="flex-1 h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 74%"></div>
+</div>
+<span class="text-[11px] font-medium text-zinc-500">74%</span>
+</div>
+</td>
+<td class="px-md py-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 uppercase">On Track</span>
+</td>
+</tr>
+<tr class="hover:bg-zinc-50 cursor-pointer transition-colors" onclick="toggleDrawer('Mechanical Engineering')">
+<td class="px-md py-4 text-sm font-medium text-zinc-900">Mechanical Engineering</td>
+<td class="px-md py-4 text-sm text-zinc-600">22</td>
+<td class="px-md py-4">
+<div class="flex items-center gap-xs">
+<div class="flex-1 h-1.5 bg-zinc-100 rounded-full overflow-hidden">
+<div class="h-full bg-amber-500" style="width: 45%"></div>
+</div>
+<span class="text-[11px] font-medium text-zinc-500">45%</span>
+</div>
+</td>
+<td class="px-md py-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600 uppercase">Delayed</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Section 4: Pending Executive Approvals -->
+<div class="space-y-sm">
+<div class="flex items-center justify-between">
+<h3 class="font-bold text-zinc-900">Pending Approvals</h3>
+</div>
+<div class="space-y-sm">
+<!-- Approval Card 1 -->
+<div class="bg-white border border-outline rounded-xl p-sm custom-shadow">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h4 class="text-sm font-semibold text-zinc-900">Faculty Verification</h4>
+<p class="text-[11px] text-zinc-500">CSE • Prof. Mehta</p>
+</div>
+<span class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-red-50 text-red-600 uppercase">Urgent</span>
+</div>
+<div class="flex items-center justify-between mt-sm">
+<span class="text-[10px] text-zinc-400 font-medium">24 Oct, 2024</span>
+<button class="px-3 py-1.5 bg-zinc-900 text-white text-[11px] font-bold rounded-lg hover:bg-zinc-800 transition-colors" onclick="toggleDrawer('Faculty Verification')">Open Review</button>
+</div>
+</div>
+<!-- Approval Card 2 -->
+<div class="bg-white border border-outline rounded-xl p-sm custom-shadow">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h4 class="text-sm font-semibold text-zinc-900">Research Grant</h4>
+<p class="text-[11px] text-zinc-500">R&amp;D • Dr. Joshi</p>
+</div>
+<span class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-amber-50 text-amber-600 uppercase">Medium</span>
+</div>
+<div class="flex items-center justify-between mt-sm">
+<span class="text-[10px] text-zinc-400 font-medium">22 Oct, 2024</span>
+<button class="px-3 py-1.5 bg-zinc-900 text-white text-[11px] font-bold rounded-lg hover:bg-zinc-800 transition-colors" onclick="toggleDrawer('Research Grant')">Open Review</button>
+</div>
+</div>
+<!-- Approval Card 3 -->
+<div class="bg-white border border-outline rounded-xl p-sm custom-shadow">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h4 class="text-sm font-semibold text-zinc-900">Policy Change</h4>
+<p class="text-[11px] text-zinc-500">Admin • Registrar Office</p>
+</div>
+<span class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-zinc-100 text-zinc-600 uppercase">Low</span>
+</div>
+<div class="flex items-center justify-between mt-sm">
+<span class="text-[10px] text-zinc-400 font-medium">20 Oct, 2024</span>
+<button class="px-3 py-1.5 bg-zinc-900 text-white text-[11px] font-bold rounded-lg hover:bg-zinc-800 transition-colors" onclick="toggleDrawer('Policy Change')">Open Review</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-md">
+<!-- Section 5: Leaderboard Preview -->
+<div class="space-y-sm">
+<div class="flex items-center justify-between">
+<h3 class="font-bold text-zinc-900">Leaderboard</h3>
+<button class="text-primary text-xs font-semibold hover:underline">View Full Leaderboard</button>
+</div>
+<div class="bg-white border border-outline rounded-xl custom-shadow">
+<div class="divide-y divide-outline">
+<div class="flex items-center gap-sm p-sm">
+<span class="w-6 text-center font-bold text-zinc-400">1</span>
+<div class="w-8 h-8 rounded-full bg-zinc-100 border border-outline overflow-hidden">
+<img alt="Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxYfOGagrgiIz9KWVXuZMvmCFo6BlBsBOSBIoZOM6OwCeIm2nQ2njDmQXd45kWXqSxgO6JjzGHf67X0uSk4Su6kmo--AXHj3FGlals1s44UFuVPNKtrewGkk3wpm0BMilrwhpg1gT-xbpirZKwghfcQVO5m4cv4oq_Cf1li-YL4KFyyKvxQkiZnceqTwqw2QavP3TF4cJ1m5t9NoM97f03h1PIsuvwlpnjjlphhdmEHsxrZ7_uqzvHFm-bO8TzIMw_NSdPfMpm-yvb"/>
+</div>
+<div class="flex-1">
+<p class="text-sm font-semibold text-zinc-900">Aryan Sharma</p>
+<p class="text-[10px] text-zinc-500">IT • 4 Projects Completed</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-primary">2,480</p>
+<p class="text-[9px] font-bold text-zinc-400 uppercase">Points</p>
+</div>
+</div>
+<div class="flex items-center gap-sm p-sm">
+<span class="w-6 text-center font-bold text-zinc-400">2</span>
+<div class="w-8 h-8 rounded-full bg-zinc-100 border border-outline overflow-hidden">
+<img alt="Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4XHgTn9pM1FqKKjCODSdw7FNTDnB34u2HpvjeXuOhOgYCKq9vzdYK1gKBOsQ-xT0Hkl16h9mJdHkb0fbsFKjHgeTbdvXm0JVhkrae0dWdCeYt9XvCct7-AEn28a59uB53S-MTdDNboJasQuR_saJDOPIFwLQCS8hozgrWpuHdzXp816WxngllTbCje0hN9i0XQ6gCd9iBBDZ1ibozBqTOy1ALVGjZ-qSMv7DEmH8gaqJZGXfCVD8ZKNgLbSb6wxmI4oLzcQqb6Ub6"/>
+</div>
+<div class="flex-1">
+<p class="text-sm font-semibold text-zinc-900">Sneha Patil</p>
+<p class="text-[10px] text-zinc-500">CSE • 3 Projects Completed</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-primary">2,150</p>
+<p class="text-[9px] font-bold text-zinc-400 uppercase">Points</p>
+</div>
+</div>
+<div class="flex items-center gap-sm p-sm">
+<span class="w-6 text-center font-bold text-zinc-400">3</span>
+<div class="w-8 h-8 rounded-full bg-zinc-100 border border-outline overflow-hidden">
+<img alt="Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEszR9dA1jW0pbHk2dWoE7iZz_Pm5WVlS8i0z3hJCf9FpG0hHPFj9nErO9P_dvfvCsNnl9NeF2fB_O-r-gaono2hgkH-92-RfPZIe3xVXudWW7-F9dEwiwC9kNjwMrOkCX68WBm80A_pKUkPGfhAT9pu1MUVW5vY_fFkvDorXyNEiip7fs5RdfdTg1nkb0CqaHDIY4w-LFFnhT5PtNF_k7AIxXyaEj23HQB0CK5ZCZL5jKGrcxZXV9QcY_hd7TzNYKFaXSl6TPe3MS"/>
+</div>
+<div class="flex-1">
+<p class="text-sm font-semibold text-zinc-900">Rahul Nair</p>
+<p class="text-[10px] text-zinc-500">MECH • 2 Patents Filed</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-primary">1,980</p>
+<p class="text-[9px] font-bold text-zinc-400 uppercase">Points</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 6: Recent Activity Timeline -->
+<div class="space-y-sm">
+<h3 class="font-bold text-zinc-900">Recent Activity</h3>
+<div class="bg-white border border-outline rounded-xl p-md custom-shadow relative timeline-line">
+<div class="space-y-lg relative">
+<div class="flex gap-sm items-start">
+<div class="w-4 h-4 rounded-full bg-primary border-4 border-white custom-shadow shrink-0 z-10 mt-1"></div>
+<div>
+<p class="text-sm text-zinc-900 font-semibold leading-tight">New Project Published</p>
+<p class="text-xs text-zinc-500 mt-0.5">Autonomous Drone delivery system by CSE Dept.</p>
+<p class="text-[10px] text-zinc-400 mt-1 font-medium">10 mins ago</p>
+</div>
+</div>
+<div class="flex gap-sm items-start">
+<div class="w-4 h-4 rounded-full bg-emerald-500 border-4 border-white custom-shadow shrink-0 z-10 mt-1"></div>
+<div>
+<p class="text-sm text-zinc-900 font-semibold leading-tight">Patent Filed</p>
+<p class="text-xs text-zinc-500 mt-0.5">Hybrid Cooling Mechanism for EVs (Patent #4482).</p>
+<p class="text-[10px] text-zinc-400 mt-1 font-medium">2 hours ago</p>
+</div>
+</div>
+<div class="flex gap-sm items-start">
+<div class="w-4 h-4 rounded-full bg-amber-500 border-4 border-white custom-shadow shrink-0 z-10 mt-1"></div>
+<div>
+<p class="text-sm text-zinc-900 font-semibold leading-tight">Faculty Joined</p>
+<p class="text-xs text-zinc-500 mt-0.5">Dr. Amit Shah joined as R&amp;D Lead for Robotics Lab.</p>
+<p class="text-[10px] text-zinc-400 mt-1 font-medium">Yesterday</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 7: Reports & Quick Actions -->
+<section class="space-y-sm">
+<h3 class="font-bold text-zinc-900">Reports &amp; Quick Actions</h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-sm">
+<button class="flex items-center gap-sm p-sm bg-white border border-outline rounded-xl hover:border-primary/40 hover:bg-zinc-50/50 transition-all text-left custom-shadow">
+<div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">calendar_month</span>
+</div>
+<div>
+<p class="text-xs font-bold text-zinc-900">Monthly Report</p>
+<p class="text-[10px] text-zinc-500">Executive Summary Oct</p>
+</div>
+</button>
+<button class="flex items-center gap-sm p-sm bg-white border border-outline rounded-xl hover:border-primary/40 hover:bg-zinc-50/50 transition-all text-left custom-shadow">
+<div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<div>
+<p class="text-xs font-bold text-zinc-900">Innovation Report</p>
+<p class="text-[10px] text-zinc-500">Annual Research Stats</p>
+</div>
+</button>
+<button class="flex items-center gap-sm p-sm bg-white border border-outline rounded-xl hover:border-primary/40 hover:bg-zinc-50/50 transition-all text-left custom-shadow">
+<div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
+<span class="material-symbols-outlined">campaign</span>
+</div>
+<div>
+<p class="text-xs font-bold text-zinc-900">Broadcast Notice</p>
+<p class="text-[10px] text-zinc-500">Notify All Staff &amp; Students</p>
+</div>
+</button>
+<button class="flex items-center gap-sm p-sm bg-primary text-white rounded-xl hover:bg-primary/90 transition-all text-left custom-shadow">
+<div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
+<span class="material-symbols-outlined">download</span>
+</div>
+<div>
+<p class="text-xs font-bold">Generate Report</p>
+<p class="text-[10px] text-white/80">Custom Analytics Export</p>
+</div>
+</button>
+</div>
+</section>
+</div>
+</main>
+<!-- Bottom Nav (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-outline flex items-center justify-around z-40 md:hidden px-sm">
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-bold">Dash</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-zinc-400">
+<span class="material-symbols-outlined">fact_check</span>
+<span class="text-[10px] font-bold">Approvals</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-zinc-400">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="text-[10px] font-bold">Analytics</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-zinc-400">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold">Profile</span>
+</button>
+</nav>
+<script>
+    const drawer = document.getElementById('sideDrawer');
+    const overlay = document.getElementById('drawerOverlay');
+    const drawerTitle = document.getElementById('drawerTitle');
+    const drawerContent = document.getElementById('drawerContent');
+
+    function toggleDrawer(title) {
+        if (!title) {
+            drawer.classList.add('translate-x-full');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('opacity-100');
+            return;
+        }
+
+        drawerTitle.textContent = title;
+        drawerContent.innerHTML = `
+            <div class="space-y-md animate-in fade-in duration-300">
+                <div class="bg-zinc-50 p-sm rounded-lg border border-outline">
+                    <h4 class="text-xs font-bold text-zinc-500 uppercase mb-2">Category</h4>
+                    <p class="text-sm font-semibold text-zinc-900">${title}</p>
+                </div>
+                <div class="space-y-sm">
+                    <label class="text-xs font-bold text-zinc-500 uppercase block">Executive Summary</label>
+                    <p class="text-sm text-zinc-600 leading-relaxed">
+                        This is a high-level detail view for <strong>${title}</strong>. 
+                        In a production environment, this drawer would load real-time data metrics, 
+                        departmental logs, and specific review materials from the backend.
+                    </p>
+                </div>
+                <div class="pt-md border-t border-outline space-y-sm">
+                    <button class="w-full py-2.5 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-all text-sm">Approve Request</button>
+                    <button class="w-full py-2.5 bg-white border border-outline text-zinc-900 font-bold rounded-lg hover:bg-zinc-50 transition-all text-sm">Flag for Discussion</button>
+                </div>
+            </div>
+        `;
+
+        drawer.classList.remove('translate-x-full');
+        overlay.classList.remove('hidden');
+        setTimeout(() => {
+            overlay.classList.add('opacity-100');
+        }, 10);
+    }
+
+    // Micro-interactions
+    document.querySelectorAll('button, tr.cursor-pointer').forEach(el => {
+        el.addEventListener('mousedown', () => { el.style.transform = 'scale(0.98)'; });
+        el.addEventListener('mouseup', () => { el.style.transform = ''; });
+        el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+    });
+</script>
+</body></html>

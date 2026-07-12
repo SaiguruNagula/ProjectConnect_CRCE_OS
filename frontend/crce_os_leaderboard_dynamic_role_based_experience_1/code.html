@@ -1,0 +1,868 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>CRCE Innovation Leaderboard</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#bec6e0",
+                        "secondary-fixed-dim": "#c3c0ff",
+                        "tertiary-container": "#07006c",
+                        "on-primary-fixed": "#131b2e",
+                        "on-primary-container": "#7c839b",
+                        "surface-container-high": "#e6e8ea",
+                        "primary": "#000000",
+                        "surface-tint": "#565e74",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#000000",
+                        "on-tertiary-container": "#7073ff",
+                        "outline": "#76777d",
+                        "on-tertiary-fixed": "#07006c",
+                        "inverse-surface": "#2d3133",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-surface-variant": "#45464d",
+                        "on-secondary-container": "#fffbff",
+                        "secondary-container": "#645efb",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "on-secondary-fixed": "#0f0069",
+                        "tertiary-fixed": "#e1e0ff",
+                        "secondary": "#4b41e1",
+                        "on-background": "#191c1e",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#e2dfff",
+                        "on-secondary-fixed-variant": "#3323cc",
+                        "surface": "#f7f9fb",
+                        "error-container": "#ffdad6",
+                        "background": "#f7f9fb",
+                        "surface-variant": "#e0e3e5",
+                        "inverse-primary": "#bec6e0",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#dae2fd",
+                        "surface-dim": "#d8dadc",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-bright": "#f7f9fb",
+                        "on-surface": "#191c1e",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "on-error": "#ffffff",
+                        "primary-container": "#131b2e",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c6c6cd"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "8px",
+                        "xl": "64px",
+                        "sm": "16px",
+                        "gutter": "24px",
+                        "base": "4px",
+                        "md": "24px",
+                        "lg": "40px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "mono": ["Geist"],
+                        "headline-md": ["Inter"],
+                        "display": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Geist"],
+                        "headline-lg": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .glass-header {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        @media (min-width: 1024px) {
+            .bento-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .transition-all { transition-duration: 300ms; }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30">
+<div class="flex justify-between items-center px-lg h-16 max-w-container-max mx-auto">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-2xl">grid_view</span>
+<h1 class="text-headline-md font-headline-md font-bold tracking-tight text-primary">CRCE OS</h1>
+</div>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-secondary transition-colors" href="#">Dashboard</a>
+<a class="text-secondary font-semibold text-label-md border-b-2 border-secondary pb-1" href="#">Academics</a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-secondary transition-colors" href="#">Resources</a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-secondary transition-colors" href="#">Profile</a>
+</nav>
+<div class="flex items-center gap-md">
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A close-up professional portrait of a university student with a friendly smile, clean lighting, and a soft blurred library background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuACeRmjyafHeMvGAkVIyIsV5-BbrRABvRIAUWvjuP4-2Z1UFN6N9fm58ewUxET4VEb8qnGRP0erQO5A8abNRy2vlgC7a2kx3vy747vEujUhKY2_tZAyOGsyIPuepBgn7gvLVfIiwlnftgQGvGQtWiQI6RsfgPQZcd5WLGcfk7Ovps4ELCD9S_Yfnpo3Y7dbWlNINoMg46EHxa15jeS8m4mT_XoOWtx-x0_4TrwKw_U4zNIkR_KR87JG4HBEgtN2Vi4N2mw4flw3a-nF">
+</div>
+</div>
+</div>
+</header>
+<main class="pt-32 pb-xl px-md md:px-lg max-w-container-max mx-auto space-y-lg">
+<!-- Hero Section -->
+<section class="space-y-md" id="hero-section">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div class="max-w-2xl">
+<h2 class="font-display text-display" id="hero-title">CRCE Innovation Ecosystem</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-sm" id="hero-desc">Recognizing impact, celebrating innovation, and building the future of engineering excellence through collaborative research and development.</p>
+</div>
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-semibold hover:opacity-90 transition-opacity flex items-center gap-xs" id="hero-cta-top">
+<span id="hero-cta-top-text" class="">Explore Innovation Hub</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<!-- Stats Bento Grid -->
+
+</section>
+<!-- Personal Card -->
+
+<!-- Controls Section -->
+<section class="flex flex-col lg:flex-row gap-md items-center justify-between sticky top-[64px] bg-surface py-md z-40">
+<div class="flex p-1 bg-surface-container-low rounded-xl border border-outline-variant/30">
+<button class="px-md py-xs rounded-lg font-label-md text-label-md transition-all bg-white shadow-sm text-primary font-bold" id="toggle-student">Students</button>
+<button class="px-md py-xs rounded-lg font-label-md text-label-md transition-all text-on-surface-variant hover:bg-surface-container-high" id="toggle-faculty">Faculty</button>
+</div>
+<div class="flex flex-wrap items-center justify-center gap-sm">
+<div class="relative min-w-[240px]">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-xs bg-white border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all" placeholder="Search by name or department..." type="text">
+</div>
+<select class="bg-white border border-outline-variant/30 rounded-xl py-xs px-md font-label-md text-label-md outline-none focus:ring-2 focus:ring-secondary/20 transition-all">
+<option>All Time</option>
+<option>Academic Year</option>
+<option>Current Semester</option>
+</select>
+<select class="bg-white border border-outline-variant/30 rounded-xl py-xs px-md font-label-md text-label-md outline-none focus:ring-2 focus:ring-secondary/20 transition-all">
+<option>All Departments</option>
+<option>Computer Engineering</option>
+<option>IT</option>
+<option>Electronics</option>
+</select>
+</div>
+</section>
+<!-- Top 3 Spotlight -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-md" id="spotlight-section">
+            <div class="bg-white border border-outline-variant/30 p-lg rounded-2xl flex flex-col items-center text-center space-y-md hover:shadow-xl transition-all relative overflow-hidden group">
+                <div class="absolute top-4 left-4 bg-surface-container text-on-surface-variant w-10 h-10 flex items-center justify-center rounded-full font-bold text-label-md">
+                    2
+                </div>
+                <div class="w-24 h-24 rounded-full border-4 border-surface-container overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                    <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGChp05sN8C8Mv4Nf-wNmPB330EBXafQ91qroCyPaGCBXUijwjVnwQsHh8X7eKGdousgRoHcBmmjLgV5sUpYc-XivLhTZ4P5LkZhXPqiobXz3Z3S06Kt9p8vGbnEx0FFb6hjFf7j61j7Xv6LoPmra6CHI4qzW5FXiYx-gpJvc8TcjbHcUXa_NRfxGXXItPID9XEpECOAzGqEaagMQQybi7wTgs0cwKePFuJmzGCVMLs4oWIdtX_on8BS5k2dF0S3hHnQLZeLnA5u3v">
+                </div>
+                <div>
+                    <h3 class="font-headline-sm text-headline-sm font-bold">Isha Malhotra</h3>
+                    <p class="text-label-md font-label-md text-on-surface-variant">IT Department • Solution Architect</p>
+                </div>
+                <div class="flex items-center gap-xs text-secondary font-bold text-headline-sm">
+                    2,320 <span class="text-label-md text-green-600 font-normal">pts</span>
+                    <span class="material-symbols-outlined text-green-600 text-sm">trending_up</span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-sm w-full py-sm border-y border-outline-variant/20">
+                    
+                        <div>
+                            <div class="text-label-md font-bold">12</div>
+                            <div class="text-[10px] uppercase tracking-tighter text-on-surface-variant">Solutions</div>
+                        </div>
+                    
+                        <div>
+                            <div class="text-label-md font-bold">8</div>
+                            <div class="text-[10px] uppercase tracking-tighter text-on-surface-variant">Projects</div>
+                        </div>
+                    
+                </div>
+                <button class="w-full py-sm rounded-lg border border-primary hover:bg-primary hover:text-on-primary font-semibold transition-colors">
+                    View Portfolio
+                </button>
+            </div>
+        
+            <div class="bg-white border border-2 border-secondary shadow-2xl scale-105 z-10 p-lg rounded-2xl flex flex-col items-center text-center space-y-md hover:shadow-xl transition-all relative overflow-hidden group">
+                <div class="absolute top-4 right-4 bg-secondary text-on-secondary px-3 py-1 rounded-full font-bold text-label-md">
+                    RANK 1
+                </div>
+                <div class="w-32 h-32 rounded-full border-4 border-secondary/20 overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                    <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfu3GLTY393rqvKC_lZg_Nayy44fwZk6IgIKe6kxkVV3nQK6x0eidcNEcuG9m1POa9Q2lefJZOcOjt3nrf8Rv9J-y1MM9bALb7vWKalp0ZGS9xDTjkCxphuxezwGPZ1ZbmdDXvEs0F3jg66xfVsH-JEN64n2XZQKR99aPHyVpLprp-IPIoYM6FNw66zbqDV3jlgRB3b8fNZ41QY9keRihu_KdRVndkmBUTzMTgpRI6uhMx9_WK1-Tx-poFy7I2la2LUilkfn3sL6wr">
+                </div>
+                <div>
+                    <h3 class="font-headline-md text-headline-md font-bold">Aarav Sharma</h3>
+                    <p class="text-label-md font-label-md text-secondary font-semibold">Computer Engg • Innovation Champion</p>
+                </div>
+                <div class="flex items-center gap-xs text-secondary font-bold text-headline-sm">
+                    2,450 <span class="text-label-md text-green-600 font-normal">pts</span>
+                    <span class="material-symbols-outlined text-green-600 text-sm">trending_up</span>
+                </div>
+                
+                <div class="flex justify-center gap-md w-full py-sm">
+                    
+                        <div class="flex flex-col items-center">
+                            <span class="material-symbols-outlined text-secondary">verified</span>
+                            <span class="text-[10px] mt-1 font-bold">TOP RESEARCHER</span>
+                        </div>
+                    
+                        <div class="flex flex-col items-center">
+                            <span class="material-symbols-outlined text-secondary">verified</span>
+                            <span class="text-[10px] mt-1 font-bold">HACKATHON HERO</span>
+                        </div>
+                    
+                </div>
+                <button class="w-full py-sm rounded-lg bg-secondary text-on-secondary font-semibold transition-colors">
+                    View Elite Portfolio
+                </button>
+            </div>
+        
+            <div class="bg-white border border-outline-variant/30 p-lg rounded-2xl flex flex-col items-center text-center space-y-md hover:shadow-xl transition-all relative overflow-hidden group">
+                <div class="absolute top-4 left-4 bg-surface-container text-on-surface-variant w-10 h-10 flex items-center justify-center rounded-full font-bold text-label-md">
+                    3
+                </div>
+                <div class="w-24 h-24 rounded-full border-4 border-surface-container overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                    <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjuoNqCNBTWd13VqFf2prJyoqzo1Pm70TXeXRpS5sieIIrsd5JeNrCLJ7EXxjhBRVhpqe-C-svF_0UBMUCaoVuKIqEaQQAtkFaQrOfpw1cbsESeP3kPoY1JI8yjH0BGNeoQQ6xZVI5C1UxJEpUX152qpa2BqMON_h_YLxVx2tNaw_f1B9wlhxv-CxyoZRI2MwmZFODSAF_1b_PIvYe56_NBbWCt7BFBpFCBtQhS7o8XINtnllTYgtYhAgQ_3qklXr-h33Udz3_Fnvq">
+                </div>
+                <div>
+                    <h3 class="font-headline-sm text-headline-sm font-bold">Rohan Das</h3>
+                    <p class="text-label-md font-label-md text-on-surface-variant">Electronics • Hackathon Hero</p>
+                </div>
+                <div class="flex items-center gap-xs text-secondary font-bold text-headline-sm">
+                    2,180 <span class="text-label-md text-red-600 font-normal">pts</span>
+                    <span class="material-symbols-outlined text-red-600 text-sm">trending_down</span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-sm w-full py-sm border-y border-outline-variant/20">
+                    
+                        <div>
+                            <div class="text-label-md font-bold">9</div>
+                            <div class="text-[10px] uppercase tracking-tighter text-on-surface-variant">Solutions</div>
+                        </div>
+                    
+                        <div>
+                            <div class="text-label-md font-bold">4</div>
+                            <div class="text-[10px] uppercase tracking-tighter text-on-surface-variant">Projects</div>
+                        </div>
+                    
+                </div>
+                <button class="w-full py-sm rounded-lg border border-primary hover:bg-primary hover:text-on-primary font-semibold transition-colors">
+                    View Portfolio
+                </button>
+            </div>
+        </section>
+<!-- Leaderboard Table -->
+<section class="bg-white border border-outline-variant/30 rounded-2xl overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse" id="leaderboard-table">
+<thead>
+<tr class="bg-surface-container-low/50 text-label-md font-label-md text-on-surface-variant" id="table-header"><th class="px-md py-sm">Rank</th><th class="px-md py-sm">Participant</th><th class="px-md py-sm">Department</th><th class="px-md py-sm">Credits</th><th class="px-md py-sm">Metrics (S/P/H/R)</th><th class="px-md py-sm">Trend</th><th class="px-md py-sm">Action</th></tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10" id="table-body">
+                <tr class="hover:bg-surface-container-low transition-colors group">
+                    <td class="px-md py-md font-mono text-mono">#04</td>
+                    <td class="px-md py-md">
+                        <div class="flex items-center gap-sm">
+                            <div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+                                <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhncltbQUKKbryINU2T4JX15xsb1JZf-NE6uBhbn16GBUkcYLqlz32SbgAqwUocKmnOJ1KjcOUOYy6Nn1bcxmS-Yg1WFSwUjkH5v4gZGTOtSGeuhjvRWSZZj5b67ZlnMYS0LkIaYeOgys7xJ7S46olfphcNXawc4E0HR-9uIIgGgPAZ2thRMmytqMr7_NNyfMR5d_CCDEY8R50fYp62klh9qKlVSVjDWoB9ke_4PM4WqlKakCXJXr8zL7rWmFRR4TofHMSyZweMxge">
+                            </div>
+                            <div>
+                                <div class="font-semibold text-body-md">Sanya Gupta</div>
+                                <div class="text-xs text-on-surface-variant">Rising Star</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-md py-md text-body-md">Computer Engg.</td>
+                    <td class="px-md py-md font-bold text-secondary">1,950</td>
+                    <td class="px-md py-md">
+                        <div class="flex gap-sm">
+                            <span class="text-xs bg-surface-container px-2 py-1 rounded">S: 12</span><span class="text-xs bg-surface-container px-2 py-1 rounded">P: 5</span><span class="text-xs bg-surface-container px-2 py-1 rounded">H: 2</span><span class="text-xs bg-surface-container px-2 py-1 rounded">R: 1</span>
+                        </div>
+                    </td>
+                    <td class="px-md py-md">
+                        <span class="text-green-600 flex items-center gap-1 font-semibold text-xs">
+                            <span class="material-symbols-outlined text-xs">arrow_upward</span> +2
+                        </span>
+                    </td>
+                    <td class="px-md py-md">
+                        <button class="text-primary hover:text-secondary flex items-center gap-1 font-semibold text-xs">
+                            Portfolio <span class="material-symbols-outlined text-xs">open_in_new</span>
+                        </button>
+                    </td>
+                </tr>
+            
+                <tr class="hover:bg-surface-container-low transition-colors group">
+                    <td class="px-md py-md font-mono text-mono">#05</td>
+                    <td class="px-md py-md">
+                        <div class="flex items-center gap-sm">
+                            <div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+                                <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI_lZlMxIFt-XaKleEODVDLLwaewIwMKmfj5nsXZ8xhXWFYs5h2pzCgPMUSFyFiDJoMFAJn2KSq_1h6BEfnkcFdE0F9FBYBgFOECVxERahkgnukhWLliuoglrRluqvotVrYP0Bc9bIBDr9wCWMWCKNAK05_Kfzk_VhL2RTVw-lXTLIv8Ox2yus8o1woSMRuWbE1y1980e6KmOvOk94Dx7t0ryGX-PIxcy33xAbrJUgqXPRk75lJAKMDxRDocg0mE2tUDasoExyhSx_">
+                            </div>
+                            <div>
+                                <div class="font-semibold text-body-md">Vikram Singh</div>
+                                <div class="text-xs text-on-surface-variant">Research Lead</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-md py-md text-body-md">Mechanical</td>
+                    <td class="px-md py-md font-bold text-secondary">1,840</td>
+                    <td class="px-md py-md">
+                        <div class="flex gap-sm">
+                            <span class="text-xs bg-surface-container px-2 py-1 rounded">S: 8</span><span class="text-xs bg-surface-container px-2 py-1 rounded">P: 3</span><span class="text-xs bg-surface-container px-2 py-1 rounded">H: 0</span><span class="text-xs bg-surface-container px-2 py-1 rounded">R: 4</span>
+                        </div>
+                    </td>
+                    <td class="px-md py-md">
+                        <span class="text-on-surface-variant flex items-center gap-1 font-semibold text-xs">
+                            <span class="material-symbols-outlined text-xs">horizontal_rule</span> 0
+                        </span>
+                    </td>
+                    <td class="px-md py-md">
+                        <button class="text-primary hover:text-secondary flex items-center gap-1 font-semibold text-xs">
+                            Portfolio <span class="material-symbols-outlined text-xs">open_in_new</span>
+                        </button>
+                    </td>
+                </tr>
+            
+                <tr class="hover:bg-surface-container-low transition-colors group">
+                    <td class="px-md py-md font-mono text-mono">#06</td>
+                    <td class="px-md py-md">
+                        <div class="flex items-center gap-sm">
+                            <div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+                                <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaNRytou5uLYtg3fqQpHcE7VPbsDMFW0QesnMvpjBOYtgC-dPwengPil9cvyzBmbZDtGd2wflUb69fasMGcGcS-dNRlvx56R-i-a6XXLepMiW1y7Nct3fZk3QoSL4cKLIJMBaJUIQKTrvnE4nzpnXLcDDnynmxDWE1lYCtd_BVdnhqG50kjBLnMCizrovbHOiXVq_4gDOfQRtD0GzBKZz76kzuvfSqtq374tTVf3h7YBRY6pnMNMi9JA6rWAW_cVZDifkrSadCSrAl">
+                            </div>
+                            <div>
+                                <div class="font-semibold text-body-md">Ananya Patel</div>
+                                <div class="text-xs text-on-surface-variant">Code Wizard</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-md py-md text-body-md">IT</td>
+                    <td class="px-md py-md font-bold text-secondary">1,750</td>
+                    <td class="px-md py-md">
+                        <div class="flex gap-sm">
+                            <span class="text-xs bg-surface-container px-2 py-1 rounded">S: 15</span><span class="text-xs bg-surface-container px-2 py-1 rounded">P: 2</span><span class="text-xs bg-surface-container px-2 py-1 rounded">H: 1</span><span class="text-xs bg-surface-container px-2 py-1 rounded">R: 0</span>
+                        </div>
+                    </td>
+                    <td class="px-md py-md">
+                        <span class="text-green-600 flex items-center gap-1 font-semibold text-xs">
+                            <span class="material-symbols-outlined text-xs">arrow_upward</span> +5
+                        </span>
+                    </td>
+                    <td class="px-md py-md">
+                        <button class="text-primary hover:text-secondary flex items-center gap-1 font-semibold text-xs">
+                            Portfolio <span class="material-symbols-outlined text-xs">open_in_new</span>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+</table>
+<div class="p-md text-center">
+<button class="text-secondary font-semibold text-label-md hover:underline">Load 50 more entries</button>
+</div>
+</div>
+</section>
+<!-- Insights Grid -->
+
+<!-- Contribution System & Hall of Fame Grid -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+<!-- Contribution Guide -->
+<div class="space-y-md">
+<h3 class="font-headline-md text-headline-md" id="guide-title">How to Earn Credits</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-sm" id="guide-grid">
+            <div class="bg-white p-md rounded-xl border border-outline-variant/20 flex gap-md">
+                <div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-primary">lightbulb</span>
+                </div>
+                <div>
+                    <div class="font-bold">Solutions</div>
+                    <div class="text-xs text-on-surface-variant">Solve campus problems. +30 pts</div>
+                </div>
+            </div>
+        
+            <div class="bg-white p-md rounded-xl border border-outline-variant/20 flex gap-md">
+                <div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-primary">inventory_2</span>
+                </div>
+                <div>
+                    <div class="font-bold">Projects</div>
+                    <div class="text-xs text-on-surface-variant">Deploy real apps. +50-200 pts</div>
+                </div>
+            </div>
+        
+            <div class="bg-white p-md rounded-xl border border-outline-variant/20 flex gap-md">
+                <div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-primary">trophy</span>
+                </div>
+                <div>
+                    <div class="font-bold">Hackathons</div>
+                    <div class="text-xs text-on-surface-variant">Win external contests. +150 pts</div>
+                </div>
+            </div>
+        
+            <div class="bg-white p-md rounded-xl border border-outline-variant/20 flex gap-md">
+                <div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-primary">description</span>
+                </div>
+                <div>
+                    <div class="font-bold">Research</div>
+                    <div class="text-xs text-on-surface-variant">Publish journals. +100-300 pts</div>
+                </div>
+            </div>
+        </div>
+</div>
+<!-- Hall of Fame Timeline -->
+<div class="space-y-md">
+<h3 class="font-headline-md text-headline-md">Hall of Fame Highlights</h3>
+<div class="space-y-sm relative before:absolute before:left-6 before:top-4 before:bottom-4 before:w-px before:bg-outline-variant/30">
+<div class="relative pl-14 group">
+<div class="absolute left-4 top-2 w-4 h-4 rounded-full bg-secondary group-hover:scale-150 transition-transform"></div>
+<div class="bg-white p-md rounded-xl border border-outline-variant/20">
+<div class="text-xs font-bold text-secondary mb-1">MARCH 2024</div>
+<div class="font-bold">First Student Startup Incubated</div>
+<p class="text-xs text-on-surface-variant">Team 'Nexus' secured ₹10L seed funding for their campus automation module.</p>
+</div>
+</div>
+<div class="relative pl-14 group">
+<div class="absolute left-4 top-2 w-4 h-4 rounded-full bg-secondary group-hover:scale-150 transition-transform"></div>
+<div class="bg-white p-md rounded-xl border border-outline-variant/20">
+<div class="text-xs font-bold text-secondary mb-1">JANUARY 2024</div>
+<div class="font-bold">National Smart India Hackathon Winner</div>
+<p class="text-xs text-on-surface-variant">Aarav Sharma and team won the first prize in the fintech category.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Final CTA Section -->
+<section class="bg-surface-container-highest rounded-3xl p-xl text-center space-y-md border border-outline-variant/20 overflow-hidden relative">
+<div class="absolute inset-0 opacity-5 pointer-events-none"></div>
+<h2 class="font-display text-display max-w-xl mx-auto" id="cta-title">Want to climb the leaderboard?</h2>
+<p class="text-body-lg text-on-surface-variant max-w-lg mx-auto" id="cta-desc">The journey to innovation starts with a single step. Join a project or solve an existing campus problem today.</p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-md pt-sm">
+<button class="w-full sm:w-auto px-xl py-md bg-primary text-on-primary rounded-xl font-bold hover:opacity-90 transition-opacity" id="cta-primary-btn">Explore Problems</button>
+<button class="w-full sm:w-auto px-xl py-md border border-outline text-primary rounded-xl font-bold hover:bg-surface transition-colors" id="cta-secondary-btn">Start New Project</button>
+</div>
+</section>
+</main>
+<!-- Bottom Nav for Mobile -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-t border-outline-variant/30 px-md pb-safe rounded-t-xl h-20 flex justify-around items-center">
+<button class="flex flex-col items-center justify-center text-secondary bg-secondary-fixed/20 rounded-lg py-1 px-3">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md mt-1">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant py-1 px-3">
+<span class="material-symbols-outlined">school</span>
+<span class="font-label-md text-label-md mt-1">Acad</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant py-1 px-3">
+<span class="material-symbols-outlined">layers</span>
+<span class="font-label-md text-label-md mt-1">Res</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant py-1 px-3">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-md text-label-md mt-1">Profile</span>
+</button>
+</nav>
+<!-- Footer Shell -->
+<footer class="w-full mt-auto bg-surface-container-low border-t border-outline-variant/20">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md px-lg py-xl max-w-container-max mx-auto">
+<div class="space-y-sm">
+<div class="text-headline-sm font-headline-sm font-bold text-primary">CRCE OS</div>
+<p class="text-body-md text-on-surface-variant max-w-sm">The operating system for academic excellence, innovation tracking, and professional growth at Father Conceicao Rodrigues College of Engineering.</p>
+<p class="text-label-md text-on-surface-variant">© 2024 CRCE Campus Operating System. All rights reserved.</p>
+</div>
+<div class="grid grid-cols-2 gap-md">
+<div class="space-y-xs">
+<div class="font-bold text-label-md uppercase tracking-wider text-on-surface-variant">Institutional</div>
+<a class="block text-on-surface-variant hover:text-secondary transition-colors text-body-md" href="#">Academic Calendar</a>
+<a class="block text-on-surface-variant hover:text-secondary transition-colors text-body-md" href="#">Innovation Policy</a>
+<a class="block text-on-surface-variant hover:text-secondary transition-colors text-body-md" href="#">Compliance</a>
+</div>
+<div class="space-y-xs">
+<div class="font-bold text-label-md uppercase tracking-wider text-on-surface-variant">Support</div>
+<a class="block text-on-surface-variant hover:text-secondary transition-colors text-body-md" href="#">IT Support</a>
+<a class="block text-on-surface-variant hover:text-secondary transition-colors text-body-md" href="#">Privacy Policy</a>
+<a class="block text-on-surface-variant hover:text-secondary transition-colors text-body-md" href="#">API Docs</a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+    const leaderboardData = {
+        student: {
+            heroTitle: "CRCE Innovation Ecosystem",
+            heroDesc: "Recognizing impact, celebrating innovation, and building the future of engineering excellence through collaborative research and development.",
+            heroCta: "Explore Innovation Hub",
+            stats: [
+                { label: "Students", val: "5,200", trend: "+8%", icon: "group" },
+                { label: "Faculty", val: "340", trend: "+5%", icon: "school" },
+                { label: "Projects", val: "1,280", trend: "+12%", icon: "inventory_2" },
+                { label: "Solutions", val: "430", trend: "+15%", icon: "lightbulb" },
+                { label: "Hackathons", val: "210", trend: "+10%", icon: "trophy" },
+                { label: "Research", val: "95", trend: "+20%", icon: "description" },
+                { label: "Credits", val: "14.2K", trend: "+18%", icon: "stars" }
+            ],
+            personal: {
+                label: "Your Current Rank",
+                rank: "#241",
+                feedback: "Keep going! Ahead of 78% of peers",
+                points: "840",
+                milestone: "1,000 pts",
+                recommend: "Recommended: Complete 1 solution to gain 30 credits",
+                cta: "Improve Rank",
+                avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBuZ5BsDMMKRmpICna4U1fxqv_RZGOKcjYwhe-leHJ4lG0eWBGDFTKQJfyEGfp9zgPVoKVBWU5Tq7zDAvo0A3V9za3Lk89hWVrSmR8PZcGZGrKG-WY02qaTjdmfWJ2K-ky8eiFz0OBxFITy_viPe0N-dAgns0PtdezXRSWwxe8nm3N1RXUW_t2Ey_bzdTTXmbU8InT2Ar5mEfHHNvXDGydUtGkCt9ILUfOzOC2wvK4FNqHiUkOQKGW0lxKkn_p_yqKRJXczLpPEolIN"
+            },
+            spotlight: [
+                { rank: 2, name: "Isha Malhotra", dept: "IT Department", role: "Solution Architect", pts: "2,320", trend: "up", metrics: [{l: "Solutions", v: 12}, {l: "Projects", v: 8}], img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCGChp05sN8C8Mv4Nf-wNmPB330EBXafQ91qroCyPaGCBXUijwjVnwQsHh8X7eKGdousgRoHcBmmjLgV5sUpYc-XivLhTZ4P5LkZhXPqiobXz3Z3S06Kt9p8vGbnEx0FFb6hjFf7j61j7Xv6LoPmra6CHI4qzW5FXiYx-gpJvc8TcjbHcUXa_NRfxGXXItPID9XEpECOAzGqEaagMQQybi7wTgs0cwKePFuJmzGCVMLs4oWIdtX_on8BS5k2dF0S3hHnQLZeLnA5u3v" },
+                { rank: 1, name: "Aarav Sharma", dept: "Computer Engg", role: "Innovation Champion", pts: "2,450", trend: "up", badges: ["TOP RESEARCHER", "HACKATHON HERO"], img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAfu3GLTY393rqvKC_lZg_Nayy44fwZk6IgIKe6kxkVV3nQK6x0eidcNEcuG9m1POa9Q2lefJZOcOjt3nrf8Rv9J-y1MM9bALb7vWKalp0ZGS9xDTjkCxphuxezwGPZ1ZbmdDXvEs0F3jg66xfVsH-JEN64n2XZQKR99aPHyVpLprp-IPIoYM6FNw66zbqDV3jlgRB3b8fNZ41QY9keRihu_KdRVndkmBUTzMTgpRI6uhMx9_WK1-Tx-poFy7I2la2LUilkfn3sL6wr" },
+                { rank: 3, name: "Rohan Das", dept: "Electronics", role: "Hackathon Hero", pts: "2,180", trend: "down", metrics: [{l: "Solutions", v: 9}, {l: "Projects", v: 4}], img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAjuoNqCNBTWd13VqFf2prJyoqzo1Pm70TXeXRpS5sieIIrsd5JeNrCLJ7EXxjhBRVhpqe-C-svF_0UBMUCaoVuKIqEaQQAtkFaQrOfpw1cbsESeP3kPoY1JI8yjH0BGNeoQQ6xZVI5C1UxJEpUX152qpa2BqMON_h_YLxVx2tNaw_f1B9wlhxv-CxyoZRI2MwmZFODSAF_1b_PIvYe56_NBbWCt7BFBpFCBtQhS7o8XINtnllTYgtYhAgQ_3qklXr-h33Udz3_Fnvq" }
+            ],
+            table: {
+                headers: ["Rank", "Participant", "Department", "Credits", "Metrics (S/P/H/R)", "Trend", "Action"],
+                rows: [
+                    { rank: "#04", name: "Sanya Gupta", sub: "Rising Star", dept: "Computer Engg.", pts: "1,950", metrics: "S: 12, P: 5, H: 2, R: 1", trend: "+2", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBhncltbQUKKbryINU2T4JX15xsb1JZf-NE6uBhbn16GBUkcYLqlz32SbgAqwUocKmnOJ1KjcOUOYy6Nn1bcxmS-Yg1WFSwUjkH5v4gZGTOtSGeuhjvRWSZZj5b67ZlnMYS0LkIaYeOgys7xJ7S46olfphcNXawc4E0HR-9uIIgGgPAZ2thRMmytqMr7_NNyfMR5d_CCDEY8R50fYp62klh9qKlVSVjDWoB9ke_4PM4WqlKakCXJXr8zL7rWmFRR4TofHMSyZweMxge" },
+                    { rank: "#05", name: "Vikram Singh", sub: "Research Lead", dept: "Mechanical", pts: "1,840", metrics: "S: 8, P: 3, H: 0, R: 4", trend: "0", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBI_lZlMxIFt-XaKleEODVDLLwaewIwMKmfj5nsXZ8xhXWFYs5h2pzCgPMUSFyFiDJoMFAJn2KSq_1h6BEfnkcFdE0F9FBYBgFOECVxERahkgnukhWLliuoglrRluqvotVrYP0Bc9bIBDr9wCWMWCKNAK05_Kfzk_VhL2RTVw-lXTLIv8Ox2yus8o1woSMRuWbE1y1980e6KmOvOk94Dx7t0ryGX-PIxcy33xAbrJUgqXPRk75lJAKMDxRDocg0mE2tUDasoExyhSx_" },
+                    { rank: "#06", name: "Ananya Patel", sub: "Code Wizard", dept: "IT", pts: "1,750", metrics: "S: 15, P: 2, H: 1, R: 0", trend: "+5", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCaNRytou5uLYtg3fqQpHcE7VPbsDMFW0QesnMvpjBOYtgC-dPwengPil9cvyzBmbZDtGd2wflUb69fasMGcGcS-dNRlvx56R-i-a6XXLepMiW1y7Nct3fZk3QoSL4cKLIJMBaJUIQKTrvnE4nzpnXLcDDnynmxDWE1lYCtd_BVdnhqG50kjBLnMCizrovbHOiXVq_4gDOfQRtD0GzBKZz76kzuvfSqtq374tTVf3h7YBRY6pnMNMi9JA6rWAW_cVZDifkrSadCSrAl" }
+                ]
+            },
+            insights: [
+                { title: "Fastest Rising", name: "Neil Varma", sub: "+112 pos this week", initial: "NV", icon: "trending_up" },
+                { title: "Most Active Faculty", name: "Dr. Rajesh Iyer", sub: "24 Active Mentees", initial: "DR", icon: "school" },
+                { title: "Dept. Leader", name: "Comp. Engineering", sub: "Avg. Score: 1,420", initial: "CS", icon: "apartment" },
+                { title: "Innovation Velocity", name: "42.8", sub: "Campus-wide Record", icon: "bolt" }
+            ],
+            guide: {
+                title: "How to Earn Credits",
+                items: [
+                    { title: "Solutions", desc: "Solve campus problems. +30 pts", icon: "lightbulb" },
+                    { title: "Projects", desc: "Deploy real apps. +50-200 pts", icon: "inventory_2" },
+                    { title: "Hackathons", desc: "Win external contests. +150 pts", icon: "trophy" },
+                    { title: "Research", desc: "Publish journals. +100-300 pts", icon: "description" }
+                ]
+            },
+            cta: {
+                title: "Want to climb the leaderboard?",
+                desc: "The journey to innovation starts with a single step. Join a project or solve an existing campus problem today.",
+                primary: "Explore Problems",
+                secondary: "Start New Project"
+            }
+        },
+        faculty: {
+            heroTitle: "CRCE Faculty Excellence",
+            heroDesc: "Recognizing mentorship, groundbreaking research, and institutional impact. Celebrating the leaders shaping the next generation of engineers.",
+            heroCta: "Innovation Leadership Hub",
+            stats: [
+                { label: "Faculty", val: "340", trend: "+5%", icon: "school" },
+                { label: "Mentees", val: "1,240", trend: "+15%", icon: "group" },
+                { label: "Mentored Projects", val: "840", trend: "+10%", icon: "inventory_2" },
+                { label: "Research Papers", val: "410", trend: "+25%", icon: "description" },
+                { label: "Consultancy", val: "₹1.2Cr", trend: "+12%", icon: "handshake" },
+                { label: "Patents", val: "42", trend: "+8%", icon: "emoji_objects" },
+                { label: "Impact Score", val: "94.2", trend: "+5%", icon: "stars" }
+            ],
+            personal: {
+                label: "Your Impact Rank",
+                rank: "#12",
+                feedback: "Top 5% Mentor this semester!",
+                points: "3,420",
+                milestone: "4,000 pts (Elite Mentor)",
+                recommend: "Recommended: Review 3 pending project abstracts",
+                cta: "Review Dashboard",
+                avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuACeRmjyafHeMvGAkVIyIsV5-BbrRABvRIAUWvjuP4-2Z1UFN6N9fm58ewUxET4VEb8qnGRP0erQO5A8abNRy2vlgC7a2kx3vy747vEujUhKY2_tZAyOGsyIPuepBgn7gvLVfIiwlnftgQGvGQtWiQI6RsfgPQZcd5WLGcfk7Ovps4ELCD9S_Yfnpo3Y7dbWlNINoMg46EHxa15jeS8m4mT_XoOWtx-x0_4TrwKw_U4zNIkR_KR87JG4HBEgtN2Vi4N2mw4flw3a-nF"
+            },
+            spotlight: [
+                { rank: 2, name: "Dr. Sunita Rao", dept: "Computer Engg", role: "AI Research Head", pts: "5,840", trend: "up", metrics: [{l: "Mentees", v: 42}, {l: "Research", v: 18}], img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCGChp05sN8C8Mv4Nf-wNmPB330EBXafQ91qroCyPaGCBXUijwjVnwQsHh8X7eKGdousgRoHcBmmjLgV5sUpYc-XivLhTZ4P5LkZhXPqiobXz3Z3S06Kt9p8vGbnEx0FFb6hjFf7j61j7Xv6LoPmra6CHI4qzW5FXiYx-gpJvc8TcjbHcUXa_NRfxGXXItPID9XEpECOAzGqEaagMQQybi7wTgs0cwKePFuJmzGCVMLs4oWIdtX_on8BS5k2dF0S3hHnQLZeLnA5u3v" },
+                { rank: 1, name: "Dr. Rajesh Iyer", dept: "Electronics", role: "Innovation Dean", pts: "6,210", trend: "up", badges: ["ELITE MENTOR", "RESEARCH TITAN"], img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAjuoNqCNBTWd13VqFf2prJyoqzo1Pm70TXeXRpS5sieIIrsd5JeNrCLJ7EXxjhBRVhpqe-C-svF_0UBMUCaoVuKIqEaQQAtkFaQrOfpw1cbsESeP3kPoY1JI8yjH0BGNeoQQ6xZVI5C1UxJEpUX152qpa2BqMON_h_YLxVx2tNaw_f1B9wlhxv-CxyoZRI2MwmZFODSAF_1b_PIvYe56_NBbWCt7BFBpFCBtQhS7o8XINtnllTYgtYhAgQ_3qklXr-h33Udz3_Fnvq" },
+                { rank: 3, name: "Prof. Amit Varma", dept: "Mechanical", role: "Incubation Lead", pts: "5,420", trend: "up", metrics: [{l: "Startups", v: 3}, {l: "Projects", v: 24}], img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAfu3GLTY393rqvKC_lZg_Nayy44fwZk6IgIKe6kxkVV3nQK6x0eidcNEcuG9m1POa9Q2lefJZOcOjt3nrf8Rv9J-y1MM9bALb7vWKalp0ZGS9xDTjkCxphuxezwGPZ1ZbmdDXvEs0F3jg66xfVsH-JEN64n2XZQKR99aPHyVpLprp-IPIoYM6FNw66zbqDV3jlgRB3b8fNZ41QY9keRihu_KdRVndkmBUTzMTgpRI6uhMx9_WK1-Tx-poFy7I2la2LUilkfn3sL6wr" }
+            ],
+            table: {
+                headers: ["Rank", "Faculty", "Dept", "Mentored", "Reviews", "Research", "Impact Score", "Credits", "Trend", "Profile"],
+                rows: [
+                    { rank: "#04", name: "Dr. Kavita Singh", sub: "Systems Expert", dept: "IT", mentored: 18, reviews: 142, research: 8, impact: "92/100", pts: "4,950", trend: "+1", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCaNRytou5uLYtg3fqQpHcE7VPbsDMFW0QesnMvpjBOYtgC-dPwengPil9cvyzBmbZDtGd2wflUb69fasMGcGcS-dNRlvx56R-i-a6XXLepMiW1y7Nct3fZk3QoSL4cKLIJMBaJUIQKTrvnE4nzpnXLcDDnynmxDWE1lYCtd_BVdnhqG50kjBLnMCizrovbHOiXVq_4gDOfQRtD0GzBKZz76kzuvfSqtq374tTVf3h7YBRY6pnMNMi9JA6rWAW_cVZDifkrSadCSrAl" },
+                    { rank: "#05", name: "Prof. Nilay Shah", sub: "Design Specialist", dept: "Mechanical", mentored: 12, reviews: 98, research: 5, impact: "88/100", pts: "4,620", trend: "+3", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBI_lZlMxIFt-XaKleEODVDLLwaewIwMKmfj5nsXZ8xhXWFYs5h2pzCgPMUSFyFiDJoMFAJn2KSq_1h6BEfnkcFdE0F9FBYBgFOECVxERahkgnukhWLliuoglrRluqvotVrYP0Bc9bIBDr9wCWMWCKNAK05_Kfzk_VhL2RTVw-lXTLIv8Ox2yus8o1woSMRuWbE1y1980e6KmOvOk94Dx7t0ryGX-PIxcy33xAbrJUgqXPRk75lJAKMDxRDocg0mE2tUDasoExyhSx_" }
+                ]
+            },
+            insights: [
+                { title: "Most Active Mentor", name: "Dr. Rajesh Iyer", sub: "42 active projects", initial: "RI", icon: "school" },
+                { title: "Research Output", name: "Comp. Science", sub: "12 papers this month", initial: "CS", icon: "description" },
+                { title: "Best Feedback", name: "Prof. Anjali Desai", sub: "4.9/5 Rating", initial: "AD", icon: "star" },
+                { title: "Dept. Leader", name: "Electronics", sub: "92.4 Avg Impact", initial: "EL", icon: "apartment" }
+            ],
+            guide: {
+                title: "How Faculty Contribute",
+                items: [
+                    { title: "Mentorship", desc: "Guide student projects. +100 pts", icon: "groups" },
+                    { title: "Reviews", desc: "Peer review submissions. +20 pts", icon: "rate_review" },
+                    { title: "Research", desc: "Publish papers/patents. +200 pts", icon: "description" },
+                    { title: "Collabs", desc: "Industry partnerships. +150 pts", icon: "handshake" }
+                ]
+            },
+            cta: {
+                title: "Shape the Future of Innovation",
+                desc: "Your expertise is the catalyst for growth. Create a problem statement or mentor a rising project team today.",
+                primary: "Create Problem",
+                secondary: "Review Projects"
+            }
+        }
+    };
+
+    let activeState = 'student';
+
+    function updateUI() {
+        const data = leaderboardData[activeState];
+        
+        // Toggle Buttons Style
+        document.getElementById('toggle-student').className = `px-md py-xs rounded-lg font-label-md text-label-md transition-all ${activeState === 'student' ? 'bg-white shadow-sm text-primary font-bold' : 'text-on-surface-variant hover:bg-surface-container-high'}`;
+        document.getElementById('toggle-faculty').className = `px-md py-xs rounded-lg font-label-md text-label-md transition-all ${activeState === 'faculty' ? 'bg-white shadow-sm text-primary font-bold' : 'text-on-surface-variant hover:bg-surface-container-high'}`;
+
+        // Hero Section
+        document.getElementById('hero-title').innerText = data.heroTitle;
+        document.getElementById('hero-desc').innerText = data.heroDesc;
+        document.getElementById('hero-cta-top-text').innerText = data.heroCta;
+
+        // Stats Grid
+        const statsGrid = document.getElementById('stats-grid');
+        statsGrid.innerHTML = data.stats.map(s => `
+            <div class="bg-surface-container-lowest border border-outline-variant/30 p-md rounded-xl hover:border-secondary/30 transition-all group">
+                <span class="material-symbols-outlined text-secondary mb-xs">${s.icon}</span>
+                <div class="font-headline-md text-headline-md font-bold">${s.val}</div>
+                <div class="text-label-md font-label-md text-on-surface-variant flex items-center gap-1">${s.label} <span class="text-green-600">${s.trend}</span></div>
+            </div>
+        `).join('');
+
+        // Personal Card
+        const personal = data.personal;
+        document.getElementById('user-avatar').src = personal.avatar;
+        document.getElementById('user-card-label').innerText = personal.label;
+        document.getElementById('user-rank').innerText = personal.rank;
+        document.getElementById('user-feedback').innerText = personal.feedback;
+        document.getElementById('user-points').innerHTML = `${personal.points} <span class="text-on-primary/60">Points</span>`;
+        document.getElementById('next-milestone').innerText = `Next Milestone: ${personal.milestone}`;
+        document.getElementById('user-recommendation').innerText = personal.recommend;
+        document.getElementById('user-card-cta').innerText = personal.cta;
+
+        // Spotlight
+        const spotlightGrid = document.getElementById('spotlight-section');
+        spotlightGrid.innerHTML = data.spotlight.map(person => `
+            <div class="bg-white border ${person.rank === 1 ? 'border-2 border-secondary shadow-2xl scale-105 z-10' : 'border-outline-variant/30'} p-lg rounded-2xl flex flex-col items-center text-center space-y-md hover:shadow-xl transition-all relative overflow-hidden group">
+                <div class="absolute ${person.rank === 1 ? 'top-4 right-4 bg-secondary text-on-secondary px-3 py-1 rounded-full' : 'top-4 left-4 bg-surface-container text-on-surface-variant w-10 h-10 flex items-center justify-center rounded-full'} font-bold text-label-md">
+                    ${person.rank === 1 ? 'RANK 1' : person.rank}
+                </div>
+                <div class="${person.rank === 1 ? 'w-32 h-32' : 'w-24 h-24'} rounded-full border-4 ${person.rank === 1 ? 'border-secondary/20' : 'border-surface-container'} overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                    <img class="w-full h-full object-cover" src="${person.img}"/>
+                </div>
+                <div>
+                    <h3 class="${person.rank === 1 ? 'font-headline-md text-headline-md' : 'font-headline-sm text-headline-sm'} font-bold">${person.name}</h3>
+                    <p class="text-label-md font-label-md ${person.rank === 1 ? 'text-secondary font-semibold' : 'text-on-surface-variant'}">${person.dept} • ${person.role}</p>
+                </div>
+                <div class="flex items-center gap-xs text-secondary font-bold text-headline-sm">
+                    ${person.pts} <span class="text-label-md ${person.trend === 'up' ? 'text-green-600' : 'text-red-600'} font-normal">pts</span>
+                    <span class="material-symbols-outlined ${person.trend === 'up' ? 'text-green-600' : 'text-red-600'} text-sm">${person.trend === 'up' ? 'trending_up' : 'trending_down'}</span>
+                </div>
+                ${person.rank === 1 ? `
+                <div class="flex justify-center gap-md w-full py-sm">
+                    ${person.badges.map(b => `
+                        <div class="flex flex-col items-center">
+                            <span class="material-symbols-outlined text-secondary">verified</span>
+                            <span class="text-[10px] mt-1 font-bold">${b}</span>
+                        </div>
+                    `).join('')}
+                </div>` : `
+                <div class="grid grid-cols-2 gap-sm w-full py-sm border-y border-outline-variant/20">
+                    ${person.metrics.map(m => `
+                        <div>
+                            <div class="text-label-md font-bold">${m.v}</div>
+                            <div class="text-[10px] uppercase tracking-tighter text-on-surface-variant">${m.l}</div>
+                        </div>
+                    `).join('')}
+                </div>`}
+                <button class="w-full py-sm rounded-lg ${person.rank === 1 ? 'bg-secondary text-on-secondary' : 'border border-primary hover:bg-primary hover:text-on-primary'} font-semibold transition-colors">
+                    ${person.rank === 1 ? 'View Elite Portfolio' : 'View Portfolio'}
+                </button>
+            </div>
+        `).join('');
+
+        // Table Header
+        const header = document.getElementById('table-header');
+        header.innerHTML = data.table.headers.map(h => `<th class="px-md py-sm">${h}</th>`).join('');
+
+        // Table Body
+        const body = document.getElementById('table-body');
+        if (activeState === 'student') {
+            body.innerHTML = data.table.rows.map(row => `
+                <tr class="hover:bg-surface-container-low transition-colors group">
+                    <td class="px-md py-md font-mono text-mono">${row.rank}</td>
+                    <td class="px-md py-md">
+                        <div class="flex items-center gap-sm">
+                            <div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+                                <img class="w-full h-full object-cover" src="${row.img}"/>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-body-md">${row.name}</div>
+                                <div class="text-xs text-on-surface-variant">${row.sub}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-md py-md text-body-md">${row.dept}</td>
+                    <td class="px-md py-md font-bold text-secondary">${row.pts}</td>
+                    <td class="px-md py-md">
+                        <div class="flex gap-sm">
+                            ${row.metrics.split(', ').map(m => `<span class="text-xs bg-surface-container px-2 py-1 rounded">${m}</span>`).join('')}
+                        </div>
+                    </td>
+                    <td class="px-md py-md">
+                        <span class="${row.trend.includes('+') ? 'text-green-600' : 'text-on-surface-variant'} flex items-center gap-1 font-semibold text-xs">
+                            <span class="material-symbols-outlined text-xs">${row.trend === '0' ? 'horizontal_rule' : 'arrow_upward'}</span> ${row.trend}
+                        </span>
+                    </td>
+                    <td class="px-md py-md">
+                        <button class="text-primary hover:text-secondary flex items-center gap-1 font-semibold text-xs">
+                            Portfolio <span class="material-symbols-outlined text-xs">open_in_new</span>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        } else {
+            body.innerHTML = data.table.rows.map(row => `
+                <tr class="hover:bg-surface-container-low transition-colors group">
+                    <td class="px-md py-md font-mono text-mono">${row.rank}</td>
+                    <td class="px-md py-md">
+                        <div class="flex items-center gap-sm">
+                            <div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+                                <img class="w-full h-full object-cover" src="${row.img}"/>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-body-md">${row.name}</div>
+                                <div class="text-xs text-on-surface-variant">${row.sub}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-md py-md text-body-md">${row.dept}</td>
+                    <td class="px-md py-md text-body-md">${row.mentored}</td>
+                    <td class="px-md py-md text-body-md">${row.reviews}</td>
+                    <td class="px-md py-md text-body-md">${row.research}</td>
+                    <td class="px-md py-md font-semibold text-primary">${row.impact}</td>
+                    <td class="px-md py-md font-bold text-secondary">${row.pts}</td>
+                    <td class="px-md py-md">
+                         <span class="text-green-600 flex items-center gap-1 font-semibold text-xs">
+                            <span class="material-symbols-outlined text-xs">arrow_upward</span> ${row.trend}
+                        </span>
+                    </td>
+                    <td class="px-md py-md">
+                        <button class="text-primary hover:text-secondary flex items-center gap-1 font-semibold text-xs">
+                            Profile <span class="material-symbols-outlined text-xs">open_in_new</span>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Insights
+        const insightsGrid = document.getElementById('insights-grid');
+        insightsGrid.innerHTML = data.insights.map(i => `
+            <div class="bg-surface-container-low border border-outline-variant/20 p-md rounded-2xl">
+                <div class="flex items-center justify-between mb-sm">
+                    <span class="text-label-md font-bold uppercase tracking-wider text-on-surface-variant">${i.title}</span>
+                    <span class="material-symbols-outlined text-secondary">${i.icon}</span>
+                </div>
+                <div class="flex items-center gap-sm">
+                    ${i.initial ? `<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-secondary font-bold">${i.initial}</div>` : ''}
+                    <div>
+                        <div class="font-bold">${i.name}</div>
+                        <div class="text-xs ${i.sub.includes('+') ? 'text-green-600' : 'text-on-surface-variant'}">${i.sub}</div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        // Guide
+        document.getElementById('guide-title').innerText = data.guide.title;
+        const guideGrid = document.getElementById('guide-grid');
+        guideGrid.innerHTML = data.guide.items.map(item => `
+            <div class="bg-white p-md rounded-xl border border-outline-variant/20 flex gap-md">
+                <div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-primary">${item.icon}</span>
+                </div>
+                <div>
+                    <div class="font-bold">${item.title}</div>
+                    <div class="text-xs text-on-surface-variant">${item.desc}</div>
+                </div>
+            </div>
+        `).join('');
+
+        // CTA
+        document.getElementById('cta-title').innerText = data.cta.title;
+        document.getElementById('cta-desc').innerText = data.cta.desc;
+        document.getElementById('cta-primary-btn').innerText = data.cta.primary;
+        document.getElementById('cta-secondary-btn').innerText = data.cta.secondary;
+    }
+
+    document.getElementById('toggle-student').addEventListener('click', () => {
+        activeState = 'student';
+        updateUI();
+    });
+
+    document.getElementById('toggle-faculty').addEventListener('click', () => {
+        activeState = 'faculty';
+        updateUI();
+    });
+
+    // Initial Load
+    document.addEventListener('DOMContentLoaded', updateUI);
+</script>
+
+
+</body></html>

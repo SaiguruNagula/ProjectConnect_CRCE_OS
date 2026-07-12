@@ -1,0 +1,602 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Create Problem | CRCE OS</title>
+<!-- Google Fonts: Hanken Grotesk, Inter, JetBrains Mono -->
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;900&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#464555",
+                    "surface-tint": "#4d44e3",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "surface-container-highest": "#e0e3e5",
+                    "on-surface": "#191c1e",
+                    "inverse-on-surface": "#eff1f3",
+                    "surface-bright": "#f7f9fb",
+                    "secondary-fixed": "#dae2fd",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#2d3133",
+                    "surface-container": "#eceef0",
+                    "outline-variant": "#c7c4d8",
+                    "tertiary-container": "#5f5f68",
+                    "on-background": "#191c1e",
+                    "on-secondary": "#ffffff",
+                    "surface-dim": "#d8dadc",
+                    "on-primary-container": "#dad7ff",
+                    "secondary": "#565e74",
+                    "on-tertiary-fixed-variant": "#46464e",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "primary-container": "#4f46e5",
+                    "tertiary-fixed": "#e3e1ec",
+                    "surface": "#f7f9fb",
+                    "surface-container-high": "#e6e8ea",
+                    "secondary-container": "#dae2fd",
+                    "primary-fixed": "#e2dfff",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed-dim": "#c6c5cf",
+                    "outline": "#777587",
+                    "on-secondary-fixed": "#131b2e",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-container": "#dbdae4",
+                    "inverse-primary": "#c3c0ff",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "surface-container-low": "#f2f4f6",
+                    "on-primary-fixed": "#0f0069",
+                    "primary": "#3525cd",
+                    "on-tertiary-fixed": "#1a1b22",
+                    "background": "#f7f9fb",
+                    "on-secondary-container": "#5c647a",
+                    "surface-variant": "#e0e3e5",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#474750",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "xs": "8px",
+                    "base": "4px",
+                    "sm": "16px",
+                    "lg": "40px",
+                    "margin-mobile": "16px",
+                    "xl": "64px",
+                    "margin-desktop": "48px",
+                    "md": "24px"
+            },
+            "fontFamily": {
+                    "body-sm": ["Inter"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "display-lg-mobile": ["Hanken Grotesk"],
+                    "label-sm": ["JetBrains Mono"],
+                    "body-md": ["Inter"],
+                    "headline-sm": ["Hanken Grotesk"],
+                    "label-md": ["JetBrains Mono"],
+                    "body-lg": ["Inter"],
+                    "display-lg": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-sm": ["10px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .bento-card {
+            background-color: #ffffff;
+            border: 1px solid #e4e4e7; /* Zinc-200 */
+            box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+            border-radius: 0.5rem; /* xl */
+            transition: all 0.2s ease;
+        }
+        .sticky-footer {
+            box-shadow: 0 -10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+        }
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #4f46e5;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        /* Custom timeline track */
+        .timeline-track::before {
+            content: '';
+            position: absolute;
+            left: 9px;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background-color: #e4e4e7;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen h-auto">
+<!-- Desktop Navigation Drawer -->
+<nav class="hidden md:flex flex-col gap-base h-full w-64 fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant shadow-sm z-40 overflow-y-auto">
+<div class="px-md py-lg">
+<span class="text-headline-sm font-headline-sm font-black text-primary">CRCE OS</span>
+<div class="mt-md flex items-center gap-xs">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden border border-outline-variant">
+<img alt="Faculty profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwJZQWdi2YacfMh4ZiT3WVcQF3AzMyAX9uillC3lrmHpG9682h62NCX_QIEPzqu3zlLC7hejTXSwLApP4KaT7xgJYLnYR3Giiid6ZUkaBrDL39Xa3qzlyaoqVsHJdrfA3ARrl6Iogvrk-tPlUCS5W_eXEqMFKDbzD_5FC01l67g1GDMvb6c2soRUhvV7FrIY9Drhp1V8Dq7G-Z1uHevN9AKIF6_9QbdXlqr791MiadUvSwUHPBshFJ4BbKFnrYDyysyR9o_SNH_NXy">
+</div>
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-on-surface font-bold">Faculty Portal</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Innovation Management</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col flex-grow">
+<a class="text-on-surface-variant px-4 py-3 mx-2 hover:bg-surface-container rounded-xl transition-all flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="bg-primary-container text-on-primary-container rounded-xl font-bold px-4 py-3 mx-2 flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined">rocket_launch</span> Challenges
+            </a>
+<a class="text-on-surface-variant px-4 py-3 mx-2 hover:bg-surface-container rounded-xl transition-all flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined">rate_review</span> Review Engine
+            </a>
+<a class="text-on-surface-variant px-4 py-3 mx-2 hover:bg-surface-container rounded-xl transition-all flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span> Credit Engine
+            </a>
+</div>
+<div class="pb-lg">
+<a class="text-on-surface-variant px-4 py-3 mx-2 hover:bg-surface-container rounded-xl transition-all flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+            </a>
+</div>
+</nav>
+<!-- Top App Bar -->
+<header class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop bg-surface border-b border-outline-variant h-16 sticky top-0 z-30 md:ml-64 md:w-[calc(100%-16rem)]">
+<div class="flex items-center gap-sm">
+<button class="md:hidden text-primary p-2">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="text-headline-md font-headline-md text-primary">Create Problem</h1>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden sm:flex items-center gap-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+<span class="text-label-md font-label-md">Draft saved 2m ago</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-xs">
+                JD
+            </div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 p-6 lg:p-12 pb-[220px] pb-64 min-h-screen">
+<div class="max-w-[1440px] mx-auto">
+<div class="mb-8">
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Problem Definition</h2>
+<p class="text-body-md font-body-md text-on-surface-variant">Define an innovation challenge for the student ecosystem.</p>
+</div>
+<!-- 60/40 Grid Layout for Desktop -->
+<div class="grid grid-cols-1 lg:grid-cols-10 gap-6 items-start">
+<!-- Left Column (60%) -->
+<div class="lg:col-span-6 flex flex-col gap-6">
+<!-- Problem Type Card -->
+<section class="bento-card p-6">
+<h3 class="text-label-md font-label-md font-bold text-on-surface uppercase mb-4">Problem Type</h3>
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+<label class="flex flex-col items-center justify-center text-center p-4 border border-outline-variant rounded-xl cursor-pointer hover:bg-surface-container-low transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary-container/10">
+<input class="hidden" name="problem_type" type="radio" value="faculty">
+<span class="material-symbols-outlined text-primary mb-1">school</span>
+<span class="text-label-sm font-bold text-on-surface">Faculty Research</span>
+</label>
+<label class="flex flex-col items-center justify-center text-center p-4 border border-outline-variant rounded-xl cursor-pointer hover:bg-surface-container-low transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary-container/10">
+<input class="hidden" name="problem_type" type="radio" value="industry">
+<span class="material-symbols-outlined text-primary mb-1">apartment</span>
+<span class="text-label-sm font-bold text-on-surface">Industry Sponsored</span>
+</label>
+<label class="flex flex-col items-center justify-center text-center p-4 border border-primary bg-primary-container/10 rounded-xl cursor-pointer">
+<input checked="" class="hidden" name="problem_type" type="radio" value="college">
+<span class="material-symbols-outlined text-primary mb-1">domain</span>
+<span class="text-label-sm font-bold text-on-surface">College Innovation</span>
+</label>
+<label class="flex flex-col items-center justify-center text-center p-4 border border-outline-variant rounded-xl cursor-pointer hover:bg-surface-container-low transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary-container/10">
+<input class="hidden" name="problem_type" type="radio" value="social">
+<span class="material-symbols-outlined text-primary mb-1">public</span>
+<span class="text-label-sm font-bold text-on-surface">Social Impact</span>
+</label>
+<label class="flex flex-col items-center justify-center text-center p-4 border border-outline-variant rounded-xl cursor-pointer hover:bg-surface-container-low transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary-container/10">
+<input class="hidden" name="problem_type" type="radio" value="startup">
+<span class="material-symbols-outlined text-primary mb-1">rocket_launch</span>
+<span class="text-label-sm font-bold text-on-surface">Startup Challenge</span>
+</label>
+<label class="flex flex-col items-center justify-center text-center p-4 border border-outline-variant rounded-xl cursor-pointer hover:bg-surface-container-low transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary-container/10">
+<input class="hidden" name="problem_type" type="radio" value="open">
+<span class="material-symbols-outlined text-primary mb-1">hub</span>
+<span class="text-label-sm font-bold text-on-surface">Open Innovation</span>
+</label>
+</div>
+</section>
+<!-- Host Department -->
+<section class="bento-card p-6">
+<h3 class="text-label-md font-label-md font-bold text-on-surface uppercase mb-4">Host Department</h3>
+<div class="flex flex-wrap gap-3">
+<label class="flex-1 min-w-[120px]">
+<input checked="" class="hidden peer" name="dept" type="radio">
+<div class="px-4 py-2 border border-primary bg-primary-container/10 rounded-xl text-center text-label-md font-bold text-on-surface cursor-pointer peer-checked:ring-2 peer-checked:ring-primary/20">AI &amp; DS</div>
+</label>
+<label class="flex-1 min-w-[120px]">
+<input class="hidden peer" name="dept" type="radio">
+<div class="px-4 py-2 border border-outline-variant rounded-xl text-center text-label-md font-bold text-on-surface-variant cursor-pointer peer-checked:border-primary peer-checked:bg-primary-container/10 peer-checked:text-on-surface">Computer Engg</div>
+</label>
+<label class="flex-1 min-w-[120px]">
+<input class="hidden peer" name="dept" type="radio">
+<div class="px-4 py-2 border border-outline-variant rounded-xl text-center text-label-md font-bold text-on-surface-variant cursor-pointer peer-checked:border-primary peer-checked:bg-primary-container/10 peer-checked:text-on-surface">EXTC</div>
+</label>
+<label class="flex-1 min-w-[120px]">
+<input class="hidden peer" name="dept" type="radio">
+<div class="px-4 py-2 border border-outline-variant rounded-xl text-center text-label-md font-bold text-on-surface-variant cursor-pointer peer-checked:border-primary peer-checked:bg-primary-container/10 peer-checked:text-on-surface">Electronics</div>
+</label>
+<label class="flex-1 min-w-[120px]">
+<input class="hidden peer" name="dept" type="radio">
+<div class="px-4 py-2 border border-outline-variant rounded-xl text-center text-label-md font-bold text-on-surface-variant cursor-pointer peer-checked:border-primary peer-checked:bg-primary-container/10 peer-checked:text-on-surface">Mechanical</div>
+</label>
+<label class="flex-1 min-w-[120px]">
+<input class="hidden peer" name="dept" type="radio">
+<div class="px-4 py-2 border border-outline-variant rounded-xl text-center text-label-md font-bold text-on-surface-variant cursor-pointer peer-checked:border-primary peer-checked:bg-primary-container/10 peer-checked:text-on-surface">Civil</div>
+</label>
+<label class="flex-1 min-w-[120px]">
+<input class="hidden peer" name="dept" type="radio">
+<div class="px-4 py-2 border border-outline-variant rounded-xl text-center text-label-md font-bold text-on-surface-variant cursor-pointer peer-checked:border-primary peer-checked:bg-primary-container/10 peer-checked:text-on-surface">Open To All</div>
+</label>
+</div>
+</section>
+<!-- Core Details -->
+<section class="bento-card p-6 space-y-4">
+<div class="space-y-2">
+<label class="text-label-md font-label-md text-on-surface-variant uppercase">Problem Title</label>
+<input class="w-full px-4 py-2 border border-outline-variant rounded-xl text-body-md" placeholder="e.g., Decentralized Academic Record Verification" type="text" value="Decentralized Academic Record Verification">
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-label-md font-label-md text-on-surface-variant uppercase">Domain</label>
+<select class="w-full px-4 py-2 border border-outline-variant rounded-xl text-body-md bg-white">
+<option>AI &amp; Machine Learning</option>
+<option selected="">Web3 &amp; Blockchain</option>
+<option>Sustainable Tech</option>
+<option>Health Informatics</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="text-label-md font-label-md text-on-surface-variant uppercase">Short Summary</label>
+<input class="w-full px-4 py-2 border border-outline-variant rounded-xl text-body-md" placeholder="A one-sentence hook for students" type="text" value="Build a secure portal for verifiable academic credentials using L2 solutions.">
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-label-md font-label-md text-on-surface-variant uppercase">Detailed Statement</label>
+<textarea class="w-full px-4 py-2 border border-outline-variant rounded-xl text-body-md resize-none" placeholder="Describe the problem, the context, and why it needs solving..." rows="4">Current academic verification processes are slow, manual, and prone to fraud. We need a decentralized solution that allows students to own their records while allowing institutions to verify them instantly without central dependencies.</textarea>
+</div>
+</section>
+<!-- Why This Matters -->
+<section class="bento-card p-6 flex flex-col space-y-4">
+<h3 class="text-label-md font-label-md font-bold text-on-surface uppercase">Why this matters</h3>
+<div class="space-y-4">
+<div class="space-y-2">
+<label class="text-label-md font-label-md text-on-surface-variant uppercase">Current Challenge</label>
+<textarea class="w-full px-4 py-2 border border-outline-variant rounded-xl text-body-md min-h-[120px]" placeholder="What is wrong with the current status quo?">The existing system relies on physical verification or centralized databases that are vulnerable to data breaches and identity theft. Verification of transcripts for higher education takes 3-4 weeks on average.</textarea>
+</div>
+<div class="space-y-2">
+<label class="text-label-md font-label-md text-on-surface-variant uppercase">Expected Impact</label>
+<textarea class="w-full px-4 py-2 border border-outline-variant rounded-xl text-body-md min-h-[120px]" placeholder="What does success look like?">An immutable record system where verification is instantaneous. Reduces administrative overhead by 90% and ensures zero fraud in academic credentialing.</textarea>
+</div>
+</div>
+</section>
+<!-- Skills & Requirements -->
+<section class="bento-card p-6 space-y-4">
+<h3 class="text-label-md font-label-md font-bold text-on-surface uppercase">Skills &amp; Requirements</h3>
+<div class="space-y-2">
+<label class="text-label-md font-label-md text-on-surface-variant uppercase">Required Skills</label>
+<div class="flex flex-wrap items-center gap-2 p-1.5 border border-outline-variant rounded-xl min-h-[44px]">
+<span class="bg-surface-container-highest border border-outline-variant text-on-surface-variant px-2.5 py-0.5 rounded-lg text-label-md flex items-center gap-1.5 font-medium">Python <span class="material-symbols-outlined text-[14px] cursor-pointer hover:text-error transition-colors">close</span></span>
+<span class="bg-surface-container-highest border border-outline-variant text-on-surface-variant px-2.5 py-0.5 rounded-lg text-label-md flex items-center gap-1.5 font-medium">React <span class="material-symbols-outlined text-[14px] cursor-pointer hover:text-error transition-colors">close</span></span>
+<span class="bg-surface-container-highest border border-outline-variant text-on-surface-variant px-2.5 py-0.5 rounded-lg text-label-md flex items-center gap-1.5 font-medium">Solidity <span class="material-symbols-outlined text-[14px] cursor-pointer hover:text-error transition-colors">close</span></span>
+<input class="flex-grow border-none focus:ring-0 text-body-md p-1 min-w-[120px] bg-transparent" placeholder="Add skill..." type="text">
+</div>
+</div>
+</section>
+<!-- Reference Material -->
+<section class="bento-card p-6 space-y-4">
+<h3 class="text-label-md font-label-md font-bold text-on-surface uppercase">Reference Material</h3>
+<div class="border-2 border-dashed border-outline-variant rounded-xl min-h-[220px] flex flex-col items-center justify-center text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all group">
+<span class="material-symbols-outlined text-outline text-4xl mb-3 group-hover:text-primary transition-colors">upload_file</span>
+<p class="text-label-md font-bold text-on-surface">Upload Documents</p>
+<p class="text-[11px] text-on-surface-variant mt-1.5">PDF, Dataset, PPT (Max 20MB)</p>
+<button class="mt-4 px-4 py-2 bg-surface-container-high text-on-surface text-label-md font-bold rounded-lg border border-outline-variant">Browse Files</button>
+</div>
+</section>
+</div>
+<!-- Right Column (40%) -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<!-- Problem ID Card -->
+<section class="bento-card p-6 border-primary/20 bg-primary/5">
+<div class="flex flex-col">
+<span class="text-label-md font-black text-primary uppercase">Problem ID</span>
+<span class="text-headline-sm font-bold text-primary mt-1">CRCE-AIDS-2026-014</span>
+<p class="text-[10px] text-on-surface-variant mt-2 font-medium">Automatically generated when published.</p>
+</div>
+</section>
+<!-- Difficulty Level -->
+<section class="bento-card p-6 space-y-4">
+<h3 class="text-label-md font-label-md font-bold text-on-surface uppercase">Difficulty Level</h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+<label class="flex items-center gap-3 p-4 border border-outline-variant rounded-xl cursor-pointer hover:bg-surface-container-low transition-colors">
+<input class="text-primary focus:ring-primary h-4 w-4" name="difficulty" type="radio" value="beginner">
+<div class="flex flex-col">
+<span class="text-label-md font-bold text-on-surface">Beginner</span>
+<span class="text-label-sm text-on-surface-variant leading-tight">Core fundamentals</span>
+</div>
+</label>
+<label class="flex items-center gap-3 p-4 border border-outline-variant rounded-xl cursor-pointer hover:bg-surface-container-low transition-colors">
+<input class="text-primary focus:ring-primary h-4 w-4" name="difficulty" type="radio" value="intermediate">
+<div class="flex flex-col">
+<span class="text-label-md font-bold text-on-surface">Intermediate</span>
+<span class="text-label-sm text-on-surface-variant leading-tight">Application focus</span>
+</div>
+</label>
+<label class="flex items-center gap-3 p-4 border border-primary bg-primary-container/10 rounded-xl cursor-pointer">
+<input checked="" class="text-primary focus:ring-primary h-4 w-4" name="difficulty" type="radio" value="advanced">
+<div class="flex flex-col">
+<span class="text-label-md font-bold text-on-surface">Advanced</span>
+<span class="text-label-sm text-on-surface-variant leading-tight">Complex engineering</span>
+</div>
+</label>
+<label class="flex items-center gap-3 p-4 border border-outline-variant rounded-xl cursor-pointer hover:bg-surface-container-low transition-colors">
+<input class="text-primary focus:ring-primary h-4 w-4" name="difficulty" type="radio" value="research">
+<div class="flex flex-col">
+<span class="text-label-md font-bold text-on-surface">Research</span>
+<span class="text-label-sm text-on-surface-variant leading-tight">Novel breakthroughs</span>
+</div>
+</label>
+</div>
+</section>
+<!-- Expected Deliverables -->
+<section class="bento-card p-6 flex flex-col space-y-4">
+<h3 class="text-label-md font-label-md font-bold text-on-surface uppercase">Expected Deliverables</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
+<label class="flex items-center gap-3 text-body-sm text-on-surface cursor-pointer">
+<input class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"> PPT Presentation
+        </label>
+<label class="flex items-center gap-3 text-body-sm text-on-surface cursor-pointer">
+<input class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"> Technical Report
+        </label>
+<label class="flex items-center gap-3 text-body-sm text-on-surface cursor-pointer">
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"> GitHub Repository
+        </label>
+<label class="flex items-center gap-3 text-body-sm text-on-surface cursor-pointer">
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"> Working Prototype
+        </label>
+<label class="flex items-center gap-3 text-body-sm text-on-surface cursor-pointer">
+<input class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"> Video Demo
+        </label>
+</div>
+</section>
+<!-- Structured Timeline -->
+<section class="bento-card p-6 space-y-4">
+<h3 class="text-label-md font-label-md font-bold text-on-surface uppercase">Structured Timeline</h3>
+<div class="relative timeline-track flex flex-col space-y-[32px]">
+<div class="flex items-center gap-4 relative z-10">
+<div class="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0 border-4 border-white shadow-sm"></div>
+<div class="flex-grow flex items-baseline justify-between">
+<p class="text-label-md font-bold text-on-surface">Registration Period</p>
+<p class="text-[11px] text-on-surface-variant font-medium">Nov 01 - Nov 15, 2024</p>
+</div>
+</div>
+<div class="flex items-center gap-4 relative z-10">
+<div class="w-5 h-5 rounded-full bg-white flex items-center justify-center shrink-0 border-2 border-outline-variant shadow-sm"></div>
+<div class="flex-grow flex items-baseline justify-between">
+<p class="text-label-md font-bold text-on-surface">Prototype Submission</p>
+<p class="text-[11px] text-on-surface-variant font-medium">Dec 15, 2024</p>
+</div>
+</div>
+<div class="flex items-center gap-4 relative z-10">
+<div class="w-5 h-5 rounded-full bg-white flex items-center justify-center shrink-0 border-2 border-outline-variant shadow-sm"></div>
+<div class="flex-grow flex items-baseline justify-between">
+<p class="text-label-md font-bold text-on-surface">Mid-Review Cycle</p>
+<p class="text-[11px] text-on-surface-variant font-medium">Jan 10, 2025</p>
+</div>
+</div>
+<div class="flex items-center gap-4 relative z-10">
+<div class="w-5 h-5 rounded-full bg-white flex items-center justify-center shrink-0 border-2 border-outline-variant shadow-sm"></div>
+<div class="flex-grow flex items-baseline justify-between">
+<p class="text-label-md font-bold text-on-surface">Final Submission</p>
+<p class="text-[11px] text-on-surface-variant font-medium">Feb 15, 2025</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Credit Engine -->
+<section class="bento-card overflow-hidden">
+<div class="bg-primary-container text-white px-6 py-3 flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">account_balance_wallet</span>
+<h3 class="text-label-md font-bold uppercase tracking-wider">Credit Engine</h3>
+</div>
+<span class="text-[10px] opacity-80">v2.1 AUTO</span>
+</div>
+<div class="p-6">
+<div class="bg-surface-container-low p-5 rounded-xl border border-outline-variant/50 flex flex-col items-center text-center">
+<p class="text-[10px] text-on-surface-variant uppercase font-bold mb-1">Estimated Problem Value</p>
+<div class="flex items-baseline gap-1">
+<span class="text-4xl font-black text-primary">750</span>
+<span class="text-base font-bold text-on-surface-variant">CR</span>
+</div>
+<p class="text-[11px] text-on-surface-variant mt-4 leading-relaxed">System-derived based on <b>Advanced</b> difficulty and <b>4</b> milestones.</p>
+</div>
+</div>
+</section>
+<!-- Evaluation Weightage -->
+<section class="bento-card p-6 space-y-4">
+<h3 class="text-label-md font-label-md font-bold text-on-surface uppercase">Evaluation Weightage</h3>
+<div class="space-y-5">
+<div>
+<div class="flex justify-between items-baseline mb-2">
+<span class="text-body-sm font-medium">Innovation</span>
+<span class="text-label-md font-bold text-primary">40%</span>
+</div>
+<div class="w-full bg-surface-container-high h-[10px] rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[40%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-baseline mb-2">
+<span class="text-body-sm font-medium">Technicality</span>
+<span class="text-label-md font-bold text-primary">30%</span>
+</div>
+<div class="w-full bg-surface-container-high h-[10px] rounded-full overflow-hidden">
+<div class="bg-surface-tint h-full w-[30%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-baseline mb-2">
+<span class="text-body-sm font-medium">Impact</span>
+<span class="text-label-md font-bold text-primary">30%</span>
+</div>
+<div class="w-full bg-surface-container-high h-[10px] rounded-full overflow-hidden">
+<div class="bg-outline h-full w-[30%]"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Owner Information -->
+<section class="bento-card p-6 space-y-4">
+<h3 class="text-label-md font-label-md font-bold text-on-surface uppercase">Owner Information</h3>
+<div class="space-y-4">
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase">Created By</label>
+<p class="text-body-md text-on-surface bg-surface-container-low px-3 py-2 rounded-lg border border-outline-variant/30">Prof. Milind G.</p>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase">Department</label>
+<p class="text-body-md text-on-surface bg-surface-container-low px-3 py-2 rounded-lg border border-outline-variant/30">AI &amp; DS</p>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase">Ownership</label>
+<div class="grid grid-cols-2 gap-2 mt-2">
+<label class="flex items-center gap-2 text-label-md text-on-surface cursor-pointer">
+<input checked="" class="text-primary focus:ring-primary h-3.5 w-3.5" name="owner" type="radio"> Faculty
+            </label>
+<label class="flex items-center gap-2 text-label-md text-on-surface cursor-pointer">
+<input class="text-primary focus:ring-primary h-3.5 w-3.5" name="owner" type="radio"> Industry
+            </label>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+<div class="h-24 w-full"></div></main>
+<!-- Sticky Bottom Actions - Refined height & alignment -->
+<section class="fixed bottom-0 left-0 right-0 md:left-64 bg-surface/95 backdrop-blur-md border-t border-outline-variant z-50 sticky-footer">
+<div class="max-w-[1440px] mx-auto px-6 lg:px-12 py-3 flex flex-row justify-between items-center h-20 md:h-24">
+<!-- Validation Panel -->
+<div class="flex items-center gap-x-6">
+<div class="flex items-center gap-1.5 text-[11px] text-green-600 font-bold uppercase tracking-tight">
+<span class="material-symbols-outlined text-[16px]">check_circle</span> Title OK
+                </div>
+<div class="flex items-center gap-1.5 text-[11px] text-green-600 font-bold uppercase tracking-tight">
+<span class="material-symbols-outlined text-[16px]">check_circle</span> Timeline OK
+                </div>
+<div class="flex items-center gap-1.5 text-[11px] text-green-600 font-bold uppercase tracking-tight">
+<span class="material-symbols-outlined text-[16px]">check_circle</span> Skills OK
+                </div>
+<div class="h-6 w-px bg-outline-variant mx-2 hidden lg:block"></div>
+<div class="flex items-center gap-2">
+<span class="text-label-sm text-on-surface-variant font-black">STATUS:</span>
+<span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-[10px] font-black uppercase">Ready to Publish</span>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex gap-4">
+<button class="w-32 md:w-44 h-11 border border-outline-variant text-on-surface font-bold text-body-sm rounded-xl hover:bg-surface-container-high transition-colors">
+                    Save Draft
+                </button>
+<button class="w-32 md:w-44 h-11 bg-primary text-white font-bold text-body-sm rounded-xl hover:shadow-lg active:scale-[0.98] transition-all">
+                    Publish
+                </button>
+</div>
+</div>
+</section>
+<!-- Mobile Navigation Bar -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface/90 backdrop-blur-md border-t border-outline-variant shadow-lg h-16 flex justify-around items-center px-4 pb-safe">
+<button class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-bold">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">edit_document</span>
+<span class="text-[10px] font-bold">Drafts</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary font-bold">
+<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">assignment</span>
+<span class="text-[10px] font-bold">Reviews</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold">Profile</span>
+</button>
+</nav>
+<script>
+        // Micro-interaction for toggle
+        const toggleBtn = document.getElementById('entry-toggle');
+        if(toggleBtn) {
+            toggleBtn.addEventListener('click', function() {
+                const circle = this.querySelector('div');
+                if(this.classList.contains('bg-primary-container')) {
+                    this.classList.remove('bg-primary-container');
+                    this.classList.add('bg-outline-variant');
+                    circle.style.right = 'auto';
+                    circle.style.left = '2px';
+                } else {
+                    this.classList.remove('bg-outline-variant');
+                    this.classList.add('bg-primary-container');
+                    circle.style.left = 'auto';
+                    circle.style.right = '2px';
+                }
+            });
+        }
+    </script>
+
+
+
+
+</body></html>

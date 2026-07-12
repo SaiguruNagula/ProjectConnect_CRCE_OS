@@ -1,0 +1,790 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Principal Dashboard | CRCE OS</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        .font-mono { font-family: 'Geist', monospace; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-header { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+        .hover-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .hover-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -10px rgba(0,0,0,0.08); border-color: #cbd5e1; }
+        
+        /* Drawer & Modal Transitions */
+        .drawer-overlay { transition: opacity 0.3s ease; }
+        .drawer-content { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
+        .drawer-content.active { transform: translateX(0); }
+        
+        .modal-overlay { transition: opacity 0.2s ease; }
+        .modal-content { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); transform: scale(0.9); opacity: 0; }
+        .modal-content.active { transform: scale(1); opacity: 1; }
+
+        /* Skeleton Loader */
+        .skeleton { background: linear-gradient(90deg, #f0f1f3 25%, #e2e4e7 50%, #f0f1f3 75%); background-size: 200% 100%; animation: skeleton-loading 1.5s infinite; }
+        @keyframes skeleton-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* Speed Dial */
+        .fab-menu { transform: scale(0); opacity: 0; transition: all 0.2s ease; pointer-events: none; }
+        .fab-container:hover .fab-menu { transform: scale(1); opacity: 1; pointer-events: auto; }
+        
+        body { min-height: max(884px, 100dvh); }
+        [v-cloak] { display: none; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#645efb",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#e1e0ff",
+                        "tertiary-container": "#07006c",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e6e8ea",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-variant": "#e0e3e5",
+                        "surface-container": "#eceef0",
+                        "inverse-primary": "#bec6e0",
+                        "on-surface-variant": "#45464d",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed": "#07006c",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-surface": "#191c1e",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#d8dadc",
+                        "secondary-fixed-dim": "#c3c0ff",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-container-low": "#f2f4f6",
+                        "surface": "#f7f9fb",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#f7f9fb",
+                        "on-primary-container": "#7c839b",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#eff1f3",
+                        "primary": "#000000",
+                        "secondary": "#4b41e1",
+                        "secondary-fixed": "#e2dfff",
+                        "on-secondary-fixed": "#0f0069",
+                        "on-error": "#ffffff",
+                        "background": "#f7f9fb",
+                        "outline-variant": "#c6c6cd",
+                        "on-background": "#191c1e",
+                        "tertiary": "#000000",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary-container": "#131b2e",
+                        "on-secondary-container": "#fffbff",
+                        "on-tertiary-container": "#7073ff",
+                        "inverse-surface": "#2d3133",
+                        "outline": "#76777d",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "surface-tint": "#565e74",
+                        "on-secondary-fixed-variant": "#3323cc"
+                    },
+                    "spacing": {
+                        "xs": "8px", "lg": "40px", "xl": "64px", "gutter": "24px", "base": "4px", "sm": "16px", "md": "24px", "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "display": ["Inter"], "mono": ["Geist"], "label-md": ["Geist"], "body-md": ["Inter"], "headline-md": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface">
+<!-- Toast Container -->
+<div class="fixed top-20 right-8 z-[100] flex flex-col gap-sm" id="toast-container"></div>
+<!-- Search Command Palette Overlay -->
+<div class="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-start justify-center pt-[15vh] hidden" id="command-palette">
+<div class="bg-surface-container-lowest w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden border border-outline-variant">
+<div class="flex items-center px-md border-b border-outline-variant">
+<span class="material-symbols-outlined text-outline">search</span>
+<input class="w-full bg-transparent border-none focus:ring-0 py-md px-sm text-body-lg" id="command-input" placeholder="Search faculty, students, or projects... (ESC to close)" type="text">
+</div>
+<div class="max-h-[400px] overflow-y-auto p-sm space-y-xs" id="search-results">
+<!-- Search items injected here -->
+</div>
+</div>
+</div>
+<!-- Header -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 dark:bg-surface-dim/60 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm">
+<div class="flex justify-between items-center px-gutter max-w-container-max mx-auto h-16">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="grid_view">grid_view</span>
+<h1 class="font-headline-md text-headline-md font-bold tracking-tight text-primary">CRCE OS</h1>
+</div>
+<div class="hidden md:flex items-center gap-lg">
+<nav class="flex gap-md" id="main-nav">
+<a class="nav-link text-secondary font-semibold border-b-2 border-secondary pb-1" data-section="dashboard" href="#">Dashboard</a>
+<a class="nav-link text-on-surface-variant hover:text-primary transition-colors" data-section="academics" href="#">Academics</a>
+<a class="nav-link text-on-surface-variant hover:text-primary transition-colors" data-section="operations" href="#">Operations</a>
+<a class="nav-link text-on-surface-variant hover:text-primary transition-colors" data-section="analytics" href="#">Analytics</a>
+</nav>
+<div class="flex items-center gap-sm border-l border-outline-variant/30 pl-lg">
+<button class="relative w-10 h-10 rounded-full hover:bg-surface-container-high flex items-center justify-center transition-colors" id="notification-btn">
+<span class="material-symbols-outlined text-outline">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="text-right ml-md">
+<p class="text-label-md font-bold text-on-surface leading-none">Dr. Srija Unnikrishnan</p>
+<p class="text-[10px] text-outline uppercase tracking-wider">Principal</p>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-outline" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Sidebar (Desktop) -->
+<aside class="hidden lg:flex flex-col py-md px-xs h-screen w-72 fixed left-0 top-0 z-40 bg-surface border-r border-outline-variant mt-16">
+<div class="flex items-center gap-sm px-md mb-xl">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary" data-icon="dashboard" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm font-bold text-primary">Admin Console</p>
+<p class="text-label-md text-outline">Superuser Access</p>
+</div>
+</div>
+<nav class="space-y-1 px-sm" id="sidebar-nav">
+<a class="flex items-center gap-md p-md bg-secondary-container/10 text-secondary font-medium rounded-lg transition-all active:translate-x-1 nav-link" data-section="dashboard" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span> Dashboard
+        </a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all nav-link" data-section="academics" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span> Academics
+        </a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all nav-link" data-section="operations" href="#">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span> Operations
+        </a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all nav-link" data-section="analytics" href="#">
+<span class="material-symbols-outlined" data-icon="insert_chart">insert_chart</span> Analytics
+        </a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="badge">badge</span> Faculty Portal
+        </a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span> Settings
+        </a>
+</nav>
+<div class="mt-auto px-md pb-xl">
+<div class="p-md rounded-xl bg-surface-container-low border border-outline-variant/30">
+<p class="text-label-md font-bold text-on-surface">Fr. CRCE</p>
+<p class="text-[11px] text-outline mb-md">System v4.2.1-Stable</p>
+<div class="flex items-center gap-xs">
+<div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+<span class="text-[11px] font-medium text-on-surface-variant">System Operational</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="lg:ml-72 pt-24 pb-32 px-gutter transition-all duration-300" id="main-view">
+<div id="view-container">
+<!-- Dashboard Section (Default) -->
+<section class="view-section" id="section-dashboard">
+<div class="max-w-container-max mx-auto">
+<div class="mb-xl flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<div class="flex items-center gap-xs text-secondary font-semibold uppercase tracking-widest text-[10px] mb-xs">
+<span class="material-symbols-outlined text-[14px]" data-icon="verified">verified</span> Institutional Integrity
+                        </div>
+<h2 class="font-display text-headline-lg text-primary mb-xs">Fr. Conceicao Rodrigues College of Engineering</h2>
+<p class="text-body-lg text-on-surface-variant">Executive Overview • Academic Year 2024-25</p>
+</div>
+<div class="flex gap-sm">
+<button class="bg-surface border border-outline-variant text-primary px-md py-sm rounded-lg font-medium hover:bg-surface-container-low transition-all flex items-center gap-xs" onclick="handleExport()">
+<span class="material-symbols-outlined text-[20px]" data-icon="file_download">file_download</span> Export Report
+                        </button>
+<button class="bg-primary text-on-primary px-md py-sm rounded-lg font-medium hover:opacity-90 shadow-sm transition-all flex items-center gap-xs" onclick="openModal('quick-actions-modal')">
+<span class="material-symbols-outlined text-[20px]" data-icon="bolt">bolt</span> Quick Actions
+                        </button>
+</div>
+</div>
+<!-- KPI Cards -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-md mb-xl">
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl hover-card" onclick="openDrawer('students-drawer')">
+<p class="text-label-md text-outline uppercase tracking-wider mb-xs">Total Students</p>
+<div class="flex items-baseline gap-xs">
+<h3 class="text-headline-md font-bold text-primary">4,284</h3>
+<span class="text-green-600 text-[10px] font-bold">+2.4%</span>
+</div>
+<div class="w-full bg-surface-container mt-md h-1 rounded-full overflow-hidden">
+<div class="bg-secondary h-full" style="width: 85%"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl hover-card" onclick="openDrawer('faculty-drawer')">
+<p class="text-label-md text-outline uppercase tracking-wider mb-xs">Total Faculty</p>
+<div class="flex items-baseline gap-xs">
+<h3 class="text-headline-md font-bold text-primary">86</h3>
+</div>
+<p class="text-[10px] text-outline mt-md">PhD Ratio: 64%</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl hover-card">
+<p class="text-label-md text-outline uppercase tracking-wider mb-xs">Active Projects</p>
+<div class="flex items-baseline gap-xs">
+<h3 class="text-headline-md font-bold text-primary">124</h3>
+<span class="text-secondary text-[10px] font-bold">LIVE</span>
+</div>
+<div class="flex -space-x-2 mt-md">
+<div class="w-6 h-6 rounded-full bg-slate-300 border border-surface"></div>
+<div class="w-6 h-6 rounded-full bg-slate-400 border border-surface"></div>
+<div class="w-6 h-6 rounded-full bg-slate-500 border border-surface"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl hover-card">
+<p class="text-label-md text-outline uppercase tracking-wider mb-xs">Problems Posted</p>
+<div class="flex items-baseline gap-xs">
+<h3 class="text-headline-md font-bold text-primary">52</h3>
+</div>
+<p class="text-[10px] text-on-error-container bg-error-container/30 px-xs rounded-full inline-block mt-md">12 Critical</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl hover-card">
+<p class="text-label-md text-outline uppercase tracking-wider mb-xs">Credits Earned</p>
+<div class="flex items-baseline gap-xs">
+<h3 class="text-headline-md font-bold text-primary">1.2M</h3>
+</div>
+<p class="text-mono text-[10px] text-outline mt-md">Avg: 280/Student</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-xl hover-card">
+<p class="text-label-md text-outline uppercase tracking-wider mb-xs">Institution Rank</p>
+<div class="flex items-baseline gap-xs">
+<h3 class="text-headline-md font-bold text-primary">#4</h3>
+</div>
+<p class="text-[10px] text-secondary font-bold mt-md">Region: West</p>
+</div>
+</section>
+<div class="grid grid-cols-12 gap-gutter mb-xl">
+<!-- Queue -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+<div class="p-md border-b border-outline-variant bg-surface-container-low/30 flex justify-between items-center">
+<h4 class="font-headline-sm text-primary flex items-center gap-xs">
+<span class="material-symbols-outlined text-[20px]" data-icon="notification_important">notification_important</span> Principal's Queue
+                            </h4>
+<span class="bg-error text-on-error px-xs py-0.5 rounded text-[10px] font-bold">18 ITEMS</span>
+</div>
+<div class="divide-y divide-outline-variant">
+<div class="p-md hover:bg-surface-container-low transition-colors group">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<p class="text-body-md font-semibold text-primary">Faculty Verifications</p>
+<p class="text-label-md text-outline">4 requests from Computer Engg.</p>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-secondary transition-colors">arrow_forward</span>
+</div>
+<button class="text-secondary font-bold text-[11px] uppercase tracking-wider" onclick="openModal('verification-modal')">Approve Batch</button>
+</div>
+<div class="p-md hover:bg-surface-container-low transition-colors group">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<p class="text-body-md font-semibold text-primary">Pending Reviews</p>
+<p class="text-label-md text-outline">12 High-impact project milestones</p>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-secondary transition-colors">arrow_forward</span>
+</div>
+<button class="text-secondary font-bold text-[11px] uppercase tracking-wider">Go to Queue</button>
+</div>
+<div class="p-md hover:bg-surface-container-low transition-colors group">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<p class="text-body-md font-semibold text-primary">Reported Issues</p>
+<p class="text-label-md text-on-error font-medium">2 Urgent moderation flags</p>
+</div>
+<span class="material-symbols-outlined text-on-error">warning</span>
+</div>
+<button class="text-error font-bold text-[11px] uppercase tracking-wider" onclick="openModal('moderation-modal')">Investigate</button>
+</div>
+</div>
+</div>
+<!-- Analytics -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
+<div class="flex justify-between items-start mb-lg">
+<div>
+<h4 class="font-headline-md text-primary">Project Growth &amp; Credit Distribution</h4>
+<p class="text-body-md text-on-surface-variant">Institutional throughput for Q3 2024</p>
+</div>
+</div>
+<div class="h-64 relative">
+<canvas id="growthChart"></canvas>
+</div>
+<div class="grid grid-cols-3 gap-lg mt-lg">
+<div>
+<p class="text-label-md text-outline uppercase tracking-wider mb-xs">Top Dept</p>
+<p class="text-body-lg font-bold text-primary">COMPS</p>
+<p class="text-[11px] text-green-600">+12% Velocity</p>
+</div>
+<div>
+<p class="text-label-md text-outline uppercase tracking-wider mb-xs">Avg Reviews</p>
+<p class="text-body-lg font-bold text-primary">4.8 Days</p>
+<p class="text-[11px] text-secondary">Optimal Speed</p>
+</div>
+<div>
+<p class="text-label-md text-outline uppercase tracking-wider mb-xs">Industry Link</p>
+<p class="text-body-lg font-bold text-primary">32 Partners</p>
+<p class="text-[11px] text-outline">8 Pending MOU</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Tables -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-gutter mb-xl">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<div class="p-md border-b border-outline-variant flex justify-between items-center">
+<h4 class="font-headline-sm text-primary">Top Faculty Performers</h4>
+<div class="flex items-center gap-sm">
+<input class="text-[11px] px-sm py-1 border border-outline-variant rounded-md bg-background focus:ring-1 focus:ring-secondary outline-none" onkeyup="tableSearch(this, 'faculty-table')" placeholder="Filter..." type="text">
+<button class="text-secondary text-label-md font-bold">VIEW ALL</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-body-md" id="faculty-table">
+<thead class="bg-surface-container-low/50 text-outline text-[11px] uppercase tracking-wider">
+<tr>
+<th class="p-md font-medium cursor-pointer hover:text-primary transition-colors" onclick="sortTable('faculty-table', 0)">Faculty</th>
+<th class="p-md font-medium">Department</th>
+<th class="p-md font-medium">Projects</th>
+<th class="p-md font-medium text-right">Credits</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-low transition-colors cursor-pointer" onclick="openProfile('Dr. Sunil Surve', 'HOD Computer Engineering')">
+<td class="p-md font-semibold text-primary">Dr. Sunil Surve</td>
+<td class="p-md text-on-surface-variant">Computer</td>
+<td class="p-md">14</td>
+<td class="p-md text-right text-mono font-bold">42,500</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors cursor-pointer" onclick="openProfile('Prof. Sapna Prabhu', 'Senior Professor Mechanical')">
+<td class="p-md font-semibold text-primary">Prof. Sapna Prabhu</td>
+<td class="p-md text-on-surface-variant">Mechanical</td>
+<td class="p-md">9</td>
+<td class="p-md text-right text-mono font-bold">38,200</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors cursor-pointer" onclick="openProfile('Dr. Deepak Bhoir', 'Dean Academics IT')">
+<td class="p-md font-semibold text-primary">Dr. Deepak Bhoir</td>
+<td class="p-md text-on-surface-variant">IT</td>
+<td class="p-md">11</td>
+<td class="p-md text-right text-mono font-bold">35,900</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<div class="p-md border-b border-outline-variant flex justify-between items-center">
+<h4 class="font-headline-sm text-primary">High-Performing Students</h4>
+<button class="text-secondary text-label-md font-bold">VIEW ALL</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-body-md" id="student-table">
+<thead class="bg-surface-container-low/50 text-outline text-[11px] uppercase tracking-wider">
+<tr>
+<th class="p-md font-medium">Student</th>
+<th class="p-md font-medium">Rank</th>
+<th class="p-md font-medium">Active</th>
+<th class="p-md font-medium text-right">Credits</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-low transition-colors cursor-pointer" onclick="openProfile('Rohan Verma', 'BE Computer (Rank #1)')">
+<td class="p-md flex items-center gap-xs">
+<div class="w-8 h-8 rounded bg-primary/5 flex items-center justify-center text-primary font-bold text-[10px]">RV</div>
+<span class="font-semibold text-primary">Rohan Verma</span>
+</td>
+<td class="p-md"><span class="px-xs py-0.5 bg-green-100 text-green-700 rounded-full text-[10px] font-bold">#1 Inst.</span></td>
+<td class="p-md">4</td>
+<td class="p-md text-right text-mono font-bold">8,450</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors cursor-pointer" onclick="openProfile('Ananya Shah', 'TE Mechanical (Rank #2)')">
+<td class="p-md flex items-center gap-xs">
+<div class="w-8 h-8 rounded bg-primary/5 flex items-center justify-center text-primary font-bold text-[10px]">AS</div>
+<span class="font-semibold text-primary">Ananya Shah</span>
+</td>
+<td class="p-md"><span class="px-xs py-0.5 bg-green-100 text-green-700 rounded-full text-[10px] font-bold">#2 Inst.</span></td>
+<td class="p-md">3</td>
+<td class="p-md text-right text-mono font-bold">7,920</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</div>
+</section>
+<!-- Placeholder Sections for Navigation -->
+<section class="view-section hidden" id="section-academics">
+<div class="max-w-container-max mx-auto py-xl text-center">
+<div class="skeleton h-64 w-full rounded-xl mb-md"></div>
+<h3 class="text-headline-md font-bold text-primary">Academic Management</h3>
+<p class="text-on-surface-variant">Loading academic data and module structures...</p>
+</div>
+</section>
+<section class="view-section hidden" id="section-operations">
+<div class="max-w-container-max mx-auto py-xl text-center">
+<div class="skeleton h-64 w-full rounded-xl mb-md"></div>
+<h3 class="text-headline-md font-bold text-primary">Operational Controls</h3>
+<p class="text-on-surface-variant">Accessing campus logistics and resource scheduling...</p>
+</div>
+</section>
+<section class="view-section hidden" id="section-analytics">
+<div class="max-w-container-max mx-auto py-xl text-center">
+<div class="skeleton h-64 w-full rounded-xl mb-md"></div>
+<h3 class="text-headline-md font-bold text-primary">Advanced Analytics</h3>
+<p class="text-on-surface-variant">Generating institutional growth reports...</p>
+</div>
+</section>
+</div>
+</main>
+<!-- Mobile Navigation -->
+<nav class="fixed bottom-0 w-full z-50 lg:hidden bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md border-t border-outline-variant/20 shadow-lg">
+<div class="flex justify-around items-center py-xs pb-safe">
+<button class="flex flex-col items-center text-secondary nav-link" data-section="dashboard">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home_app_logo</span>
+<span class="font-label-md text-label-md">Home</span>
+</button>
+<button class="flex flex-col items-center text-outline nav-link" data-section="academics">
+<span class="material-symbols-outlined">school</span>
+<span class="font-label-md text-label-md">Academics</span>
+</button>
+<button class="flex flex-col items-center text-outline nav-link" data-section="operations">
+<span class="material-symbols-outlined">settings_input_component</span>
+<span class="font-label-md text-label-md">Ops</span>
+</button>
+<button class="flex flex-col items-center text-outline">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-md text-label-md">Profile</span>
+</button>
+</div>
+</nav>
+<!-- Floating Action Button with Speed Dial -->
+<div class="fixed bottom-24 right-8 lg:bottom-12 lg:right-12 z-40 fab-container">
+<div class="fab-menu flex flex-col items-center gap-sm mb-sm">
+<button class="w-12 h-12 bg-surface border border-outline-variant text-primary rounded-full shadow-lg flex items-center justify-center hover:bg-surface-container transition-all" onclick="showToast('Notice Created')">
+<span class="material-symbols-outlined">campaign</span>
+</button>
+<button class="w-12 h-12 bg-surface border border-outline-variant text-primary rounded-full shadow-lg flex items-center justify-center hover:bg-surface-container transition-all" onclick="showToast('Meeting Scheduled')">
+<span class="material-symbols-outlined">event</span>
+</button>
+</div>
+<button class="w-14 h-14 bg-secondary text-on-secondary rounded-full shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</button>
+</div>
+<!-- Drawer Template -->
+<div class="fixed inset-0 z-[100] hidden" id="drawer">
+<div class="drawer-overlay fixed inset-0 bg-black/40 backdrop-blur-sm opacity-0" onclick="closeDrawer()"></div>
+<div class="drawer-content fixed top-0 right-0 h-full w-full max-w-md bg-surface-container-lowest shadow-2xl p-lg overflow-y-auto">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="text-headline-md font-bold text-primary" id="drawer-title">Detail View</h3>
+<button class="p-sm rounded-full hover:bg-surface-container transition-colors" onclick="closeDrawer()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="space-y-md" id="drawer-body">
+<!-- Dynamic Content -->
+<div class="skeleton h-32 rounded-xl"></div>
+<div class="skeleton h-32 rounded-xl"></div>
+</div>
+</div>
+</div>
+<!-- Modal Template -->
+<div class="fixed inset-0 z-[100] hidden flex items-center justify-center p-md" id="modal">
+<div class="modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm opacity-0" onclick="closeModal()"></div>
+<div class="modal-content bg-surface-container-lowest rounded-xl border border-outline-variant shadow-2xl max-w-lg w-full overflow-hidden relative z-10">
+<div id="modal-content-area">
+<!-- Dynamic Content -->
+</div>
+</div>
+</div>
+<script>
+    /* ---------------------------------------------------------
+       SERVICES & DATA
+    --------------------------------------------------------- */
+    const analyticsService = {
+        getGrowthData: () => ({
+            labels: ['JUL', 'AUG', 'SEP', 'OCT'],
+            datasets: [
+                {
+                    label: 'Credits',
+                    data: [120000, 150000, 240000, 190000],
+                    backgroundColor: 'rgba(100, 94, 251, 0.2)',
+                    borderColor: '#645efb',
+                    borderWidth: 2,
+                    borderRadius: 4,
+                    type: 'bar'
+                },
+                {
+                    label: 'Projects',
+                    data: [40, 60, 110, 95],
+                    borderColor: '#131b2e',
+                    backgroundColor: '#131b2e',
+                    borderWidth: 2,
+                    fill: false,
+                    type: 'line'
+                }
+            ]
+        })
+    };
+
+    /* ---------------------------------------------------------
+       CORE UI LOGIC
+    --------------------------------------------------------- */
+    function initCharts() {
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        const data = analyticsService.getGrowthData();
+        new Chart(ctx, {
+            type: 'bar',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { display: false },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `flex items-center gap-sm px-md py-sm rounded-lg shadow-lg border animate-slide-in bg-surface-container-lowest ${type === 'error' ? 'border-error text-error' : 'border-secondary text-secondary'}`;
+        toast.innerHTML = `
+            <span class="material-symbols-outlined">${type === 'error' ? 'error' : 'check_circle'}</span>
+            <span class="text-label-md font-bold">${message}</span>
+        `;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-10px)';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // SPA Navigation
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const sectionId = link.getAttribute('data-section');
+            switchSection(sectionId);
+        });
+    });
+
+    function switchSection(id) {
+        document.querySelectorAll('.view-section').forEach(s => s.classList.add('hidden'));
+        const target = document.getElementById(`section-${id}`);
+        if (target) {
+            target.classList.remove('hidden');
+            // Update active states
+            document.querySelectorAll('.nav-link').forEach(l => {
+                l.classList.remove('text-secondary', 'font-semibold', 'border-b-2', 'border-secondary', 'pb-1');
+                l.classList.add('text-on-surface-variant');
+            });
+            document.querySelectorAll(`.nav-link[data-section="${id}"]`).forEach(l => {
+                l.classList.add('text-secondary', 'font-semibold');
+                if (l.parentElement.id === 'main-nav') l.classList.add('border-b-2', 'border-secondary', 'pb-1');
+            });
+            showToast(`Navigation: ${id.charAt(0).toUpperCase() + id.slice(1)}`);
+        }
+    }
+
+    // Modal & Drawer
+    function openDrawer(type) {
+        const drawer = document.getElementById('drawer');
+        const overlay = drawer.querySelector('.drawer-overlay');
+        const content = drawer.querySelector('.drawer-content');
+        const title = document.getElementById('drawer-title');
+        const body = document.getElementById('drawer-body');
+
+        drawer.classList.remove('hidden');
+        setTimeout(() => {
+            overlay.style.opacity = '1';
+            content.classList.add('active');
+        }, 10);
+
+        // Load content based on type
+        if (type === 'students-drawer') {
+            title.innerText = 'Student Distribution';
+            body.innerHTML = `
+                <div class="p-md bg-surface-container rounded-xl">
+                    <p class="text-label-md text-outline uppercase mb-sm">Departmental Split</p>
+                    <ul class="space-y-sm">
+                        <li class="flex justify-between font-bold"><span>Computer</span><span>1,240</span></li>
+                        <li class="flex justify-between font-bold"><span>IT</span><span>980</span></li>
+                        <li class="flex justify-between font-bold"><span>Mechanical</span><span>1,020</span></li>
+                        <li class="flex justify-between font-bold"><span>Production</span><span>644</span></li>
+                    </ul>
+                </div>
+            `;
+        } else if (type === 'faculty-drawer') {
+             title.innerText = 'Faculty Insights';
+             body.innerHTML = `<p class="text-body-md text-on-surface-variant">Faculty research output has increased by 15% this quarter.</p>`;
+        }
+    }
+
+    function closeDrawer() {
+        const drawer = document.getElementById('drawer');
+        const overlay = drawer.querySelector('.drawer-overlay');
+        const content = drawer.querySelector('.drawer-content');
+        overlay.style.opacity = '0';
+        content.classList.remove('active');
+        setTimeout(() => drawer.classList.add('hidden'), 300);
+    }
+
+    function openModal(id) {
+        const modal = document.getElementById('modal');
+        const overlay = modal.querySelector('.modal-overlay');
+        const content = modal.querySelector('.modal-content');
+        const area = document.getElementById('modal-content-area');
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            overlay.style.opacity = '1';
+            content.classList.add('active');
+        }, 10);
+
+        if (id === 'verification-modal') {
+            area.innerHTML = `
+                <div class="p-lg">
+                    <h3 class="text-headline-sm font-bold mb-md">Approve Batch Verifications</h3>
+                    <p class="text-body-md mb-lg">You are about to verify 4 faculty requests from Computer Engineering. This will finalize their research credentials for the semester.</p>
+                    <div class="flex gap-md justify-end">
+                        <button onclick="closeModal()" class="px-md py-sm text-outline font-bold">CANCEL</button>
+                        <button onclick="confirmAction('Batch Verified')" class="bg-secondary text-on-secondary px-md py-sm rounded-lg font-bold">APPROVE ALL</button>
+                    </div>
+                </div>
+            `;
+        } else if (id === 'moderation-modal') {
+            area.innerHTML = `
+                <div class="p-lg">
+                    <h3 class="text-headline-sm font-bold text-error mb-md">Urgent Issues</h3>
+                    <p class="text-body-md mb-lg">Two projects have been flagged for plagiarism. Immediate review required.</p>
+                    <button onclick="confirmAction('Investigation Started')" class="w-full bg-error text-white py-md rounded-lg font-bold">START INVESTIGATION</button>
+                </div>
+            `;
+        } else if (id === 'quick-actions-modal') {
+             area.innerHTML = `
+                <div class="p-lg">
+                    <h3 class="text-headline-sm font-bold mb-md">Global Actions</h3>
+                    <div class="grid grid-cols-2 gap-md">
+                        <button class="p-md border border-outline-variant rounded-xl flex flex-col items-center gap-xs">
+                            <span class="material-symbols-outlined text-secondary">mail</span>
+                            <span class="text-label-md font-bold">Broadcast</span>
+                        </button>
+                        <button class="p-md border border-outline-variant rounded-xl flex flex-col items-center gap-xs">
+                            <span class="material-symbols-outlined text-secondary">update</span>
+                            <span class="text-label-md font-bold">Sync Data</span>
+                        </button>
+                    </div>
+                </div>
+             `;
+        }
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('modal');
+        const overlay = modal.querySelector('.modal-overlay');
+        const content = modal.querySelector('.modal-content');
+        overlay.style.opacity = '0';
+        content.classList.remove('active');
+        setTimeout(() => modal.classList.add('hidden'), 200);
+    }
+
+    function confirmAction(msg) {
+        showToast(msg);
+        closeModal();
+    }
+
+    function handleExport() {
+        showToast('Preparing Report...');
+        setTimeout(() => showToast('Exported Institutional_Report.pdf'), 1500);
+    }
+
+    function openProfile(name, meta) {
+        openDrawer('profile');
+        const title = document.getElementById('drawer-title');
+        const body = document.getElementById('drawer-body');
+        title.innerText = 'Profile View';
+        body.innerHTML = `
+            <div class="flex flex-col items-center py-lg bg-surface-container-low rounded-2xl mb-md">
+                <div class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-3xl font-bold mb-md">${name.split(' ').map(n => n[0]).join('')}</div>
+                <h4 class="text-headline-sm font-bold">${name}</h4>
+                <p class="text-body-md text-outline">${meta}</p>
+            </div>
+            <div class="space-y-sm">
+                <div class="p-md border border-outline-variant rounded-xl">
+                    <p class="text-[10px] text-outline uppercase font-bold mb-xs">Performance Score</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-headline-sm font-bold">94.2</span>
+                        <span class="text-green-600 text-[10px] font-bold">Top 1%</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Command Palette
+    window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            document.getElementById('command-palette').classList.remove('hidden');
+            document.getElementById('command-input').focus();
+        }
+        if (e.key === 'Escape') {
+            document.getElementById('command-palette').classList.add('hidden');
+            closeModal();
+            closeDrawer();
+        }
+    });
+
+    document.getElementById('command-input').addEventListener('input', (e) => {
+        const results = document.getElementById('search-results');
+        const val = e.target.value.toLowerCase();
+        if (!val) { results.innerHTML = ''; return; }
+        
+        // Mock search logic
+        const items = ['Sunil Surve', 'Sapna Prabhu', 'Rohan Verma', 'Autonomous Grid', 'Campus Expansion'];
+        const filtered = items.filter(i => i.toLowerCase().includes(val));
+        
+        results.innerHTML = filtered.map(f => `
+            <div class="p-md hover:bg-surface-container rounded-lg cursor-pointer flex justify-between" onclick="showToast('Result selected: ${f}')">
+                <span class="font-bold">${f}</span>
+                <span class="text-[10px] text-outline uppercase font-bold">Search Result</span>
+            </div>
+        `).join('');
+    });
+
+    // Table Helper
+    function tableSearch(input, tableId) {
+        const filter = input.value.toUpperCase();
+        const tr = document.getElementById(tableId).getElementsByTagName("tr");
+        for (let i = 1; i < tr.length; i++) {
+            tr[i].style.display = tr[i].innerText.toUpperCase().indexOf(filter) > -1 ? "" : "none";
+        }
+    }
+
+    function sortTable(tableId, n) {
+        showToast('Sorting applied');
+    }
+
+    // Init on load
+    window.onload = () => {
+        initCharts();
+        showToast('Dashboard Initialized', 'success');
+    };
+</script>
+</body></html>

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CRCE OS | Faculty Profile - Dr. Sarah Chen</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline-variant": "#c6c6cd",
+                    "inverse-primary": "#bec6e0",
+                    "on-surface-variant": "#45464d",
+                    "surface": "#f7f9fb",
+                    "on-error-container": "#93000a",
+                    "inverse-surface": "#2d3133",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-container": "#7073ff",
+                    "on-tertiary-fixed-variant": "#2f2ebe",
+                    "secondary": "#4b41e1",
+                    "on-secondary-fixed-variant": "#3323cc",
+                    "surface-container-high": "#e6e8ea",
+                    "tertiary-container": "#07006c",
+                    "surface-container": "#eceef0",
+                    "primary": "#000000",
+                    "surface-container-low": "#f2f4f6",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e0e3e5",
+                    "on-background": "#191c1e",
+                    "tertiary": "#000000",
+                    "surface-dim": "#d8dadc",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "tertiary-fixed-dim": "#c0c1ff",
+                    "secondary-fixed-dim": "#c3c0ff",
+                    "on-tertiary-fixed": "#07006c",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed": "#dae2fd",
+                    "surface-bright": "#f7f9fb",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed": "#0f0069",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#131b2e",
+                    "on-primary-container": "#7c839b",
+                    "secondary-fixed": "#e2dfff",
+                    "on-secondary-container": "#fffbff",
+                    "on-primary-fixed": "#131b2e",
+                    "on-error": "#ffffff",
+                    "secondary-container": "#645efb",
+                    "on-surface": "#191c1e",
+                    "primary-fixed-dim": "#bec6e0",
+                    "outline": "#76777d",
+                    "tertiary-fixed": "#e1e0ff",
+                    "surface-tint": "#565e74",
+                    "background": "#f7f9fb",
+                    "surface-container-highest": "#e0e3e5",
+                    "inverse-on-surface": "#eff1f3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "40px",
+                    "container-max": "1440px",
+                    "base": "4px",
+                    "xl": "64px",
+                    "sm": "16px",
+                    "md": "24px",
+                    "xs": "8px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "label-md": ["Geist"],
+                    "headline-sm": ["Inter"],
+                    "display": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "mono": ["Geist"],
+                    "headline-lg-mobile": ["Inter"]
+            },
+            "fontSize": {
+                    "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #f7f9fb; -webkit-font-smoothing: antialiased; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-header { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .bento-card { transition: all 0.2s ease-out; border: 1px solid #E2E8F0; }
+        .bento-card:hover { transform: translateY(-2px); border-color: #4b41e1; box-shadow: 0 4px 12px rgba(75, 65, 225, 0.08); }
+        .sidebar-item-active { background-color: #645efb; color: white !important; font-weight: 700; border-radius: 0.75rem; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-surface">
+<!-- Navigation Drawer (Desktop) -->
+<aside class="hidden md:flex h-screen w-72 fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant flex-col py-lg px-sm gap-xs z-50">
+<div class="px-sm mb-xl">
+<h1 class="font-headline-sm text-headline-sm font-black text-primary uppercase tracking-tighter">CRCE OS</h1>
+</div>
+<div class="flex flex-col gap-xs flex-grow">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="pending_actions">pending_actions</span>
+<span class="font-body-md">Submissions</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-body-md">Project Archive</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="military_tech">military_tech</span>
+<span class="font-body-md">Academic Credits</span>
+</a>
+</div>
+<div class="mt-auto border-t border-outline-variant pt-lg px-sm">
+<div class="flex items-center gap-md p-sm bg-secondary-container text-on-secondary-container rounded-xl font-bold">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-outline-variant border border-on-secondary-container/20">
+<img class="w-full h-full object-cover" data-alt="A professional, clean studio portrait of Dr. Sarah Chen, a senior female academic with a confident and focused expression. She is wearing professional attire against a neutral, high-key background. The lighting is soft and corporate, aligning with a high-end dashboard interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC577Q0Y6DQ2cFw0WtILQJ-XBF28IFIMf50aNJvGUJ0tbkXNg49Bf6-tb0GjaeNrfCnrdZX-9feg-8bxPFCikmI-C3yE8tOZwLb0Kde7hWk03AytulicXlBTjv0PPf35BDrW8P2ti9PZPKJJoztBQRwJP9zC5WWMK1bs4rw-d7qKLnrZhjO45RMOhmBUBJAs2IP0CwlOIsuqSGTIyV9JHVdlQa9I_Q9IlzUqcMZ70lQJxVJLDqGAOLSvgaEbBhE0sRKQKErl424e1RQ"/>
+</div>
+<div>
+<p class="font-label-md text-label-md leading-tight">Dr. Sarah Chen</p>
+<p class="text-[10px] opacity-70 uppercase font-bold">Senior Reviewer</p>
+</div>
+<span class="material-symbols-outlined ml-auto text-sm" data-icon="verified_user" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+</div>
+</div>
+</aside>
+<!-- Top App Bar (Mobile Only) -->
+<header class="md:hidden fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30 flex justify-between items-center h-16 px-gutter">
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface">Faculty Review</h2>
+<div class="w-8 h-8 rounded-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A small circular avatar of Dr. Sarah Chen for mobile navigation. Professional, minimalist style with soft lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfs7YSrIsq1T2LbghSxRL_qZuBurQLzmsONHLnUexOvZrBTSoy--bD8H_K6yeilEQvuKv6m8TtCc9JAhb9uE0vdDBDCw1q4NfDK8IgCrPQRHdu6YE02_44aikGkjELIn2W2rfEzwfCQBecf9-cbhD25xSGOeoyxSPMIhHDI_HSEPRUO3TxT9SnAlV2dO0KqNBeMVWr318PdbaSlOxf2FQSVkQNQFL8luxBfRXu5yIZzDJcXOr4mnIUiklwXlts-iZeWfPBtpIx6vRp"/>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="md:ml-72 min-h-screen pt-16 md:pt-0 pb-20 md:pb-lg">
+<div class="max-w-container-max mx-auto px-gutter py-lg flex flex-col gap-lg">
+<!-- 1. Identity Header Section -->
+<section class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant flex flex-col md:flex-row gap-lg items-start md:items-center relative overflow-hidden">
+<!-- Atmospheric background element -->
+<div class="absolute top-0 right-0 p-lg opacity-5 pointer-events-none">
+<span class="material-symbols-outlined text-[120px]" data-icon="account_balance">account_balance</span>
+</div>
+<div class="relative w-32 h-32 md:w-40 md:h-40 shrink-0 rounded-2xl overflow-hidden border-2 border-secondary/20 shadow-sm">
+<img class="w-full h-full object-cover" data-alt="High-resolution, clear professional headshot of Dr. Sarah Chen for her faculty profile. She is in an office setting with blurred technical equipment in the background. The visual style is premium corporate with a focus on authority and technical expertise." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDApCNQcEgw3pAjhYBqchjlnBJ1FN2ZQmOMRh1zzkCNKVxdmTOF-vETTjfWaqC2svxgq3UNwf99jDYPw1hSpAhgQKYMOmWk8ezYz2vMQm4_mTbpmSdgnYTzb1De8uRuXAotFFVR7RolnJryURHYuOAG_5AVwVvIu8jUOGGWriQNdPkaLitL-eHbFZNI8mCAGW-zoG5nHn4gM6aNB3VEGRFe9j2NbHtFkHmDod9IA4iJ5b2M5ChmCn5hCeyPHiptPWh8EJQ-ConIJURg"/>
+</div>
+<div class="flex-grow">
+<div class="flex flex-wrap items-center gap-sm mb-xs">
+<h1 class="font-headline-lg text-headline-lg text-primary">Dr. Sarah Chen</h1>
+<span class="px-sm py-1 bg-secondary/10 text-secondary text-[10px] font-bold uppercase rounded-full tracking-wider border border-secondary/20">Institutional Rank: 04</span>
+</div>
+<p class="font-headline-sm text-headline-sm text-on-surface-variant mb-md">Senior Reviewer &amp; Research Lead • <span class="text-primary font-bold">Innovations Hub</span></p>
+<div class="flex flex-wrap gap-md">
+<div class="flex items-center gap-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="fingerprint">fingerprint</span>
+<span class="font-mono text-mono">FAC-ID: 9920-X82</span>
+</div>
+<div class="flex items-center gap-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="calendar_today">calendar_today</span>
+<span class="font-body-md italic text-xs">Joined August 2018</span>
+</div>
+<div class="flex items-center gap-xs text-secondary font-bold">
+<span class="material-symbols-outlined text-sm" data-icon="alternate_email" style="font-variation-settings: 'FILL' 1;">alternate_email</span>
+<span class="font-body-md">schen@crce.os.edu</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-sm self-stretch md:self-auto justify-center md:border-l md:border-outline-variant md:pl-lg">
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-bold hover:opacity-90 transition-all flex items-center justify-center gap-sm shadow-sm active:scale-95">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+                        Edit Profile
+                    </button>
+<button class="bg-white border border-outline-variant text-primary px-lg py-sm rounded-lg font-bold hover:bg-surface-container-low transition-all flex items-center justify-center gap-sm active:scale-95">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+                        Export Dossier
+                    </button>
+</div>
+</section>
+<!-- 2. Impact Bento Grid Section -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-md">
+<div class="bento-card bg-white p-lg rounded-xl flex flex-col gap-xs">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="problem">problem</span>
+<span class="text-[10px] text-emerald-600 font-bold">+2 New</span>
+</div>
+<p class="font-display text-display text-primary leading-none mt-md">14</p>
+<p class="text-on-surface-variant font-label-md uppercase tracking-widest text-[10px]">Problems Created</p>
+</div>
+<div class="bento-card bg-white p-lg rounded-xl flex flex-col gap-xs">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="fact_check">fact_check</span>
+<span class="text-[10px] text-secondary font-bold">Top 5%</span>
+</div>
+<p class="font-display text-display text-primary leading-none mt-md">128</p>
+<p class="text-on-surface-variant font-label-md uppercase tracking-widest text-[10px]">Reviews Completed</p>
+</div>
+<div class="bento-card bg-white p-lg rounded-xl flex flex-col gap-xs">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="groups">groups</span>
+<span class="text-[10px] text-secondary font-bold">Active: 12</span>
+</div>
+<p class="font-display text-display text-primary leading-none mt-md">45</p>
+<p class="text-on-surface-variant font-label-md uppercase tracking-widest text-[10px]">Students Mentored</p>
+</div>
+<div class="bento-card bg-secondary-container p-lg rounded-xl flex flex-col gap-xs text-on-secondary-container">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined" data-icon="token" style="font-variation-settings: 'FILL' 1;">token</span>
+<span class="text-[10px] opacity-70 font-bold uppercase">Budget Cap: 50k</span>
+</div>
+<p class="font-display text-display leading-none mt-md">12.4k</p>
+<p class="opacity-70 font-label-md uppercase tracking-widest text-[10px]">Credits Awarded</p>
+</div>
+</div>
+<!-- Main Split Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+<!-- Left Column: Expertise, Achievements, Settings (Col 4) -->
+<div class="lg:col-span-4 flex flex-col gap-lg">
+<!-- 3. Expertise & Domains -->
+<section class="bg-white p-lg rounded-xl border border-outline-variant shadow-sm">
+<div class="flex items-center gap-sm mb-lg border-b border-outline-variant pb-md">
+<span class="material-symbols-outlined text-secondary" data-icon="psychology">psychology</span>
+<h3 class="font-headline-sm text-headline-sm">Expertise Hub</h3>
+</div>
+<div class="space-y-lg">
+<div>
+<p class="text-[10px] font-black uppercase text-on-surface-variant mb-sm tracking-widest">Research Domains</p>
+<div class="flex flex-wrap gap-xs">
+<span class="bg-surface-container text-primary px-md py-1 rounded text-xs font-semibold">Artificial Intelligence</span>
+<span class="bg-surface-container text-primary px-md py-1 rounded text-xs font-semibold">Web3 Systems</span>
+<span class="bg-surface-container text-primary px-md py-1 rounded text-xs font-semibold">Federated Learning</span>
+</div>
+</div>
+<div>
+<p class="text-[10px] font-black uppercase text-on-surface-variant mb-sm tracking-widest">Technical Skills</p>
+<div class="flex flex-wrap gap-xs">
+<span class="bg-primary/5 border border-primary/10 text-primary px-md py-1 rounded text-xs font-bold">System Architecture</span>
+<span class="bg-primary/5 border border-primary/10 text-primary px-md py-1 rounded text-xs font-bold">Rust</span>
+<span class="bg-primary/5 border border-primary/10 text-primary px-md py-1 rounded text-xs font-bold">Protocol Design</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 6. Achievements -->
+<section class="bg-white p-lg rounded-xl border border-outline-variant shadow-sm">
+<div class="flex items-center gap-sm mb-lg border-b border-outline-variant pb-md">
+<span class="material-symbols-outlined text-secondary" data-icon="military_tech">military_tech</span>
+<h3 class="font-headline-sm text-headline-sm">Badges &amp; Standings</h3>
+</div>
+<div class="grid grid-cols-2 gap-sm mb-lg">
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-lg flex flex-col items-center text-center gap-xs group cursor-help">
+<span class="material-symbols-outlined text-3xl text-secondary group-hover:scale-110 transition-transform" data-icon="architecture" style="font-variation-settings: 'FILL' 1;">architecture</span>
+<p class="text-[10px] font-bold uppercase leading-tight">Master Architect</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-md rounded-lg flex flex-col items-center text-center gap-xs group cursor-help">
+<span class="material-symbols-outlined text-3xl text-primary group-hover:scale-110 transition-transform" data-icon="workspace_premium" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<p class="text-[10px] font-bold uppercase leading-tight">Elite Reviewer</p>
+</div>
+</div>
+<div class="p-md bg-primary-container text-on-primary-container rounded-lg">
+<div class="flex justify-between items-center mb-xs">
+<p class="text-[10px] font-bold uppercase">Leaderboard Rank</p>
+<p class="text-xl font-bold font-mono">#03</p>
+</div>
+<div class="w-full bg-on-primary-container/20 h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full" style="width: 88%;"></div>
+</div>
+<p class="text-[10px] mt-md opacity-60">Top 1.2% of all faculty reviewers across campus nodes.</p>
+</div>
+</section>
+<!-- 8. Settings & Availability -->
+<section class="bg-surface-container-high/50 p-lg rounded-xl border border-dashed border-outline-variant">
+<h3 class="text-[10px] font-black uppercase text-on-surface-variant mb-lg tracking-widest">OS Preferences</h3>
+<div class="space-y-md">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<p class="font-bold text-sm">Open for Mentorship</p>
+<p class="text-[10px] text-on-surface-variant">Allow student requests</p>
+</div>
+<button class="w-12 h-6 bg-secondary rounded-full relative transition-colors" id="mentorship-toggle">
+<div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
+</button>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<p class="font-bold text-sm">Email Digest</p>
+<p class="text-[10px] text-on-surface-variant">Weekly performance stats</p>
+</div>
+<button class="w-12 h-6 bg-outline-variant/40 rounded-full relative transition-colors">
+<div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full"></div>
+</button>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Performance, Mentorship, Timeline (Col 8) -->
+<div class="lg:col-span-8 flex flex-col gap-lg">
+<!-- 5. Review Performance -->
+<section class="bg-white p-lg rounded-xl border border-outline-variant shadow-sm">
+<div class="flex items-center gap-sm mb-lg border-b border-outline-variant pb-md">
+<span class="material-symbols-outlined text-secondary" data-icon="query_stats">query_stats</span>
+<h3 class="font-headline-sm text-headline-sm">Review Engine Metrics</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="flex flex-col items-center">
+<div class="relative w-24 h-24 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90">
+<circle class="text-surface-container" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-secondary" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="2.5" stroke-width="8"></circle>
+</svg>
+<span class="absolute font-mono font-black text-xl">99%</span>
+</div>
+<p class="mt-md text-[10px] font-bold uppercase">Accuracy Score</p>
+</div>
+<div class="flex flex-col justify-center gap-sm md:col-span-2">
+<div class="space-y-xs">
+<div class="flex justify-between text-xs font-semibold">
+<span>Avg. Response Time</span>
+<span class="font-mono">4.2 Hours</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="bg-primary h-full" style="width: 92%;"></div>
+</div>
+</div>
+<div class="space-y-xs">
+<div class="flex justify-between text-xs font-semibold">
+<span>Correction Rate</span>
+<span class="font-mono">0.8%</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="bg-primary h-full" style="width: 5%;"></div>
+</div>
+</div>
+<div class="space-y-xs">
+<div class="flex justify-between text-xs font-semibold">
+<span>Quality Feedback Score</span>
+<span class="font-mono">4.9/5</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="bg-primary h-full" style="width: 98%;"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. Mentorship Activity -->
+<section class="bg-white p-lg rounded-xl border border-outline-variant shadow-sm">
+<div class="flex justify-between items-center mb-lg border-b border-outline-variant pb-md">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="handshake">handshake</span>
+<h3 class="font-headline-sm text-headline-sm">Active Mentorships</h3>
+</div>
+<a class="text-[10px] font-bold text-secondary uppercase hover:underline" href="#">View All Workspace</a>
+</div>
+<div class="space-y-sm">
+<!-- Project Row 1 -->
+<div class="flex items-center gap-md p-md hover:bg-surface-container-low transition-colors rounded-lg group border border-transparent hover:border-outline-variant">
+<div class="w-10 h-10 rounded bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="developer_board">developer_board</span>
+</div>
+<div class="flex-grow">
+<p class="font-bold text-sm">Smart Attendance via Edge Computing</p>
+<p class="text-[10px] text-on-surface-variant italic">Lead: Rohan Sharma • Milestone 3/5</p>
+</div>
+<div class="text-right">
+<span class="px-md py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase rounded">On Track</span>
+</div>
+</div>
+<!-- Project Row 2 -->
+<div class="flex items-center gap-md p-md hover:bg-surface-container-low transition-colors rounded-lg group border border-transparent hover:border-outline-variant">
+<div class="w-10 h-10 rounded bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<div class="flex-grow">
+<p class="font-bold text-sm">Decentralized Academic Ledger</p>
+<p class="text-[10px] text-on-surface-variant italic">Lead: Anya K. • Milestone 1/4</p>
+</div>
+<div class="text-right">
+<span class="px-md py-1 bg-amber-50 text-amber-700 text-[10px] font-bold uppercase rounded">Review Pending</span>
+</div>
+</div>
+<!-- Project Row 3 -->
+<div class="flex items-center gap-md p-md hover:bg-surface-container-low transition-colors rounded-lg group border border-transparent hover:border-outline-variant">
+<div class="w-10 h-10 rounded bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="biotech">biotech</span>
+</div>
+<div class="flex-grow">
+<p class="font-bold text-sm">Genetic Pattern Synthesis Engine</p>
+<p class="text-[10px] text-on-surface-variant italic">Lead: Leo V. • Milestone 5/5</p>
+</div>
+<div class="text-right">
+<span class="px-md py-1 bg-primary text-on-primary text-[10px] font-bold uppercase rounded">Completed</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 7. Activity Timeline -->
+<section class="bg-white p-lg rounded-xl border border-outline-variant shadow-sm">
+<div class="flex items-center gap-sm mb-lg border-b border-outline-variant pb-md">
+<span class="material-symbols-outlined text-secondary" data-icon="history">history</span>
+<h3 class="font-headline-sm text-headline-sm">Activity Log</h3>
+</div>
+<div class="relative pl-lg border-l-2 border-outline-variant/30 space-y-lg">
+<!-- Timeline Item 1 -->
+<div class="relative">
+<div class="absolute -left-[2.35rem] top-1 w-4 h-4 rounded-full bg-secondary border-4 border-white"></div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-sm">
+<p class="text-sm font-bold">Approved Milestone for Smart Attendance</p>
+<span class="font-mono text-[10px] opacity-40">14:20 PM</span>
+</div>
+<p class="text-xs text-on-surface-variant">Verified technical documentation for Edge-Node deployment. Phase II unlocked.</p>
+</div>
+</div>
+<!-- Timeline Item 2 -->
+<div class="relative">
+<div class="absolute -left-[2.35rem] top-1 w-4 h-4 rounded-full bg-outline-variant border-4 border-white"></div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-sm">
+<p class="text-sm font-bold">Generated New Problem: 'Protocol Invariants'</p>
+<span class="font-mono text-[10px] opacity-40">Yesterday</span>
+</div>
+<p class="text-xs text-on-surface-variant">Assigned to: Junior Cryptography Module. Difficulty: Tier 4.</p>
+</div>
+</div>
+<!-- Timeline Item 3 -->
+<div class="relative">
+<div class="absolute -left-[2.35rem] top-1 w-4 h-4 rounded-full bg-outline-variant border-4 border-white"></div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-sm">
+<p class="text-sm font-bold">Awarded 450 Credits</p>
+<span class="font-mono text-[10px] opacity-40">2 Days Ago</span>
+</div>
+<p class="text-xs text-on-surface-variant">Recipient: Team Alpha for successful 'Zero-Day' vulnerability patch.</p>
+</div>
+</div>
+</div>
+<button class="mt-xl w-full py-md border-t border-outline-variant text-[10px] font-bold uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">Load Extended Logs</button>
+</section>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Nav Bar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface/80 backdrop-blur-lg border-t border-outline-variant/50 shadow-lg flex justify-around items-center h-16 pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="list_alt">list_alt</span>
+<span class="font-label-md text-label-md">Queue</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-fixed text-on-secondary-fixed rounded-full px-4 py-1" href="#">
+<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="workspace_premium">workspace_premium</span>
+<span class="font-label-md text-label-md">Awards</span>
+</a>
+</nav>
+<script>
+        // Simple toggle interaction for Mentorship Status
+        const mentorshipToggle = document.getElementById('mentorship-toggle');
+        let isOpen = true;
+
+        mentorshipToggle.addEventListener('click', () => {
+            isOpen = !isOpen;
+            const knob = mentorshipToggle.querySelector('div');
+            if(isOpen) {
+                mentorshipToggle.classList.replace('bg-outline-variant/40', 'bg-secondary');
+                knob.classList.replace('left-1', 'right-1');
+            } else {
+                mentorshipToggle.classList.replace('bg-secondary', 'bg-outline-variant/40');
+                knob.classList.replace('right-1', 'left-1');
+            }
+        });
+
+        // Atmospheric micro-interaction for cards
+        document.querySelectorAll('.bento-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                // Future expansion: sound or particle triggers
+            });
+        });
+    </script>
+</body></html>

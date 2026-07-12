@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Project Space - CRCE OS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#e1e0ff",
+                        "surface-tint": "#565e74",
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "surface-container-high": "#e6e8ea",
+                        "on-background": "#191c1e",
+                        "surface-container": "#eceef0",
+                        "tertiary": "#000000",
+                        "on-secondary-fixed": "#0f0069",
+                        "inverse-primary": "#bec6e0",
+                        "background": "#f7f9fb",
+                        "on-tertiary-container": "#7073ff",
+                        "primary": "#000000",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#07006c",
+                        "on-secondary-container": "#fffbff",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#dae2fd",
+                        "on-primary-fixed": "#131b2e",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#f7f9fb",
+                        "on-secondary-fixed-variant": "#3323cc",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-primary-container": "#7c839b",
+                        "secondary-fixed-dim": "#c3c0ff",
+                        "primary-container": "#131b2e",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "on-surface": "#191c1e",
+                        "surface-container-low": "#f2f4f6",
+                        "on-surface-variant": "#45464d",
+                        "on-primary": "#ffffff",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface-dim": "#d8dadc",
+                        "on-tertiary-fixed": "#07006c",
+                        "secondary-fixed": "#e2dfff",
+                        "secondary-container": "#645efb",
+                        "primary-fixed-dim": "#bec6e0",
+                        "inverse-on-surface": "#eff1f3",
+                        "outline": "#76777d",
+                        "surface-variant": "#e0e3e5",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#2d3133",
+                        "secondary": "#4b41e1",
+                        "outline-variant": "#c6c6cd"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "64px",
+                        "lg": "40px",
+                        "base": "4px",
+                        "sm": "16px",
+                        "xs": "8px",
+                        "md": "24px",
+                        "gutter": "24px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "display": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Geist"],
+                        "headline-lg": ["Inter"],
+                        "mono": ["Geist"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
+        .glass-header {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        .active-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #4b41e1;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen flex flex-col text-on-surface selection:bg-secondary/20">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 dark:bg-surface-dim/60 backdrop-blur-xl border-b border-outline-variant/30 transition-all duration-300">
+<div class="flex justify-between items-center px-lg h-16 max-w-container-max mx-auto">
+<div class="flex items-center gap-sm">
+<div class="p-xs rounded-lg hover:bg-surface-container-high/50 cursor-pointer transition-colors active:scale-95">
+<span class="material-symbols-outlined text-primary">grid_view</span>
+</div>
+<div class="flex flex-col leading-tight">
+<h1 class="text-headline-sm font-bold text-primary tracking-tight">Smart Attendance Platform</h1>
+<span class="text-label-md text-on-surface-variant">The Byte-Hounds</span>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden md:flex gap-md items-center">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary">search</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary">notifications</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container overflow-hidden border border-outline-variant/30">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4SsqNG71oyY11ko_STq6Ma-MECO2CfZRM8dS7OpLUQMmEwTnqCgygQNsRojoW_UwMwv75FK2pGTIOj0-FmrS6LIZmZuCD073eW3pY25-4xTzd7KxtyGAXXQmebEXHi-49AzPNMiZFKgaXIpy98D06jcUek17kMX-aymYTT8xy8x2GkziRFw_PY2NpmTon57g9DPfNTt7zCPIhEXR4r765mKr3ki5IjN4iafuvZrLbP3BliPwRnHXpoKI-zc51Bv7UpD-Uir1y_7y9"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Tab Navigation -->
+<nav class="fixed top-16 w-full z-40 bg-surface border-b border-outline-variant/30">
+<div class="max-w-container-max mx-auto px-lg">
+<div class="flex gap-lg h-12 items-center overflow-x-auto no-scrollbar whitespace-nowrap">
+<button class="relative h-full flex items-center px-xs text-body-md font-medium text-secondary active-tab transition-colors" id="default-tab" onclick="switchTab('overview', this)">
+                    Overview
+                </button>
+<button class="relative h-full flex items-center px-xs text-body-md font-medium text-on-surface-variant hover:text-primary transition-colors" onclick="switchTab('tasks', this)">
+                    Tasks
+                </button>
+<button class="relative h-full flex items-center px-xs text-body-md font-medium text-on-surface-variant hover:text-primary transition-colors" onclick="switchTab('files', this)">
+                    Files
+                </button>
+<button class="relative h-full flex items-center px-xs text-body-md font-medium text-on-surface-variant hover:text-primary transition-colors" onclick="switchTab('meetings', this)">
+                    Meetings
+                </button>
+<button class="relative h-full flex items-center px-xs text-body-md font-medium text-on-surface-variant hover:text-primary transition-colors" onclick="switchTab('timeline', this)">
+                    Timeline
+                </button>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="mt-32 pb-xl px-lg max-w-container-max mx-auto w-full">
+<!-- OVERVIEW TAB -->
+<section class="tab-content active animate-in fade-in duration-500" id="overview">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Project Health Card -->
+<div class="md:col-span-8 space-y-md">
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-lg shadow-sm">
+<div class="flex justify-between items-start mb-md">
+<div>
+<h3 class="text-headline-md font-semibold mb-xs">Project Health</h3>
+<p class="text-body-md text-on-surface-variant">Overall progress based on completed milestones.</p>
+</div>
+<span class="text-headline-md font-bold text-secondary">68%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 mb-xs overflow-hidden">
+<div class="bg-secondary h-full rounded-full transition-all duration-1000" style="width: 68%;"></div>
+</div>
+<div class="flex justify-between items-center text-label-md text-on-surface-variant pt-base">
+<span>Started: Jan 12, 2024</span>
+<span>Target: May 15, 2024</span>
+</div>
+</div>
+<!-- Upcoming Milestone -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-lg shadow-sm">
+<div class="flex items-center justify-between mb-sm">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-lg bg-error-container flex items-center justify-center text-error">
+<span class="material-symbols-outlined">event_upcoming</span>
+</div>
+<div>
+<h4 class="text-body-lg font-semibold">MVP Submission</h4>
+<p class="text-body-md text-on-surface-variant">Primary system components must be ready.</p>
+</div>
+</div>
+<div class="text-right">
+<span class="text-error font-semibold text-body-md">4 days left</span>
+<p class="text-label-md text-on-surface-variant">Due Apr 28, 2024</p>
+</div>
+</div>
+<button class="w-full py-xs border border-outline-variant rounded-lg text-body-md font-medium hover:bg-surface-container-low transition-colors">
+                            View Milestone Details
+                        </button>
+</div>
+</div>
+<!-- Activity Feed -->
+<div class="md:col-span-4">
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-lg h-full shadow-sm">
+<h3 class="text-headline-sm font-semibold mb-md flex items-center gap-xs">
+                            Team Activity
+                            <span class="material-symbols-outlined text-on-surface-variant text-body-lg">history</span>
+</h3>
+<div class="space-y-lg">
+<div class="flex gap-sm relative">
+<div class="absolute left-4 top-10 bottom-[-24px] w-px bg-outline-variant/30"></div>
+<img alt="Aryan" class="w-8 h-8 rounded-full shrink-0 z-10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOBRM_py1PqYeZ1MY9Uf0i3CPe_--Qg4BauC5jEKNmhOjwH22VumXrwuFGBqFQWYv2BLD1AisNPTkavMUuWLcnpLyVnZqC7GY0snaqMdeeo-QG5cC2Eez8wRvaInr8Cle3AbQVPWzrurHhmZmzu_L2uRa5UhEKMURiH5pQsLgDcXGYPm18BbpgkWw1v7aepqNNWyktGMLwleyX6GlsXM0aN-KqZQXH9fP9AR-jrfClhGEp9azuJswS0ICXU4kkgD061KmxtnH_yaX6"/>
+<div>
+<p class="text-body-md">
+<span class="font-semibold">Aryan K.</span> updated Task <span class="font-mono text-secondary cursor-pointer hover:underline">#402</span>
+</p>
+<p class="text-label-md text-on-surface-variant mt-xs">14 mins ago</p>
+</div>
+</div>
+<div class="flex gap-sm relative">
+<div class="absolute left-4 top-10 bottom-[-24px] w-px bg-outline-variant/30"></div>
+<img alt="Mihir" class="w-8 h-8 rounded-full shrink-0 z-10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1E143QP-WX5R7J7pUhmihaic5VGRrsxIlFmplug8OyhJm3bAr2nKe2OslJqcc956oIUpdet9HtWfB_tfe2ckRR2jIjQTnaFUGZQj7G-mf4exvjFguhRFh3mor4OQyUJzyMTPHRHc3lvhTZuRx36uM1v3knDrt7mbR5j60X_r54AU7385wbJrQafo-Yjo6rBzxNe_tjHRUsvPY2ZavxGxQmuA2TjJeZEKfrW5m-yOs2drXGPchtvATJugbxoEsWZYgSgJclyIb69fE"/>
+<div>
+<p class="text-body-md">
+<span class="font-semibold">Mihir D.</span> uploaded <span class="font-medium flex items-center gap-xs mt-xs p-xs bg-surface-container rounded border border-outline-variant/50 text-body-md cursor-pointer hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-error text-[18px]">description</span> System_Architecture.pdf</span>
+</p>
+<p class="text-label-md text-on-surface-variant mt-xs">2 hours ago</p>
+</div>
+</div>
+<div class="flex gap-sm">
+<div class="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center shrink-0 z-10">
+<span class="material-symbols-outlined text-[16px]">groups</span>
+</div>
+<div>
+<p class="text-body-md">
+<span class="font-semibold">Meeting Scheduled</span> for Sprint Review
+                                    </p>
+<p class="text-label-md text-on-surface-variant mt-xs">Yesterday</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- TASKS TAB -->
+<section class="tab-content animate-in slide-in-from-bottom-2 duration-300" id="tasks">
+<div class="flex justify-between items-center mb-lg">
+<div class="flex gap-xs overflow-x-auto no-scrollbar">
+<button class="px-md py-xs bg-primary text-white rounded-full text-body-md font-medium">All</button>
+<button class="px-md py-xs border border-outline-variant hover:bg-surface-container rounded-full text-body-md text-on-surface-variant">My Tasks</button>
+<button class="px-md py-xs border border-outline-variant hover:bg-surface-container rounded-full text-body-md text-on-surface-variant">To Do</button>
+<button class="px-md py-xs border border-outline-variant hover:bg-surface-container rounded-full text-body-md text-on-surface-variant">Done</button>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">sort</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">settings</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low/50 border-b border-outline-variant">
+<tr>
+<th class="px-lg py-md text-label-md font-semibold text-on-surface-variant">ID</th>
+<th class="px-lg py-md text-label-md font-semibold text-on-surface-variant">PRIORITY</th>
+<th class="px-lg py-md text-label-md font-semibold text-on-surface-variant">TASK TITLE</th>
+<th class="px-lg py-md text-label-md font-semibold text-on-surface-variant">ASSIGNEE</th>
+<th class="px-lg py-md text-label-md font-semibold text-on-surface-variant">DUE DATE</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30">
+<tr class="hover:bg-surface-container-low/50 cursor-pointer transition-colors group">
+<td class="px-lg py-md font-mono text-label-md text-on-surface-variant">#CE-102</td>
+<td class="px-lg py-md">
+<span class="px-xs py-0.5 rounded bg-error-container text-error text-[10px] font-bold uppercase">High</span>
+</td>
+<td class="px-lg py-md text-body-md font-medium group-hover:text-secondary">Integrate QR Scanning SDK</td>
+<td class="px-lg py-md">
+<div class="flex -space-x-2">
+<img alt="User" class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDH4DSeykRExoUR_S-A5NaYIOYu6jZQtX3AmpnT5qwXtj_E8BMrI-TNdrrAZf31B0RYbRmacbSSTUC1bhgtO-ImfIWm1oM7FktpETplzPRzA3NLfp_yAjNEXQGjM21SfonPSYWY23eXtmY3bJ5SXGVx8a2dy8lf5IXPtQiyAEgb3sDwKIMb8c9tholNiqI_CiRBOC7t0yiL-Yq333xUKTEpVSFlRIbSrXXbfFbm8_Ax7bg0ey1oEX53Y-Pf_guwYdkWKq1t5LLod9-z"/>
+<img alt="User" class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLefBVXEp1gt9L5LgRGuEx4hcl5_VuPus9tOCjpe0--DVE0OvFcfqttMI8R09qPIFLREQhULyxJRRDcPBnwjRpWqIWCAEqyaeeMZrKtyjciXZ3Ibi3aqJTcmJR9A6fdWkLpl8ItmvpJhtL42KYgQ2R6IYjbSOyUvvDwBo9cvANGbMzWCadrSAiLdX40txDtS-yv3PYL8gc-G12kRRXqWEN19zRlSoaxMEbDN9Zk1NDFUUHRHWnJCPBl_my8mhUAn8NQNHEPgqYEtOb"/>
+</div>
+</td>
+<td class="px-lg py-md text-body-md text-on-surface-variant">Apr 30</td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 cursor-pointer transition-colors group">
+<td class="px-lg py-md font-mono text-label-md text-on-surface-variant">#CE-105</td>
+<td class="px-lg py-md">
+<span class="px-xs py-0.5 rounded bg-secondary-fixed text-secondary text-[10px] font-bold uppercase">Medium</span>
+</td>
+<td class="px-lg py-md text-body-md font-medium group-hover:text-secondary">Firebase Auth Setup</td>
+<td class="px-lg py-md">
+<img alt="User" class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXTYfpw9NKJMtRgjRr5JtORHwwUUMt_wir_ZXUoITv_slcZl6aV-paUXF-5vmT5g3WdvLE25E-Tllq_Q2AWJcGcFKMcJHnWR6JktVh-TS3VxLQWbVLA2MQuatxPXozE57dRvO1ZOlA3SWOiOlylKC0pIuQGra1qY8Ru-r8n7BL76Q6GLlGqx5EuaFZ7IdWON6dsnd4OZuKl5eDO3-1xKgMBqprJrj1YVgeb3LM9U8ilrEhHHA8-AYgMho145tKD4Ac_9AQTcuk5mfr"/>
+</td>
+<td class="px-lg py-md text-body-md text-on-surface-variant">May 02</td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 cursor-pointer transition-colors group">
+<td class="px-lg py-md font-mono text-label-md text-on-surface-variant">#CE-108</td>
+<td class="px-lg py-md">
+<span class="px-xs py-0.5 rounded bg-surface-container-highest text-on-surface-variant text-[10px] font-bold uppercase">Low</span>
+</td>
+<td class="px-lg py-md text-body-md font-medium group-hover:text-secondary">Documentation cleanup</td>
+<td class="px-lg py-md">
+<img alt="User" class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWK8WnIGNYHGlsxB80TaDrL5tZgo_63-2YTbuMhQbHFI3QESSruoliLGfYBNT7CZBXK28cD5UCLyT5t6sOHvLDxJYk6dUw-9k5fWDNojVNN-cmgKuUDcL_tu2qklYaJyWwTe8FzdTfBIkYchCL-YZylSIRCnxvZZ08exp_B2QiyQDIdrrxNoSKzoK8-BLpqT8PHphRheHmkGJpu39FANr0L52QLv-iLJxpB5l-M0TsWSSdC5ROtLGUHUV9oiTdvjgb-I5mFdfuCwBh"/>
+</td>
+<td class="px-lg py-md text-body-md text-on-surface-variant">May 05</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- FILES TAB -->
+<section class="tab-content animate-in slide-in-from-right-4 duration-300" id="files">
+<div class="flex justify-between items-center mb-lg">
+<div class="flex items-center gap-xs">
+<span class="text-body-md font-medium text-on-surface-variant">Project Files</span>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">chevron_right</span>
+<span class="text-body-md font-medium">Root</span>
+</div>
+<button class="flex items-center gap-xs bg-primary text-white px-md py-xs rounded-lg text-body-md font-medium shadow-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]">cloud_upload</span>
+                    Upload
+                </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+<!-- Folders -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant hover:border-secondary/50 cursor-pointer transition-all flex items-center justify-between group">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-secondary-container text-display">folder</span>
+<div>
+<p class="text-body-md font-semibold">Documentation</p>
+<p class="text-label-md text-on-surface-variant">12 items · 4.2 MB</p>
+</div>
+</div>
+<span class="material-symbols-outlined opacity-0 group-hover:opacity-100 transition-opacity">more_vert</span>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant hover:border-secondary/50 cursor-pointer transition-all flex items-center justify-between group">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-secondary-container text-display">folder</span>
+<div>
+<p class="text-body-md font-semibold">Source Code</p>
+<p class="text-label-md text-on-surface-variant">88 items · 1.5 GB</p>
+</div>
+</div>
+<span class="material-symbols-outlined opacity-0 group-hover:opacity-100 transition-opacity">more_vert</span>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant hover:border-secondary/50 cursor-pointer transition-all flex items-center justify-between group">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-secondary-container text-display">folder</span>
+<div>
+<p class="text-body-md font-semibold">Research</p>
+<p class="text-label-md text-on-surface-variant">5 items · 12 MB</p>
+</div>
+</div>
+<span class="material-symbols-outlined opacity-0 group-hover:opacity-100 transition-opacity">more_vert</span>
+</div>
+<!-- File Cards -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant group hover:shadow-md transition-shadow">
+<div class="aspect-video w-full bg-surface-container rounded-lg mb-md overflow-hidden relative">
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-display text-error opacity-40">picture_as_pdf</span>
+</div>
+<img alt="PDF Preview" class="w-full h-full object-cover opacity-20" data-alt="A clean top-down photograph of a technical architectural drawing spread across a white desk. The lighting is bright and airy, with soft shadows. The overall aesthetic is professional, minimalist, and high-quality, mirroring a modern engineering workspace in a light-mode interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8OaFL1CJzjK1hjunWD_XzoapRnLTw7ORTHOpr3Q4FQAczx9mJW_xeE64D9U0xdfT_qNUxOkf_mPJr_wkA_59QPgkv14IiBPq067c-J8qdI9BtrSX1C2CRn8sqOumiPOh0ZmYq2piwQSO3kWBGZQvy5-JpQ18KsO8889_n6Kpe6HuNYlDWgv1mQ6u_3FveGwGnoPd7MT6e_27fD2y5GuZ6yyJm_o651XlL7_VkggYTAART_1oPjbCwqyEJmp-LEmR0CS7_2Htg_Dg0"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="text-body-md font-medium truncate w-40">System_Architecture.pdf</p>
+<p class="text-label-md text-on-surface-variant">2.4 MB · Mihir D. · 2h ago</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">download</span>
+</div>
+</div>
+</div>
+</section>
+<!-- MEETINGS TAB -->
+<section class="tab-content animate-in zoom-in-95 duration-300" id="meetings">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<div class="lg:col-span-8 space-y-md">
+<!-- Next Meeting Hero -->
+<div class="bg-primary text-white rounded-2xl p-xl relative overflow-hidden shadow-lg">
+<div class="relative z-10">
+<div class="bg-white/20 backdrop-blur text-label-md font-bold uppercase tracking-wider px-sm py-base rounded-full inline-block mb-md">
+                                UPCOMING SPRINT
+                            </div>
+<h2 class="text-display font-bold mb-xs">Sprint Review</h2>
+<p class="text-body-lg text-white/80 mb-lg">Meeting with Dr. Shah to finalize system requirements.</p>
+<div class="flex flex-wrap gap-lg items-center">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined">schedule</span>
+<span class="text-body-lg font-medium">2:00 PM - 3:00 PM</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined">video_camera_front</span>
+<span class="text-body-lg font-medium">Google Meet</span>
+</div>
+</div>
+</div>
+<!-- Abstract Background Decoration -->
+<div class="absolute right-[-10%] bottom-[-20%] w-64 h-64 bg-secondary rounded-full blur-[80px] opacity-30"></div>
+<div class="absolute top-[-10%] right-[10%] w-32 h-32 bg-tertiary-fixed rounded-full blur-[60px] opacity-20"></div>
+</div>
+<!-- Previous Meeting List -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
+<h3 class="text-headline-sm font-semibold mb-lg">Recent Meeting Notes</h3>
+<div class="space-y-sm">
+<div class="flex items-center justify-between p-md border border-outline-variant rounded-xl hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">sticky_note_2</span>
+</div>
+<div>
+<p class="text-body-md font-semibold">User Interface Feedback</p>
+<p class="text-label-md text-on-surface-variant">Apr 22, 2024 · 45 mins</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+</div>
+<div class="flex items-center justify-between p-md border border-outline-variant rounded-xl hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">sticky_note_2</span>
+</div>
+<div>
+<p class="text-body-md font-semibold">DB Schema Discussion</p>
+<p class="text-label-md text-on-surface-variant">Apr 18, 2024 · 1h 20m</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Mini Calendar -->
+<div class="lg:col-span-4">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
+<div class="flex items-center justify-between mb-md">
+<h4 class="text-body-lg font-bold">April 2024</h4>
+<div class="flex gap-xs">
+<span class="material-symbols-outlined text-body-md cursor-pointer">chevron_left</span>
+<span class="material-symbols-outlined text-body-md cursor-pointer">chevron_right</span>
+</div>
+</div>
+<div class="grid grid-cols-7 text-center mb-xs">
+<span class="text-label-md text-on-surface-variant font-medium">M</span>
+<span class="text-label-md text-on-surface-variant font-medium">T</span>
+<span class="text-label-md text-on-surface-variant font-medium">W</span>
+<span class="text-label-md text-on-surface-variant font-medium">T</span>
+<span class="text-label-md text-on-surface-variant font-medium">F</span>
+<span class="text-label-md text-on-surface-variant font-medium">S</span>
+<span class="text-label-md text-on-surface-variant font-medium">S</span>
+</div>
+<div class="grid grid-cols-7 text-center gap-y-xs">
+<span class="p-xs text-body-md opacity-30">25</span>
+<span class="p-xs text-body-md opacity-30">26</span>
+<span class="p-xs text-body-md opacity-30">27</span>
+<span class="p-xs text-body-md opacity-30">28</span>
+<span class="p-xs text-body-md opacity-30">29</span>
+<span class="p-xs text-body-md opacity-30">30</span>
+<span class="p-xs text-body-md">1</span>
+<!-- ... skipped middle ... -->
+<span class="p-xs text-body-md font-bold text-secondary relative after:absolute after:w-1 after:h-1 after:bg-secondary after:rounded-full after:bottom-0 after:left-1/2 after:-translate-x-1/2">24</span>
+<span class="p-xs text-body-md">25</span>
+<span class="p-xs text-body-md">26</span>
+<span class="p-xs text-body-md">27</span>
+<span class="p-xs text-body-md bg-secondary text-white rounded-lg">28</span>
+<span class="p-xs text-body-md">29</span>
+<span class="p-xs text-body-md">30</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- TIMELINE TAB -->
+<section class="tab-content animate-in slide-in-from-top-4 duration-300" id="timeline">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-xl shadow-sm">
+<div class="flex justify-between items-center mb-xl">
+<h3 class="text-headline-md font-semibold">Project Roadmap</h3>
+<div class="flex gap-sm">
+<button class="px-md py-xs border border-outline-variant rounded-lg text-body-md">Quarterly</button>
+<button class="px-md py-xs bg-surface-container-high rounded-lg text-body-md font-medium">Monthly</button>
+</div>
+</div>
+<div class="space-y-xl relative">
+<div class="absolute left-[11px] top-4 bottom-0 w-px bg-outline-variant"></div>
+<div class="flex gap-lg">
+<div class="w-6 h-6 rounded-full bg-secondary ring-4 ring-secondary/20 shrink-0 z-10"></div>
+<div class="pb-xl">
+<span class="text-label-md font-bold text-secondary uppercase">In Progress</span>
+<h4 class="text-body-lg font-bold mt-xs">Phase 2: Alpha Development</h4>
+<p class="text-body-md text-on-surface-variant max-w-2xl mt-xs">Developing core features including QR code generation, classroom validation, and basic reporting dashboard for faculty.</p>
+<div class="mt-md flex gap-sm">
+<span class="px-md py-1 bg-surface-container rounded-full text-label-md font-medium">Sprint 4-6</span>
+<span class="px-md py-1 bg-surface-container rounded-full text-label-md font-medium">Due May 10</span>
+</div>
+</div>
+</div>
+<div class="flex gap-lg">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest ring-4 ring-surface-container/50 shrink-0 z-10"></div>
+<div class="pb-xl opacity-60">
+<span class="text-label-md font-bold text-on-surface-variant uppercase">Upcoming</span>
+<h4 class="text-body-lg font-bold mt-xs">Phase 3: Integration &amp; Testing</h4>
+<p class="text-body-md text-on-surface-variant max-w-2xl mt-xs">Stress testing the concurrent scan architecture and integrating with the university's main ERP system.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- FAB for Tasks -->
+<button class="fixed bottom-24 right-lg md:bottom-12 md:right-xl w-14 h-14 bg-primary text-white rounded-full shadow-xl flex items-center justify-center active:scale-90 transition-transform z-[60] hidden" id="fab-task">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</button>
+<!-- Bottom Navigation (Mobile) -->
+<div class="md:hidden fixed bottom-0 w-full z-50 rounded-t-xl bg-surface/80 backdrop-blur-xl border-t border-outline-variant/30 flex justify-around items-center h-20 px-md pb-safe">
+<div class="flex flex-col items-center justify-center text-secondary bg-secondary-fixed/20 rounded-lg py-1 px-3">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant py-1 px-3">
+<span class="material-symbols-outlined">school</span>
+<span class="font-label-md text-label-md">Academics</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant py-1 px-3">
+<span class="material-symbols-outlined">layers</span>
+<span class="font-label-md text-label-md">Resources</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant py-1 px-3">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-md text-label-md">Profile</span>
+</div>
+</div>
+<!-- Footer (Desktop Only) -->
+<footer class="hidden md:block w-full mt-auto border-t border-outline-variant/20 bg-surface-container-low">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md px-lg py-xl max-w-container-max mx-auto">
+<div class="space-y-sm">
+<span class="text-headline-sm font-bold text-primary">CRCE OS</span>
+<p class="text-body-md text-on-surface-variant max-w-sm">The high-performance engine for campus operations and academic excellence.</p>
+<p class="text-label-md text-on-surface-variant/70">© 2024 CRCE Campus Operating System. All rights reserved.</p>
+</div>
+<div class="flex flex-wrap gap-xl md:justify-end items-start">
+<div class="flex flex-col gap-xs">
+<span class="text-label-md font-bold uppercase tracking-wider text-on-surface">Platform</span>
+<a class="text-body-md text-on-surface-variant hover:text-secondary transition-colors" href="#">Academic Calendar</a>
+<a class="text-body-md text-on-surface-variant hover:text-secondary transition-colors" href="#">IT Support</a>
+</div>
+<div class="flex flex-col gap-xs">
+<span class="text-label-md font-bold uppercase tracking-wider text-on-surface">Legal</span>
+<a class="text-body-md text-on-surface-variant hover:text-secondary transition-colors" href="#">Privacy Policy</a>
+<a class="text-body-md text-on-surface-variant hover:text-secondary transition-colors" href="#">Compliance</a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        function switchTab(tabId, element) {
+            // Update active states for navigation buttons
+            const buttons = element.parentElement.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.classList.remove('text-secondary', 'active-tab');
+                btn.classList.add('text-on-surface-variant');
+            });
+            element.classList.remove('text-on-surface-variant');
+            element.classList.add('text-secondary', 'active-tab');
+
+            // Toggle visibility of content sections
+            const contentSections = document.querySelectorAll('.tab-content');
+            contentSections.forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+
+            // FAB visibility logic
+            const fab = document.getElementById('fab-task');
+            if (tabId === 'tasks') {
+                fab.classList.remove('hidden');
+            } else {
+                fab.classList.add('hidden');
+            }
+
+            // Scroll tab into view if needed
+            element.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+
+        // Initialize view based on default tab
+        document.addEventListener('DOMContentLoaded', () => {
+            // Trigger default state
+            const defaultTabBtn = document.getElementById('default-tab');
+            if (defaultTabBtn) {
+                // switchTab('overview', defaultTabBtn); 
+                // Commented out as HTML already starts with overview active
+            }
+        });
+    </script>
+</body></html>

@@ -1,0 +1,575 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>CRCE OS Leaderboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind Config Verbatim -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#07006c",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-secondary-container": "#fffbff",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-container": "#645efb",
+                    "surface-bright": "#f7f9fb",
+                    "secondary-fixed": "#e2dfff",
+                    "on-error": "#ffffff",
+                    "secondary": "#4b41e1",
+                    "inverse-on-surface": "#eff1f3",
+                    "background": "#f7f9fb",
+                    "on-primary": "#ffffff",
+                    "tertiary-fixed-dim": "#c0c1ff",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed-variant": "#2f2ebe",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#131b2e",
+                    "surface-dim": "#d8dadc",
+                    "surface-container-low": "#f2f4f6",
+                    "surface-container": "#eceef0",
+                    "on-surface": "#191c1e",
+                    "outline": "#76777d",
+                    "on-secondary-fixed-variant": "#3323cc",
+                    "surface-container-highest": "#e0e3e5",
+                    "secondary-fixed-dim": "#c3c0ff",
+                    "on-background": "#191c1e",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#45464d",
+                    "tertiary": "#000000",
+                    "on-tertiary-fixed": "#07006c",
+                    "on-error-container": "#93000a",
+                    "surface-variant": "#e0e3e5",
+                    "on-secondary-fixed": "#0f0069",
+                    "inverse-primary": "#bec6e0",
+                    "primary": "#000000",
+                    "primary-container": "#131b2e",
+                    "on-tertiary-container": "#7073ff",
+                    "on-secondary": "#ffffff",
+                    "tertiary-fixed": "#e1e0ff",
+                    "outline-variant": "#c6c6cd",
+                    "surface-container-high": "#e6e8ea",
+                    "on-primary-container": "#7c839b",
+                    "surface": "#f7f9fb",
+                    "inverse-surface": "#2d3133",
+                    "surface-tint": "#565e74",
+                    "primary-fixed": "#dae2fd"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "40px",
+                    "container-max": "1440px",
+                    "gutter": "24px",
+                    "base": "4px",
+                    "md": "24px",
+                    "xl": "64px",
+                    "sm": "16px",
+                    "xs": "8px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Inter"],
+                    "display": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"],
+                    "label-md": ["Geist"],
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "mono": ["Geist"],
+                    "headline-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); }
+        .tab-active { color: #4b41e1; position: relative; }
+        .tab-active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: #4b41e1; border-radius: 2px; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background selection:bg-secondary-container/30">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant flex justify-between items-center px-lg py-sm max-w-container-max mx-auto h-16">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A high-quality professional corporate headshot of a young engineering student in a clean, minimalist studio setting with soft directional lighting. The aesthetic is modern and academic, using a soft gray background with subtle purple lens flare accents that match a premium UI design palette. 8k resolution, photorealistic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuCKsaHb2jNLNxlgcguYIJ7BAAE5YeJlZFU0mc4C7xCeTTXcdZz4DmUjsgiksdycMgDkJAMz6f3J3zi7LVfqzMzeLBuUtUn7dxmSZVmmqrEqkD8ieubKmRsAkE6CSrWl9OzsWdG1lINbWtGoN21-92o68O352h-FeuvGP79KXB3kHdOdRCMSRzlQFaZcftq1nhJnWSC-4iQih3tqJJpwjiXTGjgPzAGoc2v8ZUfW88BSvKfPvyLWfjtFiaTImVa5mDBkKWGGCctg8O">
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">E OS</h1>
+</div>
+<button class="material-symbols-outlined text-primary active:scale-95 transition-transform duration-150">search</button>
+</header>
+<!-- Side Navigation (Desktop) -->
+<nav class="fixed left-0 top-0 h-full hidden lg:flex flex-col bg-surface border-r border-outline-variant w-xl py-lg px-sm z-40">
+<div class="mb-xl px-xs">
+<div class="flex items-center gap-xs mb-md">
+<div class="w-10 h-10 rounded-lg bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">school</span>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm font-bold text-primary">Academic Profile</p>
+<p class="text-label-md font-label-md text-on-surface-variant">Student View</p>
+</div>
+</div>
+</div>
+<div class="space-y-xs flex-1">
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg bg-secondary-container/10 text-secondary font-semibold transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">leaderboard</span>
+<span class="font-body-md text-body-md">Leaderboard</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-on-surface-variant hover:bg-surface-container transition-all duration-200" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+<span class="font-body-md text-body-md">Projects</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-on-surface-variant hover:bg-surface-container transition-all duration-200" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="font-body-md text-body-md">Academics</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg text-on-surface-variant hover:bg-surface-container transition-all duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</div>
+<div class="mt-auto px-sm py-xs">
+<p class="text-label-md font-label-md text-on-surface-variant opacity-50">V1.0.4</p>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-16 pb-24 lg:pl-xl lg:pt-8 min-h-screen max-w-container-max mx-auto px-sm md:px-lg">
+<!-- Hero Section -->
+<div class="py-lg">
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-xs">Leaderboard</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Recognizing innovation and contribution across CRCE.</p>
+</div>
+<!-- Controls & Filters -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-md mb-lg">
+<!-- Segmented Control -->
+<div class="bg-surface-container-low p-1 rounded-xl flex w-full md:w-auto self-start border border-outline-variant">
+<button class="flex-1 md:flex-none px-xl py-xs rounded-lg font-label-md text-label-md transition-all bg-surface-container-highest text-primary shadow-sm" id="toggle-student">
+                    Student
+                </button>
+<button class="flex-1 md:flex-none px-xl py-xs rounded-lg font-label-md text-label-md transition-all text-on-surface-variant hover:bg-surface-container" id="toggle-faculty">
+                    Faculty
+                </button>
+</div>
+<!-- Search & Filters -->
+<div class="flex items-center gap-sm overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+<div class="relative min-w-[240px]">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="w-full pl-xl pr-md py-xs bg-surface border border-outline-variant rounded-lg text-body-md font-body-md focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all" id="ranking-search" placeholder="Search students or faculty..." type="text">
+</div>
+<div class="flex gap-xs shrink-0">
+<button class="px-md py-xs bg-secondary text-on-primary rounded-full text-label-md font-label-md transition-all active:scale-95">All Time</button>
+<button class="px-md py-xs bg-surface border border-outline-variant text-on-surface-variant rounded-full text-label-md font-label-md hover:bg-surface-container transition-all active:scale-95">This Month</button>
+</div>
+</div>
+</div>
+<!-- Top 3 Podium (JS Managed) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md mb-xl" id="podium-container"><div class="relative flex flex-col items-center p-lg rounded-2xl border border-outline-variant bg-surface transition-all duration-300 hover:shadow-md ">
+                    <div class="relative mb-md">
+                        <div class="w-24 h-24 rounded-full border-4 border-outline-variant overflow-hidden">
+                            <img src="placeholder" data-alt="A portrait of a young female student with long dark hair, looking thoughtful and professional. She is in a brightly lit modern tech lab with subtle bokeh circles. Elegant and academic atmosphere, cinematic lighting, 8k resolution, minimalist tech vibe." class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-sm py-1 bg-secondary text-on-primary rounded-full text-label-md font-bold">
+                            #2
+                        </div>
+                    </div>
+                    <h3 class="font-headline-sm text-headline-sm font-bold text-primary mb-xs">Isha Malhotra</h3>
+                    <p class="text-label-md font-label-md text-on-surface-variant mb-md">IT</p>
+                    <div class="flex items-center gap-xs mb-sm">
+                        <span class="material-symbols-outlined text-secondary scale-90">verified</span>
+                        <span class="font-body-md text-body-md font-bold text-secondary">2320 <span class="text-on-surface-variant font-normal">pts</span></span>
+                    </div>
+                    <span class="px-md py-1 bg-surface-container-high rounded-full text-label-md font-medium text-on-surface-variant">
+                        Builder
+                    </span>
+                </div><div class="relative flex flex-col items-center p-lg rounded-2xl border border-outline-variant bg-surface transition-all duration-300 hover:shadow-md md:-translate-y-4 border-secondary/30 bg-white ring-1 ring-secondary/5">
+                    <div class="relative mb-md">
+                        <div class="w-24 h-24 rounded-full border-4 border-secondary overflow-hidden">
+                            <img src="placeholder" data-alt="A highly detailed portrait of a South Asian male student with glasses, smiling confidently. He is wearing a professional navy blue hoodie. Background is a blurred modern university hallway with soft indigo lighting. Photorealistic style, clean lines, premium UI aesthetic." class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-sm py-1 bg-secondary text-on-primary rounded-full text-label-md font-bold">
+                            #1
+                        </div>
+                    </div>
+                    <h3 class="font-headline-sm text-headline-sm font-bold text-primary mb-xs">Aarav Sharma</h3>
+                    <p class="text-label-md font-label-md text-on-surface-variant mb-md">Computer Eng</p>
+                    <div class="flex items-center gap-xs mb-sm">
+                        <span class="material-symbols-outlined text-secondary scale-90">verified</span>
+                        <span class="font-body-md text-body-md font-bold text-secondary">2450 <span class="text-on-surface-variant font-normal">pts</span></span>
+                    </div>
+                    <span class="px-md py-1 bg-surface-container-high rounded-full text-label-md font-medium text-on-surface-variant">
+                        Gold Innovator
+                    </span>
+                </div><div class="relative flex flex-col items-center p-lg rounded-2xl border border-outline-variant bg-surface transition-all duration-300 hover:shadow-md ">
+                    <div class="relative mb-md">
+                        <div class="w-24 h-24 rounded-full border-4 border-outline-variant overflow-hidden">
+                            <img src="placeholder" data-alt="Close-up headshot of a male student with short hair, wearing a white smart-casual shirt. The lighting is warm and directional, creating a sophisticated look. Background is a soft-focus library with shelves of books. Clean, high-end commercial photography style." class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-sm py-1 bg-secondary text-on-primary rounded-full text-label-md font-bold">
+                            #3
+                        </div>
+                    </div>
+                    <h3 class="font-headline-sm text-headline-sm font-bold text-primary mb-xs">Rohan Das</h3>
+                    <p class="text-label-md font-label-md text-on-surface-variant mb-md">Electronics</p>
+                    <div class="flex items-center gap-xs mb-sm">
+                        <span class="material-symbols-outlined text-secondary scale-90">verified</span>
+                        <span class="font-body-md text-body-md font-bold text-secondary">2180 <span class="text-on-surface-variant font-normal">pts</span></span>
+                    </div>
+                    <span class="px-md py-1 bg-surface-container-high rounded-full text-label-md font-medium text-on-surface-variant">
+                        Problem Solver
+                    </span>
+                </div></div>
+<!-- Ranking Table/List -->
+<div class="bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low border-b border-outline-variant">
+<tr id="table-head-row">
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Rank</th>
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Entity</th>
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Department</th>
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider text-right">Score</th>
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider text-right">Projects</th>
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider text-center">Badge</th>
+                    <th class="px-lg py-md"></th>
+                </tr>
+</thead>
+<tbody class="divide-y divide-outline-variant" id="ranking-list-body"><tr class="hover:bg-surface-container-low transition-colors group">
+                    <td class="px-lg py-md font-mono text-body-md text-on-surface-variant">#01</td>
+                    <td class="px-lg py-md">
+                        <div class="flex items-center gap-sm">
+                            <div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden flex-shrink-0">
+                                <img src="placeholder" data-alt="A highly detailed portrait of a South Asian male student with glasses, smiling confidently. He is wearing a professional navy blue hoodie. Background is a blurred modern university hallway with soft indigo lighting. Photorealistic style, clean lines, premium UI aesthetic." class="w-full h-full object-cover">
+                            </div>
+                            <span class="font-body-md text-body-md font-semibold text-primary">Aarav Sharma</span>
+                        </div>
+                    </td>
+                    <td class="px-lg py-md font-body-md text-body-md text-on-surface-variant">Computer Eng</td>
+                    <td class="px-lg py-md text-right font-mono text-body-md font-bold text-secondary">2450</td>
+                    <td class="px-lg py-md text-right font-mono text-body-md text-on-surface-variant">12</td>
+                    <td class="px-lg py-md text-center">
+                        <span class="px-sm py-1 bg-emerald-50 text-emerald-700 rounded-full text-label-md font-medium whitespace-nowrap">
+                            Gold Innovator
+                        </span>
+                    </td>
+                    <td class="px-lg py-md text-right">
+                        <button class="opacity-0 group-hover:opacity-100 px-md py-1 border border-outline-variant rounded-lg text-label-md font-bold text-on-surface hover:bg-surface transition-all">View Profile</button>
+                    </td>
+                </tr><tr class="hover:bg-surface-container-low transition-colors group">
+                    <td class="px-lg py-md font-mono text-body-md text-on-surface-variant">#02</td>
+                    <td class="px-lg py-md">
+                        <div class="flex items-center gap-sm">
+                            <div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden flex-shrink-0">
+                                <img src="placeholder" data-alt="A portrait of a young female student with long dark hair, looking thoughtful and professional. She is in a brightly lit modern tech lab with subtle bokeh circles. Elegant and academic atmosphere, cinematic lighting, 8k resolution, minimalist tech vibe." class="w-full h-full object-cover">
+                            </div>
+                            <span class="font-body-md text-body-md font-semibold text-primary">Isha Malhotra</span>
+                        </div>
+                    </td>
+                    <td class="px-lg py-md font-body-md text-body-md text-on-surface-variant">IT</td>
+                    <td class="px-lg py-md text-right font-mono text-body-md font-bold text-secondary">2320</td>
+                    <td class="px-lg py-md text-right font-mono text-body-md text-on-surface-variant">9</td>
+                    <td class="px-lg py-md text-center">
+                        <span class="px-sm py-1 bg-emerald-50 text-emerald-700 rounded-full text-label-md font-medium whitespace-nowrap">
+                            Builder
+                        </span>
+                    </td>
+                    <td class="px-lg py-md text-right">
+                        <button class="opacity-0 group-hover:opacity-100 px-md py-1 border border-outline-variant rounded-lg text-label-md font-bold text-on-surface hover:bg-surface transition-all">View Profile</button>
+                    </td>
+                </tr><tr class="hover:bg-surface-container-low transition-colors group">
+                    <td class="px-lg py-md font-mono text-body-md text-on-surface-variant">#03</td>
+                    <td class="px-lg py-md">
+                        <div class="flex items-center gap-sm">
+                            <div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden flex-shrink-0">
+                                <img src="placeholder" data-alt="Close-up headshot of a male student with short hair, wearing a white smart-casual shirt. The lighting is warm and directional, creating a sophisticated look. Background is a soft-focus library with shelves of books. Clean, high-end commercial photography style." class="w-full h-full object-cover">
+                            </div>
+                            <span class="font-body-md text-body-md font-semibold text-primary">Rohan Das</span>
+                        </div>
+                    </td>
+                    <td class="px-lg py-md font-body-md text-body-md text-on-surface-variant">Electronics</td>
+                    <td class="px-lg py-md text-right font-mono text-body-md font-bold text-secondary">2180</td>
+                    <td class="px-lg py-md text-right font-mono text-body-md text-on-surface-variant">11</td>
+                    <td class="px-lg py-md text-center">
+                        <span class="px-sm py-1 bg-emerald-50 text-emerald-700 rounded-full text-label-md font-medium whitespace-nowrap">
+                            Problem Solver
+                        </span>
+                    </td>
+                    <td class="px-lg py-md text-right">
+                        <button class="opacity-0 group-hover:opacity-100 px-md py-1 border border-outline-variant rounded-lg text-label-md font-bold text-on-surface hover:bg-surface transition-all">View Profile</button>
+                    </td>
+                </tr><tr class="hover:bg-surface-container-low transition-colors group">
+                    <td class="px-lg py-md font-mono text-body-md text-on-surface-variant">#04</td>
+                    <td class="px-lg py-md">
+                        <div class="flex items-center gap-sm">
+                            <div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden flex-shrink-0">
+                                <img src="placeholder" data-alt="A professional portrait of a young woman with a sharp gaze, wearing a modern gray blazer. Background is a clean, minimalist architectural space with glass and steel elements. High-key lighting, corporate minimalist aesthetic, sharp focus." class="w-full h-full object-cover">
+                            </div>
+                            <span class="font-body-md text-body-md font-semibold text-primary">Sanya Gupta</span>
+                        </div>
+                    </td>
+                    <td class="px-lg py-md font-body-md text-body-md text-on-surface-variant">Computer Eng</td>
+                    <td class="px-lg py-md text-right font-mono text-body-md font-bold text-secondary">1950</td>
+                    <td class="px-lg py-md text-right font-mono text-body-md text-on-surface-variant">7</td>
+                    <td class="px-lg py-md text-center">
+                        <span class="px-sm py-1 bg-emerald-50 text-emerald-700 rounded-full text-label-md font-medium whitespace-nowrap">
+                            Builder
+                        </span>
+                    </td>
+                    <td class="px-lg py-md text-right">
+                        <button class="opacity-0 group-hover:opacity-100 px-md py-1 border border-outline-variant rounded-lg text-label-md font-bold text-on-surface hover:bg-surface transition-all">View Profile</button>
+                    </td>
+                </tr><tr class="hover:bg-surface-container-low transition-colors group">
+                    <td class="px-lg py-md font-mono text-body-md text-on-surface-variant">#05</td>
+                    <td class="px-lg py-md">
+                        <div class="flex items-center gap-sm">
+                            <div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden flex-shrink-0">
+                                <img src="placeholder" data-alt="A portrait of a male student in a workshop setting, wearing a black tech shirt. Industrial but clean background with soft blue secondary lighting. High-contrast, professional engineering student profile, photorealistic." class="w-full h-full object-cover">
+                            </div>
+                            <span class="font-body-md text-body-md font-semibold text-primary">Vikram Singh</span>
+                        </div>
+                    </td>
+                    <td class="px-lg py-md font-body-md text-body-md text-on-surface-variant">Mechanical</td>
+                    <td class="px-lg py-md text-right font-mono text-body-md font-bold text-secondary">1840</td>
+                    <td class="px-lg py-md text-right font-mono text-body-md text-on-surface-variant">5</td>
+                    <td class="px-lg py-md text-center">
+                        <span class="px-sm py-1 bg-emerald-50 text-emerald-700 rounded-full text-label-md font-medium whitespace-nowrap">
+                            Technician
+                        </span>
+                    </td>
+                    <td class="px-lg py-md text-right">
+                        <button class="opacity-0 group-hover:opacity-100 px-md py-1 border border-outline-variant rounded-lg text-label-md font-bold text-on-surface hover:bg-surface transition-all">View Profile</button>
+                    </td>
+                </tr></tbody>
+</table>
+</div>
+</div>
+<!-- Motivational Footer -->
+<div class="mt-xl p-lg rounded-2xl bg-gradient-to-br from-secondary-container to-secondary text-on-secondary-container relative overflow-hidden">
+<div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-md">
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold mb-xs">Forge the Future</h3>
+<p class="font-body-md text-body-md opacity-90">Your innovation journey shapes the future of CRCE ecosystem.</p>
+</div>
+<button class="px-xl py-sm bg-surface-container-lowest text-secondary rounded-lg font-label-md text-label-md font-bold hover:shadow-lg transition-all active:scale-95">Start Project</button>
+</div>
+<div class="absolute -right-16 -bottom-16 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="lg:hidden fixed bottom-0 w-full z-50 bg-surface/80 backdrop-blur-lg border-t border-outline-variant flex justify-around items-center h-xl pb-safe">
+<a class="flex flex-col items-center justify-center text-secondary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">emoji_events</span>
+<span class="font-label-md text-label-md">Ranking</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-60" href="#">
+<span class="material-symbols-outlined">work</span>
+<span class="font-label-md text-label-md">Projects</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-60" href="#">
+<span class="material-symbols-outlined">record_voice_over</span>
+<span class="font-label-md text-label-md">Mentor</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-60" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<script>
+        const studentData = [
+            { rank: 1, name: "Aarav Sharma", dept: "Computer Eng", score: 2450, credits: 120, projects: 12, solutions: 45, badge: "Gold Innovator", type: "student", avatar: "image-1" },
+            { rank: 2, name: "Isha Malhotra", dept: "IT", score: 2320, credits: 115, projects: 9, solutions: 38, badge: "Builder", type: "student", avatar: "image-2" },
+            { rank: 3, name: "Rohan Das", dept: "Electronics", score: 2180, credits: 110, projects: 11, solutions: 32, badge: "Problem Solver", type: "student", avatar: "image-3" },
+            { rank: 4, name: "Sanya Gupta", dept: "Computer Eng", score: 1950, credits: 95, projects: 7, solutions: 28, badge: "Builder", type: "student", avatar: "image-4" },
+            { rank: 5, name: "Vikram Singh", dept: "Mechanical", score: 1840, credits: 88, projects: 5, solutions: 21, badge: "Technician", type: "student", avatar: "image-5" }
+        ];
+
+        const facultyData = [
+            { rank: 1, name: "Dr. Elena Gilbert", dept: "Computer Eng", score: 890, reviews: 142, mentored: 45, live: 12, badge: "Innovation Champion", type: "faculty", avatar: "image-6" },
+            { rank: 2, name: "Prof. Alaric Saltzman", dept: "IT", score: 855, reviews: 118, mentored: 38, live: 8, badge: "Mentor", type: "faculty", avatar: "image-7" },
+            { rank: 3, name: "Dr. Bonnie Bennett", dept: "Computer Eng", score: 820, reviews: 95, mentored: 32, live: 10, badge: "Reviewer", type: "faculty", avatar: "image-8" },
+            { rank: 4, name: "Prof. Damon Salvatore", dept: "Mechanical", score: 790, reviews: 88, mentored: 25, live: 5, badge: "Mentor", type: "faculty", avatar: "image-9" },
+            { rank: 5, name: "Dr. Caroline Forbes", dept: "Electronics", score: 760, reviews: 72, mentored: 22, live: 4, badge: "Reviewer", type: "faculty", avatar: "image-10" }
+        ];
+
+        let currentView = 'student';
+        let searchQuery = '';
+
+        const toggleStudent = document.getElementById('toggle-student');
+        const toggleFaculty = document.getElementById('toggle-faculty');
+        const searchInput = document.getElementById('ranking-search');
+        const podiumContainer = document.getElementById('podium-container');
+        const listBody = document.getElementById('ranking-list-body');
+        const tableHeadRow = document.getElementById('table-head-row');
+
+        const imageAlts = {
+            "image-1": "A highly detailed portrait of a South Asian male student with glasses, smiling confidently. He is wearing a professional navy blue hoodie. Background is a blurred modern university hallway with soft indigo lighting. Photorealistic style, clean lines, premium UI aesthetic.",
+            "image-2": "A portrait of a young female student with long dark hair, looking thoughtful and professional. She is in a brightly lit modern tech lab with subtle bokeh circles. Elegant and academic atmosphere, cinematic lighting, 8k resolution, minimalist tech vibe.",
+            "image-3": "Close-up headshot of a male student with short hair, wearing a white smart-casual shirt. The lighting is warm and directional, creating a sophisticated look. Background is a soft-focus library with shelves of books. Clean, high-end commercial photography style.",
+            "image-4": "A professional portrait of a young woman with a sharp gaze, wearing a modern gray blazer. Background is a clean, minimalist architectural space with glass and steel elements. High-key lighting, corporate minimalist aesthetic, sharp focus.",
+            "image-5": "A portrait of a male student in a workshop setting, wearing a black tech shirt. Industrial but clean background with soft blue secondary lighting. High-contrast, professional engineering student profile, photorealistic.",
+            "image-6": "A dignified portrait of a senior female professor with grey-streaked hair, smiling warmly. She is wearing a professional charcoal suit. Background is a bright, modern academic office with minimalist art. Authoritative and kind aesthetic, 8k, soft shadows.",
+            "image-7": "Portrait of a middle-aged male professor with a beard, wearing a tweed jacket. He looks intellectual and approachable. The background is a blurred university courtyard with morning light. Rich textures, professional scholarly aesthetic.",
+            "image-8": "A professional headshot of a female faculty member with a sharp, intelligent look. She is wearing glasses and a purple silk blouse. Background is a clean, modern lab. Sophisticated lighting, premium corporate academic style.",
+            "image-9": "Close-up of a charismatic male faculty member in a dark blue shirt. He is standing in a high-tech modern lecture hall with glowing digital screens in the background. High-end, tech-focused professional photography.",
+            "image-10": "A professional portrait of a young female lecturer with blonde hair, wearing a white blazer. Background is a soft, airy minimalist lobby. Fresh, clean, modern academic look with subtle high-key lighting."
+        };
+
+        function renderPodium(data) {
+            const top3 = data.slice(0, 3);
+            podiumContainer.innerHTML = '';
+            
+            // Render 2nd, 1st, 3rd for visual podium layout
+            const visualOrder = [top3[1], top3[0], top3[2]];
+            
+            visualOrder.forEach((item, index) => {
+                const isWinner = item.rank === 1;
+                const card = document.createElement('div');
+                card.className = `relative flex flex-col items-center p-lg rounded-2xl border border-outline-variant bg-surface transition-all duration-300 hover:shadow-md ${isWinner ? 'md:-translate-y-4 border-secondary/30 bg-white ring-1 ring-secondary/5' : ''}`;
+                
+                card.innerHTML = `
+                    <div class="relative mb-md">
+                        <div class="w-24 h-24 rounded-full border-4 ${isWinner ? 'border-secondary' : 'border-outline-variant'} overflow-hidden">
+                            <img src="placeholder" data-alt="${imageAlts[item.avatar]}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-sm py-1 bg-secondary text-on-primary rounded-full text-label-md font-bold">
+                            #${item.rank}
+                        </div>
+                    </div>
+                    <h3 class="font-headline-sm text-headline-sm font-bold text-primary mb-xs">${item.name}</h3>
+                    <p class="text-label-md font-label-md text-on-surface-variant mb-md">${item.dept}</p>
+                    <div class="flex items-center gap-xs mb-sm">
+                        <span class="material-symbols-outlined text-secondary scale-90">verified</span>
+                        <span class="font-body-md text-body-md font-bold text-secondary">${item.score} <span class="text-on-surface-variant font-normal">pts</span></span>
+                    </div>
+                    <span class="px-md py-1 bg-surface-container-high rounded-full text-label-md font-medium text-on-surface-variant">
+                        ${item.badge}
+                    </span>
+                `;
+                podiumContainer.appendChild(card);
+            });
+        }
+
+        function renderList(data) {
+            listBody.innerHTML = '';
+            
+            // Headers
+            if (currentView === 'student') {
+                tableHeadRow.innerHTML = `
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Rank</th>
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Entity</th>
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Department</th>
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider text-right">Score</th>
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider text-right">Projects</th>
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider text-center">Badge</th>
+                    <th class="px-lg py-md"></th>
+                `;
+            } else {
+                tableHeadRow.innerHTML = `
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Rank</th>
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Faculty</th>
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Department</th>
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider text-right">F-Score</th>
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider text-right">Mentored</th>
+                    <th class="px-lg py-md text-label-md font-label-md text-on-surface-variant uppercase tracking-wider text-center">Designation</th>
+                    <th class="px-lg py-md"></th>
+                `;
+            }
+
+            const filteredData = data.filter(item => 
+                item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                item.dept.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+
+            filteredData.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = "hover:bg-surface-container-low transition-colors group";
+                
+                const mainMetric = currentView === 'student' ? item.projects : item.mentored;
+                const scoreLabel = currentView === 'student' ? item.score : item.score;
+                
+                row.innerHTML = `
+                    <td class="px-lg py-md font-mono text-body-md text-on-surface-variant">#${item.rank.toString().padStart(2, '0')}</td>
+                    <td class="px-lg py-md">
+                        <div class="flex items-center gap-sm">
+                            <div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden flex-shrink-0">
+                                <img src="placeholder" data-alt="${imageAlts[item.avatar]}" class="w-full h-full object-cover">
+                            </div>
+                            <span class="font-body-md text-body-md font-semibold text-primary">${item.name}</span>
+                        </div>
+                    </td>
+                    <td class="px-lg py-md font-body-md text-body-md text-on-surface-variant">${item.dept}</td>
+                    <td class="px-lg py-md text-right font-mono text-body-md font-bold text-secondary">${scoreLabel}</td>
+                    <td class="px-lg py-md text-right font-mono text-body-md text-on-surface-variant">${mainMetric}</td>
+                    <td class="px-lg py-md text-center">
+                        <span class="px-sm py-1 bg-emerald-50 text-emerald-700 rounded-full text-label-md font-medium whitespace-nowrap">
+                            ${item.badge}
+                        </span>
+                    </td>
+                    <td class="px-lg py-md text-right">
+                        <button class="opacity-0 group-hover:opacity-100 px-md py-1 border border-outline-variant rounded-lg text-label-md font-bold text-on-surface hover:bg-surface transition-all">View Profile</button>
+                    </td>
+                `;
+                listBody.appendChild(row);
+            });
+        }
+
+        function updateView(view) {
+            currentView = view;
+            if (view === 'student') {
+                toggleStudent.className = "flex-1 md:flex-none px-xl py-xs rounded-lg font-label-md text-label-md transition-all bg-surface-container-highest text-primary shadow-sm";
+                toggleFaculty.className = "flex-1 md:flex-none px-xl py-xs rounded-lg font-label-md text-label-md transition-all text-on-surface-variant hover:bg-surface-container";
+                renderPodium(studentData);
+                renderList(studentData);
+            } else {
+                toggleFaculty.className = "flex-1 md:flex-none px-xl py-xs rounded-lg font-label-md text-label-md transition-all bg-surface-container-highest text-primary shadow-sm";
+                toggleStudent.className = "flex-1 md:flex-none px-xl py-xs rounded-lg font-label-md text-label-md transition-all text-on-surface-variant hover:bg-surface-container";
+                renderPodium(facultyData);
+                renderList(facultyData);
+            }
+        }
+
+        toggleStudent.addEventListener('click', () => updateView('student'));
+        toggleFaculty.addEventListener('click', () => updateView('faculty'));
+
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderList(currentView === 'student' ? studentData : facultyData);
+        });
+
+        // Initial Load
+        updateView('student');
+    </script>
+
+
+</body></html>

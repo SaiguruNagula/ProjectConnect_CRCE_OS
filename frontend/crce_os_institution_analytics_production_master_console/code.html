@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CRCE OS | Principal Analytics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-header {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .linear-shadow {
+            box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.05), 0px 2px 4px -2px rgba(0, 0, 0, 0.05);
+        }
+        body {
+            background-color: #f7f9fb;
+            color: #191c1e;
+            font-family: 'Inter', sans-serif;
+            min-height: max(884px, 100dvh);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e0e3e5; border-radius: 10px; }
+
+        /* Animation for Side Drawer */
+        .drawer-transition { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#e6e8ea",
+                      "on-tertiary-container": "#7073ff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "primary-fixed": "#dae2fd",
+                      "surface": "#f7f9fb",
+                      "error-container": "#ffdad6",
+                      "on-surface": "#191c1e",
+                      "on-primary": "#ffffff",
+                      "tertiary-fixed": "#e1e0ff",
+                      "tertiary": "#000000",
+                      "outline-variant": "#c6c6cd",
+                      "on-secondary-container": "#fffbff",
+                      "inverse-surface": "#2d3133",
+                      "tertiary-container": "#07006c",
+                      "secondary-fixed-dim": "#c3c0ff",
+                      "on-tertiary-fixed": "#07006c",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "on-secondary-fixed": "#0f0069",
+                      "inverse-on-surface": "#eff1f3",
+                      "primary-fixed-dim": "#bec6e0",
+                      "on-error": "#ffffff",
+                      "secondary": "#4b41e1",
+                      "on-primary-fixed": "#131b2e",
+                      "surface-container": "#eceef0",
+                      "error": "#ba1a1a",
+                      "background": "#f7f9fb",
+                      "on-tertiary-fixed-variant": "#2f2ebe",
+                      "outline": "#76777d",
+                      "surface-container-low": "#f2f4f6",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "on-secondary-fixed-variant": "#3323cc",
+                      "surface-tint": "#565e74",
+                      "secondary-fixed": "#e2dfff",
+                      "surface-bright": "#f7f9fb",
+                      "tertiary-fixed-dim": "#c0c1ff",
+                      "primary-container": "#131b2e",
+                      "on-surface-variant": "#45464d",
+                      "on-background": "#191c1e",
+                      "surface-dim": "#d8dadc",
+                      "secondary-container": "#645efb",
+                      "inverse-primary": "#bec6e0",
+                      "surface-variant": "#e0e3e5",
+                      "primary": "#000000",
+                      "on-primary-container": "#7c839b",
+                      "surface-container-highest": "#e0e3e5"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "base": "4px",
+                      "md": "24px",
+                      "sm": "16px",
+                      "lg": "40px",
+                      "gutter": "24px",
+                      "container-max": "1440px",
+                      "xl": "64px",
+                      "xs": "8px"
+              },
+              "fontFamily": {
+                      "headline-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "display": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "label-md": ["Geist"],
+                      "body-md": ["Inter"],
+                      "mono": ["Geist"]
+              }
+            }
+          }
+        }
+      </script>
+</head>
+<body class="bg-surface overflow-x-hidden">
+<!-- Global Side Drawer (Reports) -->
+<div class="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl z-[60] drawer-transition translate-x-full border-l border-outline-variant/30 flex flex-col" id="reportsDrawer">
+<div class="p-md border-b border-outline-variant/20 flex items-center justify-between">
+<h3 class="font-headline-sm">Generate Reports</h3>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container" onclick="toggleDrawer('reportsDrawer')">
+<span class="material-symbols-outlined text-outline">close</span>
+</button>
+</div>
+<div class="p-md flex-1 overflow-y-auto space-y-md">
+<div>
+<label class="font-label-md text-outline uppercase block mb-xs">Category</label>
+<div class="grid grid-cols-1 gap-xs">
+<button class="flex items-center gap-xs p-sm border border-outline-variant rounded-lg hover:border-secondary hover:text-secondary text-left transition-all">
+<span class="material-symbols-outlined">school</span> Academic Performance
+                </button>
+<button class="flex items-center gap-xs p-sm border border-outline-variant rounded-lg hover:border-secondary hover:text-secondary text-left transition-all">
+<span class="material-symbols-outlined">rocket_launch</span> Innovation &amp; Research
+                </button>
+<button class="flex items-center gap-xs p-sm border border-outline-variant rounded-lg hover:border-secondary hover:text-secondary text-left transition-all">
+<span class="material-symbols-outlined">payments</span> Financial Grants
+                </button>
+</div>
+</div>
+<div>
+<label class="font-label-md text-outline uppercase block mb-xs">Format</label>
+<div class="flex gap-xs">
+<button class="flex-1 p-sm border border-outline-variant rounded-lg hover:bg-surface-container font-medium">PDF</button>
+<button class="flex-1 p-sm border border-outline-variant rounded-lg hover:bg-surface-container font-medium">Excel</button>
+</div>
+</div>
+</div>
+<div class="p-md border-t border-outline-variant/20">
+<button class="w-full py-3 bg-primary text-white rounded-lg font-semibold hover:opacity-90">Download Report</button>
+</div>
+</div>
+<!-- Global Broadcast Modal -->
+<div class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/40 backdrop-blur-sm p-gutter" id="broadcastModal">
+<div class="bg-white rounded-xl w-full max-w-lg shadow-2xl overflow-hidden scale-95 transition-transform duration-300">
+<div class="p-lg">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-headline-md">New Broadcast Announcement</h3>
+<button class="text-outline hover:text-primary" onclick="toggleModal('broadcastModal')"><span class="material-symbols-outlined">close</span></button>
+</div>
+<div class="space-y-sm">
+<div>
+<label class="font-label-md text-outline mb-xs block">Announcement Title</label>
+<input class="w-full border-outline-variant rounded-lg focus:ring-secondary focus:border-secondary" placeholder="Enter title..." type="text"/>
+</div>
+<div>
+<label class="font-label-md text-outline mb-xs block">Message Content</label>
+<textarea class="w-full border-outline-variant rounded-lg focus:ring-secondary focus:border-secondary" placeholder="Type your message here..." rows="4"></textarea>
+</div>
+<div>
+<label class="font-label-md text-outline mb-xs block">Target Audience</label>
+<select class="w-full border-outline-variant rounded-lg focus:ring-secondary focus:border-secondary">
+<option>All Institution</option>
+<option>Faculty Only</option>
+<option>Students Only</option>
+<option>Specific Department</option>
+</select>
+</div>
+</div>
+<div class="mt-lg flex gap-sm">
+<button class="flex-1 py-3 border border-outline-variant rounded-lg font-semibold hover:bg-surface-container" onclick="toggleModal('broadcastModal')">Cancel</button>
+<button class="flex-1 py-3 bg-secondary text-white rounded-lg font-semibold hover:opacity-90">Send Broadcast</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Header -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm h-16">
+<div class="flex justify-between items-center px-gutter max-w-container-max mx-auto h-full gap-lg">
+<div class="flex items-center gap-sm shrink-0">
+<span class="material-symbols-outlined text-primary" data-icon="grid_view">grid_view</span>
+<h1 class="font-headline-md text-headline-md font-bold tracking-tight text-primary">CRCE OS</h1>
+</div>
+<!-- Global Search Component -->
+<div class="hidden md:flex flex-1 max-w-xl relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-xl">search</span>
+<input class="w-full bg-surface-container-low border-transparent rounded-full pl-11 pr-4 py-2 text-body-md focus:bg-white focus:ring-2 focus:ring-secondary/20 focus:border-secondary/40 transition-all" placeholder="Search students, faculty, or reports (Ctrl + K)" type="text"/>
+</div>
+<div class="flex items-center gap-sm">
+<!-- Notifications -->
+<div class="relative group">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container relative">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+</button>
+<!-- Notification Dropdown -->
+<div class="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-outline-variant/30 hidden group-hover:block transition-all z-[100]">
+<div class="p-sm border-b border-outline-variant/10 font-semibold text-body-md">Institutional Alerts</div>
+<div class="max-h-64 overflow-y-auto">
+<div class="p-sm hover:bg-surface-container transition-colors border-b border-outline-variant/10 cursor-pointer">
+<p class="text-body-md font-medium">Research Approved</p>
+<p class="text-label-md text-outline">Grant #882 has been cleared by treasury.</p>
+</div>
+<div class="p-sm hover:bg-surface-container transition-colors border-b border-outline-variant/10 cursor-pointer">
+<p class="text-body-md font-medium">System Update</p>
+<p class="text-label-md text-outline">Database migration scheduled for Sunday.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="text-right hidden sm:block">
+<p class="font-headline-sm text-[14px] font-bold">Dr. Srija</p>
+<p class="text-label-md font-label-md text-outline">Principal</p>
+</div>
+<a class="w-10 h-10 rounded-full border border-outline-variant overflow-hidden hover:ring-2 hover:ring-secondary/50 transition-all" href="/settings">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCo7D_jJvZpXCjMLJaPErpg7dQyfPtVNe1CZTxtULiZsvZoKLPYPY5FzCtiDL6URG-1YF_mGTPCt2j5KcDpfme1FNAFwMydVXxxavSNDECEpoUIkrvOA_FokYsUET97A-9plWj9QUvQ2rITWWw3nQ_FMpy0-W7P-NQXVFsFx3HjJyDrneX5JJ82q-EEu3Wc-YX8Dsr3u2cfKl6TKI0rR8OVuaVQAnChXcDmwOMrjUDJZsEHcp_bwYO9xSXntpPASg9sK44rZmn6wISa"/>
+</a>
+</div>
+</div>
+</header>
+<div class="max-w-container-max mx-auto flex pt-16">
+<!-- Sidebar Navigation -->
+<aside class="hidden lg:block w-64 fixed h-[calc(100vh-64px)] border-r border-outline-variant/30 p-sm bg-surface">
+<nav class="space-y-base">
+<a class="flex items-center gap-sm px-sm py-3 rounded-lg bg-primary/5 text-primary font-semibold transition-all" href="/executive-summary">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md">Executive Summary</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all" href="/approvals">
+<span class="material-symbols-outlined">fact_check</span>
+<span class="font-body-md">Pending Approvals</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all" href="/leaderboard">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-body-md">Innovation Leaderboard</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all" href="/reports">
+<span class="material-symbols-outlined">summarize</span>
+<span class="font-body-md">Reports</span>
+</a>
+<div class="pt-sm mt-sm border-t border-outline-variant/20">
+<p class="px-sm text-label-md text-outline uppercase mb-xs">Management</p>
+<a class="flex items-center gap-sm px-sm py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all" href="/departments">
+<span class="material-symbols-outlined">domain</span>
+<span class="font-body-md">Departments</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all" href="/faculty">
+<span class="material-symbols-outlined">badge</span>
+<span class="font-body-md">Faculty</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all" href="/students">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-body-md">Students</span>
+</a>
+</div>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 lg:ml-64 p-gutter pb-32">
+<!-- Section 1: Overview & High-Level KPIs -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-md mb-lg">
+<!-- Innovation Health Summary -->
+<a class="lg:col-span-4 bg-white border border-outline-variant/30 rounded-xl p-lg linear-shadow flex flex-col justify-between relative overflow-hidden group hover:ring-2 hover:ring-secondary/20 transition-all cursor-pointer" href="/analytics/health">
+<div class="absolute top-0 right-0 p-md opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-8xl" data-icon="insights">insights</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-outline uppercase tracking-wider mb-xs">Innovation Health</p>
+<h2 class="font-display text-[40px] text-primary mb-sm leading-tight">{{institutionStatus}}</h2>
+</div>
+<div class="flex items-center gap-xs">
+<div class="flex items-center justify-center bg-emerald-50 text-[#065F46] rounded-full px-sm py-1">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+<span class="font-mono text-label-md ml-1">{{statusChange}}</span>
+</div>
+<span class="text-body-md font-body-md text-outline">vs last quarter</span>
+</div>
+</a>
+<!-- KPI Grid -->
+<div class="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-sm">
+<!-- Skeleton Loading State Example (Hidden by default) -->
+<!-- <div class="bg-white border border-outline-variant/10 rounded-xl p-md animate-pulse">
+                    <div class="w-8 h-8 bg-surface-container rounded mb-xs"></div>
+                    <div class="w-16 h-3 bg-surface-container rounded mb-sm"></div>
+                    <div class="w-20 h-6 bg-surface-container rounded"></div>
+                </div> -->
+<a class="bg-white border border-outline-variant/30 rounded-xl p-md linear-shadow flex flex-col justify-center hover:border-secondary/50 transition-colors group cursor-pointer" href="/students">
+<span class="material-symbols-outlined text-secondary mb-xs group-hover:scale-110 transition-transform">groups</span>
+<p class="font-label-md text-label-md text-outline">Total Students</p>
+<h3 class="font-headline-lg text-headline-lg mt-1 tracking-tight">{{totalStudents}}</h3>
+</a>
+<a class="bg-white border border-outline-variant/30 rounded-xl p-md linear-shadow flex flex-col justify-center hover:border-secondary/50 transition-colors group cursor-pointer" href="/faculty">
+<span class="material-symbols-outlined text-secondary mb-xs group-hover:scale-110 transition-transform">badge</span>
+<p class="font-label-md text-label-md text-outline">Faculty</p>
+<h3 class="font-headline-lg text-headline-lg mt-1 tracking-tight">{{totalFaculty}}</h3>
+</a>
+<a class="bg-white border border-outline-variant/30 rounded-xl p-md linear-shadow flex flex-col justify-center hover:border-secondary/50 transition-colors group cursor-pointer" href="/projects">
+<span class="material-symbols-outlined text-secondary mb-xs group-hover:scale-110 transition-transform">task_alt</span>
+<p class="font-label-md text-label-md text-outline">Projects Solved</p>
+<h3 class="font-headline-lg text-headline-lg mt-1 tracking-tight">{{projectsSolved}}</h3>
+</a>
+<a class="bg-white border border-outline-variant/30 rounded-xl p-md linear-shadow flex flex-col justify-center hover:border-secondary/50 transition-colors group cursor-pointer" href="/analytics/kpis">
+<span class="material-symbols-outlined text-secondary mb-xs group-hover:scale-110 transition-transform">military_tech</span>
+<p class="font-label-md text-label-md text-outline">Patents Filed</p>
+<h3 class="font-headline-lg text-headline-lg mt-1 tracking-tight">{{patentsFiled}}</h3>
+</a>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+<!-- Section 2: Departments Table -->
+<div class="lg:col-span-2">
+<div class="flex items-center justify-between mb-sm">
+<h2 class="font-headline-md text-headline-md">Department Performance</h2>
+<a class="text-secondary font-body-md text-body-md flex items-center gap-xs hover:gap-sm transition-all" href="/leaderboard">
+                        Full Leaderboard <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+<div class="bg-white border border-outline-variant/30 rounded-xl overflow-hidden linear-shadow">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low border-b border-outline-variant/20">
+<tr>
+<th class="px-md py-sm font-label-md text-label-md text-outline uppercase">Dept Name</th>
+<th class="px-md py-sm font-label-md text-label-md text-outline uppercase">Active Projects</th>
+<th class="px-md py-sm font-label-md text-label-md text-outline uppercase">Completion %</th>
+<th class="px-md py-sm font-label-md text-label-md text-outline uppercase">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<!-- Clickable Row Template -->
+<tr class="hover:bg-surface-container-low/30 transition-colors cursor-pointer group" onclick="window.location.href='/departments/cse'">
+<td class="px-md py-md font-body-md text-body-md font-medium text-primary group-hover:text-secondary">Computer Engineering</td>
+<td class="px-md py-md font-mono text-body-md">48</td>
+<td class="px-md py-md">
+<div class="flex items-center gap-xs">
+<div class="w-24 h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 82%"></div>
+</div>
+<span class="font-mono text-label-md">82%</span>
+</div>
+</td>
+<td class="px-md py-md">
+<div class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/30 transition-colors cursor-pointer group" onclick="window.location.href='/departments/it'">
+<td class="px-md py-md font-body-md text-body-md font-medium text-primary group-hover:text-secondary">Information Technology</td>
+<td class="px-md py-md font-mono text-body-md">32</td>
+<td class="px-md py-md">
+<div class="flex items-center gap-xs">
+<div class="w-24 h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 74%"></div>
+</div>
+<span class="font-mono text-label-md">74%</span>
+</div>
+</td>
+<td class="px-md py-md">
+<div class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+</td>
+</tr>
+<!-- Empty state mockup (if no depts) -->
+<!-- <tr class="hidden"><td colspan="4" class="py-xl text-center text-outline">No department data found.</td></tr> -->
+</tbody>
+</table>
+</div>
+</div>
+<!-- Section 3: Pending Approvals (Right) -->
+<div class="lg:col-span-1">
+<div class="flex items-center justify-between mb-sm">
+<h2 class="font-headline-md text-headline-md">Approvals</h2>
+<span class="bg-error-container text-on-error-container text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">{{newApprovalsCount}} NEW</span>
+</div>
+<div class="space-y-sm">
+<!-- Updated Item 1 -->
+<div class="bg-white border border-outline-variant/30 rounded-xl p-md linear-shadow hover:ring-1 hover:ring-secondary/10 transition-all">
+<div class="flex items-start justify-between mb-xs">
+<div class="flex items-center gap-xs text-primary">
+<span class="material-symbols-outlined" data-icon="how_to_reg">how_to_reg</span>
+<p class="font-body-md text-body-md font-semibold">Faculty Verification</p>
+</div>
+<span class="bg-surface-container text-on-surface-variant font-mono text-[10px] px-1.5 py-0.5 rounded uppercase">Urgent</span>
+</div>
+<div class="flex flex-col gap-1 mb-sm px-7">
+<p class="text-label-md text-outline">Submitted by: Prof. Mehta</p>
+<p class="text-[11px] text-outline/60">Date: 24 Oct, 2024</p>
+</div>
+<button class="w-full py-2 bg-primary text-white font-body-md text-body-md rounded-lg hover:opacity-90 active:scale-95 transition-all" onclick="window.location.href='/approvals/faculty'">Review</button>
+</div>
+<!-- Updated Item 2 -->
+<div class="bg-white border border-outline-variant/30 rounded-xl p-md linear-shadow hover:ring-1 hover:ring-secondary/10 transition-all">
+<div class="flex items-start justify-between mb-xs">
+<div class="flex items-center gap-xs text-primary">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<p class="font-body-md text-body-md font-semibold">Research Grants</p>
+</div>
+<span class="bg-surface-container text-on-surface-variant font-mono text-[10px] px-1.5 py-0.5 rounded uppercase">Medium</span>
+</div>
+<div class="flex flex-col gap-1 mb-sm px-7">
+<p class="text-label-md text-outline">Submitted by: R&amp;D Cell</p>
+<p class="text-[11px] text-outline/60">Date: 22 Oct, 2024</p>
+</div>
+<button class="w-full py-2 bg-primary text-white font-body-md text-body-md rounded-lg hover:opacity-90 active:scale-95 transition-all" onclick="window.location.href='/approvals/grants'">Review</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 4: Quick Controls -->
+<div class="mt-lg grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Broadcast Action -->
+<button class="flex items-center justify-between p-lg bg-secondary-container text-on-secondary-container rounded-xl hover:opacity-95 active:scale-[0.99] transition-all group" onclick="toggleModal('broadcastModal')">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="campaign">campaign</span>
+</div>
+<div class="text-left">
+<h4 class="font-headline-sm text-headline-sm text-white">Broadcast Banner</h4>
+<p class="text-white/70 font-body-md text-body-md">Push announcements to all students and faculty.</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-white group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- View Reports Action -->
+<button class="flex items-center justify-between p-lg bg-white border border-outline-variant rounded-xl hover:bg-surface-container-low active:scale-[0.99] transition-all group" onclick="toggleDrawer('reportsDrawer')">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-surface-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="download">download</span>
+</div>
+<div class="text-left">
+<h4 class="font-headline-sm text-headline-sm text-primary">Institution Report</h4>
+<p class="text-outline font-body-md text-body-md">Export 2023-24 comprehensive analytics (PDF).</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface/80 backdrop-blur-md border-t border-outline-variant/20 shadow-lg lg:hidden">
+<div class="flex justify-around items-center py-xs pb-safe">
+<a class="flex flex-col items-center text-secondary" href="/executive-summary">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center text-outline" href="/approvals">
+<span class="material-symbols-outlined">fact_check</span>
+<span class="font-label-md text-label-md">Approvals</span>
+</a>
+<a class="flex flex-col items-center text-outline" href="/notice-board">
+<span class="material-symbols-outlined">campaign</span>
+<span class="font-label-md text-label-md">Notice</span>
+</a>
+<a class="flex flex-col items-center text-outline" href="/settings">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</div>
+</nav>
+<script>
+    // Interaction UI Logic
+    function toggleDrawer(id) {
+        const drawer = document.getElementById(id);
+        const isOpen = drawer.classList.contains('translate-x-0');
+        if (isOpen) {
+            drawer.classList.remove('translate-x-0');
+            drawer.classList.add('translate-x-full');
+        } else {
+            drawer.classList.remove('translate-x-full');
+            drawer.classList.add('translate-x-0');
+        }
+    }
+
+    function toggleModal(id) {
+        const modal = document.getElementById(id);
+        const isHidden = modal.classList.contains('hidden');
+        if (isHidden) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.querySelector('div').classList.remove('scale-95');
+                modal.querySelector('div').classList.add('scale-100');
+            }, 10);
+        } else {
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+    }
+
+    // Micro-interactions
+    document.querySelectorAll('button, a, tr.cursor-pointer').forEach(el => {
+        el.addEventListener('mousedown', () => { el.style.transform = el.tagName === 'TR' ? '' : 'scale(0.98)'; });
+        el.addEventListener('mouseup', () => { el.style.transform = ''; });
+        el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+    });
+
+    // Keyboard Shortcut for Search (Mockup)
+    window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            document.querySelector('input[type="text"]').focus();
+        }
+    });
+
+    // Click outside to close logic
+    window.onclick = function(event) {
+        const modals = ['broadcastModal'];
+        modals.forEach(id => {
+            const modal = document.getElementById(id);
+            if (event.target == modal) toggleModal(id);
+        });
+    }
+</script>
+</body></html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Create Problem | CRCE OS</title>
+<!-- Google Fonts: Hanken Grotesk, Inter, JetBrains Mono -->
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;900&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#464555",
+                    "surface-tint": "#4d44e3",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "surface-container-highest": "#e0e3e5",
+                    "on-surface": "#191c1e",
+                    "inverse-on-surface": "#eff1f3",
+                    "surface-bright": "#f7f9fb",
+                    "secondary-fixed": "#dae2fd",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#2d3133",
+                    "surface-container": "#eceef0",
+                    "outline-variant": "#c7c4d8",
+                    "tertiary-container": "#5f5f68",
+                    "on-background": "#191c1e",
+                    "on-secondary": "#ffffff",
+                    "surface-dim": "#d8dadc",
+                    "on-primary-container": "#dad7ff",
+                    "secondary": "#565e74",
+                    "on-tertiary-fixed-variant": "#46464e",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "primary-container": "#4f46e5",
+                    "tertiary-fixed": "#e3e1ec",
+                    "surface": "#f7f9fb",
+                    "surface-container-high": "#e6e8ea",
+                    "secondary-container": "#dae2fd",
+                    "primary-fixed": "#e2dfff",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed-dim": "#c6c5cf",
+                    "outline": "#777587",
+                    "on-secondary-fixed": "#131b2e",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-container": "#dbdae4",
+                    "inverse-primary": "#c3c0ff",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "surface-container-low": "#f2f4f6",
+                    "on-primary-fixed": "#0f0069",
+                    "primary": "#3525cd",
+                    "on-tertiary-fixed": "#1a1b22",
+                    "background": "#f7f9fb",
+                    "on-secondary-container": "#5c647a",
+                    "surface-variant": "#e0e3e5",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#474750",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "xs": "8px",
+                    "base": "4px",
+                    "sm": "16px",
+                    "lg": "40px",
+                    "margin-mobile": "16px",
+                    "xl": "64px",
+                    "margin-desktop": "48px",
+                    "md": "24px"
+            },
+            "fontFamily": {
+                    "body-sm": ["Inter"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "display-lg-mobile": ["Hanken Grotesk"],
+                    "label-sm": ["JetBrains Mono"],
+                    "body-md": ["Inter"],
+                    "headline-sm": ["Hanken Grotesk"],
+                    "label-md": ["JetBrains Mono"],
+                    "body-lg": ["Inter"],
+                    "display-lg": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-sm": ["10px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .bento-card {
+            background-color: #ffffff;
+            border: 1px solid #e4e4e7; /* Zinc-200 */
+            box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+            border-radius: 0.5rem; /* xl */
+            transition: all 0.2s ease;
+        }
+        .sticky-footer {
+            box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.05);
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+        }
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #4f46e5;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen">
+<!-- Desktop Navigation Drawer (Shared Component) -->
+<nav class="hidden md:flex flex-col gap-base h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant shadow-sm z-40">
+<div class="px-md py-lg">
+<span class="text-headline-sm font-headline-sm font-black text-primary">CRCE OS</span>
+<div class="mt-md flex items-center gap-xs">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a university faculty member, lit with warm academic office lighting, wearing a smart casual blazer. The background shows blurred bookshelves and a window, conveying a sense of expertise and modern institutional leadership in a crisp, clean light-mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwJZQWdi2YacfMh4ZiT3WVcQF3AzMyAX9uillC3lrmHpG9682h62NCX_QIEPzqu3zlLC7hejTXSwLApP4KaT7xgJYLnYR3Giiid6ZUkaBrDL39Xa3qzlyaoqVsHJdrfA3ARrl6Iogvrk-tPlUCS5W_eXEqMFKDbzD_5FC01l67g1GDMvb6c2soRUhvV7FrIY9Drhp1V8Dq7G-Z1uHevN9AKIF6_9QbdXlqr791MiadUvSwUHPBshFJ4BbKFnrYDyysyR9o_SNH_NXy">
+</div>
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-on-surface font-bold">Faculty Portal</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Innovation Management</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col flex-grow">
+<a class="text-on-surface-variant px-4 py-3 mx-2 hover:bg-surface-container rounded-xl transition-all flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="bg-primary-container text-on-primary-container rounded-xl font-bold px-4 py-3 mx-2 flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined">rocket_launch</span> Challenges
+            </a>
+<a class="text-on-surface-variant px-4 py-3 mx-2 hover:bg-surface-container rounded-xl transition-all flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined">rate_review</span> Review Engine
+            </a>
+<a class="text-on-surface-variant px-4 py-3 mx-2 hover:bg-surface-container rounded-xl transition-all flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span> Credit Engine
+            </a>
+</div>
+<div class="pb-lg">
+<a class="text-on-surface-variant px-4 py-3 mx-2 hover:bg-surface-container rounded-xl transition-all flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+            </a>
+</div>
+</nav>
+<!-- Top App Bar (Shared Component) -->
+<header class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop bg-surface border-b border-outline-variant h-16 sticky top-0 z-30 md:ml-64 md:w-[calc(100%-16rem)]">
+<div class="flex items-center gap-sm">
+<button class="md:hidden text-primary p-2">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="text-headline-md font-headline-md text-primary">Create Problem</h1>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden sm:flex items-center gap-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+<span class="text-label-md font-label-md">Draft saved 2m ago</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-xs">
+                JD
+            </div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 p-margin-mobile md:p-margin-desktop pb-32">
+<div class="max-w-5xl mx-auto">
+<div class="mb-lg">
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Problem Definition</h2>
+<p class="text-body-md font-body-md text-on-surface-variant">Define an innovation challenge for the student ecosystem.</p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-md items-start">
+<!-- Core Details Card (Full Width in Mobile, 8/12 in Desktop) -->
+<div class="bento-card p-md md:col-span-8 flex flex-col gap-sm">
+<div class="flex flex-col gap-xs">
+<label class="text-label-md font-label-md text-on-surface-variant uppercase">Problem Title</label>
+<input class="w-full px-sm py-xs border border-outline-variant rounded-xl text-body-md" placeholder="e.g., Decentralized Academic Record Verification" type="text">
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="flex flex-col gap-xs">
+<label class="text-label-md font-label-md text-on-surface-variant uppercase">Domain</label>
+<select class="w-full px-sm py-xs border border-outline-variant rounded-xl text-body-md bg-white">
+<option>AI &amp; Machine Learning</option>
+<option>Web3 &amp; Blockchain</option>
+<option>Sustainable Tech</option>
+<option>Health Informatics</option>
+</select>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="text-label-md font-label-md text-on-surface-variant uppercase">Short Summary</label>
+<input class="w-full px-sm py-xs border border-outline-variant rounded-xl text-body-md" placeholder="A one-sentence hook for students" type="text">
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="text-label-md font-label-md text-on-surface-variant uppercase">Detailed Statement</label>
+<textarea class="w-full px-sm py-xs border border-outline-variant rounded-xl text-body-md resize-none" placeholder="Describe the problem, the context, and why it needs solving..." rows="4"></textarea>
+</div>
+</div>
+<!-- Readiness Score Card (4/12 Desktop) -->
+
+<!-- Impact & Rationale Card -->
+<div class="bento-card md:col-span-6 flex flex-col">
+<div class="bg-surface-container-low px-md py-sm border-b border-outline-variant rounded-t-xl">
+<h3 class="text-label-md font-label-md font-bold text-on-surface uppercase">Why this matters</h3>
+</div>
+<div class="p-md flex flex-col gap-sm">
+<div class="flex flex-col gap-xs">
+<label class="text-label-md font-label-md text-on-surface-variant uppercase">Current Challenge</label>
+<textarea class="w-full px-sm py-xs border border-outline-variant rounded-xl text-body-md" placeholder="What is wrong with the current status quo?" rows="2"></textarea>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="text-label-md font-label-md text-on-surface-variant uppercase">Expected Impact</label>
+<textarea class="w-full px-sm py-xs border border-outline-variant rounded-xl text-body-md" placeholder="What does success look like?" rows="2"></textarea>
+</div>
+</div>
+</div>
+<!-- Requirement Builder Card -->
+<div class="bento-card md:col-span-6 flex flex-col">
+<div class="bg-surface-container-low px-md py-sm border-b border-outline-variant rounded-t-xl">
+<h3 class="text-label-md font-label-md font-bold text-on-surface uppercase">Requirements</h3>
+</div>
+<div class="p-md flex flex-col gap-sm">
+<div class="flex flex-col gap-xs">
+<label class="text-label-md font-label-md text-on-surface-variant uppercase">Required Skills</label>
+<div class="flex flex-wrap gap-xs p-xs border border-outline-variant rounded-xl min-h-[44px]">
+<span class="bg-primary-fixed text-on-primary-fixed-variant px-xs py-0.5 rounded-full text-label-md flex items-center gap-1">Python <span class="material-symbols-outlined text-xs cursor-pointer">close</span></span>
+<span class="bg-primary-fixed text-on-primary-fixed-variant px-xs py-0.5 rounded-full text-label-md flex items-center gap-1">React <span class="material-symbols-outlined text-xs cursor-pointer">close</span></span>
+<input class="flex-grow border-none focus:ring-0 text-body-md p-0" placeholder="Add skill..." type="text">
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="text-label-md font-label-md text-on-surface-variant uppercase">Stack/Tools</label>
+<div class="flex flex-wrap gap-xs p-xs border border-outline-variant rounded-xl min-h-[44px]">
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant px-xs py-0.5 rounded-full text-label-md flex items-center gap-1">AWS <span class="material-symbols-outlined text-xs cursor-pointer">close</span></span>
+<input class="flex-grow border-none focus:ring-0 text-body-md p-0" placeholder="Add tool..." type="text">
+</div>
+</div>
+</div>
+</div>
+<!-- Team Logic & Timeline (Combined Bento Area) -->
+<div class="md:col-span-5 flex flex-col gap-md">
+<div class="bento-card p-md">
+<h3 class="text-label-md font-label-md font-bold text-on-surface uppercase mb-md">Team Dynamics</h3>
+<div class="flex flex-col gap-sm">
+<div class="flex justify-between items-center">
+<span class="text-body-md text-on-surface">Team Size</span>
+<span class="text-label-md font-bold text-primary">1 - 4 Members</span>
+</div>
+<input class="w-full h-1 bg-outline-variant rounded-full appearance-none custom-slider" max="6" min="1" type="range" value="4">
+<div class="flex items-center justify-between mt-xs">
+<span class="text-body-md text-on-surface">Allow Individual Entry</span>
+<button class="w-10 h-5 bg-primary-container rounded-full relative transition-colors">
+<div class="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow-sm"></div>
+</button>
+</div>
+</div>
+</div>
+<div class="bento-card p-md">
+<h3 class="text-label-md font-label-md font-bold text-on-surface uppercase mb-md">Milestones</h3>
+<div class="relative space-y-4">
+<div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-outline-variant"></div>
+<div class="flex items-start gap-md relative">
+<div class="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0 z-10 border-4 border-white"></div>
+<div class="flex-grow">
+<p class="text-label-md font-bold text-on-surface">Registration Open</p>
+<input class="text-body-sm p-0 border-none bg-transparent text-on-surface-variant mt-1" type="date" value="2024-11-01">
+</div>
+</div>
+<div class="flex items-start gap-md relative">
+<div class="w-5 h-5 rounded-full bg-outline-variant flex items-center justify-center shrink-0 z-10 border-4 border-white"></div>
+<div class="flex-grow">
+<p class="text-label-md font-bold text-on-surface">Prototype Due</p>
+<input class="text-body-sm p-0 border-none bg-transparent text-on-surface-variant mt-1" type="date" value="2024-12-15">
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Incentive & Evaluation Engines -->
+<div class="md:col-span-7 flex flex-col gap-md">
+<div class="bento-card overflow-hidden">
+<div class="bg-primary-container text-white px-md py-sm flex justify-between items-center">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<h3 class="text-label-md font-label-md font-bold uppercase">Credit Engine Config</h3>
+</div>
+<span class="text-label-sm font-label-sm">v2.1 ACTIVE</span>
+</div>
+<div class="p-md grid grid-cols-2 gap-md">
+<div>
+<label class="text-label-md text-on-surface-variant uppercase">Base Credits</label>
+<div class="flex items-center gap-xs mt-1">
+<span class="text-headline-sm font-bold text-on-surface">500</span>
+<span class="text-label-sm text-on-surface-variant">CR</span>
+</div>
+</div>
+<div>
+<label class="text-label-md text-on-surface-variant uppercase">Difficulty Multiplier</label>
+<div class="flex items-center gap-xs mt-1">
+<span class="text-headline-sm font-bold text-primary">1.5x</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bento-card p-md">
+<h3 class="text-label-md font-label-md font-bold text-on-surface uppercase mb-md">Evaluation Weightage</h3>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between mb-1">
+<span class="text-body-sm">Innovation &amp; Novelty</span>
+<span class="text-label-md font-bold">40%</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[40%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between mb-1">
+<span class="text-body-sm">Technical Implementation</span>
+<span class="text-label-md font-bold">30%</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-surface-tint h-full w-[30%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between mb-1">
+<span class="text-body-sm">Impact Potential</span>
+<span class="text-label-md font-bold">30%</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-outline h-full w-[30%]"></div>
+</div>
+</div>
+</div>
+<div class="mt-md pt-sm border-t border-outline-variant flex justify-between items-center">
+<span class="text-label-sm font-label-sm text-on-surface-variant">TOTAL WEIGHTAGE</span>
+<span class="text-label-md font-black text-on-surface">100%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Sticky Bottom Actions -->
+<section class="fixed bottom-0 left-0 right-0 md:left-64 bg-surface/80 backdrop-blur-md border-t border-outline-variant z-40 sticky-footer">
+<div class="max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop py-sm flex justify-between items-center">
+<div class="hidden sm:flex items-center gap-xs">
+<span class="material-symbols-outlined text-outline">info</span>
+<p class="text-body-sm text-on-surface-variant">Fields missing: 3</p>
+</div>
+<div class="flex gap-sm w-full sm:w-auto">
+<button class="flex-1 sm:flex-none px-xl py-3 border border-outline-variant text-on-surface font-bold text-body-md rounded-xl hover:bg-surface-container-high transition-colors">
+                    Save Draft
+                </button>
+<button class="flex-1 sm:flex-none px-xl py-3 bg-primary text-white font-bold text-body-md rounded-xl hover:opacity-90 active:scale-[0.98] transition-all shadow-md">
+                    Publish Problem
+                </button>
+</div>
+</div>
+</section>
+<!-- Mobile Navigation Bar (Shared Component) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-xl bg-surface/80 backdrop-blur-md border-t border-outline-variant shadow-lg h-16 flex justify-around items-center px-4 pb-safe">
+<button class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">home</span>
+<span class="text-label-sm font-label-sm">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">edit_document</span>
+<span class="text-label-sm font-label-sm">Drafts</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary font-bold">
+<span class="material-symbols-outlined" style="font-variation-settings: &quot;FILL&quot; 1;">assignment</span>
+<span class="text-label-sm font-label-sm">Reviews</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">person</span>
+<span class="text-label-sm font-label-sm">Profile</span>
+</button>
+</nav>
+<script>
+        // Micro-interaction for toggle
+        const toggleBtn = document.querySelector('button.w-10.h-5');
+        if(toggleBtn) {
+            toggleBtn.addEventListener('click', function() {
+                const circle = this.querySelector('div');
+                if(this.classList.contains('bg-primary-container')) {
+                    this.classList.remove('bg-primary-container');
+                    this.classList.add('bg-outline-variant');
+                    circle.style.right = 'auto';
+                    circle.style.left = '2px';
+                } else {
+                    this.classList.remove('bg-outline-variant');
+                    this.classList.add('bg-primary-container');
+                    circle.style.left = 'auto';
+                    circle.style.right = '2px';
+                }
+            });
+        }
+    </script>
+
+
+</body></html>

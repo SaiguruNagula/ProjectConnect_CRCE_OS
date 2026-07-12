@@ -1,0 +1,428 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Executive Summary | CRCE OS</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        .font-mono { font-family: 'Geist', monospace; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        
+        .drawer-overlay { transition: opacity 0.3s ease; }
+        .drawer-content { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
+        .drawer-content.active { transform: translateX(0); }
+        
+        .hover-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .hover-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: #645efb; }
+
+        body { min-height: 100dvh; background-color: #f7f9fb; }
+        [v-cloak] { display: none; }
+        
+        .sparkline {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: dash 2s linear forwards;
+        }
+        @keyframes dash { to { stroke-dashoffset: 0; } }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#645efb",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#e1e0ff",
+                        "tertiary-container": "#07006c",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e6e8ea",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-variant": "#e0e3e5",
+                        "surface-container": "#eceef0",
+                        "inverse-primary": "#bec6e0",
+                        "on-surface-variant": "#45464d",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed": "#07006c",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-surface": "#191c1e",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#d8dadc",
+                        "secondary-fixed-dim": "#c3c0ff",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-container-low": "#f2f4f6",
+                        "surface": "#f7f9fb",
+                        "error": "#ba1a1a",
+                        "surface-bright": "#f7f9fb",
+                        "on-primary-container": "#7c839b",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#eff1f3",
+                        "primary": "#000000",
+                        "secondary": "#645efb",
+                        "secondary-fixed": "#e2dfff",
+                        "on-secondary-fixed": "#0f0069",
+                        "on-error": "#ffffff",
+                        "background": "#f7f9fb",
+                        "outline-variant": "#c6c6cd",
+                        "on-background": "#191c1e",
+                        "tertiary": "#000000",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary-container": "#131b2e",
+                        "on-secondary-container": "#fffbff",
+                        "on-tertiary-container": "#7073ff",
+                        "inverse-surface": "#2d3133",
+                        "outline": "#76777d",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "surface-tint": "#565e74",
+                        "on-secondary-fixed-variant": "#3323cc"
+                    },
+                    "spacing": {
+                        "xs": "8px", "lg": "40px", "xl": "64px", "gutter": "24px", "base": "4px", "sm": "16px", "md": "24px", "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "display": ["Inter"], "mono": ["Geist"], "label-md": ["Geist"], "body-md": ["Inter"], "headline-md": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface">
+<!-- Header -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30">
+<div class="flex justify-between items-center px-gutter max-w-container-max mx-auto h-16">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-secondary" data-icon="dashboard">dashboard</span>
+<h1 class="font-headline-md text-headline-md font-bold tracking-tight text-primary">CRCE OS</h1>
+</div>
+<div class="hidden md:flex items-center gap-lg">
+<nav class="flex gap-md">
+<a class="text-secondary font-semibold border-b-2 border-secondary pb-1" href="#">Executive</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Academics</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Innovation</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Analytics</a>
+</nav>
+<div class="flex items-center gap-sm border-l border-outline-variant/30 pl-lg">
+<div class="text-right">
+<p class="text-label-md font-bold text-on-surface leading-none">Dr. Srija Unnikrishnan</p>
+<p class="text-[10px] text-outline uppercase tracking-wider">Principal</p>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-outline">account_circle</span>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Sidebar (Desktop) -->
+<aside class="hidden lg:flex flex-col py-md px-xs h-screen w-64 fixed left-0 top-0 z-40 bg-surface border-r border-outline-variant mt-16">
+<nav class="space-y-1 px-sm mt-md"><a class="flex items-center gap-md p-md bg-secondary/5 text-secondary font-medium rounded-lg" href="#"><span class="material-symbols-outlined">analytics</span> Executive Summary</a><a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all" href="#"><span class="material-symbols-outlined">task_alt</span> Pending Approvals</a><a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all" href="#"><span class="material-symbols-outlined">leaderboard</span> Innovation Leaderboard</a><a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all" href="#"><span class="material-symbols-outlined">description</span> Reports</a><a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-all" href="#"><span class="material-symbols-outlined">settings</span> Settings</a></nav>
+</aside>
+<!-- Main Content -->
+<main class="lg:ml-64 pt-24 pb-32 px-gutter max-w-7xl mx-auto">
+<!-- Greeting -->
+<div class="mb-xl">
+<h2 class="text-3xl font-bold text-primary tracking-tight">Good Morning, Dr. Srija Unnikrishnan</h2>
+<p class="text-on-surface-variant mt-1">Fr. Conceicao Rodrigues College of Engineering</p>
+</div>
+<!-- Top KPI Grid -->
+<div class="bg-surface-container-lowest border border-outline-variant/50 p-lg rounded-xl mb-xl">
+  <h3 class="text-sm font-bold text-primary mb-2">College Innovation Health</h3>
+  <p class="text-sm text-on-surface-variant leading-relaxed">
+    <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+    <span class="font-bold text-green-600">Healthy.</span> Projects are progressing normally. 92% of reviews completed on time. Average milestone delay: 1.8 days.
+  </p>
+</div><div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-md mb-xl">
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant/50">
+<p class="text-[10px] text-outline uppercase font-bold mb-1">Total Students</p>
+<p class="text-2xl font-bold text-primary">3,912</p>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant/50">
+<p class="text-[10px] text-outline uppercase font-bold mb-1">Faculty Members</p>
+<p class="text-2xl font-bold text-primary">184</p>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant/50">
+<p class="text-[10px] text-outline uppercase font-bold mb-1">Active Projects</p>
+<p class="text-2xl font-bold text-primary">124</p>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant/50">
+<p class="text-[10px] text-outline uppercase font-bold mb-1">Completed</p>
+<p class="text-2xl font-bold text-primary">458</p>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant/50">
+<p class="text-[10px] text-outline uppercase font-bold mb-1">Open Problems</p>
+<p class="text-2xl font-bold text-primary">42</p>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant/50">
+<p class="text-[10px] text-outline uppercase font-bold mb-1">Departments</p>
+<p class="text-2xl font-bold text-primary">4</p>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Project Overview & Trend -->
+<div class="col-span-12 lg:col-span-8 space-y-gutter">
+<!-- Project Overview Card -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-bold text-primary text-lg">Project Overview</h3>
+<span class="text-xs text-outline font-medium">Real-time status</span>
+</div>
+<div class="space-y-md">
+<div class="space-y-1">
+<div class="flex justify-between text-xs font-medium"><span class="text-on-surface-variant">Live Projects — 124</span></div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 65%"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-xs font-medium"><span class="text-on-surface-variant">Completed Projects — 458</span></div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 85%"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-xs font-medium"><span class="text-on-surface-variant">New Projects This Month — 28</span></div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 30%"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-xs font-medium"><span class="text-on-surface-variant">Awaiting Review — 18</span></div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 15%"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-xs font-medium"><span class="text-on-surface-variant">Waiting for Faculty — 12</span></div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 10%"></div>
+</div>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-xs font-medium"><span class="text-on-surface-variant">Waiting for Principal Approval — 5</span></div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 5%"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Department Overview -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+<div class="p-lg border-b border-outline-variant/30">
+<h3 class="font-bold text-primary text-lg">Departmental Health</h3>
+</div>
+<table class="w-full text-left text-sm">
+<thead class="bg-surface-container-low/50 text-outline text-[11px] uppercase tracking-wider"><tr><th class="px-lg py-md font-medium">Department</th><th class="px-md py-md font-medium">Active Projects</th><th class="px-md py-md font-medium">Completed Projects</th><th class="px-md py-md font-medium">Faculty</th><th class="px-md py-md font-medium">Students</th><th class="px-lg py-md font-medium text-right">Status</th></tr></thead>
+<tbody class="divide-y divide-outline-variant/30">
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-lg py-md font-semibold text-primary">Computer Engg.</td>
+<td class="px-md py-md">48</td>
+<td class="px-md py-md">162</td>
+<td class="px-md py-md">54</td>
+<td class="px-md py-md">1,240</td>
+<td class="px-lg py-md text-right"><div class="w-2 h-2 rounded-full bg-green-500 inline-block"></div></td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-lg py-md font-semibold text-primary">IT Engg.</td>
+<td class="px-md py-md">32</td>
+<td class="px-md py-md">124</td>
+<td class="px-md py-md">42</td>
+<td class="px-md py-md">980</td>
+<td class="px-lg py-md text-right"><div class="w-2 h-2 rounded-full bg-green-500 inline-block"></div></td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-lg py-md font-semibold text-primary">Mechanical Engg.</td>
+<td class="px-md py-md">28</td>
+<td class="px-md py-md">98</td>
+<td class="px-md py-md">48</td>
+<td class="px-md py-md">842</td>
+<td class="px-lg py-md text-right"><div class="w-2 h-2 rounded-full bg-orange-500 inline-block"></div></td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-lg py-md font-semibold text-primary">Electronics Engg.</td>
+<td class="px-md py-md">16</td>
+<td class="px-md py-md">74</td>
+<td class="px-md py-md">40</td>
+<td class="px-md py-md">850</td>
+<td class="px-lg py-md text-right"><div class="w-2 h-2 rounded-full bg-yellow-500 inline-block"></div></td>
+</tr>
+</tbody>
+</table>
+</section>
+</div>
+<!-- Sidebar Widgets -->
+<div class="col-span-12 lg:col-span-4 space-y-gutter">
+<!-- Needs Attention -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
+<h3 class="font-bold text-primary text-lg mb-lg flex items-center gap-2">
+                    Needs Attention
+                </h3>
+<div class="space-y-md">
+<div class="flex items-center justify-between p-sm border border-outline-variant/30 rounded-lg">
+<div>
+<p class="text-sm font-semibold text-primary">Faculty Verification</p>
+<p class="text-xs text-outline">3 Pending Applications</p>
+</div>
+<button class="text-xs font-bold text-secondary px-3 py-1 bg-secondary/5 rounded-full">Open</button>
+</div>
+<div class="flex items-center justify-between p-sm border border-outline-variant/30 rounded-lg">
+<div>
+<p class="text-sm font-semibold text-primary">Pending Reviews</p>
+<p class="text-xs text-outline">18 Milestone Approvals</p>
+</div>
+<button class="text-xs font-bold text-secondary px-3 py-1 bg-secondary/5 rounded-full">Open</button>
+</div>
+<div class="flex items-center justify-between p-sm border border-outline-variant/30 rounded-lg">
+<div>
+<p class="text-sm font-semibold text-primary">System Alerts</p>
+<p class="text-xs text-outline">2 System Alerts</p>
+</div>
+<button class="text-xs font-bold text-error px-3 py-1 bg-error/5 rounded-full">Open</button>
+</div>
+<div class="flex items-center justify-between p-sm border border-outline-variant/30 rounded-lg">
+<div>
+<p class="text-sm font-semibold text-primary">Policy Approvals</p>
+<p class="text-xs text-outline">Innovation MOU v2</p>
+</div>
+<button class="text-xs font-bold text-secondary px-3 py-1 bg-secondary/5 rounded-full">Open</button>
+</div>
+</div>
+</section>
+<!-- Leaderboard Preview -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
+<h3 class="font-bold text-primary text-lg mb-md">Leaderboard</h3>
+<div class="space-y-lg">
+<div>
+<p class="text-[10px] text-outline uppercase font-bold mb-sm">Top 3 Students</p>
+<div class="space-y-2">
+<div class="flex items-center gap-sm">
+<div class="w-6 h-6 rounded bg-secondary/10 text-secondary text-[10px] font-bold flex items-center justify-center">1</div>
+<p class="text-sm text-primary font-medium">Rahul Sharma</p>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-6 h-6 rounded bg-surface-container text-outline text-[10px] font-bold flex items-center justify-center">2</div>
+<p class="text-sm text-primary font-medium">Ananya Iyer</p>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-6 h-6 rounded bg-surface-container text-outline text-[10px] font-bold flex items-center justify-center">3</div>
+<p class="text-sm text-primary font-medium">Kevin D'Souza</p>
+</div>
+</div>
+</div>
+<div>
+<p class="text-[10px] text-outline uppercase font-bold mb-sm">Top 3 Faculty</p>
+<div class="space-y-2">
+<div class="flex items-center gap-sm">
+<div class="w-6 h-6 rounded bg-secondary/10 text-secondary text-[10px] font-bold flex items-center justify-center">1</div>
+<p class="text-sm text-primary font-medium">Dr. Sunil Surve</p>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-6 h-6 rounded bg-surface-container text-outline text-[10px] font-bold flex items-center justify-center">2</div>
+<p class="text-sm text-primary font-medium">Prof. Merlyne G.</p>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-6 h-6 rounded bg-surface-container text-outline text-[10px] font-bold flex items-center justify-center">3</div>
+<p class="text-sm text-primary font-medium">Dr. Bhavesh P.</p>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full mt-lg py-2 border border-outline-variant rounded-lg text-xs font-bold text-on-surface hover:bg-surface-container-low transition-colors">
+                    Open Leaderboard
+                </button>
+</section>
+<!-- Project Trend Sparkline -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-bold text-primary text-sm">Innovation Progress</h3>
+<span class="text-[10px] text-green-600 font-bold">+12% vs last month</span>
+</div>
+<div class="h-16 w-full flex items-end justify-between gap-1">
+<svg class="w-full h-full" viewBox="0 0 100 40">
+<path class="sparkline" d="M0,35 L10,32 L20,38 L30,25 L40,28 L50,15 L60,18 L70,10 L80,12 L90,5 L100,8" fill="none" stroke="#645efb" stroke-width="2"></path>
+</svg>
+</div>
+</section>
+</div>
+<!-- Activity Timeline -->
+<div class="col-span-12">
+<h3 class="font-bold text-primary text-lg mb-lg">Recent Institutional Activity</h3>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg relative space-y-lg overflow-hidden">
+<div class="absolute left-[39px] top-lg bottom-lg w-px bg-outline-variant/30"></div>
+<div class="flex items-center gap-md relative">
+<div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary z-10 bg-white border border-outline-variant">
+<span class="material-symbols-outlined text-[18px]">publish</span>
+</div>
+<div>
+<p class="text-sm font-bold text-primary">New Project Published</p>
+<p class="text-xs text-on-surface-variant">"Autonomous Grid Monitor" by Team Volt (COMPS)</p>
+<p class="text-[10px] text-outline mt-1 uppercase">10:42 AM</p>
+</div>
+</div>
+<div class="flex items-center gap-md relative">
+<div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary z-10 bg-white border border-outline-variant">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+</div>
+<div>
+<p class="text-sm font-bold text-primary">Research Approved</p>
+<p class="text-xs text-on-surface-variant">AI-ML Optimization Grant for Electronics Dept</p>
+<p class="text-[10px] text-outline mt-1 uppercase">09:15 AM</p>
+</div>
+</div>
+<div class="flex items-center gap-md relative">
+<div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary z-10 bg-white border border-outline-variant">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+</div>
+<div>
+<p class="text-sm font-bold text-primary">Faculty Joined</p>
+<p class="text-xs text-on-surface-variant">Dr. Amit Shah joined Computer Engineering Dept</p>
+<p class="text-[10px] text-outline mt-1 uppercase">Yesterday</p>
+</div>
+</div>
+<div class="flex items-center gap-md relative">
+<div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-secondary z-10 bg-white border border-outline-variant">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+</div>
+<div>
+<p class="text-sm font-bold text-primary">Problem Solved</p>
+<p class="text-xs text-on-surface-variant">Industry Challenge #428 marked as complete</p>
+<p class="text-[10px] text-outline mt-1 uppercase">Oct 22</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Actions Footer -->
+<div class="col-span-12 mt-xl">
+<h3 class="text-xs text-outline uppercase font-bold mb-md tracking-wider">Quick Actions</h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-md">
+<button class="p-md bg-secondary text-white rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-all font-bold text-sm">
+<span class="material-symbols-outlined text-[20px]">fact_check</span> Approve Requests
+                </button>
+<button class="p-md bg-surface-container-lowest border border-outline-variant rounded-xl flex items-center justify-center gap-2 hover:bg-surface-container-low transition-all font-bold text-sm text-primary">
+<span class="material-symbols-outlined text-[20px]">campaign</span> Broadcast Notice
+                </button>
+<button class="p-md bg-surface-container-lowest border border-outline-variant rounded-xl flex items-center justify-center gap-2 hover:bg-surface-container-low transition-all font-bold text-sm text-primary">
+<span class="material-symbols-outlined text-[20px]">leaderboard</span> Open Leaderboard
+                </button>
+<button class="p-md bg-surface-container-lowest border border-outline-variant rounded-xl flex items-center justify-center gap-2 hover:bg-surface-container-low transition-all font-bold text-sm text-primary">
+<span class="material-symbols-outlined text-[20px]">description</span> View Reports
+                </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile Navigation -->
+<nav class="fixed bottom-0 w-full z-50 lg:hidden bg-surface/95 backdrop-blur-md border-t border-outline-variant/20 shadow-lg">
+<div class="flex justify-around items-center py-xs pb-safe"><button class="flex flex-col items-center text-secondary"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home_app_logo</span><span class="text-[10px] font-bold">Home</span></button><button class="flex flex-col items-center text-outline"><span class="material-symbols-outlined">task_alt</span><span class="text-[10px] font-bold">Approvals</span></button><button class="flex flex-col items-center text-outline"><span class="material-symbols-outlined">leaderboard</span><span class="text-[10px] font-bold">Leaderboard</span></button><button class="flex flex-col items-center text-outline"><span class="material-symbols-outlined">account_circle</span><span class="text-[10px] font-bold">Profile</span></button></div>
+</nav>
+
+
+</body></html>

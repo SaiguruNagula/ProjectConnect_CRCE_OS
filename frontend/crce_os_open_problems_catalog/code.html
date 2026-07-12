@@ -1,0 +1,386 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Open Problems | CRCE OS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#f2f4f6",
+                        "secondary-fixed-dim": "#c3c0ff",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary-container": "#fffbff",
+                        "surface-dim": "#d8dadc",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e6e8ea",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "surface-container": "#eceef0",
+                        "primary-fixed-dim": "#bec6e0",
+                        "tertiary-fixed": "#e1e0ff",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "on-background": "#191c1e",
+                        "on-primary-container": "#7c839b",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-primary": "#ffffff",
+                        "surface-container-highest": "#e0e3e5",
+                        "background": "#f7f9fb",
+                        "outline": "#76777d",
+                        "on-tertiary-fixed": "#07006c",
+                        "secondary": "#4b41e1",
+                        "secondary-container": "#645efb",
+                        "inverse-primary": "#bec6e0",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "tertiary": "#000000",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary-container": "#7073ff",
+                        "on-secondary-fixed": "#0f0069",
+                        "on-secondary-fixed-variant": "#3323cc",
+                        "surface-bright": "#f7f9fb",
+                        "surface": "#f7f9fb",
+                        "secondary-fixed": "#e2dfff",
+                        "inverse-surface": "#2d3133",
+                        "on-surface-variant": "#45464d",
+                        "on-surface": "#191c1e",
+                        "primary-container": "#131b2e",
+                        "outline-variant": "#c6c6cd",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#131b2e",
+                        "primary": "#000000",
+                        "tertiary-container": "#07006c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "lg": "40px",
+                        "container-max": "1440px",
+                        "xs": "8px",
+                        "sm": "16px",
+                        "xl": "64px",
+                        "md": "24px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "mono": ["Geist"],
+                        "headline-md": ["Inter"],
+                        "display": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Geist"],
+                        "headline-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .card-hover:hover { transform: translateY(-2px); transition: all 0.2s ease-in-out; box-shadow: 0 4px 12px -2px rgba(0,0,0,0.05); }
+        .glass-header { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- TopAppBar Navigation -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 dark:bg-surface-container/60 backdrop-blur-xl border-b border-outline-variant/30">
+<div class="flex items-center justify-between px-md md:px-lg h-16 w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" data-icon="grid_view">grid_view</span>
+<h1 class="font-headline-lg text-headline-lg font-bold tracking-tight text-primary dark:text-primary-fixed">CRCE OS</h1>
+</div>
+<nav class="hidden md:flex items-center space-x-8">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors duration-200 text-body-md font-medium" href="#">Innovation Hub</a>
+<a class="text-primary dark:text-primary-fixed font-semibold text-body-md" href="#">Open Problems</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors duration-200 text-body-md font-medium" href="#">Campus Solutions</a>
+</nav>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant overflow-hidden">
+<img alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-o-_vo3aQQn5O_dewJRC4kgiB9WbuWxCmcKERyrDeknluKL7pKZDT7s5gcEHtR6KckAj6QdtMvdn7AHFG8AQc0CyuNoIQamj2ElErVNs_KnoPpULrohzUqOcJHeate4RI4_LWOnRdxQ6cc0zWdBCeXNb4SviqByvxcnWIjFjmsMgL1RZGYzfOLD12D-ONUpSoQHqBF-DB-8RfsFeO8lodJH43VusLaenhlV5YHsEXK4uh4_2_ENTCQcBzOO7HmcsELRS7mUJeHHnC" class="">
+</div>
+</div>
+</div>
+</header>
+<div class="flex pt-16 min-h-screen">
+<!-- NavigationDrawer -->
+<aside class="hidden lg:flex flex-col h-[calc(100vh-64px)] w-72 bg-surface dark:bg-surface-container-lowest border-r border-outline-variant/20 sticky top-16">
+<div class="flex flex-col h-full py-md px-sm space-y-2">
+<div class="px-4 py-6 mb-2">
+<div class="flex items-center gap-3 mb-1">
+<div class="w-10 h-10 bg-secondary-container rounded-xl flex items-center justify-center text-on-secondary">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm font-bold text-primary">Innovation Portal</p>
+<p class="text-label-md font-label-md text-on-surface-variant">Campus OS v1.0</p>
+</div>
+</div>
+</div>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low transition-all duration-150 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary" data-icon="hub">hub</span>
+<span class="font-body-md text-body-md">Innovation Hub</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 bg-secondary-container/10 text-secondary dark:text-secondary-fixed font-medium rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="lightbulb" style="font-variation-settings: &quot;FILL&quot; 1;">lightbulb</span>
+<span class="font-body-md text-body-md">Open Problems</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low transition-all duration-150 rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary" data-icon="rocket_launch">rocket_launch</span>
+<span class="font-body-md text-body-md">Campus Solutions</span>
+</a>
+<div class="mt-auto p-4 border-t border-outline-variant/10">
+
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 px-md md:px-lg lg:px-xl py-lg max-w-container-max mx-auto w-full">
+<!-- Page Header -->
+<div class="mb-lg">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-primary tracking-tight mb-2">Open Problems</h2>
+<p class="text-body-lg text-on-surface-variant max-w-2xl">Browse verified campus challenges and contribute to meaningful projects.</p>
+</div>
+<div class="flex gap-8 border-l border-outline-variant/30 pl-8">
+<div class="text-center">
+<p class="font-headline-sm text-headline-sm text-primary">420</p>
+<p class="text-label-md font-label-md text-on-surface-variant">Problems</p>
+</div>
+<div class="text-center">
+<p class="font-headline-sm text-headline-sm text-primary">18</p>
+<p class="text-label-md font-label-md text-on-surface-variant">Departments</p>
+</div>
+<div class="text-center">
+<p class="font-headline-sm text-headline-sm text-primary">82</p>
+<p class="text-label-md font-label-md text-on-surface-variant">Teams</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Search and Discovery -->
+<div class="flex flex-col gap-6 mb-lg">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-secondary transition-colors" data-icon="search">search</span>
+<input class="w-full h-14 pl-12 pr-4 bg-white border border-outline-variant rounded-xl focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all text-body-lg" placeholder="Search problems, departments, faculty..." type="text">
+</div>
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-1.5 bg-secondary text-on-secondary rounded-full text-label-md font-medium">All Problems</button>
+<button class="px-4 py-1.5 bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest transition-colors rounded-full text-label-md font-medium">Academic</button>
+<button class="px-4 py-1.5 bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest transition-colors rounded-full text-label-md font-medium">AI</button>
+<button class="px-4 py-1.5 bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest transition-colors rounded-full text-label-md font-medium">Administration</button>
+<button class="px-4 py-1.5 bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest transition-colors rounded-full text-label-md font-medium">Library</button>
+<button class="px-4 py-1.5 bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest transition-colors rounded-full text-label-md font-medium">Infrastructure</button>
+</div>
+<div class="relative inline-block">
+<select class="appearance-none bg-white border border-outline-variant px-4 py-1.5 pr-10 rounded-lg text-label-md font-medium focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none">
+<option>Newest</option>
+<option>Most Credits</option>
+<option>Trending</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-outline text-sm" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Problem Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Card 1 -->
+<div class="bg-white border border-outline-variant p-md md:p-lg rounded-xl card-hover flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<span class="px-2.5 py-0.5 bg-surface-container-high text-on-surface-variant rounded-md text-[11px] font-mono uppercase tracking-wider">Dept: Computer Engineering</span>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-yellow-50 text-yellow-800 rounded-md text-label-md font-medium">Medium</span>
+<span class="px-2 py-1 bg-green-50 text-green-800 rounded-md text-label-md font-medium">Open</span>
+</div>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-1">Smart Attendance Platform</h3>
+<p class="text-body-md text-on-surface-variant mb-6">Automating campus-wide student attendance via facial recognition and geotagging.</p>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="person">person</span>
+<span class="text-body-md text-on-surface">Dr. Shah</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="payments">payments</span>
+<span class="text-body-md font-mono text-secondary font-medium">250 Credits</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="group">group</span>
+<span class="text-body-md text-on-surface">3/5 Team Members</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="description">description</span>
+<span class="text-body-md text-on-surface">12 Applicants</span>
+</div>
+</div>
+<div class="mt-auto pt-6 border-t border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-2 text-error">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+<span class="text-label-md font-medium">15 Days Left</span>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-lg text-body-md font-medium hover:opacity-90 active:scale-[0.98] transition-all">View Details</button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-white border border-outline-variant p-md md:p-lg rounded-xl card-hover flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<span class="px-2.5 py-0.5 bg-surface-container-high text-on-surface-variant rounded-md text-[11px] font-mono uppercase tracking-wider">Dept: IT</span>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-red-50 text-red-800 rounded-md text-label-md font-medium">Hard</span>
+<span class="px-2 py-1 bg-blue-50 text-blue-800 rounded-md text-label-md font-medium">Building Team</span>
+</div>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-1">Library AI Assistant</h3>
+<p class="text-body-md text-on-surface-variant mb-6">LLM-powered search engine for academic journals and digitized library resources.</p>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="person">person</span>
+<span class="text-body-md text-on-surface">Dr. Mehta</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="payments">payments</span>
+<span class="text-body-md font-mono text-secondary font-medium">300 Credits</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="group">group</span>
+<span class="text-body-md text-on-surface">2/5 Team Members</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="description">description</span>
+<span class="text-body-md text-on-surface">8 Applicants</span>
+</div>
+</div>
+<div class="mt-auto pt-6 border-t border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+<span class="text-label-md font-medium">20 Days Left</span>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-lg text-body-md font-medium hover:opacity-90 active:scale-[0.98] transition-all">View Details</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-white border border-outline-variant p-md md:p-lg rounded-xl card-hover flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<span class="px-2.5 py-0.5 bg-surface-container-high text-on-surface-variant rounded-md text-[11px] font-mono uppercase tracking-wider">Dept: Food Tech</span>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-yellow-50 text-yellow-800 rounded-md text-label-md font-medium">Medium</span>
+<span class="px-2 py-1 bg-green-50 text-green-800 rounded-md text-label-md font-medium">Open</span>
+</div>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-1">Campus Meal Planner</h3>
+<p class="text-body-md text-on-surface-variant mb-6">Personalized nutrition and calorie tracker integrated with the central canteen system.</p>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="person">person</span>
+<span class="text-body-md text-on-surface">Dr. Ray</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="payments">payments</span>
+<span class="text-body-md font-mono text-secondary font-medium">200 Credits</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="group">group</span>
+<span class="text-body-md text-on-surface">1/4 Team Members</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="description">description</span>
+<span class="text-body-md text-on-surface">5 Applicants</span>
+</div>
+</div>
+<div class="mt-auto pt-6 border-t border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-2 text-error">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+<span class="text-label-md font-medium">10 Days Left</span>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-lg text-body-md font-medium hover:opacity-90 active:scale-[0.98] transition-all">View Details</button>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-white border border-outline-variant p-md md:p-lg rounded-xl card-hover flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<span class="px-2.5 py-0.5 bg-surface-container-high text-on-surface-variant rounded-md text-[11px] font-mono uppercase tracking-wider">Dept: Electronics</span>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-red-50 text-red-800 rounded-md text-label-md font-medium">Hard</span>
+<span class="px-2 py-1 bg-orange-50 text-orange-800 rounded-md text-label-md font-medium">Closing Soon</span>
+</div>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-1">Smart Energy Monitor</h3>
+<p class="text-body-md text-on-surface-variant mb-6">IoT-based sensor network for monitoring real-time power consumption across labs.</p>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="person">person</span>
+<span class="text-body-md text-on-surface">Dr. Patil</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="payments">payments</span>
+<span class="text-body-md font-mono text-secondary font-medium">450 Credits</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="group">group</span>
+<span class="text-body-md text-on-surface">4/5 Team Members</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="description">description</span>
+<span class="text-body-md text-on-surface">22 Applicants</span>
+</div>
+</div>
+<div class="mt-auto pt-6 border-t border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-2 text-error font-bold animate-pulse">
+<span class="material-symbols-outlined text-sm" data-icon="priority_high">priority_high</span>
+<span class="text-label-md">5 Days Left</span>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-lg text-body-md font-medium hover:opacity-90 active:scale-[0.98] transition-all">View Details</button>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-xl flex items-center justify-center gap-2">
+<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center bg-primary text-on-primary rounded-lg text-body-md font-medium">1</button>
+<button class="w-10 h-10 flex items-center justify-center border border-outline-variant hover:bg-surface-container rounded-lg text-body-md font-medium transition-colors">2</button>
+<button class="w-10 h-10 flex items-center justify-center border border-outline-variant hover:bg-surface-container rounded-lg text-body-md font-medium transition-colors">3</button>
+<span class="px-2 text-outline-variant">...</span>
+<button class="w-10 h-10 flex items-center justify-center border border-outline-variant hover:bg-surface-container rounded-lg text-body-md font-medium transition-colors">42</button>
+<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</main>
+</div>
+<!-- Floating Feedback (Minimalist) -->
+<button class="fixed bottom-8 right-8 w-12 h-12 bg-secondary text-on-secondary rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all z-40 group">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span class="absolute right-full mr-4 bg-primary text-on-primary text-label-md px-3 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Suggest a Problem</span>
+</button>
+
+
+</body></html>

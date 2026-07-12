@@ -1,0 +1,408 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Review Engine | CRCE OS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Geist:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error-container": "#ffdad6",
+                    "surface-dim": "#d8dadc",
+                    "secondary-fixed-dim": "#c3c0ff",
+                    "on-tertiary-fixed": "#07006c",
+                    "on-error-container": "#93000a",
+                    "on-primary": "#ffffff",
+                    "tertiary-fixed-dim": "#c0c1ff",
+                    "surface": "#f7f9fb",
+                    "tertiary": "#000000",
+                    "background": "#f7f9fb",
+                    "on-secondary-container": "#fffbff",
+                    "secondary-fixed": "#e2dfff",
+                    "primary-fixed-dim": "#bec6e0",
+                    "primary-container": "#131b2e",
+                    "on-primary-container": "#7c839b",
+                    "surface-bright": "#f7f9fb",
+                    "tertiary-fixed": "#e1e0ff",
+                    "error": "#ba1a1a",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#131b2e",
+                    "on-secondary-fixed-variant": "#3323cc",
+                    "tertiary-container": "#07006c",
+                    "inverse-surface": "#2d3133",
+                    "surface-tint": "#565e74",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "secondary-container": "#645efb",
+                    "surface-container": "#eceef0",
+                    "inverse-primary": "#bec6e0",
+                    "on-tertiary-fixed-variant": "#2f2ebe",
+                    "on-tertiary-container": "#7073ff",
+                    "on-surface-variant": "#45464d",
+                    "surface-container-high": "#e6e8ea",
+                    "on-surface": "#191c1e",
+                    "inverse-on-surface": "#eff1f3",
+                    "primary-fixed": "#dae2fd",
+                    "outline-variant": "#c6c6cd",
+                    "surface-container-low": "#f2f4f6",
+                    "secondary": "#4b41e1",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-highest": "#e0e3e5",
+                    "surface-variant": "#e0e3e5",
+                    "on-secondary": "#ffffff",
+                    "on-background": "#191c1e",
+                    "surface-container-lowest": "#ffffff",
+                    "outline": "#76777d",
+                    "on-secondary-fixed": "#0f0069",
+                    "primary": "#000000"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "16px",
+                    "gutter": "24px",
+                    "container-max": "1440px",
+                    "base": "4px",
+                    "xl": "64px",
+                    "lg": "40px",
+                    "md": "24px",
+                    "xs": "8px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "mono": ["Geist"],
+                    "headline-sm": ["Inter"],
+                    "label-md": ["Geist"],
+                    "headline-lg": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f7f9fb;
+            color: #191c1e;
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 120px; /* Space for sticky buttons */
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .bento-card {
+            border: 1px solid #E2E8F0;
+            background: #ffffff;
+            transition: transform 0.2s ease;
+        }
+        .bento-card:active {
+            transform: scale(0.98);
+        }
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 24px;
+            bottom: 0;
+            width: 2px;
+            background: #E2E8F0;
+        }
+        .timeline-item:last-child .timeline-line::before {
+            display: none;
+        }
+        /* Material Icon Adjustments */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .modal-enter { transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-show { transform: translateY(0); }
+    </style>
+<style>body { background-color: #f7f9fb; color: #191c1e; -webkit-font-smoothing: antialiased; } .glass { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); } .bento-card { border: 1px solid #E2E8F0; background: #ffffff; transition: transform 0.2s ease; } .bento-card:active { transform: scale(0.98); } .timeline-line::before { content: ''; position: absolute; left: 11px; top: 24px; bottom: 0; width: 2px; background: #E2E8F0; } .timeline-item:last-child .timeline-line::before { display: none; } .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; } .modal-enter { transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); } .modal-show { transform: translateY(0); }</style>
+</head>
+<body class="font-body-md text-body-md pb-32 pb-safe">
+<!-- Top App Bar -->
+<header class="sticky top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30 flex items-center justify-between px-sm h-14 shadow-sm">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary">menu</span>
+<h1 class="font-headline-sm text-headline-sm-mobile font-bold text-on-surface">Review Engine</h1>
+</div>
+<div class="flex items-center gap-xs">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-[10px] font-bold text-on-secondary-container">JS</div>
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</div>
+</header>
+<main class="px-sm mt-xs space-y-sm">
+<!-- Hero Status Card -->
+<div class="relative overflow-hidden rounded-xl glass border border-white/40 shadow-sm p-lg min-h-[160px] flex flex-col justify-center">
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-secondary/10 blur-3xl rounded-full"></div>
+<p class="font-label-md text-label-md text-on-surface-variant/70 uppercase tracking-widest mb-xs">Review Status</p>
+<div class="flex items-baseline gap-xs">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary">In Review</h2>
+<div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-container/20 border border-secondary/20">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="text-[10px] font-medium text-secondary">LIVE</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Milestone 3: Core Architecture</p>
+</div>
+<!-- Progress Bento -->
+<div class="grid grid-cols-3 gap-xs">
+<div class="bento-card rounded-xl p-sm flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-on-tertiary-fixed-variant mb-1" style="font-variation-settings: &quot;FILL&quot; 1;">verified</span>
+<p class="font-headline-sm text-headline-sm-mobile">2</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Approved</p>
+</div>
+<div class="bento-card rounded-xl p-sm flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-secondary-container mb-1">pending</span>
+<p class="font-headline-sm text-headline-sm-mobile">1</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Pending</p>
+</div>
+<div class="bento-card rounded-xl p-sm flex flex-col items-center justify-center text-center"><span class="material-symbols-outlined text-on-surface-variant/40 mb-1">lock</span>
+<p class="font-headline-sm text-headline-sm-mobile text-on-surface-variant/40" id="milestone-credits-value">--</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Pending Review</p></div>
+</div>
+<!-- Current Milestone Section -->
+<section>
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-xs ml-1 uppercase font-bold tracking-tight">Active Phase</h3>
+<div class="bento-card rounded-xl p-lg space-y-md border-l-4 border-l-primary">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline-sm text-headline-sm-mobile"><span class="text-label-md text-on-surface-variant/60 font-mono mr-1" id="milestone-id-label">#M-003</span>Core Architecture</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">System Design &amp; DB Schema</p>
+</div>
+<span class="material-symbols-outlined text-primary">architecture</span>
+</div>
+<div class="grid grid-cols-2 gap-sm pt-xs"><div class="space-y-1">
+<p class="font-label-md text-label-md text-on-surface-variant/60">Due Date</p>
+<p class="font-mono text-mono font-medium" id="expected-review-date">Oct 25, 2023</p>
+</div>
+<div class="space-y-1">
+<p class="font-label-md text-label-md text-on-surface-variant/60">Faculty</p>
+<p class="font-body-md text-body-md font-medium" id="assigned-faculty-name">Dr. Manoj Shah <span class="text-[10px] text-on-surface-variant/60 font-mono">(ID: FAC-772)</span></p>
+</div></div>
+<button class="w-full flex items-center justify-center gap-xs py-2 bg-surface-container hover:bg-surface-container-high transition-colors rounded-lg text-primary font-medium">
+<span class="material-symbols-outlined text-[20px]">description</span>
+<span class="">View Specs</span>
+</button>
+</div>
+</section><section>
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-xs ml-1 uppercase font-bold tracking-tight">Review Decision</h3>
+<div class="bento-card rounded-xl p-lg bg-surface-container-low border-dashed flex flex-col items-center justify-center text-center py-xl">
+<span class="material-symbols-outlined text-on-surface-variant/40 text-[32px] mb-sm">hourglass_empty</span>
+<p class="font-body-md font-medium text-on-surface-variant">Decision Pending</p>
+<p class="text-label-md text-on-surface-variant/60">Faculty is currently reviewing Milestone 3. Expected response within 24-48 hours.</p>
+</div>
+</section>
+<!-- Faculty Feedback -->
+<section>
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-xs ml-1 uppercase font-bold tracking-tight">Faculty Feedback</h3>
+<div class="bg-primary-container text-on-primary-container rounded-xl p-lg shadow-sm border border-outline-variant/10" id="faculty-feedback-container">
+<div class="flex gap-sm items-start">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-slate-300 flex-shrink-0">
+<img alt="Dr. Manoj Shah" class="" data-alt="A professional headshot of an elderly South Asian professor with salt and pepper hair, wearing glasses and a formal white shirt, set against a blurred academic background with warm lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPuepPqKnVNeibwNFLipyC1Y3rbXLdcLluSt_mvFJ1gXmQSzeI27GH19g1hsVcJDqLG0d04OFktRojiUBwVkkzcAe0bRNfR0MyYLqKAUH24PwqP56i3AD7532INICbIaAkK1hclTcimKCvfC448HBBBI5SRn0FvFGW-vC89iHcT1vrJYdl-urCYktOyBl8FW8KeQMtWYQH2MHB1WFrWRIsfRWlMe4x9iT31awUDnpmTdsBWwSMzIOsGNBHCnQFeXK6Rmhx1Oq67fhR">
+</div>
+<div class="space-y-xs">
+<p class="italic text-body-md leading-relaxed opacity-90" id="faculty-comment-text">
+                            "The database schema looks solid. Focus on the API response times for the next phase."
+                        </p>
+<div class="flex items-center gap-xs text-on-primary-container/60">
+<span class="font-mono text-[11px]">Today, 10:45 AM</span>
+<span class="w-1 h-1 rounded-full bg-current"></span>
+<span class="font-label-md">Phase 3 Review</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Review History Timeline -->
+<section>
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-xs ml-1 uppercase font-bold tracking-tight">Review History</h3>
+<div class="space-y-0 pl-1">
+<div class="relative pl-8 pb-lg timeline-line timeline-item" id="timeline-step-1" style="transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); opacity: 0; transform: translateX(-10px);">
+<div class="absolute left-0 top-0 w-6 h-6 rounded-full bg-on-tertiary-fixed-variant flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[14px] text-white" style="font-variation-settings: &quot;FILL&quot; 1;">check</span>
+</div>
+<div class="flex flex-col gap-xs">
+<div class="flex justify-between items-center">
+<h5 class="font-body-md font-bold">Feasibility Study</h5>
+<span class="bg-emerald-50 text-emerald-700 font-mono text-[10px] px-2 py-0.5 rounded-full uppercase font-bold">Approved</span>
+</div>
+<p class="text-on-surface-variant text-[13px]">Submitted: Sept 12 • 4.5/5.0 Rating</p>
+<a class="text-secondary text-label-md font-bold flex items-center gap-1 hover:underline" href="#">
+                            View Submission <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<div class="relative pl-8 pb-lg timeline-line timeline-item" id="timeline-step-2" style="transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); opacity: 0; transform: translateX(-10px);">
+<div class="absolute left-0 top-0 w-6 h-6 rounded-full bg-on-tertiary-fixed-variant flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[14px] text-white" style="font-variation-settings: &quot;FILL&quot; 1;">check</span>
+</div>
+<div class="flex flex-col gap-xs">
+<div class="flex justify-between items-center">
+<h5 class="font-body-md font-bold">SRS Documentation</h5>
+<span class="bg-emerald-50 text-emerald-700 font-mono text-[10px] px-2 py-0.5 rounded-full uppercase font-bold">Approved</span>
+</div>
+<p class="text-on-surface-variant text-[13px]">Submitted: Aug 28 • Complete Docs</p>
+<a class="text-secondary text-label-md font-bold flex items-center gap-1 hover:underline" href="#">
+                            View Submission <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Upcoming Review -->
+<section>
+<div class="bento-card rounded-xl p-sm flex items-center justify-between opacity-60 bg-surface-container-low border-dashed">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-lg bg-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">lock</span>
+</div>
+<div>
+<p class="font-label-md text-on-surface-variant">Next Step</p>
+<p class="font-body-md font-bold">Beta Testing</p>
+</div>
+</div>
+<span class="font-mono text-label-md">Pending Phase 3</span>
+</div>
+</section>
+</main>
+<!-- Sticky Bottom Actions -->
+<div class="fixed bottom-0 left-0 w-full glass border-t border-outline-variant/30 px-sm py-4 z-50 flex gap-sm items-center hidden">
+<button class="flex-grow bg-surface-container text-on-surface-variant/40 font-bold py-3.5 rounded-xl flex items-center justify-center gap-xs cursor-not-allowed" disabled="" id="primary-submission-btn">
+<span class="material-symbols-outlined text-[20px]">hourglass_empty</span>
+            Waiting for Review
+        </button>
+<button class="p-3.5 rounded-xl border border-outline text-on-surface hover:bg-surface-container active:scale-95 transition-all">
+<span class="material-symbols-outlined">calendar_month</span>
+</button>
+</div>
+<!-- Bottom Nav Bar (Hidden when focused on tasks per prompt logic, but included for system anchor) -->
+<nav class="fixed bottom-0 md:flex w-full z-50 bg-surface border-t border-outline-variant flex justify-around items-center h-16 px-xs">
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md">Overview</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-xl px-4 py-1.5">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-label-md">Tasks</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-md">History</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md">Settings</span>
+</div>
+</nav>
+<!-- Bottom Sheet Modal (Submit Milestone) -->
+<div class="fixed inset-0 bg-black/40 hidden backdrop-blur-sm transition-opacity duration-300 opacity-0 z-[90]" id="modal-overlay" onclick="toggleModal('modal')"></div>
+<div class="fixed bottom-0 left-0 w-full bg-white rounded-t-3xl p-lg modal-enter shadow-2xl overflow-hidden max-h-[707px] z-[100]" id="modal">
+<div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-lg"></div>
+<div class="space-y-lg">
+<div>
+<h2 class="font-headline-md text-headline-md mb-xs">Submit Milestone</h2>
+<p class="text-on-surface-variant">Uploading documentation for <span class="font-bold text-primary">Milestone 3</span>.</p>
+</div>
+<div class="border-2 border-dashed border-outline-variant rounded-2xl p-xl flex flex-col items-center justify-center text-center gap-xs group active:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-primary text-[48px] opacity-40 group-active:scale-110 transition-transform">cloud_upload</span>
+<div>
+<p class="font-bold">Tap to upload files</p>
+<p class="text-label-md text-on-surface-variant">PDF, DOCX, PPT, ZIP or Images (Max 25MB)</p>
+</div>
+</div>
+<div class="space-y-sm">
+<div class="p-sm bg-surface-container rounded-xl flex items-center justify-between relative overflow-hidden">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary">description</span>
+<span class="font-mono text-mono">architecture_final.pdf</span>
+</div>
+<span class="material-symbols-outlined text-error text-[20px]">cancel</span>
+<div class="absolute bottom-0 left-0 h-1 bg-secondary rounded-full transition-all duration-500" style="width: 65%"></div></div>
+</div>
+<div class="flex flex-col gap-sm">
+<button class="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg" onclick="showToast()">Confirm Submission</button>
+<button class="w-full text-on-surface-variant font-medium py-2" onclick="toggleModal('modal')">Discard Draft</button>
+</div>
+</div>
+</div>
+<!-- Toast Notification -->
+<div class="fixed top-20 left-1/2 -translate-x-1/2 z-[100] bg-inverse-surface text-inverse-on-surface px-lg py-3 rounded-full flex items-center gap-sm shadow-xl transition-all duration-500 opacity-0 translate-y-[-20px] pointer-events-none" id="toast">
+<span class="material-symbols-outlined text-emerald-400">check_circle</span>
+<span class="font-body-md font-medium">Submission Sent Successfully</span>
+</div>
+<script>
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            const overlay = document.getElementById('modal-overlay');
+            if (modal.classList.contains('modal-show')) {
+                modal.classList.remove('modal-show');
+                overlay.classList.add('hidden');
+                overlay.style.opacity = '0';
+            } else {
+                overlay.classList.remove('hidden');
+                setTimeout(() => { overlay.style.opacity = '1'; }, 10);
+                modal.classList.add('modal-show');
+            }
+        }
+
+        function showToast() {
+            toggleModal('modal');
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            toast.style.transform = 'translate(-50%, 0)';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, -20px)';
+            }, 3000);
+        }
+
+        // Simple parallax-like scroll reveal for timeline
+        window.addEventListener('scroll', () => {
+            const items = document.querySelectorAll('.timeline-item');
+            items.forEach(item => {
+                const rect = item.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.8) {
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateX(0)';
+                }
+            });
+        });
+
+        // Initialize view
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            item.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(-10px)';
+        });
+        
+        // Trigger initial check
+        setTimeout(() => window.dispatchEvent(new Event('scroll')), 100);
+    </script>
+</body></html>

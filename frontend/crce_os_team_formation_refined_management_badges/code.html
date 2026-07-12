@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>CRCE OS | Team Formation</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Geist:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-fixed-variant": "#3323cc",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary": "#4b41e1",
+                      "on-secondary": "#ffffff",
+                      "surface-dim": "#d8dadc",
+                      "surface": "#f7f9fb",
+                      "surface-container": "#eceef0",
+                      "on-surface-variant": "#45464d",
+                      "on-tertiary-fixed-variant": "#2f2ebe",
+                      "inverse-on-surface": "#eff1f3",
+                      "surface-bright": "#f7f9fb",
+                      "on-primary-fixed": "#131b2e",
+                      "surface-variant": "#e0e3e5",
+                      "primary": "#000000",
+                      "surface-container-highest": "#e0e3e5",
+                      "on-primary-container": "#7c839b",
+                      "error-container": "#ffdad6",
+                      "primary-fixed-dim": "#bec6e0",
+                      "on-tertiary-container": "#7073ff",
+                      "on-primary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "on-background": "#191c1e",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-low": "#f2f4f6",
+                      "on-error": "#ffffff",
+                      "primary-container": "#131b2e",
+                      "secondary-fixed-dim": "#c3c0ff",
+                      "outline": "#76777d",
+                      "tertiary-fixed-dim": "#c0c1ff",
+                      "tertiary": "#000000",
+                      "surface-container-high": "#e6e8ea",
+                      "secondary-container": "#645efb",
+                      "outline-variant": "#c6c6cd",
+                      "surface-tint": "#565e74",
+                      "on-surface": "#191c1e",
+                      "tertiary-container": "#07006c",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "tertiary-fixed": "#e1e0ff",
+                      "on-secondary-container": "#fffbff",
+                      "background": "#f7f9fb",
+                      "primary-fixed": "#dae2fd",
+                      "inverse-surface": "#2d3133",
+                      "on-tertiary-fixed": "#07006c",
+                      "inverse-primary": "#bec6e0",
+                      "on-error-container": "#93000a",
+                      "on-secondary-fixed": "#0f0069",
+                      "secondary-fixed": "#e2dfff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "64px",
+                      "md": "24px",
+                      "lg": "40px",
+                      "container-max": "1440px",
+                      "sm": "16px",
+                      "gutter": "24px",
+                      "base": "4px",
+                      "xs": "8px"
+              },
+              "fontFamily": {
+                      "headline-md": ["Inter"],
+                      "label-md": ["Geist"],
+                      "headline-lg-mobile": ["Inter"],
+                      "display": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "mono": ["Geist"],
+                      "body-md": ["Inter"],
+                      "body-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                      "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                      "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                      "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #f7f9fb;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass-header {
+            background: rgba(247, 249, 251, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .bottom-sheet {
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        .bottom-sheet.active {
+            transform: translateY(0);
+        }
+        .drawer-overlay {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .toast {
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+        .toast.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        @media (max-width: 640px) {
+            .bento-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+            pointer-events: none;
+        }
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 1.25rem;
+            height: 1.25rem;
+            top: 50%;
+            left: 50%;
+            margin-top: -0.625rem;
+            margin-left: -0.625rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-background">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 glass-header border-b border-outline-variant/30 h-16">
+<div class="flex justify-between items-center px-gutter max-w-container-max mx-auto h-full">
+<div class="flex items-center gap-xs">
+<button class="p-xs hover:bg-surface-container-low/50 transition-all active:scale-95 duration-200 rounded-full">
+<span class="material-symbols-outlined text-primary" data-icon="grid_view">grid_view</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold tracking-tight text-primary">CRCE OS</h1>
+</div>
+<div class="flex items-center gap-sm">
+<span class="hidden md:block font-label-md text-on-surface-variant">Team Hub</span>
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden border border-outline-variant/20">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdbKa_w6_kdmx7Sj4e0u8dNXG5elQcCqvgXV-extni34zpH2b08k-zIFRph1ax5s6oa0F5jXSTIyavh_19R5DN86pSMDT5wvwgtBLmswtl3bvwTDN7nvBIHmgagw65Xc2mep8XM8nuqJYrXtCHisLhJGrB8sotP0_dS0yrrwYBbGIkCSIcYhNW9beIqxwp_osLvJVio6ryufvMplQmq8dFYvYaTh2mfwccBlJBBXHt2e34Ho0pkMhOm0gV7RpnE7ljg_m5Ar9uvdQa"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="pt-24 pb-32 px-gutter max-w-container-max mx-auto">
+<!-- My Status Hero (Persistent) -->
+<section class="mb-lg">
+<div class="bg-primary text-white p-lg rounded-xl shadow-sm border border-primary relative overflow-hidden">
+<div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
+<div>
+<div class="flex items-center gap-xs mb-2">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+<span class="font-label-md uppercase tracking-wider text-on-primary-container/80">Current Status</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg font-bold mb-1">No Team Assigned</h2>
+<p class="font-body-md text-on-primary-container/90 max-w-md">You haven't joined a team for the 'Smart Attendance Platform' project yet. Deadline in 4 days.</p>
+</div>
+<div class="flex flex-wrap gap-sm">
+<button class="bg-white text-primary px-lg py-sm rounded-lg font-semibold active:scale-95 transition-transform hover:bg-surface-bright" onclick="toggleDrawer('create-team-drawer')">
+                            Create Team
+                        </button>
+<button class="bg-secondary text-white px-lg py-sm rounded-lg font-semibold active:scale-95 transition-transform hidden" id="captain-manage-btn" onclick="toggleDrawer('manage-team-drawer')">
+                            Manage Team
+                        </button>
+<button class="bg-primary-container text-white border border-outline/30 px-lg py-sm rounded-lg font-semibold active:scale-95 transition-transform" onclick="toggleDrawer('apply-solo-drawer')">
+                            Apply Solo
+                        </button>
+</div>
+</div>
+<!-- Background Pattern -->
+<div class="absolute top-0 right-0 opacity-10 pointer-events-none translate-x-1/4 -translate-y-1/4">
+<span class="material-symbols-outlined text-[200px]" data-icon="groups">groups</span>
+</div>
+</div>
+</section>
+<!-- Project Overview & Faculty -->
+<div class="bento-grid mb-lg">
+<!-- Hero Project Card -->
+<div class="col-span-1 md:col-span-2 bg-white border border-outline-variant p-lg rounded-xl relative overflow-hidden group">
+<div class="flex flex-col h-full">
+<div class="flex justify-between items-start mb-md">
+<div>
+<span class="bg-secondary-container/10 text-secondary text-xs font-bold px-sm py-xs rounded-full uppercase tracking-tighter">Computer Engineering</span>
+<h3 class="font-headline-md text-headline-md mt-2">Smart Attendance Platform</h3>
+</div>
+<div class="relative w-16 h-16">
+<svg class="w-full h-full">
+<circle class="text-surface-container-high" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-width="6"></circle>
+<circle class="text-secondary progress-ring__circle" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-dasharray="175.9" stroke-dashoffset="70.36" stroke-linecap="round" stroke-width="6"></circle>
+</svg>
+<span class="absolute inset-0 flex items-center justify-center font-mono text-sm font-bold">3/5</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-md mb-lg">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-outline" data-icon="payments">payments</span>
+<span class="font-body-md font-medium">250 Credits</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-outline" data-icon="event_available">event_available</span>
+<span class="font-body-md font-medium">Open</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-outline" data-icon="rocket_launch">rocket_launch</span>
+<span class="font-body-md font-medium">Building Team</span>
+</div>
+</div>
+<div class="mt-auto pt-md border-t border-outline-variant/30 flex justify-between items-center">
+<p class="font-label-md text-outline">Project ID: #CE-2024-08</p>
+<button class="text-secondary font-semibold flex items-center gap-xs hover:underline">
+                            View Syllabus <span class="material-symbols-outlined text-sm" data-icon="open_in_new">open_in_new</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Faculty Guide -->
+<div class="bg-white border border-outline-variant p-lg rounded-xl flex flex-col items-center justify-center text-center">
+<div class="w-20 h-20 rounded-full border-4 border-surface-container-low overflow-hidden mb-sm">
+<img alt="Dr. Shah" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvbeHLWscosLO2TymXRiX532lkcS41OMcdkhfwEQhHzkXS34gq2IHoawardynM854vJ9IvV8dN2FsAQ4PmDIEK3Xx87uoYmFmfz1B8HFLkFyvblklBKsmWh6cvmnM1liW5XStDKYOGtn05ef1tJR74lgoZ5BXOLaD_VhHMQr5QR-KTGDaaLBQHLz1X22N1Rq6Eo5GBfJEHJhdLlL1LRAx1qwqzX_eO7rYSpLL_vWSgRXo4DGPK257HTh5kDYuQ9nsd-Fz-wV5VTmoQ"/>
+</div>
+<h4 class="font-headline-sm text-headline-sm">Dr. Manoj Shah</h4>
+<div class="bg-secondary/10 text-secondary text-[10px] font-bold px-sm py-[2px] rounded-full uppercase mb-md">Project Guide</div>
+<button class="mt-md w-full border border-outline-variant py-sm rounded-lg font-semibold hover:bg-surface-container-low transition-colors">Message</button>
+</div>
+</div>
+<!-- Team Discovery -->
+<section class="mb-lg">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-md mb-md">
+<h3 class="font-headline-md text-headline-md">Explore Teams</h3>
+<div class="relative w-full md:w-80">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all" placeholder="Search skills or team names..." type="text"/>
+</div>
+</div>
+<!-- Team Cards -->
+<div class="space-y-sm">
+<!-- Team Card 1 -->
+<div class="bg-white border border-outline-variant p-md rounded-xl hover:shadow-md transition-shadow group cursor-pointer" onclick="toggleDrawer('team-profile-drawer')">
+<div class="flex flex-col sm:flex-row justify-between gap-md">
+<div class="flex gap-md">
+<div class="w-12 h-12 bg-surface-container rounded-lg flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary" data-icon="terminal">terminal</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm group-hover:text-secondary transition-colors">The Byte-Hounds</h4>
+<!-- Team Badges -->
+<div class="flex flex-wrap gap-xs mt-1 mb-2">
+<span class="bg-amber-100 text-amber-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5"><span class="material-symbols-outlined text-[10px]" data-icon="emoji_events" style="font-variation-settings: 'FILL' 1;">emoji_events</span> Hackathon Winner</span>
+<span class="bg-blue-100 text-blue-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5"><span class="material-symbols-outlined text-[10px]" data-icon="bolt" style="font-variation-settings: 'FILL' 1;">bolt</span> Fast Builder</span>
+</div>
+<p class="font-body-md text-on-surface-variant">Led by <span class="font-semibold text-on-surface">Aryan K.</span></p>
+<div class="flex flex-wrap gap-xs mt-sm">
+<span class="bg-surface-container-low text-on-surface-variant text-[10px] font-bold px-sm py-1 rounded">IOT</span>
+<span class="bg-surface-container-low text-on-surface-variant text-[10px] font-bold px-sm py-1 rounded">REACT NATIVE</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end justify-between">
+<div class="flex -space-x-2">
+<img alt="Team member" class="w-8 h-8 rounded-full border-2 border-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeZRzgVabyeUNUldf3TUaNamZ2FzjZ5Raio3rQdMyYKzlfnIkOJ0MkEGf9szkmPq0DhNdlO6ehh2VD6gHdzfJ89W71mX6HCn5sXapxuO25WOkQ-yWXriojNiXgUxRRWNZdNxTEcPlOmr6hSnzs-RpZKbRRoOyzrbxG30opVmYw22Ex9kNdnzE7kVCi0r6sseiKUjR9Q3OCMk2_yIWSvP08pJCoW62NhBEUGSHQ03m12mbVCkqEVzqJHV5kNQrwwjVdH2zwQ8FPZR-W"/>
+<img alt="Team member" class="w-8 h-8 rounded-full border-2 border-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKE8ahDQ8y6n09bsAiru0wN-fj56KJx7ZnZiCDv_kr3ciU9LKJ3xlHg9kV7Stw1lEBWx7bMGUdzBSTF2N5T1ZWPIBV4LYUjkVlrJkE-DrWcb79eASPDsNPMmjdDYmhOvh4hxxkXQFPc9yoHXHEvsVELa6TpaagmRhLRda9hLnR4JcFmyc6W0mty-hKO83rLwicNkzH2TE1UkUSXjzecR0YdFvUKtSbRbnXP8Nc3xGcKmMrXFXfhRtYP4bsofdf-1HiRTp1_Q4MAc1e"/>
+<div class="w-8 h-8 rounded-full border-2 border-white bg-surface-container-high flex items-center justify-center text-[10px] font-bold">+2</div>
+</div>
+<span class="font-mono text-sm font-bold text-outline">3/5 Members</span>
+</div>
+</div>
+</div>
+<!-- Team Card 2 -->
+<div class="bg-white border border-outline-variant p-md rounded-xl hover:shadow-md transition-shadow group cursor-pointer" onclick="toggleDrawer('team-profile-drawer')">
+<div class="flex flex-col sm:flex-row justify-between gap-md">
+<div class="flex gap-md">
+<div class="w-12 h-12 bg-surface-container rounded-lg flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary" data-icon="biotech">biotech</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm group-hover:text-secondary transition-colors">Neural Nexus</h4>
+<div class="flex flex-wrap gap-xs mt-1 mb-2">
+<span class="bg-purple-100 text-purple-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5"><span class="material-symbols-outlined text-[10px]" data-icon="science" style="font-variation-settings: 'FILL' 1;">science</span> Research Ace</span>
+</div>
+<p class="font-body-md text-on-surface-variant">Led by <span class="font-semibold text-on-surface">Sarah J.</span></p>
+<div class="flex flex-wrap gap-xs mt-sm">
+<span class="bg-surface-container-low text-on-surface-variant text-[10px] font-bold px-sm py-1 rounded">PYTORCH</span>
+<span class="bg-surface-container-low text-on-surface-variant text-[10px] font-bold px-sm py-1 rounded">RESEARCH</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end justify-between">
+<div class="flex -space-x-2">
+<img alt="Team member" class="w-8 h-8 rounded-full border-2 border-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1t02Azi6HRtwnH4kxXcPPzClQ2V-hGyv6VOlRYBxLUc56GcibTb7L23qWi5Tc7K7Da5MZQFsr9Y0rEDoTKYs34GbPwgL4QLOaG-5CQdUXx52xHu_Z0XNNyXZZ9N8nL6GOzKMVcd6OM46c003r4wGSEzrlMzrCELqu_wnutFZaYKS9evCB6rpJ5OFVopNKZiro7YzPFvDEFKMAsy4adwXAr1JSr2EaqlDPtdQZBRCu4kaQz_Dn8nlDE7UVOYVCFd0P-g29h6FPl3n_"/>
+<img alt="Team member" class="w-8 h-8 rounded-full border-2 border-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWsxsSgPQsxeA7ZuBW7pN6X3R5_DOLQJoxnlYTKb71w7VTY4mCuHeP64H5ytFzRo0eAfWLQrpGGtL9eQt0R6yq7XVzImzXWGr4OlaKjzhHz0UJDdwE1nIYCTGmquSR5zdMjxuEbJuXWpMbIkitWbBbRS63V27MfE8TahNP0Dh6jaNOMQavaFms5Pn6MpoU5FOey8BVeEZyz2PU2FpWaknaX4xMZBsk--hAmrUj3iPx1II9PYNC_md2BaRVWg6FwvxKcnDQPMcRM66C"/>
+</div>
+<span class="font-mono text-sm font-bold text-outline">2/5 Members</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 glass-header border-t border-outline-variant/20 lg:hidden">
+<div class="flex justify-around items-center py-xs pb-safe">
+<div class="flex flex-col items-center text-outline">
+<span class="material-symbols-outlined" data-icon="home_app_logo">home_app_logo</span>
+<span class="font-label-md text-label-md">Home</span>
+</div>
+<div class="flex flex-col items-center text-secondary">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-label-md text-label-md">Teams</span>
+</div>
+<div class="flex flex-col items-center text-outline">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-md text-label-md">Schedule</span>
+</div>
+<div class="flex flex-col items-center text-outline">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+<span class="font-label-md text-label-md">Profile</span>
+</div>
+</div>
+</nav>
+<!-- DRAWERS / MODALS -->
+<!-- Overlay used by all drawers -->
+<div class="drawer-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]" id="common-overlay" onclick="closeAllDrawers()"></div>
+<!-- Create Team Bottom Sheet -->
+<div class="bottom-sheet fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-white rounded-t-3xl shadow-2xl z-[70] p-lg max-h-[90vh] overflow-y-auto" id="create-team-drawer">
+<div class="w-12 h-1.5 bg-outline-variant/40 rounded-full mx-auto mb-lg"></div>
+<header class="flex justify-between items-center mb-lg">
+<h3 class="font-headline-md text-headline-md">Create New Team</h3>
+<button class="text-outline hover:text-primary" onclick="closeAllDrawers()">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</header>
+<form class="space-y-md" onsubmit="handleFormSubmit(event, 'Team Created!', true)">
+<div class="space-y-xs">
+<label class="font-label-md text-on-surface-variant ml-1">Team Name</label>
+<input class="w-full p-md bg-surface rounded-xl border border-outline-variant focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none" placeholder="e.g. Dream Build" required="" type="text"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-on-surface-variant ml-1">Project Description</label>
+<textarea class="w-full p-md bg-surface rounded-xl border border-outline-variant focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none" placeholder="Briefly describe your vision..." required="" rows="3"></textarea>
+</div>
+<button class="w-full bg-primary text-white py-lg rounded-xl font-bold flex items-center justify-center gap-md active:scale-95 transition-transform" type="submit">
+<span class="material-symbols-outlined" data-icon="rocket_launch">rocket_launch</span>
+                Launch Team
+            </button>
+</form>
+</div>
+<!-- Manage Team Bottom Sheet -->
+<div class="bottom-sheet fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-white rounded-t-3xl shadow-2xl z-[70] max-h-[95vh] flex flex-col" id="manage-team-drawer">
+<div class="p-lg pb-0">
+<div class="w-12 h-1.5 bg-outline-variant/40 rounded-full mx-auto mb-lg"></div>
+<header class="flex justify-between items-center mb-md">
+<div>
+<div class="flex items-center gap-xs mb-1">
+<h3 class="font-headline-md text-headline-md">Manage Team</h3>
+<span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5">
+<span class="material-symbols-outlined text-xs" data-icon="stars" style="font-variation-settings: 'FILL' 1;">stars</span> Captain</span>
+</div>
+<p class="font-body-md text-outline">The Byte-Hounds</p>
+</div>
+<button class="p-xs hover:bg-surface-container rounded-full" onclick="closeAllDrawers()">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</header>
+</div>
+<div class="overflow-y-auto px-lg pb-24 space-y-lg no-scrollbar">
+<!-- Summary Metrics -->
+<section class="grid grid-cols-2 sm:grid-cols-4 gap-sm">
+<div class="p-sm bg-surface rounded-xl border border-outline-variant/30 text-center">
+<p class="text-outline text-[10px] uppercase font-bold mb-1">Members</p>
+<p class="font-headline-sm">3/5</p>
+</div>
+<div class="p-sm bg-surface rounded-xl border border-outline-variant/30 text-center">
+<p class="text-outline text-[10px] uppercase font-bold mb-1">Applications</p>
+<p class="font-headline-sm text-secondary">6</p>
+</div>
+<div class="p-sm bg-surface rounded-xl border border-outline-variant/30 text-center">
+<p class="text-outline text-[10px] uppercase font-bold mb-1">Open Roles</p>
+<p class="font-headline-sm">2</p>
+</div>
+<div class="p-sm bg-surface rounded-xl border border-outline-variant/30 text-center">
+<p class="text-outline text-[10px] uppercase font-bold mb-1">Status</p>
+<p class="text-xs font-bold text-success-600">Building</p>
+</div>
+</section>
+<!-- Badges Section -->
+<section>
+<div class="flex justify-between items-center mb-sm">
+<h4 class="font-label-md uppercase tracking-widest text-outline">Current Team Badges</h4>
+<button class="text-secondary text-xs font-bold">Edit</button>
+</div>
+<div class="flex flex-wrap gap-xs">
+<span class="bg-amber-100 text-amber-700 text-[11px] font-bold px-2 py-1 rounded-full flex items-center gap-1">🏆 Hackathon Winner</span>
+<span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-2 py-1 rounded-full flex items-center gap-1">⚡ Fast Builder</span>
+<button class="w-7 h-7 flex items-center justify-center bg-surface-container-low border border-dashed border-outline-variant rounded-full text-outline">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+</button>
+</div>
+</section>
+<!-- Members List -->
+<section>
+<h4 class="font-label-md uppercase tracking-widest text-outline mb-sm">Current Roster</h4>
+<div class="space-y-sm">
+<div class="flex items-center justify-between p-sm bg-surface rounded-xl border border-outline-variant/20">
+<div class="flex items-center gap-sm">
+<img class="w-10 h-10 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANEs43is-FtmQdSGhLobzs_FyNjSwMs9sio8SQut9BIIlQMZTT9QRaLWrhP6gxVcgqdf4JwV1Sj8_USTSJHMXU_bN9UeIoqDaXr2zhSlS0X-Bx7o3DevS85nGpjH3rIjwFYnJytyrIbO3laIottD1jrW0BNN0N2RHHPdWHdSyf_LSrcrfWz63tObjA3xsJxCpmsz2WiwDkm5WKhoEtvZQd5CaC_jU8xei-9aZBCIzQG7GWVQMychcLzN6r_Jw9cwV8KUGdITnooT2i"/>
+<div>
+<p class="font-body-md font-bold">Aryan K. (You)</p>
+<p class="text-xs text-outline">Captain / Backend</p>
+</div>
+</div>
+<span class="bg-primary/10 text-primary text-[9px] font-bold px-2 py-0.5 rounded-full">CAPTAIN</span>
+</div>
+<div class="flex items-center justify-between p-sm bg-surface rounded-xl border border-outline-variant/20">
+<div class="flex items-center gap-sm">
+<img class="w-10 h-10 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKE8ahDQ8y6n09bsAiru0wN-fj56KJx7ZnZiCDv_kr3ciU9LKJ3xlHg9kV7Stw1lEBWx7bMGUdzBSTF2N5T1ZWPIBV4LYUjkVlrJkE-DrWcb79eASPDsNPMmjdDYmhOvh4hxxkXQFPc9yoHXHEvsVELa6TpaagmRhLRda9hLnR4JcFmyc6W0mty-hKO83rLwicNkzH2TE1UkUSXjzecR0YdFvUKtSbRbnXP8Nc3xGcKmMrXFXfhRtYP4bsofdf-1HiRTp1_Q4MAc1e"/>
+<div>
+<p class="font-body-md font-bold">Mihir D.</p>
+<p class="text-xs text-outline">Hardware Specialist</p>
+</div>
+</div>
+<button class="p-xs hover:text-error transition-colors" title="Manage Member">
+<span class="material-symbols-outlined text-sm" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Pending Applications -->
+<section>
+<h4 class="font-label-md uppercase tracking-widest text-outline mb-sm">Pending Applications (3)</h4>
+<div class="space-y-sm">
+<div class="p-md bg-secondary/5 rounded-xl border border-secondary/20">
+<div class="flex items-start justify-between mb-sm">
+<div class="flex items-center gap-sm">
+<img class="w-10 h-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1t02Azi6HRtwnH4kxXcPPzClQ2V-hGyv6VOlRYBxLUc56GcibTb7L23qWi5Tc7K7Da5MZQFsr9Y0rEDoTKYs34GbPwgL4QLOaG-5CQdUXx52xHu_Z0XNNyXZZ9N8nL6GOzKMVcd6OM46c003r4wGSEzrlMzrCELqu_wnutFZaYKS9evCB6rpJ5OFVopNKZiro7YzPFvDEFKMAsy4adwXAr1JSr2EaqlDPtdQZBRCu4kaQz_Dn8nlDE7UVOYVCFd0P-g29h6FPl3n_"/>
+<div>
+<p class="font-body-md font-bold">Sarah J.</p>
+<p class="text-xs text-outline">Skills: Python, CV, AWS</p>
+</div>
+</div>
+<div class="flex gap-xs">
+<button class="w-8 h-8 rounded-full bg-error/10 text-error flex items-center justify-center active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-sm" data-icon="close">close</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center shadow-sm active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-sm" data-icon="check">check</span>
+</button>
+</div>
+</div>
+<p class="text-xs text-on-surface-variant italic border-l-2 border-outline-variant pl-3">"I've worked on attendance systems before using OpenCV and would love to help optimize your facial recognition module..."</p>
+</div>
+</div>
+</section>
+<!-- Open Roles -->
+<section>
+<div class="flex justify-between items-center mb-sm">
+<h4 class="font-label-md uppercase tracking-widest text-outline">Open Roles</h4>
+<button class="text-secondary text-xs font-bold">Add Role</button>
+</div>
+<div class="flex flex-wrap gap-sm">
+<span class="bg-surface-container-high border border-outline-variant px-sm py-1.5 rounded-lg font-label-md flex items-center gap-xs">Frontend Dev <span class="material-symbols-outlined text-xs text-outline cursor-pointer" data-icon="edit">edit</span></span>
+<span class="bg-surface-container-high border border-outline-variant px-sm py-1.5 rounded-lg font-label-md flex items-center gap-xs">QA/Testing <span class="material-symbols-outlined text-xs text-outline cursor-pointer" data-icon="edit">edit</span></span>
+</div>
+</section>
+<!-- Team Controls -->
+<section class="pt-md border-t border-outline-variant/30 space-y-sm">
+<button class="w-full flex items-center justify-between p-md bg-surface border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-outline" data-icon="lock_open">lock_open</span>
+<span class="font-body-md font-medium">Team Recruitment: Public</span>
+</div>
+<span class="text-secondary font-bold text-xs">Lock</span>
+</button>
+<button class="w-full flex items-center justify-between p-md bg-secondary/10 border border-secondary/20 rounded-xl hover:bg-secondary/15 transition-colors">
+<div class="flex items-center gap-md text-secondary">
+<span class="material-symbols-outlined" data-icon="send">send</span>
+<span class="font-body-md font-bold">Apply Team to Project</span>
+</div>
+<span class="material-symbols-outlined text-secondary" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-md bg-error/5 border border-error/10 rounded-xl hover:bg-error/10 transition-colors">
+<div class="flex items-center gap-md text-error">
+<span class="material-symbols-outlined" data-icon="delete_forever">delete_forever</span>
+<span class="font-body-md font-medium">Delete Team</span>
+</div>
+</button>
+</section>
+</div>
+<div class="absolute bottom-0 left-0 right-0 p-lg bg-white border-t border-outline-variant/20 flex gap-md">
+<button class="flex-1 bg-primary text-white py-lg rounded-xl font-bold active:scale-95 transition-transform" onclick="handleFormSubmit(event, 'Changes Saved!', false)">Save Changes</button>
+<button class="flex-1 bg-surface-container border border-outline-variant py-lg rounded-xl font-bold active:scale-95 transition-transform" onclick="closeAllDrawers()">Close</button>
+</div>
+</div>
+<!-- Team Profile Drawer -->
+<div class="bottom-sheet fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-white rounded-t-3xl shadow-2xl z-[70] p-lg max-h-[90vh] overflow-y-auto" id="team-profile-drawer">
+<div class="w-12 h-1.5 bg-outline-variant/40 rounded-full mx-auto mb-lg"></div>
+<div class="flex items-start justify-between mb-lg">
+<div class="flex items-center gap-md">
+<div class="w-16 h-16 bg-secondary-container/20 rounded-2xl flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-4xl" data-icon="terminal">terminal</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md">The Byte-Hounds</h3>
+<!-- Badges in Profile -->
+<div class="flex flex-wrap gap-xs mt-1">
+<span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">🏆 Hackathon Winner</span>
+<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">⚡ Fast Builder</span>
+</div>
+<p class="font-body-md text-outline mt-1">Smart Attendance Project</p>
+</div>
+</div>
+<button class="p-xs hover:bg-surface-container rounded-full" onclick="closeAllDrawers()">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<div class="space-y-lg">
+<section>
+<h4 class="font-label-md uppercase tracking-widest text-outline mb-sm">Project Vision</h4>
+<p class="font-body-md leading-relaxed text-on-surface-variant">Building a zero-friction attendance system using facial recognition and BLE beacons for real-time classroom check-ins.</p>
+</section>
+<section>
+<div class="flex justify-between items-center mb-sm">
+<h4 class="font-label-md uppercase tracking-widest text-outline">Active Roster</h4>
+<span class="font-mono text-xs text-secondary font-bold">2 Slots Remaining</span>
+</div>
+<div class="space-y-sm">
+<div class="flex items-center justify-between p-sm bg-surface rounded-xl">
+<div class="flex items-center gap-sm">
+<img class="w-10 h-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANEs43is-FtmQdSGhLobzs_FyNjSwMs9sio8SQut9BIIlQMZTT9QRaLWrhP6gxVcgqdf4JwV1Sj8_USTSJHMXU_bN9UeIoqDaXr2zhSlS0X-Bx7o3DevS85nGpjH3rIjwFYnJytyrIbO3laIottD1jrW0BNN0N2RHHPdWHdSyf_LSrcrfWz63tObjA3xsJxCpmsz2WiwDkm5WKhoEtvZQd5CaC_jU8xei-9aZBCIzQG7GWVQMychcLzN6r_Jw9cwV8KUGdITnooT2i"/>
+<div>
+<p class="font-body-md font-bold">Aryan K.</p>
+<p class="text-xs text-outline">Captain / Backend</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary" data-icon="verified" style='font-variation-settings: "FILL" 1;'>verified</span>
+</div>
+<div class="flex items-center justify-between p-sm bg-surface rounded-xl">
+<div class="flex items-center gap-sm">
+<img class="w-10 h-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKE8ahDQ8y6n09bsAiru0wN-fj56KJx7ZnZiCDv_kr3ciU9LKJ3xlHg9kV7Stw1lEBWx7bMGUdzBSTF2N5T1ZWPIBV4LYUjkVlrJkE-DrWcb79eASPDsNPMmjdDYmhOvh4hxxkXQFPc9yoHXHEvsVELa6TpaagmRhLRda9hLnR4JcFmyc6W0mty-hKO83rLwicNkzH2TE1UkUSXjzecR0YdFvUKtSbRbnXP8Nc3xGcKmMrXFXfhRtYP4bsofdf-1HiRTp1_Q4MAc1e"/>
+<div>
+<p class="font-body-md font-bold">Mihir D.</p>
+<p class="text-xs text-outline">Hardware Specialist</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="grid grid-cols-2 gap-md">
+<div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/30 text-center">
+<span class="font-display text-headline-lg text-primary block">88%</span>
+<span class="font-label-md text-outline uppercase">Synergy Rank</span>
+</div>
+<div class="p-md bg-surface-container-low rounded-xl border border-outline-variant/30 text-center">
+<span class="font-display text-headline-lg text-primary block">04</span>
+<span class="font-label-md text-outline uppercase">Days Left</span>
+</div>
+</section>
+<div class="flex gap-md pt-lg sticky bottom-0 bg-white">
+<button class="flex-1 bg-primary text-white py-lg rounded-xl font-bold active:scale-95 transition-transform" onclick="toggleDrawer('join-team-drawer')">Request to Join</button>
+<button class="w-16 h-16 flex items-center justify-center border border-outline-variant rounded-xl hover:bg-surface transition-colors">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Join Team (Apply) Drawer -->
+<div class="bottom-sheet fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white rounded-t-3xl shadow-2xl z-[90] p-lg max-h-[80vh]" id="join-team-drawer">
+<div class="w-12 h-1.5 bg-outline-variant/40 rounded-full mx-auto mb-lg"></div>
+<h3 class="font-headline-md text-headline-md mb-xs">Join The Byte-Hounds</h3>
+<p class="font-body-md text-outline mb-lg">Tell the captain why you're a good fit.</p>
+<form onsubmit="handleFormSubmit(event, 'Request Sent! Wait for Captain\'s approval.', true)">
+<textarea class="w-full p-md bg-surface rounded-xl border border-outline-variant focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none mb-lg" placeholder="I have 2 years experience in UI Design and have built 3 apps with Flutter..." required="" rows="5"></textarea>
+<div class="bg-secondary-container/10 p-md rounded-xl mb-lg">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="info">info</span>
+<p class="text-xs text-secondary-container font-medium">Your request will expire in 24 hours if not accepted.</p>
+</div>
+</div>
+<button class="w-full bg-secondary text-white py-lg rounded-xl font-bold active:scale-95 transition-transform" type="submit">Send Application</button>
+</form>
+</div>
+<!-- Toast Notification -->
+<div class="toast fixed bottom-24 left-4 right-4 md:left-auto md:right-8 md:w-96 z-[100] bg-inverse-surface text-inverse-on-surface p-md rounded-xl shadow-xl flex items-center justify-between" id="toast">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-secondary-fixed-dim" data-icon="check_circle" id="toast-icon">check_circle</span>
+<span class="font-body-md font-medium" id="toast-message">Action successful!</span>
+</div>
+<button class="text-outline" onclick="hideToast()">
+<span class="material-symbols-outlined text-sm" data-icon="close">close</span>
+</button>
+</div>
+<script>
+        let toastTimeout;
+
+        function toggleDrawer(id) {
+            const drawer = document.getElementById(id);
+            const overlay = document.getElementById('common-overlay');
+            const isActive = drawer.classList.contains('active');
+            
+            // Close all other drawers first
+            const activeDrawers = document.querySelectorAll('.bottom-sheet.active');
+            activeDrawers.forEach(d => {
+                if (d.id !== id) d.classList.remove('active');
+            });
+
+            if (isActive) {
+                drawer.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = "";
+            } else {
+                drawer.classList.add('active');
+                overlay.classList.add('active');
+                document.body.style.overflow = "hidden";
+            }
+        }
+
+        function closeAllDrawers() {
+            document.querySelectorAll('.bottom-sheet.active').forEach(d => d.classList.remove('active'));
+            document.getElementById('common-overlay').classList.remove('active');
+            document.body.style.overflow = "";
+        }
+
+        function showToast(message, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+            
+            clearTimeout(toastTimeout);
+            
+            toastMsg.innerText = message;
+            toastIcon.innerText = isSuccess ? 'check_circle' : 'error';
+            toastIcon.style.color = isSuccess ? '#c3c0ff' : '#ffdad6';
+            
+            toast.classList.add('active');
+            toastTimeout = setTimeout(() => {
+                hideToast();
+            }, 4000);
+        }
+
+        function hideToast() {
+            document.getElementById('toast').classList.remove('active');
+        }
+
+        function handleFormSubmit(e, message, shouldClose = true) {
+            e.preventDefault();
+            const btn = e.submitter || e.target.querySelector('button[type="submit"]');
+            
+            if (btn) {
+                btn.classList.add('btn-loading');
+                btn.disabled = true;
+            }
+            
+            // Simulate API delay
+            setTimeout(() => {
+                if (shouldClose) {
+                    closeAllDrawers();
+                }
+                
+                if (btn) {
+                    btn.classList.remove('btn-loading');
+                    btn.disabled = false;
+                }
+                
+                showToast(message);
+
+                // Mock logic for Captain state
+                if (message.includes('Team Created')) {
+                    document.getElementById('captain-manage-btn').classList.remove('hidden');
+                    // Find and hide create button
+                    const btns = document.querySelectorAll('button');
+                    btns.forEach(b => { if(b.innerText === 'Create Team') b.style.display = 'none'; });
+                    // Update Hero text
+                    document.querySelector('h2').innerText = 'Captain: The Byte-Hounds';
+                    document.querySelector('.animate-pulse').classList.replace('bg-error', 'bg-secondary');
+                }
+            }, 800);
+        }
+
+        // ESC key support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeAllDrawers();
+            }
+        });
+
+        // Initialize state (Check for existing teams)
+        window.addEventListener('DOMContentLoaded', () => {
+            // No initial logic needed for this static prototype
+        });
+    </script>
+</body></html>

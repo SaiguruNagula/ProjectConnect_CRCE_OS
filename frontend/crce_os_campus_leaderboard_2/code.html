@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>CRCE OS | Leaderboard</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter & Geist -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        .glass-header {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .impact-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#45464d",
+                    "inverse-primary": "#bec6e0",
+                    "on-surface": "#191c1e",
+                    "on-primary-container": "#7c839b",
+                    "surface": "#f7f9fb",
+                    "on-tertiary-container": "#7073ff",
+                    "error": "#ba1a1a",
+                    "secondary-container": "#645efb",
+                    "surface-variant": "#e0e3e5",
+                    "primary-fixed": "#dae2fd",
+                    "on-secondary-fixed-variant": "#3323cc",
+                    "on-background": "#191c1e",
+                    "on-tertiary-fixed": "#07006c",
+                    "inverse-surface": "#2d3133",
+                    "outline": "#76777d",
+                    "surface-container": "#eceef0",
+                    "secondary-fixed-dim": "#c3c0ff",
+                    "surface-container-high": "#e6e8ea",
+                    "on-error": "#ffffff",
+                    "inverse-on-surface": "#eff1f3",
+                    "secondary-fixed": "#e2dfff",
+                    "background": "#f7f9fb",
+                    "surface-container-low": "#f2f4f6",
+                    "on-tertiary-fixed-variant": "#2f2ebe",
+                    "surface-dim": "#d8dadc",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed-dim": "#c0c1ff",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#000000",
+                    "surface-container-lowest": "#ffffff",
+                    "outline-variant": "#c6c6cd",
+                    "surface-bright": "#f7f9fb",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-container": "#fffbff",
+                    "tertiary-container": "#07006c",
+                    "secondary": "#4b41e1",
+                    "primary": "#000000",
+                    "primary-fixed-dim": "#bec6e0",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed": "#0f0069",
+                    "on-primary-fixed": "#131b2e",
+                    "surface-container-highest": "#e0e3e5",
+                    "surface-tint": "#565e74",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "primary-container": "#131b2e",
+                    "tertiary-fixed": "#e1e0ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "64px",
+                    "xs": "8px",
+                    "base": "4px",
+                    "sm": "16px",
+                    "container-max": "1440px",
+                    "lg": "40px",
+                    "gutter": "24px",
+                    "md": "24px"
+            },
+            "fontFamily": {
+                    "mono": ["Geist"],
+                    "label-md": ["Geist"],
+                    "headline-lg-mobile": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "display": ["Inter"]
+            },
+            "fontSize": {
+                    "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex flex-col">
+<!-- Top AppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30">
+<div class="flex justify-between items-center px-sm h-16 max-w-container-max mx-auto">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary" data-icon="grid_view">grid_view</span>
+<h1 class="text-headline-sm font-bold tracking-tight text-primary">CRCE OS</h1>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/50">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAf0BCJJ4vZ78Z4YSxqaXNhMQILx3F5rnFnuqM_TbCE8Aw8oX1aBvDeDpjmjV_KTioudEaMmPSxpUwIflIy8MD9eUM58IE51jSkVBPIhaqTt19u2XAx7hg6cuy3zZ9iCE_TzXhrdXAPsgeq7l3X3fXx8ScXKy516omK_v9oD4TWz-8Q6-Ahc3MCXGzzqdDgg934-7GZfjLyhYzuxnIqI1_JLVOqQPu0formuEkBmaZdvniaJAL4GD5bDpp0Umgr-IgRQl3ZG2QfivVO"/>
+</div>
+</div>
+</header>
+<main class="flex-grow pt-20 pb-32 px-sm max-w-lg mx-auto w-full">
+<!-- Page Header -->
+<section class="mb-lg">
+<h2 class="text-headline-lg-mobile font-headline-lg-mobile text-on-surface mb-xs">Campus Leaderboard</h2>
+<p class="text-body-md text-on-surface-variant mb-md">Real-time institutional impact and innovation metrics.</p>
+<!-- Stats Summary Grid -->
+<div class="grid grid-cols-3 gap-xs">
+<div class="bg-surface-container-lowest border border-outline-variant/30 p-sm rounded-xl">
+<p class="text-label-md font-label-md text-on-surface-variant uppercase">Credits</p>
+<p class="text-headline-sm font-bold text-on-surface">1,240</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/30 p-sm rounded-xl">
+<p class="text-label-md font-label-md text-on-surface-variant uppercase">Projects</p>
+<p class="text-headline-sm font-bold text-on-surface">82</p>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/30 p-sm rounded-xl">
+<p class="text-label-md font-label-md text-on-surface-variant uppercase">Impact</p>
+<p class="text-headline-sm font-bold text-on-surface">4.8</p>
+</div>
+</div>
+</section>
+<!-- Segmented Control Filter -->
+<div class="bg-surface-container-low p-1 rounded-xl flex items-center mb-lg border border-outline-variant/20">
+<button class="flex-1 py-2 text-label-md font-semibold bg-surface-container-lowest text-primary shadow-sm rounded-lg transition-all" onclick="switchTab(this, 'students')">Students</button>
+<button class="flex-1 py-2 text-label-md font-medium text-on-surface-variant hover:text-primary transition-all" onclick="switchTab(this, 'departments')">Departments</button>
+<button class="flex-1 py-2 text-label-md font-medium text-on-surface-variant hover:text-primary transition-all" onclick="switchTab(this, 'mentors')">Mentors</button>
+</div>
+<!-- Top Performers (Visual Highlight) -->
+<section class="mb-lg">
+<div class="flex items-end justify-center gap-xs pb-4">
+<!-- Rank 2 -->
+<div class="flex flex-col items-center flex-1">
+<div class="relative mb-xs">
+<img alt="Marcus" class="w-16 h-16 rounded-full border-2 border-outline-variant bg-surface-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZAtPnLNDkAhHQ-1VQTROkYY2y2x_ybl4-BeR5FiBfnU_X0RfUwfElsXTLaO8XaZhaKSrBPiZx9Q1tNc4hs3En7cteV44Bn2IXmeD6K6K8v8zJ2hFNY2ujkHjOM6FZT6gMhr444hvNJ_2eu321crd6oLhx9zsu5ItWDaA1W7rLMAFzITm_CcZ-yd1nH7LZFGt_YYCxjy-__HWX9_x953z6lE4rUFa0LYadNAc0YjFjn_fX7utiMRXIWFsJ5afGRD5xP0a9XYa3hrfi"/>
+<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-outline text-white text-[10px] font-bold px-2 py-0.5 rounded-full">2</div>
+</div>
+<p class="text-label-md font-bold text-on-surface text-center truncate w-full">Marcus J.</p>
+<p class="text-[10px] text-on-surface-variant">4.92</p>
+</div>
+<!-- Rank 1 (Hero) -->
+<div class="flex flex-col items-center flex-[1.2]">
+<div class="relative mb-xs">
+<div class="absolute inset-0 bg-secondary/10 rounded-full animate-pulse"></div>
+<img alt="Sarah" class="w-24 h-24 rounded-full border-4 border-secondary relative z-10 bg-surface-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzxvQz_i0RL0WeRrX7em0T1KOSvIfyk20vdO_ZtbEZKvgv5xwX381BRdm7K9f8JfviRDklm_7kroBH59BEKfar1q2-WE9Pe7raGCrbNwoEr6mrG7uECrdNW1SakAlzsHpJoY1vPHgmrMtnF1-PAZFDA_kmf6vAqQi3qBQAQgkQJp_SfNsiy9wrzFXhHl77oLnyVTSSe_yoBmSo3ufKeYUgORn1EkMdvUPpoH-chaIVH1mF8W6R8g5qgGGnjnwyh9r-j-hZcOcEsM2Z"/>
+<div class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-secondary text-white text-xs font-bold px-3 py-1 rounded-full z-20">1</div>
+</div>
+<p class="text-body-md font-bold text-on-surface text-center truncate w-full">Sarah Chen</p>
+<p class="text-label-md font-semibold text-secondary">4.98</p>
+</div>
+<!-- Rank 3 -->
+<div class="flex flex-col items-center flex-1">
+<div class="relative mb-xs">
+<img alt="Elena" class="w-16 h-16 rounded-full border-2 border-outline-variant bg-surface-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQya8-cvk5tzziS7hpP_nFWPel_nmOvn9vgISeLS7Vy24cQBmDTDq6fj7khQ_qaW5fTpD9A6Eodg8i0WLbhDkghHN4GDP0g9SrHGjwqBI7p7nWKWng9NwvrMXMus-I9_G-lwSwBEXzelmCwdSxmeM5XWDEhLuymYiLZWPTjYQPyZ7ZBd6Ey3BTpxuR8htIKh6lqGft0mcTPT633X-4OGTQUTvVYTI53nUNAqe-vt7cFEaU8eusXzXpaHbGHBJ3vywAwxGAV4Cvs6t3"/>
+<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-outline-variant text-white text-[10px] font-bold px-2 py-0.5 rounded-full">3</div>
+</div>
+<p class="text-label-md font-bold text-on-surface text-center truncate w-full">Elena G.</p>
+<p class="text-[10px] text-on-surface-variant">4.85</p>
+</div>
+</div>
+</section>
+<!-- Leaderboard List -->
+<section class="space-y-xs">
+<!-- Header for list -->
+<div class="flex items-center px-sm py-xs text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60">
+<span class="w-8">Rnk</span>
+<span class="flex-grow ml-4">Entity</span>
+<span>Impact</span>
+</div>
+<!-- List Item 4 -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-sm flex items-center hover:bg-surface-container-low transition-colors duration-200">
+<span class="w-8 font-mono text-body-md text-on-surface-variant font-medium">04</span>
+<div class="w-10 h-10 rounded-lg overflow-hidden ml-4 flex-shrink-0 bg-surface-container">
+<img alt="Alex" class="w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChRml4SLHFBCe-eIJ9PO98qd_g_Qbkn5ROouTyMj6AnVHHBF6vsKJm6UgB6-A0m3boRXYlVbxnT08RtT3Qq5NuEByGiTX5aoSNQXFF7FIjOy2kO2eSkq54ufsjxXTHS3LxNOjIGAzFzS80xkcBjddyE0vX0SIJ4xjFWe7bUkF718Yky8ZQfIsfMCFzVAx8m9oghMkSVwn90MtLPOb5NLP3lp9ibohbDvXTTVrwbCrRH0LcMMwjJ6oKeeatbP6XGcQoR8ZQo5vXlz75"/>
+</div>
+<div class="flex-grow ml-4">
+<h4 class="text-body-md font-bold text-on-surface">Alex Rivera</h4>
+<p class="text-[11px] text-on-surface-variant">Computer Science • Senior</p>
+</div>
+<div class="text-right">
+<p class="text-headline-sm font-bold text-primary leading-none">4.72</p>
+<p class="text-[10px] text-on-surface-variant font-mono">240 CR</p>
+</div>
+</div>
+<!-- List Item 5 -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-sm flex items-center hover:bg-surface-container-low transition-colors duration-200">
+<span class="w-8 font-mono text-body-md text-on-surface-variant font-medium">05</span>
+<div class="w-10 h-10 rounded-lg overflow-hidden ml-4 flex-shrink-0 bg-surface-container">
+<img alt="Jordan" class="w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvww1kE1DMfY_UqXxh3h-8Z04X-aBzlmco6IO_mdtn3OUttikHso9cJlD3_m041VJoGQItbowoXVVySZJBOa-HofcQFW9VN6DHxYsdpfEGhF9ZPuIHrhBJR0RIKWNX7q0hg2HclJ0APi5GToC6KTQkul5Uer9Jw4bLTyGTSj7RfhlSG0P7gn7NuowMJSOVZkAijEpdncAsv4vFEXJsLPLD-kLM5Yyt1_nAZ8W0Gdf6vDINQtV_O1Q8H_1FFcVlAbCS6nvULy0qd9ua"/>
+</div>
+<div class="flex-grow ml-4">
+<h4 class="text-body-md font-bold text-on-surface">Jordan Smith</h4>
+<p class="text-[11px] text-on-surface-variant">Data Engineering • Junior</p>
+</div>
+<div class="text-right">
+<p class="text-headline-sm font-bold text-primary leading-none">4.68</p>
+<p class="text-[10px] text-on-surface-variant font-mono">215 CR</p>
+</div>
+</div>
+<!-- Skeleton Loading Example (Visual Cue) -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-sm flex items-center opacity-40 animate-pulse">
+<span class="w-8 h-4 bg-surface-dim rounded"></span>
+<div class="w-10 h-10 rounded-lg bg-surface-dim ml-4"></div>
+<div class="flex-grow ml-4 space-y-2">
+<div class="w-24 h-3 bg-surface-dim rounded"></div>
+<div class="w-16 h-2 bg-surface-dim rounded"></div>
+</div>
+<div class="text-right space-y-2">
+<div class="w-10 h-4 bg-surface-dim rounded ml-auto"></div>
+<div class="w-8 h-2 bg-surface-dim rounded ml-auto"></div>
+</div>
+</div>
+</section>
+<!-- Empty State (Hidden by default) -->
+<section class="hidden py-xl text-center" id="empty-state">
+<span class="material-symbols-outlined text-outline-variant text-4xl mb-sm" data-icon="leaderboard">leaderboard</span>
+<p class="text-body-md text-on-surface-variant">No data available for this period.</p>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low border-t border-outline-variant/20 mt-auto">
+<div class="px-sm py-lg max-w-lg mx-auto">
+<div class="flex flex-col gap-sm">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="grid_view">grid_view</span>
+<span class="text-label-md font-bold text-primary uppercase tracking-tighter">CRCE Campus OS</span>
+</div>
+<p class="text-[11px] text-on-surface-variant leading-relaxed">
+                    © 2024 CRCE Campus Operating System. Designed for precision governance and academic institutional transparency.
+                </p>
+<div class="flex flex-wrap gap-md">
+<a class="text-[11px] font-semibold text-on-surface-variant hover:text-secondary transition-colors" href="#">Academic Calendar</a>
+<a class="text-[11px] font-semibold text-on-surface-variant hover:text-secondary transition-colors" href="#">IT Support</a>
+<a class="text-[11px] font-semibold text-on-surface-variant hover:text-secondary transition-colors" href="#">Privacy Policy</a>
+</div>
+</div>
+</div>
+</footer>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-t border-outline-variant/30 rounded-t-xl shadow-sm h-20 px-md pb-safe">
+<div class="flex justify-around items-center h-full">
+<a class="flex flex-col items-center justify-center text-on-surface-variant py-1 px-3 hover:text-secondary transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="dashboard">dashboard</span>
+<span class="text-label-md font-medium">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant py-1 px-3 hover:text-secondary transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="school">school</span>
+<span class="text-label-md font-medium">Academics</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant py-1 px-3 hover:text-secondary transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="layers">layers</span>
+<span class="text-label-md font-medium">Resources</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary bg-secondary-fixed/20 rounded-lg py-1 px-3 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="leaderboard" style="font-variation-settings: 'FILL' 1;">leaderboard</span>
+<span class="text-label-md font-semibold">Leaderboard</span>
+</a>
+</div>
+</nav>
+<script>
+        function switchTab(element, tab) {
+            // Remove active classes from all siblings
+            const buttons = element.parentElement.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm', 'rounded-lg', 'font-semibold');
+                btn.classList.add('text-on-surface-variant', 'font-medium');
+            });
+
+            // Add active classes to current
+            element.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm', 'rounded-lg', 'font-semibold');
+            element.classList.remove('text-on-surface-variant', 'font-medium');
+
+            // Logic to handle tab data swap could be added here
+            console.log('Switched to:', tab);
+        }
+
+        // Simple skeleton to real list swap simulation
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const skeletons = document.querySelectorAll('.animate-pulse');
+                skeletons.forEach(s => {
+                    s.classList.add('hidden');
+                });
+            }, 2500);
+        });
+    </script>
+</body></html>

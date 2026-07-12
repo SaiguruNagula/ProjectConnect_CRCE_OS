@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CRCE Innovation Leaderboard</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#bec6e0",
+                        "secondary-fixed-dim": "#c3c0ff",
+                        "tertiary-container": "#07006c",
+                        "on-primary-fixed": "#131b2e",
+                        "on-primary-container": "#7c839b",
+                        "surface-container-high": "#e6e8ea",
+                        "primary": "#000000",
+                        "surface-tint": "#565e74",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#000000",
+                        "on-tertiary-container": "#7073ff",
+                        "outline": "#76777d",
+                        "on-tertiary-fixed": "#07006c",
+                        "inverse-surface": "#2d3133",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-surface-variant": "#45464d",
+                        "on-secondary-container": "#fffbff",
+                        "secondary-container": "#645efb",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "on-secondary-fixed": "#0f0069",
+                        "tertiary-fixed": "#e1e0ff",
+                        "secondary": "#4b41e1",
+                        "on-background": "#191c1e",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#e2dfff",
+                        "on-secondary-fixed-variant": "#3323cc",
+                        "surface": "#f7f9fb",
+                        "error-container": "#ffdad6",
+                        "background": "#f7f9fb",
+                        "surface-variant": "#e0e3e5",
+                        "inverse-primary": "#bec6e0",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#dae2fd",
+                        "surface-dim": "#d8dadc",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-bright": "#f7f9fb",
+                        "on-surface": "#191c1e",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "on-error": "#ffffff",
+                        "primary-container": "#131b2e",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c6c6cd"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "8px",
+                        "xl": "64px",
+                        "sm": "16px",
+                        "gutter": "24px",
+                        "base": "4px",
+                        "md": "24px",
+                        "lg": "40px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "mono": ["Geist"],
+                        "headline-md": ["Inter"],
+                        "display": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Geist"],
+                        "headline-lg": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .glass-header {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        @media (min-width: 1024px) {
+            .bento-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30">
+<div class="flex justify-between items-center px-lg h-16 max-w-container-max mx-auto">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-2xl">grid_view</span>
+<h1 class="text-headline-md font-headline-md font-bold tracking-tight text-primary">CRCE OS</h1>
+</div>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-secondary transition-colors" href="#">Dashboard</a>
+<a class="text-secondary font-semibold text-label-md border-b-2 border-secondary pb-1" href="#">Academics</a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-secondary transition-colors" href="#">Resources</a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-secondary transition-colors" href="#">Profile</a>
+</nav>
+<div class="flex items-center gap-md">
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A close-up professional portrait of a university student with a friendly smile, clean lighting, and a soft blurred library background. The aesthetic is modern and high-key, using a clean light-mode palette of whites and soft slates with professional composition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuACeRmjyafHeMvGAkVIyIsV5-BbrRABvRIAUWvjuP4-2Z1UFN6N9fm58ewUxET4VEb8qnGRP0erQO5A8abNRy2vlgC7a2kx3vy747vEujUhKY2_tZAyOGsyIPuepBgn7gvLVfIiwlnftgQGvGQtWiQI6RsfgPQZcd5WLGcfk7Ovps4ELCD9S_Yfnpo3Y7dbWlNINoMg46EHxa15jeS8m4mT_XoOWtx-x0_4TrwKw_U4zNIkR_KR87JG4HBEgtN2Vi4N2mw4flw3a-nF"/>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-32 pb-xl px-md md:px-lg max-w-container-max mx-auto space-y-lg">
+<!-- Hero Section: Institution Impact -->
+<section class="space-y-md">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div class="max-w-2xl">
+<h2 class="font-display text-display">CRCE Innovation Ecosystem</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-sm">Recognizing impact, celebrating innovation, and building the future of engineering excellence through collaborative research and development.</p>
+</div>
+<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-semibold hover:opacity-90 transition-opacity flex items-center gap-xs">
+                    Explore Innovation Hub
+                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<!-- Stats Bento Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-sm">
+<div class="bg-surface-container-lowest border border-outline-variant/30 p-md rounded-xl hover:border-secondary/30 transition-all group">
+<span class="material-symbols-outlined text-secondary mb-xs">group</span>
+<div class="font-headline-md text-headline-md font-bold">5,200</div>
+<div class="text-label-md font-label-md text-on-surface-variant flex items-center gap-1">Students <span class="text-green-600">+8%</span></div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/30 p-md rounded-xl hover:border-secondary/30 transition-all">
+<span class="material-symbols-outlined text-secondary mb-xs">school</span>
+<div class="font-headline-md text-headline-md font-bold">340</div>
+<div class="text-label-md font-label-md text-on-surface-variant flex items-center gap-1">Faculty <span class="text-green-600">+5%</span></div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/30 p-md rounded-xl hover:border-secondary/30 transition-all">
+<span class="material-symbols-outlined text-secondary mb-xs">inventory_2</span>
+<div class="font-headline-md text-headline-md font-bold">1,280</div>
+<div class="text-label-md font-label-md text-on-surface-variant flex items-center gap-1">Projects <span class="text-green-600">+12%</span></div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/30 p-md rounded-xl hover:border-secondary/30 transition-all">
+<span class="material-symbols-outlined text-secondary mb-xs">lightbulb</span>
+<div class="font-headline-md text-headline-md font-bold">430</div>
+<div class="text-label-md font-label-md text-on-surface-variant flex items-center gap-1">Solutions <span class="text-green-600">+15%</span></div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/30 p-md rounded-xl hover:border-secondary/30 transition-all">
+<span class="material-symbols-outlined text-secondary mb-xs">trophy</span>
+<div class="font-headline-md text-headline-md font-bold">210</div>
+<div class="text-label-md font-label-md text-on-surface-variant flex items-center gap-1">Hackathons <span class="text-green-600">+10%</span></div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/30 p-md rounded-xl hover:border-secondary/30 transition-all">
+<span class="material-symbols-outlined text-secondary mb-xs">description</span>
+<div class="font-headline-md text-headline-md font-bold">95</div>
+<div class="text-label-md font-label-md text-on-surface-variant flex items-center gap-1">Research <span class="text-green-600">+20%</span></div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/30 p-md rounded-xl hover:border-secondary/30 transition-all">
+<span class="material-symbols-outlined text-secondary mb-xs">stars</span>
+<div class="font-headline-md text-headline-md font-bold">14.2K</div>
+<div class="text-label-md font-label-md text-on-surface-variant flex items-center gap-1">Credits <span class="text-green-600">+18%</span></div>
+</div>
+</div>
+</section>
+<!-- Your Position Card (Sticky/Floating effect for personalization) -->
+<section class="bg-primary text-on-primary p-lg rounded-2xl flex flex-col md:flex-row items-center justify-between gap-lg overflow-hidden relative">
+<div class="absolute right-0 top-0 w-1/3 h-full opacity-10 pointer-events-none">
+
+</div>
+<div class="flex items-center gap-md z-10">
+<div class="w-16 h-16 rounded-full border-2 border-on-primary-container p-1 overflow-hidden">
+<img class="w-full h-full object-cover rounded-full" data-alt="A close-up studio headshot of a young engineering student in a sleek dark shirt, confident expression, neutral grey background. High resolution, professional commercial photography style with balanced lighting and a sophisticated corporate look." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuZ5BsDMMKRmpICna4U1fxqv_RZGOKcjYwhe-leHJ4lG0eWBGDFTKQJfyEGfp9zgPVoKVBWU5Tq7zDAvo0A3V9za3Lk89hWVrSmR8PZcGZGrKG-WY02qaTjdmfWJ2K-ky8eiFz0OBxFITy_viPe0N-dAgns0PtdezXRSWwxe8nm3N1RXUW_t2Ey_bzdTTXmbU8InT2Ar5mEfHHNvXDGydUtGkCt9ILUfOzOC2wvK4FNqHiUkOQKGW0lxKkn_p_yqKRJXczLpPEolIN"/>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-primary/60 uppercase tracking-wider">Your Current Rank</div>
+<div class="flex items-baseline gap-xs">
+<span class="font-headline-lg text-headline-lg">#241</span>
+<span class="text-label-md text-green-400">Keep going! Ahead of 78% of peers</span>
+</div>
+</div>
+</div>
+<div class="flex-1 max-w-md w-full z-10">
+<div class="flex justify-between font-label-md text-label-md mb-xs">
+<span>840 <span class="text-on-primary/60">Points</span></span>
+<span class="text-on-primary/60">Next Milestone: 1,000 pts</span>
+</div>
+<div class="h-2 w-full bg-on-primary/10 rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed-dim w-4/5"></div>
+</div>
+<p class="text-label-md text-on-primary/60 mt-2">Recommended: Complete 1 solution to gain 30 credits</p>
+</div>
+<button class="bg-on-primary text-primary px-lg py-sm rounded-lg font-semibold hover:bg-surface-container-high transition-colors z-10">Improve Rank</button>
+</section>
+<!-- Controls Section -->
+<section class="flex flex-col lg:flex-row gap-md items-center justify-between sticky top-[64px] bg-surface py-md z-40">
+<div class="flex p-1 bg-surface-container-low rounded-xl border border-outline-variant/30">
+<button class="px-md py-xs rounded-lg font-label-md text-label-md bg-white shadow-sm text-primary">Students</button>
+<button class="px-md py-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors">Faculty</button>
+</div>
+<div class="flex flex-wrap items-center justify-center gap-sm">
+<div class="relative min-w-[240px]">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-xs bg-white border border-outline-variant/30 rounded-xl focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all" placeholder="Search by name or department..." type="text"/>
+</div>
+<select class="bg-white border border-outline-variant/30 rounded-xl py-xs px-md font-label-md text-label-md outline-none focus:ring-2 focus:ring-secondary/20 transition-all">
+<option>All Time</option>
+<option>Academic Year</option>
+<option>Current Semester</option>
+</select>
+<select class="bg-white border border-outline-variant/30 rounded-xl py-xs px-md font-label-md text-label-md outline-none focus:ring-2 focus:ring-secondary/20 transition-all">
+<option>All Departments</option>
+<option>Computer Engineering</option>
+<option>IT</option>
+<option>Electronics</option>
+</select>
+</div>
+</section>
+<!-- Top 3 Spotlight -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Rank 2 -->
+<div class="bg-white border border-outline-variant/30 p-lg rounded-2xl flex flex-col items-center text-center space-y-md hover:shadow-xl transition-shadow relative overflow-hidden group">
+<div class="absolute top-4 left-4 w-10 h-10 bg-surface-container text-on-surface-variant flex items-center justify-center rounded-full font-bold">2</div>
+<div class="w-24 h-24 rounded-full border-4 border-surface-container overflow-hidden group-hover:scale-105 transition-transform duration-300">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a female computer science student with glasses, smiling confidently against a soft blue gradient background. Sharp focus, high-quality professional portrait style, modern educational branding aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGChp05sN8C8Mv4Nf-wNmPB330EBXafQ91qroCyPaGCBXUijwjVnwQsHh8X7eKGdousgRoHcBmmjLgV5sUpYc-XivLhTZ4P5LkZhXPqiobXz3Z3S06Kt9p8vGbnEx0FFb6hjFf7j61j7Xv6LoPmra6CHI4qzW5FXiYx-gpJvc8TcjbHcUXa_NRfxGXXItPID9XEpECOAzGqEaagMQQybi7wTgs0cwKePFuJmzGCVMLs4oWIdtX_on8BS5k2dF0S3hHnQLZeLnA5u3v"/>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm">Isha Malhotra</h3>
+<p class="text-label-md font-label-md text-on-surface-variant">IT Department • Solution Architect</p>
+</div>
+<div class="flex items-center gap-xs text-secondary font-bold text-headline-sm">
+                    2,320 <span class="text-label-md text-green-600 font-normal">pts</span>
+<span class="material-symbols-outlined text-green-600 text-sm">trending_up</span>
+</div>
+<div class="grid grid-cols-2 gap-sm w-full py-sm border-y border-outline-variant/20">
+<div>
+<div class="text-label-md font-bold">12</div>
+<div class="text-[10px] uppercase tracking-tighter text-on-surface-variant">Solutions</div>
+</div>
+<div>
+<div class="text-label-md font-bold">8</div>
+<div class="text-[10px] uppercase tracking-tighter text-on-surface-variant">Projects</div>
+</div>
+</div>
+<button class="w-full py-sm rounded-lg border border-primary font-semibold hover:bg-primary hover:text-on-primary transition-colors">View Portfolio</button>
+</div>
+<!-- Rank 1 - Featured -->
+<div class="bg-white border-2 border-secondary p-lg rounded-2xl flex flex-col items-center text-center space-y-md shadow-2xl relative overflow-hidden ring-4 ring-secondary/5 transform md:-translate-y-4">
+<div class="absolute top-4 right-4 bg-secondary text-on-secondary px-3 py-1 rounded-full font-bold text-label-md">RANK 1</div>
+<div class="w-32 h-32 rounded-full border-4 border-secondary/20 p-1 overflow-hidden relative">
+<img class="w-full h-full object-cover rounded-full" data-alt="A highly detailed close-up portrait of a male engineering student, looking focused and determined. The background is a modern lab setting with subtle bokeh lights. Lighting is warm and cinematic, emphasizing a winner's prestige and institutional excellence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfu3GLTY393rqvKC_lZg_Nayy44fwZk6IgIKe6kxkVV3nQK6x0eidcNEcuG9m1POa9Q2lefJZOcOjt3nrf8Rv9J-y1MM9bALb7vWKalp0ZGS9xDTjkCxphuxezwGPZ1ZbmdDXvEs0F3jg66xfVsH-JEN64n2XZQKR99aPHyVpLprp-IPIoYM6FNw66zbqDV3jlgRB3b8fNZ41QY9keRihu_KdRVndkmBUTzMTgpRI6uhMx9_WK1-Tx-poFy7I2la2LUilkfn3sL6wr"/>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md font-bold">Aarav Sharma</h3>
+<p class="text-label-md font-label-md text-secondary font-semibold">Computer Engg • Innovation Champion</p>
+</div>
+<div class="flex flex-col items-center">
+<div class="text-display font-display text-primary leading-tight">2,450</div>
+<div class="text-label-md font-label-md text-on-surface-variant flex items-center gap-1">Credits Earned This Semester <span class="text-green-600">+12%</span></div>
+</div>
+<div class="flex justify-center gap-md w-full py-sm">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-secondary">verified</span>
+<span class="text-[10px] mt-1 font-bold">TOP RESEARCHER</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-secondary">military_tech</span>
+<span class="text-[10px] mt-1 font-bold">HACKATHON HERO</span>
+</div>
+</div>
+<button class="w-full py-md bg-secondary text-on-secondary rounded-lg font-bold shadow-lg shadow-secondary/20 hover:opacity-90 transition-opacity">View Elite Portfolio</button>
+</div>
+<!-- Rank 3 -->
+<div class="bg-white border border-outline-variant/30 p-lg rounded-2xl flex flex-col items-center text-center space-y-md hover:shadow-xl transition-shadow relative overflow-hidden group">
+<div class="absolute top-4 right-4 w-10 h-10 bg-surface-container text-on-surface-variant flex items-center justify-center rounded-full font-bold">3</div>
+<div class="w-24 h-24 rounded-full border-4 border-surface-container overflow-hidden group-hover:scale-105 transition-transform duration-300">
+<img class="w-full h-full object-cover" data-alt="A professional portrait of a male electronics student with a warm smile. Background is a brightly lit modern workspace. The style is clean and institutional, with a focus on friendly intelligence and professional readiness." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjuoNqCNBTWd13VqFf2prJyoqzo1Pm70TXeXRpS5sieIIrsd5JeNrCLJ7EXxjhBRVhpqe-C-svF_0UBMUCaoVuKIqEaQQAtkFaQrOfpw1cbsESeP3kPoY1JI8yjH0BGNeoQQ6xZVI5C1UxJEpUX152qpa2BqMON_h_YLxVx2tNaw_f1B9wlhxv-CxyoZRI2MwmZFODSAF_1b_PIvYe56_NBbWCt7BFBpFCBtQhS7o8XINtnllTYgtYhAgQ_3qklXr-h33Udz3_Fnvq"/>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm">Rohan Das</h3>
+<p class="text-label-md font-label-md text-on-surface-variant">Electronics • Hackathon Hero</p>
+</div>
+<div class="flex items-center gap-xs text-secondary font-bold text-headline-sm">
+                    2,180 <span class="text-label-md text-red-600 font-normal">pts</span>
+<span class="material-symbols-outlined text-red-600 text-sm">trending_down</span>
+</div>
+<div class="grid grid-cols-2 gap-sm w-full py-sm border-y border-outline-variant/20">
+<div>
+<div class="text-label-md font-bold">9</div>
+<div class="text-[10px] uppercase tracking-tighter text-on-surface-variant">Solutions</div>
+</div>
+<div>
+<div class="text-label-md font-bold">4</div>
+<div class="text-[10px] uppercase tracking-tighter text-on-surface-variant">Projects</div>
+</div>
+</div>
+<button class="w-full py-sm rounded-lg border border-primary font-semibold hover:bg-primary hover:text-on-primary transition-colors">View Portfolio</button>
+</div>
+</section>
+<!-- Leaderboard Table -->
+<section class="bg-white border border-outline-variant/30 rounded-2xl overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50 text-label-md font-label-md text-on-surface-variant">
+<th class="px-md py-sm">Rank</th>
+<th class="px-md py-sm">Participant</th>
+<th class="px-md py-sm">Department</th>
+<th class="px-md py-sm">Credits</th>
+<th class="px-md py-sm hidden lg:table-cell">Metrics (S/P/H/R)</th>
+<th class="px-md py-sm">Trend</th>
+<th class="px-md py-sm">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-md py-md font-mono text-mono">#04</td>
+<td class="px-md py-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a student, smiling, natural lighting, academic setting. Professional UI style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhncltbQUKKbryINU2T4JX15xsb1JZf-NE6uBhbn16GBUkcYLqlz32SbgAqwUocKmnOJ1KjcOUOYy6Nn1bcxmS-Yg1WFSwUjkH5v4gZGTOtSGeuhjvRWSZZj5b67ZlnMYS0LkIaYeOgys7xJ7S46olfphcNXawc4E0HR-9uIIgGgPAZ2thRMmytqMr7_NNyfMR5d_CCDEY8R50fYp62klh9qKlVSVjDWoB9ke_4PM4WqlKakCXJXr8zL7rWmFRR4TofHMSyZweMxge"/>
+</div>
+<div>
+<div class="font-semibold text-body-md">Sanya Gupta</div>
+<div class="text-xs text-on-surface-variant">Rising Star</div>
+</div>
+</div>
+</td>
+<td class="px-md py-md text-body-md">Computer Engg.</td>
+<td class="px-md py-md font-bold text-secondary">1,950</td>
+<td class="px-md py-md hidden lg:table-cell">
+<div class="flex gap-sm">
+<span class="text-xs bg-surface-container px-2 py-1 rounded">S: 12</span>
+<span class="text-xs bg-surface-container px-2 py-1 rounded">P: 5</span>
+<span class="text-xs bg-surface-container px-2 py-1 rounded">H: 2</span>
+<span class="text-xs bg-surface-container px-2 py-1 rounded">R: 1</span>
+</div>
+</td>
+<td class="px-md py-md">
+<span class="text-green-600 flex items-center gap-1 font-semibold text-xs">
+<span class="material-symbols-outlined text-xs">arrow_upward</span> +2
+                                </span>
+</td>
+<td class="px-md py-md">
+<button class="text-primary hover:text-secondary flex items-center gap-1 font-semibold text-xs">
+                                    Portfolio <span class="material-symbols-outlined text-xs">open_in_new</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-md py-md font-mono text-mono">#05</td>
+<td class="px-md py-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a student, smiling, natural lighting, academic setting. Professional UI style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI_lZlMxIFt-XaKleEODVDLLwaewIwMKmfj5nsXZ8xhXWFYs5h2pzCgPMUSFyFiDJoMFAJn2KSq_1h6BEfnkcFdE0F9FBYBgFOECVxERahkgnukhWLliuoglrRluqvotVrYP0Bc9bIBDr9wCWMWCKNAK05_Kfzk_VhL2RTVw-lXTLIv8Ox2yus8o1woSMRuWbE1y1980e6KmOvOk94Dx7t0ryGX-PIxcy33xAbrJUgqXPRk75lJAKMDxRDocg0mE2tUDasoExyhSx_"/>
+</div>
+<div>
+<div class="font-semibold text-body-md">Vikram Singh</div>
+<div class="text-xs text-on-surface-variant">Research Lead</div>
+</div>
+</div>
+</td>
+<td class="px-md py-md text-body-md">Mechanical</td>
+<td class="px-md py-md font-bold text-secondary">1,840</td>
+<td class="px-md py-md hidden lg:table-cell">
+<div class="flex gap-sm">
+<span class="text-xs bg-surface-container px-2 py-1 rounded">S: 8</span>
+<span class="text-xs bg-surface-container px-2 py-1 rounded">P: 3</span>
+<span class="text-xs bg-surface-container px-2 py-1 rounded">H: 0</span>
+<span class="text-xs bg-surface-container px-2 py-1 rounded">R: 4</span>
+</div>
+</td>
+<td class="px-md py-md">
+<span class="text-on-surface-variant flex items-center gap-1 font-semibold text-xs">
+<span class="material-symbols-outlined text-xs">horizontal_rule</span> 0
+                                </span>
+</td>
+<td class="px-md py-md">
+<button class="text-primary hover:text-secondary flex items-center gap-1 font-semibold text-xs">
+                                    Portfolio <span class="material-symbols-outlined text-xs">open_in_new</span>
+</button>
+</td>
+</tr>
+<!-- Row 6 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-md py-md font-mono text-mono">#06</td>
+<td class="px-md py-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a student, smiling, natural lighting, academic setting. Professional UI style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaNRytou5uLYtg3fqQpHcE7VPbsDMFW0QesnMvpjBOYtgC-dPwengPil9cvyzBmbZDtGd2wflUb69fasMGcGcS-dNRlvx56R-i-a6XXLepMiW1y7Nct3fZk3QoSL4cKLIJMBaJUIQKTrvnE4nzpnXLcDDnynmxDWE1lYCtd_BVdnhqG50kjBLnMCizrovbHOiXVq_4gDOfQRtD0GzBKZz76kzuvfSqtq374tTVf3h7YBRY6pnMNMi9JA6rWAW_cVZDifkrSadCSrAl"/>
+</div>
+<div>
+<div class="font-semibold text-body-md">Ananya Patel</div>
+<div class="text-xs text-on-surface-variant">Code Wizard</div>
+</div>
+</div>
+</td>
+<td class="px-md py-md text-body-md">IT</td>
+<td class="px-md py-md font-bold text-secondary">1,750</td>
+<td class="px-md py-md hidden lg:table-cell">
+<div class="flex gap-sm">
+<span class="text-xs bg-surface-container px-2 py-1 rounded">S: 15</span>
+<span class="text-xs bg-surface-container px-2 py-1 rounded">P: 2</span>
+<span class="text-xs bg-surface-container px-2 py-1 rounded">H: 1</span>
+<span class="text-xs bg-surface-container px-2 py-1 rounded">R: 0</span>
+</div>
+</td>
+<td class="px-md py-md">
+<span class="text-green-600 flex items-center gap-1 font-semibold text-xs">
+<span class="material-symbols-outlined text-xs">arrow_upward</span> +5
+                                </span>
+</td>
+<td class="px-md py-md">
+<button class="text-primary hover:text-secondary flex items-center gap-1 font-semibold text-xs">
+                                    Portfolio <span class="material-symbols-outlined text-xs">open_in_new</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="p-md text-center">
+<button class="text-secondary font-semibold text-label-md hover:underline">Load 50 more entries</button>
+</div>
+</div>
+</section>
+<!-- Insights Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md">
+<div class="bg-surface-container-low border border-outline-variant/20 p-md rounded-2xl">
+<div class="flex items-center justify-between mb-sm">
+<span class="text-label-md font-bold uppercase tracking-wider text-on-surface-variant">Fastest Rising</span>
+<span class="material-symbols-outlined text-secondary">trending_up</span>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-secondary font-bold">NV</div>
+<div>
+<div class="font-bold">Neil Varma</div>
+<div class="text-xs text-green-600">+112 pos this week</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant/20 p-md rounded-2xl">
+<div class="flex items-center justify-between mb-sm">
+<span class="text-label-md font-bold uppercase tracking-wider text-on-surface-variant">Most Active Faculty</span>
+<span class="material-symbols-outlined text-secondary">school</span>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-secondary font-bold">DR</div>
+<div>
+<div class="font-bold">Dr. Rajesh Iyer</div>
+<div class="text-xs text-on-surface-variant">24 Active Mentees</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant/20 p-md rounded-2xl">
+<div class="flex items-center justify-between mb-sm">
+<span class="text-label-md font-bold uppercase tracking-wider text-on-surface-variant">Dept. Leader</span>
+<span class="material-symbols-outlined text-secondary">apartment</span>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-secondary font-bold">CS</div>
+<div>
+<div class="font-bold">Comp. Engineering</div>
+<div class="text-xs text-on-surface-variant">Avg. Score: 1,420</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant/20 p-md rounded-2xl">
+<div class="flex items-center justify-between mb-sm">
+<span class="text-label-md font-bold uppercase tracking-wider text-on-surface-variant">Innovation Velocity</span>
+<span class="material-symbols-outlined text-secondary">bolt</span>
+</div>
+<div>
+<div class="text-headline-sm font-bold">42.8 <span class="text-xs font-normal">points/day</span></div>
+<div class="text-xs text-green-600 mt-1">Campus-wide Record</div>
+</div>
+</div>
+</section>
+<!-- Contribution System & Hall of Fame Grid -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+<!-- Contribution Guide -->
+<div class="space-y-md">
+<h3 class="font-headline-md text-headline-md">How to Earn Credits</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+<div class="bg-white p-md rounded-xl border border-outline-variant/20 flex gap-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary">lightbulb</span>
+</div>
+<div>
+<div class="font-bold">Solutions</div>
+<div class="text-xs text-on-surface-variant">Solve campus problems. +30 pts</div>
+</div>
+</div>
+<div class="bg-white p-md rounded-xl border border-outline-variant/20 flex gap-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary">inventory_2</span>
+</div>
+<div>
+<div class="font-bold">Projects</div>
+<div class="text-xs text-on-surface-variant">Deploy real apps. +50-200 pts</div>
+</div>
+</div>
+<div class="bg-white p-md rounded-xl border border-outline-variant/20 flex gap-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary">trophy</span>
+</div>
+<div>
+<div class="font-bold">Hackathons</div>
+<div class="text-xs text-on-surface-variant">Win external contests. +150 pts</div>
+</div>
+</div>
+<div class="bg-white p-md rounded-xl border border-outline-variant/20 flex gap-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary">description</span>
+</div>
+<div>
+<div class="font-bold">Research</div>
+<div class="text-xs text-on-surface-variant">Publish journals. +100-300 pts</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Hall of Fame Timeline -->
+<div class="space-y-md">
+<h3 class="font-headline-md text-headline-md">Hall of Fame Highlights</h3>
+<div class="space-y-sm relative before:absolute before:left-6 before:top-4 before:bottom-4 before:w-px before:bg-outline-variant/30">
+<div class="relative pl-14 group">
+<div class="absolute left-4 top-2 w-4 h-4 rounded-full bg-secondary group-hover:scale-150 transition-transform"></div>
+<div class="bg-white p-md rounded-xl border border-outline-variant/20">
+<div class="text-xs font-bold text-secondary mb-1">MARCH 2024</div>
+<div class="font-bold">First Student Startup Incubated</div>
+<p class="text-xs text-on-surface-variant">Team 'Nexus' secured ₹10L seed funding for their campus automation module.</p>
+</div>
+</div>
+<div class="relative pl-14 group">
+<div class="absolute left-4 top-2 w-4 h-4 rounded-full bg-secondary group-hover:scale-150 transition-transform"></div>
+<div class="bg-white p-md rounded-xl border border-outline-variant/20">
+<div class="text-xs font-bold text-secondary mb-1">JANUARY 2024</div>
+<div class="font-bold">National Smart India Hackathon Winner</div>
+<p class="text-xs text-on-surface-variant">Aarav Sharma and team won the first prize in the fintech category.</p>
+</div>
+</div>
+<div class="relative pl-14 group">
+<div class="absolute left-4 top-2 w-4 h-4 rounded-full bg-secondary group-hover:scale-150 transition-transform"></div>
+<div class="bg-white p-md rounded-xl border border-outline-variant/20">
+<div class="text-xs font-bold text-secondary mb-1">DECEMBER 2023</div>
+<div class="font-bold">100th Research Paper Milestone</div>
+<p class="text-xs text-on-surface-variant">Reaching a collective institutional milestone in international journals.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Final CTA Section -->
+<section class="bg-surface-container-highest rounded-3xl p-xl text-center space-y-md border border-outline-variant/20 overflow-hidden relative">
+<div class="absolute inset-0 opacity-5 pointer-events-none">
+
+</div>
+<h2 class="font-display text-display max-w-xl mx-auto">Want to climb the leaderboard?</h2>
+<p class="text-body-lg text-on-surface-variant max-w-lg mx-auto">The journey to innovation starts with a single step. Join a project or solve an existing campus problem today.</p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-md pt-sm">
+<button class="w-full sm:w-auto px-xl py-md bg-primary text-on-primary rounded-xl font-bold hover:opacity-90 transition-opacity">Explore Problems</button>
+<button class="w-full sm:w-auto px-xl py-md border border-outline text-primary rounded-xl font-bold hover:bg-surface transition-colors">Start New Project</button>
+</div>
+</section>
+</main>
+<!-- Bottom Nav for Mobile -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-t border-outline-variant/30 px-md pb-safe rounded-t-xl h-20 flex justify-around items-center">
+<button class="flex flex-col items-center justify-center text-secondary bg-secondary-fixed/20 rounded-lg py-1 px-3">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md mt-1">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant py-1 px-3">
+<span class="material-symbols-outlined">school</span>
+<span class="font-label-md text-label-md mt-1">Acad</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant py-1 px-3">
+<span class="material-symbols-outlined">layers</span>
+<span class="font-label-md text-label-md mt-1">Res</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant py-1 px-3">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-md text-label-md mt-1">Profile</span>
+</button>
+</nav>
+<!-- Footer Shell -->
+<footer class="w-full mt-auto bg-surface-container-low border-t border-outline-variant/20">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md px-lg py-xl max-w-container-max mx-auto">
+<div class="space-y-sm">
+<div class="text-headline-sm font-headline-sm font-bold text-primary">CRCE OS</div>
+<p class="text-body-md text-on-surface-variant max-w-sm">The operating system for academic excellence, innovation tracking, and professional growth at Father Conceicao Rodrigues College of Engineering.</p>
+<p class="text-label-md text-on-surface-variant">© 2024 CRCE Campus Operating System. All rights reserved.</p>
+</div>
+<div class="grid grid-cols-2 gap-md">
+<div class="space-y-xs">
+<div class="font-bold text-label-md uppercase tracking-wider text-on-surface-variant">Institutional</div>
+<a class="block text-on-surface-variant hover:text-secondary transition-colors text-body-md" href="#">Academic Calendar</a>
+<a class="block text-on-surface-variant hover:text-secondary transition-colors text-body-md" href="#">Innovation Policy</a>
+<a class="block text-on-surface-variant hover:text-secondary transition-colors text-body-md" href="#">Compliance</a>
+</div>
+<div class="space-y-xs">
+<div class="font-bold text-label-md uppercase tracking-wider text-on-surface-variant">Support</div>
+<a class="block text-on-surface-variant hover:text-secondary transition-colors text-body-md" href="#">IT Support</a>
+<a class="block text-on-surface-variant hover:text-secondary transition-colors text-body-md" href="#">Privacy Policy</a>
+<a class="block text-on-surface-variant hover:text-secondary transition-colors text-body-md" href="#">API Docs</a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interaction for number counting
+        document.addEventListener('DOMContentLoaded', () => {
+            const stats = document.querySelectorAll('.font-headline-md.font-bold');
+            stats.forEach(stat => {
+                const target = parseInt(stat.innerText.replace(/,/g, ''));
+                if (isNaN(target)) return;
+                let count = 0;
+                const duration = 2000;
+                const increment = target / (duration / 16);
+                const update = () => {
+                    count += increment;
+                    if (count < target) {
+                        stat.innerText = Math.floor(count).toLocaleString();
+                        requestAnimationFrame(update);
+                    } else {
+                        stat.innerText = target.toLocaleString();
+                    }
+                };
+                update();
+            });
+        });
+    </script>
+</body></html>

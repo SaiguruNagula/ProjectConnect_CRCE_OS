@@ -1,0 +1,338 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Login | CRCE OS</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-tertiary-fixed-variant": "#2f2ebe",
+                    "on-error": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f2f4f6",
+                    "surface-variant": "#e0e3e5",
+                    "outline-variant": "#c6c6cd",
+                    "tertiary-container": "#07006c",
+                    "on-background": "#191c1e",
+                    "tertiary-fixed-dim": "#c0c1ff",
+                    "on-secondary-fixed": "#0f0069",
+                    "secondary-container": "#645efb",
+                    "background": "#f7f9fb",
+                    "primary": "#000000",
+                    "surface-container-highest": "#e0e3e5",
+                    "on-tertiary": "#ffffff",
+                    "surface-container": "#eceef0",
+                    "outline": "#76777d",
+                    "on-tertiary-container": "#7073ff",
+                    "on-secondary": "#ffffff",
+                    "inverse-on-surface": "#eff1f3",
+                    "tertiary": "#000000",
+                    "surface-container-high": "#e6e8ea",
+                    "on-surface": "#191c1e",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "error-container": "#ffdad6",
+                    "inverse-surface": "#2d3133",
+                    "tertiary-fixed": "#e1e0ff",
+                    "secondary-fixed-dim": "#c3c0ff",
+                    "secondary-fixed": "#e2dfff",
+                    "primary-container": "#131b2e",
+                    "on-primary": "#ffffff",
+                    "surface-tint": "#565e74",
+                    "secondary": "#4b41e1",
+                    "on-tertiary-fixed": "#07006c",
+                    "on-error-container": "#93000a",
+                    "on-surface-variant": "#45464d",
+                    "on-secondary-fixed-variant": "#3323cc",
+                    "primary-fixed": "#dae2fd",
+                    "surface-bright": "#f7f9fb",
+                    "error": "#ba1a1a",
+                    "inverse-primary": "#bec6e0",
+                    "surface": "#f7f9fb",
+                    "on-secondary-container": "#fffbff",
+                    "on-primary-container": "#7c839b",
+                    "on-primary-fixed": "#131b2e",
+                    "surface-dim": "#d8dadc"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "8px",
+                    "xl": "12px",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "16px",
+                    "md": "24px",
+                    "lg": "40px",
+                    "xs": "8px",
+                    "xl": "64px",
+                    "gutter": "24px",
+                    "container-max": "1440px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "mono": ["Geist"],
+                    "headline-lg-mobile": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "display": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "label-md": ["Geist"],
+                    "body-md": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "mono": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700"}],
+                    "headline-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: theme('colors.background');
+      }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(226, 232, 240, 0.5);
+      }
+      .input-focus-ring:focus {
+        border-color: theme('colors.secondary');
+        box-shadow: 0 0 0 3px rgba(75, 65, 225, 0.1);
+        outline: none;
+      }
+      .linear-shadow {
+        box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.05), 0px 2px 4px -2px rgba(0, 0, 0, 0.05);
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-surface">
+<!-- TopAppBar -->
+<header class="bg-surface/60 backdrop-blur-xl docked full-width top-0 sticky border-b border-outline-variant/50 z-50">
+<div class="flex justify-between items-center w-full px-lg py-md max-w-container-max mx-auto">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary" data-icon="hub">hub</span>
+<span class="font-headline-md text-headline-md font-bold tracking-tight text-primary">CRCE CONNECT</span>
+</div>
+<nav class="hidden md:flex items-center gap-md">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">About</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Open Problems</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Campus Impact</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Leaderboard</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">SaaS Deployed</a>
+<a class="font-label-md text-label-md text-primary font-semibold transition-colors duration-200" href="#">Login</a>
+</nav>
+<button class="md:hidden">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<main class="min-h-screen pt-xl pb-xl px-md">
+<div class="max-w-container-max mx-auto grid lg:grid-cols-12 gap-xl items-center">
+<!-- Left Side: Hero Text & Feature Preview -->
+<div class="lg:col-span-6 space-y-xl">
+<div class="space-y-md">
+<h1 class="font-display text-display text-primary max-w-lg">Welcome Back. Continue Building Campus Impact.</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md">
+                        Access CRCE OS to solve real problems, collaborate with faculty, earn credits, and build your portfolio.
+                    </p>
+<div class="flex flex-col gap-sm pt-sm">
+<div class="flex items-center gap-sm">
+<div class="w-5 h-5 rounded-full bg-secondary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-secondary font-bold" data-icon="check">check</span>
+</div>
+<span class="font-body-md text-on-surface">Secure Authentication</span>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-5 h-5 rounded-full bg-secondary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-secondary font-bold" data-icon="check">check</span>
+</div>
+<span class="font-body-md text-on-surface">Role-based Access</span>
+</div>
+<div class="flex items-center gap-sm">
+<div class="w-5 h-5 rounded-full bg-secondary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-secondary font-bold" data-icon="check">check</span>
+</div>
+<span class="font-body-md text-on-surface">Unified Campus Platform</span>
+</div>
+</div>
+</div>
+<!-- Visual Flow -->
+<div class="relative space-y-md">
+<div class="absolute left-[20px] top-4 bottom-4 w-px bg-outline-variant/30 hidden md:block"></div>
+<div class="flex items-start gap-md group">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center z-10 linear-shadow transition-transform group-hover:scale-105">
+<span class="material-symbols-outlined text-secondary" data-icon="search">search</span>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm">Discover Problems</p>
+<p class="font-body-md text-on-surface-variant">Find verified campus challenges tailored to your skill set.</p>
+</div>
+</div>
+<div class="flex items-start gap-md group">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center z-10 linear-shadow transition-transform group-hover:scale-105">
+<span class="material-symbols-outlined text-secondary" data-icon="groups">groups</span>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm">Join Teams</p>
+<p class="font-body-md text-on-surface-variant">Connect with interdisciplinary peers and faculty mentors.</p>
+</div>
+</div>
+<div class="flex items-start gap-md group">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center z-10 linear-shadow transition-transform group-hover:scale-105">
+<span class="material-symbols-outlined text-secondary" data-icon="engineering">engineering</span>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm">Build Projects</p>
+<p class="font-body-md text-on-surface-variant">Engineer solutions using modern tech stacks and campus resources.</p>
+</div>
+</div>
+<div class="flex items-start gap-md group">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center z-10 linear-shadow transition-transform group-hover:scale-105">
+<span class="material-symbols-outlined text-secondary" data-icon="stars">stars</span>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm">Earn Credits</p>
+<p class="font-body-md text-on-surface-variant">Get academic recognition for your impactful contributions.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Side: Login Card -->
+<div class="lg:col-span-6 flex justify-center lg:justify-end">
+<div class="w-full max-w-[440px] bg-white p-lg rounded-xl linear-shadow border border-outline-variant/30 space-y-md">
+<div class="space-y-xs pb-sm">
+<h2 class="font-headline-md text-headline-md text-primary">Login to CRCE Connect</h2>
+<p class="font-body-md text-on-surface-variant">Enter your campus credentials to proceed.</p>
+</div>
+<form class="space-y-md">
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant" for="email">Email Address</label>
+<input class="w-full px-md py-[10px] bg-white border border-outline-variant rounded-lg font-body-md input-focus-ring transition-all placeholder:text-outline" id="email" placeholder="name@crce.org.in" type="email">
+</div>
+<div class="space-y-xs">
+<div class="flex justify-between items-center">
+<label class="font-label-md text-label-md text-on-surface-variant" for="password">Password</label>
+
+</div>
+<input class="w-full px-md py-[10px] bg-white border border-outline-variant rounded-lg font-body-md input-focus-ring transition-all placeholder:text-outline" id="password" placeholder="••••••••" type="password">
+</div>
+<div class="flex items-center gap-xs transition-transform">
+
+
+</div>
+<button class="w-full bg-primary text-white py-[10px] rounded-lg font-headline-sm hover:bg-black/90 active:scale-[0.98] transition-all flex items-center justify-center gap-xs" type="submit">
+                            Login
+                            <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</form>
+<div class="relative py-sm">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-outline-variant/30"></div>
+</div>
+<div class="relative flex justify-center text-xs">
+
+</div>
+</div>
+
+<div class="pt-md border-t border-outline-variant/30 text-center">
+<p class="font-mono text-mono text-on-surface-variant flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-[14px]" data-icon="info">info</span>
+                            Your dashboard will be personalized based on your campus role.
+                        </p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Security Strip -->
+<div class="w-full bg-surface-container-low/50 py-sm border-y border-outline-variant/20">
+<div class="max-w-container-max mx-auto px-lg flex flex-wrap justify-center md:justify-between items-center gap-md font-mono text-mono text-on-surface-variant opacity-70">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-[16px]" data-icon="lock">lock</span>
+                Secure Campus Authentication
+            </div>
+<div class="hidden md:flex items-center gap-sm">
+<span class="material-symbols-outlined text-[16px]" data-icon="badge">badge</span>
+                Role-based Access
+            </div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-[16px]" data-icon="encrypted">encrypted</span>
+                Protected Data
+            </div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest full-width bottom-0 border-t border-outline-variant/50">
+<div class="w-full py-xl px-lg flex flex-col md:flex-row justify-between items-center max-w-container-max mx-auto gap-md">
+<div class="flex flex-col items-center md:items-start gap-xs">
+<span class="font-headline-sm text-headline-sm font-semibold text-primary">CRCE OS</span>
+<p class="font-body-md text-body-md text-on-surface-variant">© 2024 CRCE OS. Built for Campus Innovation.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors" href="#">Academic Support</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors" href="#">Security Protocol</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors" href="#">Contact Admin</a>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interactions
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.classList.add('scale-[1.01]');
+                input.parentElement.classList.add('transition-transform');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.classList.remove('scale-[1.01]');
+            });
+        });
+
+        const loginForm = document.querySelector('form');
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = loginForm.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<span class="material-symbols-outlined animate-spin" data-icon="progress_activity">progress_activity</span> Authenticating...`;
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 1500);
+        });
+    </script>
+
+
+
+
+</body></html>
