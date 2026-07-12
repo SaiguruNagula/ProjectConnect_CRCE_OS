@@ -1,18 +1,27 @@
 /**
- * Protected route wrapper — PLACEHOLDER (STEP 8: placeholder protected routes only).
+ * Protected route — DEMO enforcement.
  *
- * Today this is a pass-through so role sections are reachable without login.
- * The intended role is exposed via Outlet context so real RBAC (backend-enforced)
- * can be dropped in here later without changing the router shape.
+ * Redirects to /login when signed out, and to the user's own dashboard when
+ * they try to open another role's section. This is UI gating for the demo only;
+ * real authorization is enforced by the backend (DECISIONS.md §6).
  */
-import { Outlet } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 import type { Role } from '@/types'
+import { useAuth } from '@/contexts/AuthContext'
+import { ROUTES } from '@/constants/routes'
 
-export interface ProtectedContext {
-  allowedRole: Role
+const ROLE_HOME: Record<Role, string> = {
+  student: ROUTES.STUDENT.DASHBOARD,
+  faculty: ROUTES.FACULTY.DASHBOARD,
+  admin: ROUTES.ADMIN.DASHBOARD,
+  principal: ROUTES.PRINCIPAL.DASHBOARD,
 }
 
 export function ProtectedRoute({ allow }: { allow: Role }) {
-  // ponytail: no auth yet — passes through. Guard logic added in the auth phase.
-  return <Outlet context={{ allowedRole: allow } satisfies ProtectedContext} />
+  const { user } = useAuth()
+
+  if (!user) return <Navigate to={ROUTES.PUBLIC.LOGIN} replace />
+  if (user.role !== allow) return <Navigate to={ROLE_HOME[user.role]} replace />
+
+  return <Outlet />
 }
