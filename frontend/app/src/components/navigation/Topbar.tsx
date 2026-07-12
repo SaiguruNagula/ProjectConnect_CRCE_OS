@@ -1,7 +1,13 @@
 /**
- * Role top bar. Holds the mobile menu toggle and a user-menu placeholder.
- * No auth logic yet — the avatar is a static placeholder.
+ * Role top bar. Mobile menu toggle, notifications, and the signed-in demo user
+ * with a logout action.
  */
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/contexts/AuthContext'
+import { initials } from '@/mocks/users'
+import { ROUTES } from '@/constants/routes'
+import { Avatar } from '@/components/ui/Avatar'
+import { Button } from '@/components/ui/Button'
 
 interface TopbarProps {
   onMenuClick: () => void
@@ -9,6 +15,14 @@ interface TopbarProps {
 }
 
 export function Topbar({ onMenuClick, roleLabel }: TopbarProps) {
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate(ROUTES.PUBLIC.LOGIN, { replace: true })
+  }
+
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-outline-variant bg-surface-container-lowest px-md">
       <button
@@ -34,12 +48,17 @@ export function Topbar({ onMenuClick, roleLabel }: TopbarProps) {
             notifications
           </span>
         </button>
-        <span
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-container-high text-sm font-semibold text-on-surface-variant"
-          aria-hidden="true"
-        >
-          U
-        </span>
+        {user && (
+          <div className="flex items-center gap-xs">
+            <Avatar initials={initials(user.name)} size="sm" />
+            <span className="hidden text-sm font-medium text-on-surface sm:block">{user.name}</span>
+          </div>
+        )}
+        <Button variant="ghost" size="sm" onClick={handleLogout} aria-label="Log out">
+          <span className="material-symbols-outlined text-[20px]" aria-hidden="true">
+            logout
+          </span>
+        </Button>
       </div>
     </header>
   )

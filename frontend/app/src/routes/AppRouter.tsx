@@ -16,6 +16,9 @@ import { PrincipalLayout } from '@/layouts/PrincipalLayout'
 import { ProtectedRoute } from '@/routes/ProtectedRoute'
 import { Placeholder } from '@/pages/Placeholder'
 import { NotFound } from '@/pages/NotFound'
+import { LoginPage } from '@/pages/public/LoginPage'
+import { LeaderboardPage } from '@/pages/shared/LeaderboardPage'
+import { StudentDashboard } from '@/pages/student/StudentDashboard'
 
 export function AppRouter() {
   return (
@@ -24,7 +27,7 @@ export function AppRouter() {
       <Route element={<PublicLayout />}>
         <Route index element={<Placeholder title="Home" stitchSource="crce_os_landing_page_1" />} />
         <Route path="about" element={<Placeholder title="About" stitchSource="crce_os_expanded_about_experience" />} />
-        <Route path="login" element={<Placeholder title="Log in" stitchSource="crce_os_authentication_gateway_connected" />} />
+        <Route path="login" element={<LoginPage />} />
         <Route path="innovation-hub" element={<Placeholder title="Innovation Hub" stitchSource="crce_os_innovation_hub_overview_connected" />} />
         <Route path="open-problems" element={<Placeholder title="Open Problems" stitchSource="crce_os_open_problems_catalog_connected" />} />
         <Route path="problem/:id" element={<Placeholder title="Problem Details" stitchSource="crce_os_problem_details_outcome_focused" />} />
@@ -32,7 +35,7 @@ export function AppRouter() {
         <Route path="project" element={<Placeholder title="Project Space" stitchSource="crce_os_project_space_smart_attendance" />} />
         <Route path="review" element={<Placeholder title="Review Engine" stitchSource="crce_os_review_engine_milestone_hub" />} />
         <Route path="solutions" element={<Placeholder title="Solutions Hub" stitchSource="crce_os_solution_hub_unified_marketplace_v3" />} />
-        <Route path="leaderboard" element={<Placeholder title="Leaderboard" stitchSource="crce_os_leaderboard_institutional_production_mode" />} />
+        <Route path="leaderboard" element={<LeaderboardPage />} />
         <Route path="portfolio/:id" element={<Placeholder title="Portfolio" stitchSource="crce_os_public_portfolio_aarav_sharma" />} />
       </Route>
 
@@ -40,7 +43,7 @@ export function AppRouter() {
       <Route element={<ProtectedRoute allow="student" />}>
         <Route path="student" element={<StudentLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<Placeholder title="Student Dashboard" stitchSource="crce_os_student_dashboard_central_command_center" />} />
+          <Route path="dashboard" element={<StudentDashboard />} />
           <Route path="projects" element={<Placeholder title="My Projects" stitchSource="crce_os_my_projects_production_refinement" />} />
           <Route path="projects/:id" element={<Placeholder title="Project Workspace" stitchSource="crce_os_project_command_center_smart_attendance" />} />
           <Route path="credits" element={<Placeholder title="Credits" stitchSource="crce_os_credit_engine_milestone_tracker" />} />
