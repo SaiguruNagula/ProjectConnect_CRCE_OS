@@ -17,7 +17,14 @@ import { ProtectedRoute } from '@/routes/ProtectedRoute'
 import { Placeholder } from '@/pages/Placeholder'
 import { NotFound } from '@/pages/NotFound'
 import { LoginPage } from '@/pages/public/LoginPage'
+import { LandingPage } from '@/pages/public/LandingPage'
+import { InnovationHubPage } from '@/pages/shared/InnovationHubPage'
+import { OpenProblemsPage } from '@/pages/shared/OpenProblemsPage'
+import { ProblemDetailsPage } from '@/pages/shared/ProblemDetailsPage'
+import { TeamFormationPage } from '@/pages/shared/TeamFormationPage'
+import { SolutionsHubPage } from '@/pages/shared/SolutionsHubPage'
 import { LeaderboardPage } from '@/pages/shared/LeaderboardPage'
+import { PortfolioPage } from '@/pages/shared/PortfolioPage'
 import { StudentDashboard } from '@/pages/student/StudentDashboard'
 
 export function AppRouter() {
@@ -25,18 +32,18 @@ export function AppRouter() {
     <Routes>
       {/* Public + Shared modules */}
       <Route element={<PublicLayout />}>
-        <Route index element={<Placeholder title="Home" stitchSource="crce_os_landing_page_1" />} />
+        <Route index element={<LandingPage />} />
         <Route path="about" element={<Placeholder title="About" stitchSource="crce_os_expanded_about_experience" />} />
         <Route path="login" element={<LoginPage />} />
-        <Route path="innovation-hub" element={<Placeholder title="Innovation Hub" stitchSource="crce_os_innovation_hub_overview_connected" />} />
-        <Route path="open-problems" element={<Placeholder title="Open Problems" stitchSource="crce_os_open_problems_catalog_connected" />} />
-        <Route path="problem/:id" element={<Placeholder title="Problem Details" stitchSource="crce_os_problem_details_outcome_focused" />} />
-        <Route path="team" element={<Placeholder title="Team Formation" stitchSource="crce_os_team_formation_mvp_ready_flow" />} />
+        <Route path="innovation-hub" element={<InnovationHubPage />} />
+        <Route path="open-problems" element={<OpenProblemsPage />} />
+        <Route path="problem/:id" element={<ProblemDetailsPage />} />
+        <Route path="team" element={<TeamFormationPage />} />
         <Route path="project" element={<Placeholder title="Project Space" stitchSource="crce_os_project_space_smart_attendance" />} />
         <Route path="review" element={<Placeholder title="Review Engine" stitchSource="crce_os_review_engine_milestone_hub" />} />
-        <Route path="solutions" element={<Placeholder title="Solutions Hub" stitchSource="crce_os_solution_hub_unified_marketplace_v3" />} />
+        <Route path="solutions" element={<SolutionsHubPage />} />
         <Route path="leaderboard" element={<LeaderboardPage />} />
-        <Route path="portfolio/:id" element={<Placeholder title="Portfolio" stitchSource="crce_os_public_portfolio_aarav_sharma" />} />
+        <Route path="portfolio/:id" element={<PortfolioPage />} />
       </Route>
 
       {/* Student workspace */}
