@@ -39,6 +39,11 @@ export const reviewsService = {
   rubric: () => repositories.reviews.rubric(),
 }
 
+export const adminService = {
+  users: () => repositories.admin.users(),
+  institutions: () => repositories.admin.institutions(),
+}
+
 export const dashboardService = {
   stats: (role: Role) => repositories.dashboard.stats(role),
   activity: () => repositories.dashboard.activity(),

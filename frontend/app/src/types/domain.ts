@@ -128,6 +128,23 @@ export interface CreditRule {
   description: string
 }
 
+export interface DirectoryUser {
+  id: string
+  name: string
+  email: string
+  role: Role
+  department: string
+  status: 'active' | 'suspended'
+}
+
+export interface Institution {
+  id: string
+  name: string
+  students: number
+  faculty: number
+  projects: number
+}
+
 export type NotificationKind = 'info' | 'success' | 'warning' | 'error'
 
 export interface Notification {

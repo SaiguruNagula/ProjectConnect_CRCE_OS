@@ -13,6 +13,8 @@ import type {
   CreditTransaction,
   Deadline,
   DashboardStats,
+  DirectoryUser,
+  Institution,
   Invitation,
   LeaderboardEntry,
   NameValue,
@@ -56,6 +58,11 @@ export interface ReviewRepository {
   rubric(): Promise<RubricCriterion[]>
 }
 
+export interface AdminRepository {
+  users(): Promise<DirectoryUser[]>
+  institutions(): Promise<Institution[]>
+}
+
 export interface DashboardRepository {
   stats(role: Role): Promise<DashboardStats[]>
   activity(): Promise<Activity[]>
@@ -73,5 +80,6 @@ export interface Repositories {
   portfolio: PortfolioRepository
   credits: CreditRepository
   reviews: ReviewRepository
+  admin: AdminRepository
   dashboard: DashboardRepository
 }

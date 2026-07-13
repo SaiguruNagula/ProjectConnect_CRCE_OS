@@ -8,6 +8,7 @@
  */
 import { resolve } from '@/services/mock'
 import type {
+  AdminRepository,
   CreditRepository,
   DashboardRepository,
   LeaderboardRepository,
@@ -24,6 +25,7 @@ import { MOCK_STUDENT_LEADERBOARD, MOCK_FACULTY_LEADERBOARD } from '@/mocks/lead
 import { MOCK_PORTFOLIO } from '@/mocks/portfolio'
 import { MOCK_CREDIT_TRANSACTIONS, CREDIT_BREAKDOWN, CREDIT_RULES } from '@/mocks/credits'
 import { MOCK_REVIEWS, REVIEW_RUBRIC } from '@/mocks/reviews'
+import { MOCK_DIRECTORY_USERS, MOCK_INSTITUTIONS } from '@/mocks/directory'
 import { MOCK_ACTIVITY, MOCK_DEADLINES, MOCK_NOTIFICATIONS } from '@/mocks/notifications'
 import { DASHBOARD_STATS, CREDIT_TREND, DEPARTMENT_DISTRIBUTION } from '@/mocks/analytics'
 
@@ -58,6 +60,11 @@ const reviews: ReviewRepository = {
   rubric: () => resolve(REVIEW_RUBRIC), // GET /api/v1/reviews/{id}/rubric
 }
 
+const admin: AdminRepository = {
+  users: () => resolve(MOCK_DIRECTORY_USERS), // GET /api/v1/admin/users
+  institutions: () => resolve(MOCK_INSTITUTIONS), // GET /api/v1/admin/institutions
+}
+
 const dashboard: DashboardRepository = {
   stats: (role: Role) => resolve(DASHBOARD_STATS[role]),
   activity: () => resolve(MOCK_ACTIVITY),
@@ -74,5 +81,6 @@ export const mockRepositories: Repositories = {
   portfolio,
   credits,
   reviews,
+  admin,
   dashboard,
 }
