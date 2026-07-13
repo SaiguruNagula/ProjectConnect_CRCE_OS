@@ -25,7 +25,12 @@ import { TeamFormationPage } from '@/pages/shared/TeamFormationPage'
 import { SolutionsHubPage } from '@/pages/shared/SolutionsHubPage'
 import { LeaderboardPage } from '@/pages/shared/LeaderboardPage'
 import { PortfolioPage } from '@/pages/shared/PortfolioPage'
+import { ProjectWorkspacePage } from '@/pages/shared/ProjectWorkspacePage'
+import { ReviewEnginePage } from '@/pages/shared/ReviewEnginePage'
+import { ProfilePage } from '@/pages/shared/ProfilePage'
 import { StudentDashboard } from '@/pages/student/StudentDashboard'
+import { MyProjectsPage } from '@/pages/student/MyProjectsPage'
+import { CreditsPage } from '@/pages/student/CreditsPage'
 
 export function AppRouter() {
   return (
@@ -39,8 +44,8 @@ export function AppRouter() {
         <Route path="open-problems" element={<OpenProblemsPage />} />
         <Route path="problem/:id" element={<ProblemDetailsPage />} />
         <Route path="team" element={<TeamFormationPage />} />
-        <Route path="project" element={<Placeholder title="Project Space" stitchSource="crce_os_project_space_smart_attendance" />} />
-        <Route path="review" element={<Placeholder title="Review Engine" stitchSource="crce_os_review_engine_milestone_hub" />} />
+        <Route path="project" element={<ProjectWorkspacePage />} />
+        <Route path="review" element={<ReviewEnginePage />} />
         <Route path="solutions" element={<SolutionsHubPage />} />
         <Route path="leaderboard" element={<LeaderboardPage />} />
         <Route path="portfolio/:id" element={<PortfolioPage />} />
@@ -51,10 +56,10 @@ export function AppRouter() {
         <Route path="student" element={<StudentLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<StudentDashboard />} />
-          <Route path="projects" element={<Placeholder title="My Projects" stitchSource="crce_os_my_projects_production_refinement" />} />
-          <Route path="projects/:id" element={<Placeholder title="Project Workspace" stitchSource="crce_os_project_command_center_smart_attendance" />} />
-          <Route path="credits" element={<Placeholder title="Credits" stitchSource="crce_os_credit_engine_milestone_tracker" />} />
-          <Route path="profile" element={<Placeholder title="Profile" stitchSource="crce_os_student_profile_identity_management_hub" />} />
+          <Route path="projects" element={<MyProjectsPage />} />
+          <Route path="projects/:id" element={<ProjectWorkspacePage />} />
+          <Route path="credits" element={<CreditsPage />} />
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
       </Route>
 
