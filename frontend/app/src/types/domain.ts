@@ -104,6 +104,30 @@ export interface Portfolio {
   timeline: TimelineEvent[]
 }
 
+export type ReviewStatus = 'pending' | 'approved' | 'rejected'
+
+export interface ReviewSubmission {
+  id: string
+  projectTitle: string
+  teamName: string
+  milestone: string
+  submittedAt: string
+  status: ReviewStatus
+}
+
+export interface RubricCriterion {
+  id: string
+  label: string
+  maxScore: number
+}
+
+export interface CreditRule {
+  id: string
+  source: string
+  points: number
+  description: string
+}
+
 export type NotificationKind = 'info' | 'success' | 'warning' | 'error'
 
 export interface Notification {
@@ -121,6 +145,24 @@ export interface Activity {
   action: string
   target: string
   timestamp: string
+}
+
+export interface Invitation {
+  id: string
+  projectTitle: string
+  invitedBy: string
+  role: string
+}
+
+/** Generic label/value pair for charts and breakdowns. */
+export interface NameValue {
+  label: string
+  value: number
+}
+
+export interface TrendPoint {
+  month: string
+  value: number
 }
 
 export interface DashboardStats {
