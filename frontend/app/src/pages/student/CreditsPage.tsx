@@ -1,71 +1,209 @@
 /**
- * Credits (Credit Engine surface). Shows the credit breakdown, how credits are
- * earned (rules), and the transaction history. The Credit Engine is the single
- * source of truth (DECISIONS.md §10); this page only displays its output.
+ * Credit Engine — ported from the approved Stitch "Credit Engine / Milestone
+ * Tracker" design: total-credits hero with level progress, balance tiles,
+ * category breakdown, activity timeline and the credit pipeline.
+ *
+ * The Credit Engine is the single source of truth (DECISIONS.md §10). Balances,
+ * level and milestone progress are computed by the engine and served via
+ * creditsService — this page only displays them (no business logic in the UI).
  */
 import { useAsync } from '@/hooks/useAsync'
 import { creditsService } from '@/services/catalog.service'
-import type { CreditRule, CreditTransaction, NameValue } from '@/types/domain'
-import { PageHeader } from '@/components/common/PageHeader'
+import type {
+  CreditCategory,
+  CreditPipelineItem,
+  CreditSummary,
+  CreditTransaction,
+} from '@/types/domain'
 import { Card } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/Badge'
-import { MiniBarChart } from '@/components/common/MiniBarChart'
+import { Button } from '@/components/ui/Button'
+import { ProgressBar } from '@/components/ui/ProgressBar'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
 
+/** Whole days ago for `date`, rendered as a friendly label. */
+function daysAgo(date: string): string {
+  const days = Math.round((Date.now() - new Date(date).getTime()) / 86_400_000)
+  if (days <= 0) return 'Today'
+  if (days === 1) return 'Yesterday'
+  if (days < 7) return `${days} days ago`
+  if (days < 30) return `${Math.round(days / 7)} weeks ago`
+  return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
 export function CreditsPage() {
-  const breakdown = useAsync<NameValue[]>(() => creditsService.breakdown())
-  const rules = useAsync<CreditRule[]>(() => creditsService.rules())
+  const summary = useAsync<CreditSummary>(() => creditsService.summary())
+  const categories = useAsync<CreditCategory[]>(() => creditsService.categories())
+  const pipeline = useAsync<CreditPipelineItem[]>(() => creditsService.pipeline())
   const history = useAsync<CreditTransaction[]>(() => creditsService.history())
 
-  const total = (history.data ?? []).reduce((sum, t) => sum + t.points, 0)
+  if (summary.loading || !summary.data) return <PageLoader />
+  const s = summary.data
 
   return (
-    <div className="mx-auto flex max-w-container-max flex-col gap-lg">
-      <PageHeader title="Credits" subtitle="Recognition earned from verified contributions." />
+    <div className="mx-auto flex w-full max-w-container-max flex-col gap-lg px-md py-lg md:px-lg">
+      {/* Hero */}
+      <Card className="flex flex-col items-start justify-between gap-md bg-gradient-to-br from-surface-container-lowest to-surface-container-low p-lg md:flex-row md:items-center">
+        <div className="w-full flex-1">
+          <span className="rounded-full bg-secondary/10 px-3 py-1 font-mono text-label-md uppercase text-secondary">
+            Credit Engine {s.engineVersion}
+          </span>
+          <h2 className="mb-xs mt-xs text-display text-primary">Total Credits: {s.total}</h2>
+          <p className="mb-md text-headline-sm text-on-surface-variant">
+            Level {s.level}: {s.levelName}
+          </p>
+          <div className="w-full max-w-2xl">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-label-md font-bold text-secondary">
+                {s.pctToNext}% to {s.nextLevelName}
+              </span>
+              <span className="text-label-md text-on-surface-variant">
+                {s.creditsToNext} credits to next milestone ({s.nextMilestone})
+              </span>
+            </div>
+            <ProgressBar value={s.pctToNext} className="h-3" />
+          </div>
+        </div>
+        <div className="hidden h-32 w-32 items-center justify-center rounded-full bg-secondary-fixed md:flex">
+          <span
+            className="material-symbols-outlined text-5xl text-on-secondary-fixed-variant"
+            style={{ fontVariationSettings: "'FILL' 1" }}
+            aria-hidden="true"
+          >
+            stars
+          </span>
+        </div>
+      </Card>
 
-      <div className="grid gap-lg lg:grid-cols-3">
-        <Card className="flex flex-col items-center justify-center gap-base">
-          <span className="text-4xl font-semibold text-secondary">{total.toLocaleString()}</span>
-          <span className="text-sm text-on-surface-variant">credits this period</span>
-        </Card>
-        <Card className="lg:col-span-2">
-          <h2 className="mb-md text-base font-semibold text-on-surface">Breakdown by source</h2>
-          {breakdown.data ? <MiniBarChart data={breakdown.data} /> : <PageLoader />}
+      {/* Balances + categories */}
+      <div className="grid grid-cols-1 gap-lg lg:grid-cols-12">
+        <div className="grid grid-cols-2 gap-lg lg:col-span-8">
+          <StatTile label="Current" value={s.current} valueClass="text-secondary" />
+          <StatTile label="Pending" value={s.pending} valueClass="text-[#D97706]" />
+          <StatTile label="Locked" value={s.locked} valueClass="text-outline" />
+          <StatTile label="Lifetime" value={s.lifetime} valueClass="text-primary" />
+        </div>
+
+        <Card className="lg:col-span-4">
+          <h3 className="mb-md flex items-center gap-xs text-headline-sm">
+            <span className="material-symbols-outlined" aria-hidden="true">category</span> Categories
+          </h3>
+          <div className="flex flex-col gap-sm">
+            {categories.data?.map((c) => (
+              <div key={c.label} className="flex items-center justify-between rounded-lg bg-surface-container p-sm">
+                <div className="flex items-center gap-sm">
+                  <span className="material-symbols-outlined text-secondary" aria-hidden="true">{c.icon}</span>
+                  <span className="text-label-md">{c.label}</span>
+                </div>
+                <span className="font-mono font-bold text-primary">{c.value}</span>
+              </div>
+            ))}
+          </div>
         </Card>
       </div>
 
-      <div className="grid gap-lg lg:grid-cols-2">
-        {/* Rules */}
-        <Card className="flex flex-col gap-sm">
-          <h2 className="text-base font-semibold text-on-surface">How credits are earned</h2>
-          <ul className="flex flex-col divide-y divide-outline-variant">
-            {rules.data?.map((r) => (
-              <li key={r.id} className="flex items-center justify-between gap-sm py-xs">
-                <span className="flex flex-col">
-                  <span className="text-sm font-medium text-on-surface">{r.source}</span>
-                  <span className="text-xs text-on-surface-variant">{r.description}</span>
-                </span>
-                <Badge tone="primary">+{r.points}</Badge>
-              </li>
+      {/* Activity + pipeline */}
+      <div className="grid grid-cols-1 gap-lg lg:grid-cols-12">
+        <Card className="lg:col-span-7">
+          <div className="mb-md flex items-center justify-between">
+            <h3 className="text-headline-sm">Recent Activity</h3>
+            <button type="button" className="text-label-md text-secondary hover:underline">View All</button>
+          </div>
+          <div className="relative flex flex-col">
+            <div className="absolute bottom-4 left-6 top-4 w-px bg-outline-variant" aria-hidden="true" />
+            {history.data?.map((t, i) => (
+              <ActivityItem key={t.id} transaction={t} first={i === 0} />
             ))}
-          </ul>
+          </div>
         </Card>
 
-        {/* History */}
-        <Card className="flex flex-col gap-sm">
-          <h2 className="text-base font-semibold text-on-surface">Recent history</h2>
-          <ul className="flex flex-col divide-y divide-outline-variant">
-            {history.data?.map((t) => (
-              <li key={t.id} className="flex items-center justify-between gap-sm py-xs">
-                <span className="flex flex-col">
-                  <span className="text-sm text-on-surface">{t.description}</span>
-                  <span className="text-xs text-on-surface-variant">{t.source} · {t.date}</span>
-                </span>
-                <span className="text-sm font-semibold text-[#1e7a3d]">+{t.points}</span>
-              </li>
-            ))}
-          </ul>
-        </Card>
+        <div className="flex flex-col gap-lg lg:col-span-5">
+          <Card className="flex flex-col bg-secondary text-on-secondary">
+            <h3 className="mb-md flex items-center gap-xs text-headline-sm">
+              <span className="material-symbols-outlined" aria-hidden="true">pending_actions</span> Pipeline
+            </h3>
+            <div className="flex flex-col gap-sm">
+              {pipeline.data?.map((p) => (
+                <div key={p.id} className="rounded-lg border border-white/20 bg-white/10 p-sm">
+                  <div className="mb-xs flex items-center justify-between gap-xs">
+                    <span className="text-label-md font-bold text-secondary-fixed">{p.title}</span>
+                    <span className="rounded-full bg-secondary-container px-2 py-0.5 text-[10px] uppercase tracking-tight text-on-secondary-container">
+                      {p.status}
+                    </span>
+                  </div>
+                  <p className="mb-xs text-body-md text-white/90">{p.detail}</p>
+                  <div className="flex items-center gap-xs">
+                    <span className="material-symbols-outlined text-sm" aria-hidden="true">insights</span>
+                    <span className="font-mono text-sm font-bold">Potential: +{p.potential}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Button className="mt-md w-full bg-surface-container-lowest text-primary hover:bg-secondary-fixed">
+              Claim New Credits
+            </Button>
+          </Card>
+
+          <div className="flex flex-col items-center justify-center gap-sm rounded-xl border-2 border-dashed border-outline-variant p-lg text-center">
+            <span className="material-symbols-outlined text-4xl text-outline" aria-hidden="true">auto_awesome</span>
+            <p className="px-md text-label-md text-on-surface-variant">
+              Auto-sync with CRCE Faculty Portal is active. New publications detected.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer meta */}
+      <div className="flex flex-col items-center justify-between gap-sm border-t border-outline-variant/30 pt-md font-mono text-mono text-on-surface-variant opacity-80 md:flex-row">
+        <span className="flex items-center gap-md">
+          CRCE OS Credit Engine
+          <span className="flex items-center gap-1 text-green-600">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" aria-hidden="true" />
+            Sync Status: Online
+          </span>
+        </span>
+        <span className="flex items-center gap-md">
+          <a href="#" className="hover:text-primary">System Status</a>
+          <a href="#" className="hover:text-primary">Terms</a>
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function StatTile({ label, value, valueClass }: { label: string; value: number; valueClass: string }) {
+  return (
+    <Card className="flex flex-col justify-between gap-sm">
+      <span className="text-label-md uppercase tracking-wider text-on-surface-variant">{label}</span>
+      <span className={`text-headline-lg font-bold ${valueClass}`}>{value}</span>
+    </Card>
+  )
+}
+
+function ActivityItem({ transaction: t, first }: { transaction: CreditTransaction; first: boolean }) {
+  return (
+    <div className="relative flex gap-md pb-md">
+      <div
+        className={`z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 bg-surface-container-lowest ${
+          first ? 'border-secondary' : 'border-outline-variant'
+        }`}
+      >
+        <span
+          className={`material-symbols-outlined text-sm ${first ? 'text-secondary' : 'text-outline'}`}
+          aria-hidden="true"
+        >
+          {first ? 'check' : 'history_edu'}
+        </span>
+      </div>
+      <div className="flex-1 border-b border-outline-variant pb-md last:border-0">
+        <div className="mb-1 flex items-start justify-between gap-sm">
+          <h4 className="text-body-lg font-semibold text-primary">{t.description}</h4>
+          <span className="whitespace-nowrap font-mono text-xs font-bold text-secondary">+{t.points} Credits</span>
+        </div>
+        <p className="text-body-md text-on-surface-variant">
+          {t.source}
+          {t.context ? ` • ${t.context}` : ''}
+        </p>
+        <span className="text-label-md text-outline">{daysAgo(t.date)}</span>
       </div>
     </div>
   )

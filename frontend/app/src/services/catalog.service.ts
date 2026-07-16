@@ -7,6 +7,7 @@
  */
 import { repositories } from '@/repositories'
 import type { Role } from '@/types'
+import type { ReviewDecisionInput } from '@/types/domain'
 
 export const problemsService = {
   list: () => repositories.problems.list(),
@@ -17,6 +18,7 @@ export const projectsService = {
   list: () => repositories.projects.list(),
   get: (id: string) => repositories.projects.get(id),
   invitations: () => repositories.projects.invitations(),
+  teams: () => repositories.projects.teams(),
 }
 
 export const leaderboardService = {
@@ -32,11 +34,21 @@ export const creditsService = {
   history: () => repositories.credits.history(),
   breakdown: () => repositories.credits.breakdown(),
   rules: () => repositories.credits.rules(),
+  summary: () => repositories.credits.summary(),
+  categories: () => repositories.credits.categories(),
+  pipeline: () => repositories.credits.pipeline(),
 }
 
 export const reviewsService = {
   list: () => repositories.reviews.list(),
   rubric: () => repositories.reviews.rubric(),
+  stats: () => repositories.reviews.stats(),
+  submitDecision: (input: ReviewDecisionInput) => repositories.reviews.submitDecision(input),
+}
+
+export const solutionsService = {
+  list: () => repositories.solutions.list(),
+  stats: () => repositories.solutions.stats(),
 }
 
 export const adminService = {

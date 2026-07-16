@@ -9,7 +9,10 @@
 import type { Role } from '@/types'
 import type {
   Activity,
+  CreditCategory,
+  CreditPipelineItem,
   CreditRule,
+  CreditSummary,
   CreditTransaction,
   Deadline,
   DashboardStats,
@@ -22,8 +25,13 @@ import type {
   Portfolio,
   Problem,
   Project,
+  Team,
+  ReviewDecisionInput,
+  ReviewStats,
   ReviewSubmission,
   RubricCriterion,
+  Solution,
+  SolutionStats,
   TrendPoint,
 } from '@/types/domain'
 
@@ -36,6 +44,7 @@ export interface ProjectRepository {
   list(): Promise<Project[]>
   get(id: string): Promise<Project | null>
   invitations(): Promise<Invitation[]>
+  teams(): Promise<Team[]>
 }
 
 export interface LeaderboardRepository {
@@ -51,11 +60,22 @@ export interface CreditRepository {
   history(): Promise<CreditTransaction[]>
   breakdown(): Promise<NameValue[]>
   rules(): Promise<CreditRule[]>
+  summary(): Promise<CreditSummary>
+  categories(): Promise<CreditCategory[]>
+  pipeline(): Promise<CreditPipelineItem[]>
 }
 
 export interface ReviewRepository {
   list(): Promise<ReviewSubmission[]>
   rubric(): Promise<RubricCriterion[]>
+  stats(): Promise<ReviewStats>
+  /** Post a faculty decision; returns the updated submission. */
+  submitDecision(input: ReviewDecisionInput): Promise<ReviewSubmission>
+}
+
+export interface SolutionRepository {
+  list(): Promise<Solution[]>
+  stats(): Promise<SolutionStats>
 }
 
 export interface AdminRepository {
@@ -80,6 +100,7 @@ export interface Repositories {
   portfolio: PortfolioRepository
   credits: CreditRepository
   reviews: ReviewRepository
+  solutions: SolutionRepository
   admin: AdminRepository
   dashboard: DashboardRepository
 }

@@ -1,4 +1,4 @@
-import type { Project } from '@/types/domain'
+import type { Project, Team } from '@/types/domain'
 
 export const MOCK_PROJECTS: Project[] = [
   {
@@ -52,6 +52,55 @@ export const MOCK_PROJECTS: Project[] = [
       { id: 'ms8', title: 'Accessibility audit', status: 'done', dueDate: '2026-02-10' },
       { id: 'ms9', title: 'Route engine', status: 'done', dueDate: '2026-03-15' },
       { id: 'ms10', title: 'Final review', status: 'done', dueDate: '2026-04-01' },
+    ],
+  },
+]
+
+export const MOCK_TEAMS: Team[] = [
+  {
+    id: 't-alpha',
+    name: 'Team Alpha',
+    pitch: 'A data-driven approach to on-device attendance and edge computing.',
+    mine: true,
+    openSpots: 1,
+    lookingFor: ['UI Designer'],
+    members: [
+      { id: 'm1', name: 'Aarav Sharma', role: 'Lead Developer', avatarInitials: 'AS' },
+      { id: 'm2', name: 'Isha Patil', role: 'ML Engineer', avatarInitials: 'IP' },
+      { id: 'm3', name: 'Kabir Singh', role: 'Hardware Research', avatarInitials: 'KS' },
+    ],
+  },
+  {
+    id: 't-nova',
+    name: 'Team Nova',
+    pitch: 'Focusing on low-latency NFC integration for high-density halls.',
+    openSpots: 2,
+    lookingFor: ['ML Engineer', 'UI Designer'],
+    members: [
+      { id: 'm8', name: 'Meera Joshi', role: 'Backend', avatarInitials: 'MJ' },
+      { id: 'm9', name: 'Riya Verma', role: 'Designer', avatarInitials: 'RV' },
+    ],
+  },
+  {
+    id: 't-quanta',
+    name: 'Team Quanta',
+    pitch: 'Offline-first sync and a resilient attendance ledger.',
+    openSpots: 3,
+    lookingFor: ['Backend Developer', 'DevOps'],
+    members: [
+      { id: 'm10', name: 'Sameer Deshpande', role: 'Team Lead', avatarInitials: 'SD' },
+      { id: 'm11', name: 'Anil Rao', role: 'Embedded', avatarInitials: 'AR' },
+    ],
+  },
+  {
+    id: 't-vertex',
+    name: 'Team Vertex',
+    pitch: 'Computer-vision pipeline with privacy-preserving inference.',
+    openSpots: 2,
+    lookingFor: ['Computer Vision', 'UI Designer'],
+    members: [
+      { id: 'm12', name: 'Neha Kulkarni', role: 'CV Lead', avatarInitials: 'NK' },
+      { id: 'm13', name: 'Tara Menon', role: 'Research', avatarInitials: 'TM' },
     ],
   },
 ]
