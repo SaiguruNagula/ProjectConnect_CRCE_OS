@@ -235,6 +235,8 @@ Examples include:
 - Team Formation
 - Project Workspace
 - Review Engine
+├── Student Review Engine
+└── Faculty Review Engine
 - Credit Engine
 - Leaderboard
 - Portfolio
@@ -388,6 +390,8 @@ Examples include:
 - Open Problems
 - Project Space
 - Review Engine
+├── Student Review Engine
+└── Faculty Review Engine
 - Credit Engine
 - Leaderboard
 - Portfolio
@@ -6538,6 +6542,57 @@ Version Control
 - Accessibility First
 
 ---
+
+## Student Review Engine
+
+Purpose
+
+Allows students to monitor the evaluation of their submitted work.
+
+Capabilities
+
+- View submission status
+- View review progress
+- Read faculty comments
+- View awarded credits
+- Track milestones
+- View evaluation history
+- View uploaded files
+- View review timeline
+
+Permissions
+
+Students cannot:
+
+- Approve reviews
+- Reject reviews
+- Award credits
+- Modify faculty evaluations
+
+The Student Review Engine is read-only except for submitting revisions when requested.
+
+## Faculty Review Engine
+
+Purpose
+
+Provides faculty members with the complete project evaluation workspace.
+
+Capabilities
+
+- Review submissions
+- Open project artifacts
+- Evaluate milestones
+- Score projects
+- Award credits
+- Approve submissions
+- Request changes
+- Reject submissions
+- Add comments
+- Publish review decisions
+
+Permissions
+
+Faculty members have full control over project evaluations according to institutional policies.
 
 # 35. Architecture Principles
 

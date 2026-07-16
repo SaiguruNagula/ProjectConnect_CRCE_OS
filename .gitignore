@@ -43,3 +43,6 @@ htmlcov/
 # === Local tooling / machine-specific ===
 .tokensave/
 .claude/settings.local.json
+
+# Claude Code local settings (whole dir)
+.claude/
