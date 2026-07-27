@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import type { Problem, Difficulty, ProblemStatus } from '@/types/domain'
 import { buildPath, ROUTES } from '@/constants/routes'
+import { daysLeft } from '@/utils/date'
 
 const DIFFICULTY_CHIP: Record<Difficulty, string> = {
   Beginner: 'bg-green-50 text-green-800',
@@ -17,10 +18,6 @@ const STATUS_CHIP: Record<ProblemStatus, { label: string; className: string }> =
 }
 
 /** Whole days until `endDate` (negative once past). */
-function daysLeft(endDate: string): number {
-  return Math.ceil((new Date(endDate).getTime() - Date.now()) / 86_400_000)
-}
-
 function InfoRow({ icon, children }: { icon: string; children: ReactNode }) {
   return (
     <div className="flex items-center gap-2">

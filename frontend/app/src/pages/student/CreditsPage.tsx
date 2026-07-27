@@ -19,6 +19,7 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 /** Whole days ago for `date`, rendered as a friendly label. */
 function daysAgo(date: string): string {
@@ -36,11 +37,21 @@ export function CreditsPage() {
   const pipeline = useAsync<CreditPipelineItem[]>(() => creditsService.pipeline())
   const history = useAsync<CreditTransaction[]>(() => creditsService.history())
 
-  if (summary.loading || !summary.data) return <PageLoader />
+  if (summary.loading) return <PageLoader />
+  if (summary.error || !summary.data) {
+    return (
+      <EmptyState
+        icon="stars"
+        title="Credits unavailable"
+        description={summary.error ?? 'Your credit balance could not be loaded.'}
+      />
+    )
+  }
   const s = summary.data
 
   return (
     <div className="mx-auto flex w-full max-w-container-max flex-col gap-lg px-md py-lg md:px-lg">
+      <h1 className="sr-only">Credit Engine</h1>
       {/* Hero */}
       <Card className="flex flex-col items-start justify-between gap-md bg-gradient-to-br from-surface-container-lowest to-surface-container-low p-lg md:flex-row md:items-center">
         <div className="w-full flex-1">

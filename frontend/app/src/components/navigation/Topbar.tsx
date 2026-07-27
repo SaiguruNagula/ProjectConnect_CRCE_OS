@@ -4,7 +4,7 @@
  */
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
-import { initials } from '@/mocks/users'
+import { initials } from '@/utils/initials'
 import { ROUTES } from '@/constants/routes'
 import { Avatar } from '@/components/ui/Avatar'
 import { Button } from '@/components/ui/Button'

@@ -9,6 +9,9 @@
 import type { Role } from '@/types'
 import type {
   Activity,
+  AdminDashboardData,
+  AdminInstitution,
+  CreateProblemInput,
   CreditCategory,
   CreditPipelineItem,
   CreditRule,
@@ -17,14 +20,22 @@ import type {
   Deadline,
   DashboardStats,
   DirectoryUser,
+  FacultyProfile,
+  FacultyReputation,
   Institution,
+  InstitutionAnalytics,
+  InstitutionInput,
+  InstitutionsOverview,
+  InstitutionStatus,
   Invitation,
   LeaderboardEntry,
   NameValue,
   Notification,
   Portfolio,
+  PortfolioCustomization,
   Problem,
   Project,
+  StudentProfile,
   Team,
   ReviewDecisionInput,
   ReviewStats,
@@ -33,11 +44,16 @@ import type {
   Solution,
   SolutionStats,
   TrendPoint,
+  UsersOverview,
 } from '@/types/domain'
 
 export interface ProblemRepository {
   list(): Promise<Problem[]>
   get(id: string): Promise<Problem | null>
+  /** Publish a new problem (status → open); it becomes available in Open Problems. */
+  create(input: CreateProblemInput): Promise<Problem>
+  /** Persist an in-progress draft without publishing it publicly. */
+  saveDraft(input: CreateProblemInput): Promise<void>
 }
 
 export interface ProjectRepository {
@@ -52,8 +68,39 @@ export interface LeaderboardRepository {
   faculty(): Promise<LeaderboardEntry[]>
 }
 
+/**
+ * The editable identity source of truth. `get` returns the student's own
+ * profile; `update` persists an edit (mock: in-session) and returns the new
+ * state. The portfolio repository reads from here, so an update reflects there
+ * automatically.
+ */
+export interface ProfileRepository {
+  get(userId?: string): Promise<StudentProfile>
+  update(patch: Partial<StudentProfile>): Promise<StudentProfile>
+}
+
+/**
+ * The public portfolio. `get` returns the composed public view (profile identity
+ * + verified modules). `getCustomization`/`updateCustomization` expose the
+ * student's own curation layer — headline, intro, featured skills, section
+ * visibility and publish state — which the owner edits independently of the
+ * profile.
+ */
+/**
+ * The faculty's editable institutional identity + read-only verified standing.
+ * `get`/`update` own the editable profile; `reputation` returns system-generated
+ * metrics the faculty can never modify.
+ */
+export interface FacultyProfileRepository {
+  get(): Promise<FacultyProfile>
+  update(patch: Partial<FacultyProfile>): Promise<FacultyProfile>
+  reputation(): Promise<FacultyReputation>
+}
+
 export interface PortfolioRepository {
   get(userId: string): Promise<Portfolio>
+  getCustomization(): Promise<PortfolioCustomization>
+  updateCustomization(patch: Partial<PortfolioCustomization>): Promise<PortfolioCustomization>
 }
 
 export interface CreditRepository {
@@ -80,7 +127,29 @@ export interface SolutionRepository {
 
 export interface AdminRepository {
   users(): Promise<DirectoryUser[]>
+  /** Per-department breakdown used by the executive dashboards. */
   institutions(): Promise<Institution[]>
+  /** Partner institutions behind the Admin Institutions console (GET /api/v1/admin/institutions). */
+  institutionDirectory(): Promise<AdminInstitution[]>
+  /** Summary panels for the Admin Institutions page (GET /api/v1/admin/institutions/overview). */
+  institutionsOverview(): Promise<InstitutionsOverview>
+  /** Create (no id) or update an institution — POST/PATCH /api/v1/admin/institutions[/{id}]. */
+  saveInstitution(input: InstitutionInput, id?: string): Promise<AdminInstitution>
+  /** Verify, activate or suspend — PATCH /api/v1/admin/institutions/{id}/status. */
+  setInstitutionStatus(id: string, status: InstitutionStatus): Promise<AdminInstitution>
+  /** Aggregate powering the Admin Dashboard (GET /api/v1/admin/dashboard). */
+  dashboard(): Promise<AdminDashboardData>
+  /** Summary panels for the Admin Users page (GET /api/v1/admin/users/overview). */
+  usersOverview(): Promise<UsersOverview>
+}
+
+/**
+ * Institution-wide analytics. Aggregation belongs to this layer (and later the
+ * backend), never to the dashboards that render it.
+ */
+export interface AnalyticsRepository {
+  /** Executive aggregate powering the Principal Dashboard (GET /api/v1/analytics/institution). */
+  institution(): Promise<InstitutionAnalytics>
 }
 
 export interface DashboardRepository {
@@ -97,10 +166,13 @@ export interface Repositories {
   problems: ProblemRepository
   projects: ProjectRepository
   leaderboard: LeaderboardRepository
+  profile: ProfileRepository
+  facultyProfile: FacultyProfileRepository
   portfolio: PortfolioRepository
   credits: CreditRepository
   reviews: ReviewRepository
   solutions: SolutionRepository
   admin: AdminRepository
+  analytics: AnalyticsRepository
   dashboard: DashboardRepository
 }

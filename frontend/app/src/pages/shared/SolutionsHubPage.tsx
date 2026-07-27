@@ -17,7 +17,7 @@ import { SolutionCard } from '@/features/solutions/SolutionCard'
 import { SolutionStatusBadge } from '@/features/solutions/SolutionStatusBadge'
 
 export function SolutionsHubPage() {
-  const { data, loading } = useAsync<Solution[]>(() => solutionsService.list())
+  const { data, loading, error } = useAsync<Solution[]>(() => solutionsService.list())
   const { data: stats } = useAsync<SolutionStats>(() => solutionsService.stats())
   const [category, setCategory] = useState('')
 
@@ -81,6 +81,8 @@ export function SolutionsHubPage() {
       <section className="pb-xl">
         {loading ? (
           <PageLoader />
+        ) : error ? (
+          <EmptyState icon="error" title="Solutions unavailable" description={error} />
         ) : listed.length === 0 ? (
           <EmptyState icon="apps" title="No solutions in this category" description="Try a different filter." />
         ) : (

@@ -4,16 +4,17 @@ import type { Role } from '@/types'
 /** Headline stat tiles per role dashboard. */
 export const DASHBOARD_STATS: Record<Role, DashboardStats[]> = {
   student: [
-    { label: 'Active Projects', value: '2', delta: '+1 this month', icon: 'folder' },
-    { label: 'Total Credits', value: '4,560', delta: '+320', icon: 'stars' },
-    { label: 'Leaderboard Rank', value: '#2', delta: '↑1', icon: 'leaderboard' },
-    { label: 'Portfolio', value: '82%', delta: 'complete', icon: 'badge' },
+    { label: 'Total Credits', value: '2,450', delta: '+4%', icon: 'trending_up' },
+    { label: 'Leaderboard', value: '#12', delta: 'Top 1% Tier', icon: 'leaderboard' },
+    { label: 'Active Projects', value: '03', delta: '1 due this week', icon: 'folder' },
+    { label: 'Pending Tasks', value: '05', delta: 'Requires action', icon: 'checklist' },
   ],
+  // Impact metrics for the Faculty Dashboard hero rail (Stitch: Faculty Innovation Dashboard).
   faculty: [
-    { label: 'Active Problems', value: '5', delta: '2 open', icon: 'lightbulb' },
-    { label: 'Teams Mentored', value: '8', delta: '+2', icon: 'groups' },
-    { label: 'Pending Reviews', value: '3', delta: 'due this week', icon: 'rate_review' },
-    { label: 'Faculty Credits', value: '6,120', delta: '#1 dept', icon: 'stars' },
+    { label: 'Projects Mentored', value: '12', icon: 'hub' },
+    { label: 'Students Guided', value: '45', icon: 'groups' },
+    { label: 'Credits Awarded', value: '1.2k', icon: 'token' },
+    { label: 'Solutions Approved', value: '8', icon: 'verified' },
   ],
   admin: [
     { label: 'Active Users', value: '1,284', delta: '+46', icon: 'group' },

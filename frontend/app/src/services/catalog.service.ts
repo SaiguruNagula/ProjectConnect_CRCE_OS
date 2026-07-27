@@ -7,11 +7,23 @@
  */
 import { repositories } from '@/repositories'
 import type { Role } from '@/types'
-import type { ReviewDecisionInput } from '@/types/domain'
+import type {
+  CreateProblemInput,
+  FacultyProfile,
+  InstitutionInput,
+  InstitutionStatus,
+  PortfolioCustomization,
+  ReviewDecisionInput,
+  StudentProfile,
+} from '@/types/domain'
 
 export const problemsService = {
   list: () => repositories.problems.list(),
   get: (id: string) => repositories.problems.get(id),
+  /** Publish a new problem so students can discover it in Open Problems. */
+  create: (input: CreateProblemInput) => repositories.problems.create(input),
+  /** Save an in-progress draft without publishing. */
+  saveDraft: (input: CreateProblemInput) => repositories.problems.saveDraft(input),
 }
 
 export const projectsService = {
@@ -26,8 +38,38 @@ export const leaderboardService = {
   faculty: () => repositories.leaderboard.faculty(),
 }
 
+/**
+ * Editable identity source of truth. Students read and update their own
+ * personal/professional data here; the portfolio is composed from it, so an
+ * update propagates without re-entry.
+ */
+export const profileService = {
+  get: () => repositories.profile.get(),
+  update: (patch: Partial<StudentProfile>) => repositories.profile.update(patch),
+}
+
+/**
+ * Editable faculty identity + read-only verified standing. Faculty read and
+ * update their own profile here; `reputation` exposes system-generated metrics
+ * the faculty can never edit.
+ */
+export const facultyProfileService = {
+  get: () => repositories.facultyProfile.get(),
+  update: (patch: Partial<FacultyProfile>) => repositories.facultyProfile.update(patch),
+  reputation: () => repositories.facultyProfile.reputation(),
+}
+
+/**
+ * Public portfolio. `get` returns the composed public view; `getCustomization`/
+ * `updateCustomization` are the owner's editable curation layer — headline,
+ * intro, featured skills, section visibility and publish state — independent of
+ * the profile.
+ */
 export const portfolioService = {
   get: (userId: string) => repositories.portfolio.get(userId),
+  getCustomization: () => repositories.portfolio.getCustomization(),
+  updateCustomization: (patch: Partial<PortfolioCustomization>) =>
+    repositories.portfolio.updateCustomization(patch),
 }
 
 export const creditsService = {
@@ -54,6 +96,29 @@ export const solutionsService = {
 export const adminService = {
   users: () => repositories.admin.users(),
   institutions: () => repositories.admin.institutions(),
+  /** Partner institutions powering the Admin Institutions directory. */
+  institutionDirectory: () => repositories.admin.institutionDirectory(),
+  /** Summary panels for the Admin Institutions page (KPIs, governance audit). */
+  institutionsOverview: () => repositories.admin.institutionsOverview(),
+  /** Register a new institution, or update an existing one when `id` is given. */
+  saveInstitution: (input: InstitutionInput, id?: string) =>
+    repositories.admin.saveInstitution(input, id),
+  /** Verify, activate or suspend an institution's platform access. */
+  setInstitutionStatus: (id: string, status: InstitutionStatus) =>
+    repositories.admin.setInstitutionStatus(id, status),
+  /** Aggregated snapshot for the Admin Dashboard (KPIs, queue, moderation, health, logs). */
+  dashboard: () => repositories.admin.dashboard(),
+  /** Summary panels for the Admin Users page (KPIs, verification queue, identity health, audit). */
+  usersOverview: () => repositories.admin.usersOverview(),
+}
+
+/**
+ * Institution-wide analytics for the executive dashboards. One aggregate call
+ * instead of many domain calls — the aggregation lives in the repository/API,
+ * not in the pages.
+ */
+export const analyticsService = {
+  institution: () => repositories.analytics.institution(),
 }
 
 export const dashboardService = {

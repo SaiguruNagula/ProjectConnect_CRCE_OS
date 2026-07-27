@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/Button'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { cn } from '@/utils/cn'
+import { daysLeft, fmtDate } from '@/utils/date'
 
 const TABS = [
   { value: 'overview', label: 'Overview' },
@@ -38,11 +39,6 @@ const COLUMNS: { status: Milestone['status']; label: string }[] = [
   { status: 'in_progress', label: 'In Progress' },
   { status: 'done', label: 'Done' },
 ]
-
-/** Whole days until `date` (negative once past). */
-function daysLeft(date: string): number {
-  return Math.ceil((new Date(date).getTime() - Date.now()) / 86_400_000)
-}
 
 /** Compact relative time, e.g. "4h ago", "2d ago". */
 function relTime(iso: string): string {
@@ -455,8 +451,4 @@ function initials(name: string): string {
     .map((n) => n[0] ?? '')
     .join('')
     .toUpperCase()
-}
-
-function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }

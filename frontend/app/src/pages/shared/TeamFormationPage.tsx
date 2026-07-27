@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { Avatar } from '@/components/ui/Avatar'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { daysLeft } from '@/utils/date'
 
 const teamSchema = z.object({
   name: z.string().min(3, 'Team name must be at least 3 characters'),
@@ -33,10 +34,6 @@ type TeamForm = z.infer<typeof teamSchema>
 type Applied = 'team' | 'solo' | null
 
 /** Whole days until `endDate` (negative once past). */
-function daysLeft(endDate: string): number {
-  return Math.ceil((new Date(endDate).getTime() - Date.now()) / 86_400_000)
-}
-
 export function TeamFormationPage() {
   const { data: problems } = useAsync<Problem[]>(() => problemsService.list())
   const { data: teams } = useAsync<Team[]>(() => projectsService.teams())

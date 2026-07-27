@@ -1,17 +1,50 @@
-import type { Portfolio } from '@/types/domain'
+import type { PortfolioCustomization, PortfolioVerified } from '@/types/domain'
 import { MOCK_PROJECTS } from '@/mocks/projects'
 
-export const MOCK_PORTFOLIO: Portfolio = {
+/**
+ * The student's own portfolio curation — independently editable from the
+ * Profile. Empty headline/introduction and featuredSkills mean "fall back to
+ * the composed profile/verified data"; the student overrides them at will.
+ */
+export const MOCK_PORTFOLIO_CUSTOMIZATION: PortfolioCustomization = {
+  published: true,
+  headline: '',
+  introduction: '',
+  featuredSkills: [],
+  sections: { solutions: true, research: true, hackathons: true, timeline: true },
+}
+
+/**
+ * Verified/generated portfolio data only — everything sourced from trusted
+ * modules (Credit Engine, Leaderboard, Project Workspace, Review Engine,
+ * Research). Editable identity (name, bio, skills, socials, …) lives in
+ * MOCK_STUDENT_PROFILE and is merged in by the portfolio repository, so no
+ * personal field is duplicated here.
+ */
+export const PORTFOLIO_VERIFIED: PortfolioVerified = {
   userId: 'u-stu-01',
-  name: 'Aarav Sharma',
-  headline: 'Final-year Computer Engineering · Full-stack & Applied ML',
-  tagline: 'Innovation Champion | Computer Engineering',
-  bio: 'Passionate about building scalable campus solutions and open-source contributions. Currently leading the Smart Attendance project.',
-  department: 'Computer Engineering',
-  avatarInitials: 'AS',
-  github: 'aarav-sharma',
-  linkedin: 'aarav-sharma',
   facultyValidationCount: 6,
+  rankPercentile: 'Top 1%',
+  verifiedAchievements: [
+    {
+      icon: 'military_tech',
+      title: "Dean's List — 2025",
+      description: 'Maintained a 9.4 CGPA across advanced core computer engineering subjects.',
+      tag: 'Verified by Registry',
+    },
+    {
+      icon: 'rocket_launch',
+      title: 'Winner, Smart India Hackathon 2024',
+      description: 'Built a disaster-management protocol using mesh networking at the national finals.',
+      tag: 'Project Excellence',
+    },
+    {
+      icon: 'groups',
+      title: 'Student Mentor Program',
+      description: 'Mentored 4 junior students in Data Structures & Algorithms over 12 weeks.',
+      tag: 'Community Service',
+    },
+  ],
   hallOfFame: ['Innovation Champion', 'Top Researcher', 'Hackathon Hero'],
   totalCredits: 2450,
   globalRank: 1,

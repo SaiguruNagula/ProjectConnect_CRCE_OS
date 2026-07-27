@@ -6,6 +6,7 @@
  * in ROUTES (constants/routes.ts). Every route renders a real page.
  */
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import { PublicLayout } from '@/layouts/PublicLayout'
 import { StudentLayout } from '@/layouts/StudentLayout'
 import { FacultyLayout } from '@/layouts/FacultyLayout'
@@ -54,6 +55,10 @@ export function AppRouter() {
         <Route path="solutions" element={<SolutionsHubPage />} />
         <Route path="leaderboard" element={<LeaderboardPage />} />
         <Route path="portfolio/:id" element={<PortfolioPage />} />
+        {/* Credit Engine is documented as /credits (MIGRATION_MAP) but the ledger
+            is per-student, so it lives in the student workspace. Keep the
+            documented path working rather than duplicating the page. */}
+        <Route path="credits" element={<Navigate to={ROUTES.STUDENT.CREDITS} replace />} />
       </Route>
 
       {/* Student workspace */}

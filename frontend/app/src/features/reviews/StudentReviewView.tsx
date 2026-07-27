@@ -8,6 +8,7 @@ import type { ReviewStatus, ReviewSubmission } from '@/types/domain'
 import { Avatar } from '@/components/ui/Avatar'
 import { ReviewStatusBadge } from '@/features/reviews/ReviewStatusBadge'
 import { ArtifactRow } from '@/features/reviews/ArtifactRow'
+import { fmtDate } from '@/utils/date'
 
 const HERO_LABEL: Record<ReviewStatus, string> = {
   pending: 'Pending Review',
@@ -15,10 +16,6 @@ const HERO_LABEL: Record<ReviewStatus, string> = {
   approved: 'Approved',
   rejected: 'Rejected',
   changes_requested: 'Changes Requested',
-}
-
-function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
 function fmtTime(iso: string): string {

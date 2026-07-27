@@ -38,6 +38,19 @@ export const MOCK_PROJECTS: Project[] = [
     ],
   },
   {
+    id: 'pr-04',
+    title: 'E-Waste Logistics',
+    summary: 'Routing optimisation for campus-wide electronic waste collection.',
+    status: 'active',
+    progress: 10,
+    mentorName: 'Dr. Priya Nair',
+    members: [{ id: 'm14', name: 'Rohan Iyer', role: 'Team Lead', avatarInitials: 'RI' }],
+    milestones: [
+      { id: 'ms11', title: 'Draft proposal', status: 'in_progress', dueDate: '2026-08-05' },
+      { id: 'ms12', title: 'Finalise proposal', status: 'pending', dueDate: '2026-08-20' },
+    ],
+  },
+  {
     id: 'pr-03',
     title: 'Accessible Navigation App',
     summary: 'Wayfinding optimised for students with mobility needs.',

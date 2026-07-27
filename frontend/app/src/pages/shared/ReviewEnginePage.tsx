@@ -30,11 +30,21 @@ export function ReviewEnginePage() {
   }
 
   if (isFaculty) {
-    return <FacultyReviewView stats={stats} submissions={submissions} />
+    return (
+      <>
+        <h1 className="sr-only">Review Engine</h1>
+        <FacultyReviewView stats={stats} submissions={submissions} />
+      </>
+    )
   }
 
   // Student read-only view — the student's active review (falls back to the first).
   const current =
     submissions.find((s) => s.status === 'under_review' || s.status === 'pending') ?? submissions[0]
-  return <StudentReviewView submission={current} />
+  return (
+    <>
+      <h1 className="sr-only">Review Engine</h1>
+      <StudentReviewView submission={current} />
+    </>
+  )
 }
