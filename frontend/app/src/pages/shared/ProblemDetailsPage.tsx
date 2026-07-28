@@ -1,18 +1,19 @@
 /**
- * Problem details — read-only view of one problem, ported to the approved
- * Stitch "Problem Architect" bento-card visual language. Loads by :id via the
- * service and offers the lifecycle entry point (apply -> Team Formation).
+ * Problem details — view of one problem, ported to the approved Stitch "Problem
+ * Architect" bento-card visual language. Loads by :id through useProblemDetails,
+ * offers the lifecycle entry point (apply → Team Formation, carrying the problem
+ * id) and links onward to the projects and solutions it produced.
  */
 import type { ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { useAsync } from '@/hooks/useAsync'
-import { problemsService } from '@/services/catalog.service'
+import { useProblemDetails } from '@/hooks/useProblemDetails'
 import type { Difficulty, Problem, ProblemAttachment, ProblemMilestone } from '@/types/domain'
-import { ROUTES } from '@/constants/routes'
+import { buildPath, QUERY_PARAMS, ROUTES, withQuery } from '@/constants/routes'
 import { Card } from '@/components/ui/Card'
 import { Badge, type BadgeProps } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
+import { ActionBanner } from '@/components/feedback/ActionBanner'
 import { EmptyState } from '@/components/ui/EmptyState'
 
 const DIFFICULTY_META: Record<Difficulty, { blurb: string; tone: BadgeProps['tone'] }> = {
@@ -36,7 +37,17 @@ const ATTACHMENT_ICON: Record<string, string> = {
 export function ProblemDetailsPage() {
   const { id = '' } = useParams()
   const navigate = useNavigate()
-  const { data: problem, loading, error } = useAsync<Problem | null>(() => problemsService.get(id), [id])
+  const {
+    problem,
+    projects,
+    solutions,
+    loading,
+    error,
+    busy,
+    actionError,
+    dismissError,
+    toggleBookmark,
+  } = useProblemDetails(id)
 
   if (loading) return <PageLoader />
   if (error || !problem) {
@@ -50,6 +61,13 @@ export function ProblemDetailsPage() {
   const status = STATUS_META[problem.status]
   const difficulty = DIFFICULTY_META[problem.difficulty]
   const closed = problem.status === 'closed'
+  const applied =
+    problem.applicationStatus && problem.applicationStatus !== 'none'
+      ? problem.applicationStatus
+      : null
+  const teamFormationPath = withQuery(ROUTES.SHARED.TEAM_FORMATION, {
+    [QUERY_PARAMS.PROBLEM]: problem.id,
+  })
 
   return (
     <div className="mx-auto max-w-container-max px-md py-lg md:px-lg lg:px-xl">
@@ -68,7 +86,25 @@ export function ProblemDetailsPage() {
           </span>
           <Badge tone={difficulty.tone}>{problem.difficulty}</Badge>
           <Badge tone={status.tone}>{status.label}</Badge>
+          {applied && <Badge tone="primary">Applied {applied === 'team' ? 'as a team' : 'solo'}</Badge>}
+          <button
+            type="button"
+            onClick={toggleBookmark}
+            disabled={busy}
+            aria-pressed={problem.bookmarked}
+            className="ml-auto inline-flex items-center gap-1 rounded-lg border border-outline-variant px-2.5 py-1 text-label-md font-medium text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:opacity-60"
+          >
+            <span
+              className="material-symbols-outlined text-[18px]"
+              style={{ fontVariationSettings: problem.bookmarked ? "'FILL' 1" : undefined }}
+              aria-hidden="true"
+            >
+              bookmark
+            </span>
+            {problem.bookmarked ? 'Saved' : 'Save'}
+          </button>
         </div>
+        <ActionBanner tone="error" message={actionError} onDismiss={dismissError} />
         <h1 className="max-w-3xl text-headline-lg tracking-tight text-on-surface">{problem.title}</h1>
         <p className="max-w-2xl text-body-lg text-on-surface-variant">{problem.summary}</p>
       </div>
@@ -105,6 +141,38 @@ export function ProblemDetailsPage() {
               </ul>
             )}
           </SectionCard>
+
+          {projects.length > 0 && (
+            <SectionCard title="Projects on this problem">
+              <ul className="flex flex-col gap-2">
+                {projects.map((project) => (
+                  <RelatedRow
+                    key={project.id}
+                    icon="rocket_launch"
+                    title={project.title}
+                    meta={`${project.progress}% complete`}
+                    to={buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: project.id })}
+                  />
+                ))}
+              </ul>
+            </SectionCard>
+          )}
+
+          {solutions.length > 0 && (
+            <SectionCard title="Solutions shipped">
+              <ul className="flex flex-col gap-2">
+                {solutions.map((solution) => (
+                  <RelatedRow
+                    key={solution.id}
+                    icon={solution.icon}
+                    title={solution.name}
+                    meta={solution.description}
+                    to={ROUTES.SHARED.SOLUTIONS}
+                  />
+                ))}
+              </ul>
+            </SectionCard>
+          )}
         </div>
 
         {/* Right column (40%) */}
@@ -169,10 +237,10 @@ export function ProblemDetailsPage() {
             variant="secondary"
             size="lg"
             className="hover:shadow-lg active:scale-[0.98]"
-            onClick={() => navigate(ROUTES.SHARED.TEAM_FORMATION)}
+            onClick={() => navigate(teamFormationPath)}
             disabled={closed}
           >
-            {closed ? 'Applications Closed' : 'Apply with a team'}
+            {closed ? 'Applications Closed' : applied ? 'Manage my application' : 'Apply with a team'}
           </Button>
         </div>
       </div>
@@ -186,6 +254,39 @@ function SectionCard({ title, children }: { title: string; children: ReactNode }
       <h3 className="mb-4 font-mono text-label-md font-bold uppercase tracking-wider text-on-surface">{title}</h3>
       {children}
     </Card>
+  )
+}
+
+/** A link out to an entity built from this problem (project or solution). */
+function RelatedRow({
+  icon,
+  title,
+  meta,
+  to,
+}: {
+  icon: string
+  title: string
+  meta: string
+  to: string
+}) {
+  return (
+    <li>
+      <Link
+        to={to}
+        className="group flex items-center gap-3 rounded-xl border border-outline-variant p-3 transition-colors hover:border-secondary hover:bg-surface-container-low"
+      >
+        <span className="material-symbols-outlined text-outline group-hover:text-secondary" aria-hidden="true">
+          {icon}
+        </span>
+        <span className="flex min-w-0 flex-grow flex-col">
+          <span className="truncate text-body-md font-medium text-on-surface">{title}</span>
+          <span className="truncate text-label-sm text-on-surface-variant">{meta}</span>
+        </span>
+        <span className="material-symbols-outlined text-[18px] text-outline group-hover:text-secondary" aria-hidden="true">
+          arrow_outward
+        </span>
+      </Link>
+    </li>
   )
 }
 

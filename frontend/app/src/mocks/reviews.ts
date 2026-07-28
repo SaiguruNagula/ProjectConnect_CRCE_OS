@@ -3,8 +3,10 @@ import type { ReviewStats, ReviewSubmission, RubricCriterion } from '@/types/dom
 export const MOCK_REVIEWS: ReviewSubmission[] = [
   {
     id: 'rv-01',
+    projectId: 'pr-01',
     projectTitle: 'Smart Attendance System',
     teamName: 'Team Vision',
+    teamId: 't-alpha',
     members: [
       { id: 'm1', name: 'Aarav Sharma', role: 'Lead Developer', avatarInitials: 'AS' },
       { id: 'm2', name: 'Isha Patil', role: 'ML Engineer', avatarInitials: 'IP' },
@@ -44,6 +46,7 @@ export const MOCK_REVIEWS: ReviewSubmission[] = [
   },
   {
     id: 'rv-02',
+    projectId: 'pr-02',
     projectTitle: 'Campus Energy Dashboard',
     teamName: 'WattWatchers',
     members: [

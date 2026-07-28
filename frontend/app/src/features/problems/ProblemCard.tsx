@@ -65,7 +65,17 @@ export function ProblemCard({ problem }: { problem: Problem }) {
         <span className="rounded-md bg-surface-container-high px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-wider text-on-surface-variant">
           Dept: {problem.department}
         </span>
-        <div className="flex flex-shrink-0 gap-2">
+        <div className="flex flex-shrink-0 items-center gap-2">
+          {problem.bookmarked && (
+            <span
+              className="material-symbols-outlined text-[18px] text-secondary"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+              title="Saved"
+              aria-label="Saved"
+            >
+              bookmark
+            </span>
+          )}
           <span className={`rounded-md px-2 py-1 text-label-md font-medium ${DIFFICULTY_CHIP[problem.difficulty]}`}>
             {problem.difficulty}
           </span>

@@ -47,6 +47,13 @@ export interface CreateProblemInput {
   facultyName: string
 }
 
+/** A saved-but-unpublished problem, readable back into the authoring form. */
+export interface ProblemDraft {
+  id: string
+  savedAt: string
+  input: CreateProblemInput
+}
+
 /** Reference material attached to a problem (mirrors problem_resources). */
 export interface ProblemAttachment {
   name: string
@@ -72,6 +79,8 @@ export interface Problem {
   difficulty: Difficulty
   skills: string[]
   facultyName: string
+  /** Author of the problem — links a problem card back to the faculty who posted it. */
+  facultyId?: string
   teamSize: number
   /** Members already on the team, out of {@link teamSize}. */
   currentTeamCount: number
@@ -88,7 +97,15 @@ export interface Problem {
   timeline: ProblemMilestone[]
   status: ProblemStatus
   bookmarked: boolean
+  /**
+   * How the signed-in student is participating. Owned by the repository/backend
+   * so no page has to track "have I applied?" in local state.
+   */
+  applicationStatus?: ProblemApplicationStatus
 }
+
+/** The signed-in student's relationship to a problem. */
+export type ProblemApplicationStatus = 'none' | 'team' | 'solo'
 
 export interface TeamMember {
   id: string
@@ -101,6 +118,8 @@ export interface TeamMember {
 export interface Team {
   id: string
   name: string
+  /** The problem this team formed around — the link back to Open Problems. */
+  problemId: string
   /** One-line pitch shown on the team card. */
   pitch: string
   members: TeamMember[]
@@ -110,6 +129,18 @@ export interface Team {
   lookingFor: string[]
   /** The current student's own team (drives the member list + apply-as-team). */
   mine?: boolean
+  /** Set once the student has requested to join (drives the disabled CTA). */
+  joinRequested?: boolean
+}
+
+/** Create-team payload — POST /api/v1/teams. */
+export interface CreateTeamInput {
+  problemId: string
+  name: string
+  /** The team's pitch/idea. */
+  pitch: string
+  /** Roles/skills the team is recruiting for. */
+  lookingFor: string[]
 }
 
 export interface Milestone {
@@ -128,6 +159,10 @@ export interface Project {
   mentorName: string
   members: TeamMember[]
   milestones: Milestone[]
+  /** The problem this project was built to solve — links the workspace back to its brief. */
+  problemId?: string
+  /** The team executing the project. */
+  teamId?: string
 }
 
 export interface LeaderboardEntry {
@@ -487,8 +522,12 @@ export interface ReviewHistoryEntry {
 
 export interface ReviewSubmission {
   id: string
+  /** The project under review — links a submission back to its workspace. */
+  projectId?: string
   projectTitle: string
   teamName: string
+  /** The team that submitted. */
+  teamId?: string
   members: TeamMember[]
   /** Human milestone label, e.g. 'Core Architecture'. */
   milestone: string
@@ -581,6 +620,12 @@ export interface Solution {
   featured: boolean
   /** Approval line shown on featured cards, e.g. 'Faculty Approved'. */
   highlightTag?: string
+  /** The project that shipped this solution — links a solution back to its workspace. */
+  projectId?: string
+  /** The problem the solution answers — links a solution back to its brief. */
+  problemId?: string
+  /** External destination for the card CTA; internal routing is used when absent. */
+  url?: string
 }
 
 /** Aggregate marketplace stats for the Solutions hero. */
@@ -600,6 +645,11 @@ export interface Notification {
   message: string
   timestamp: string
   read: boolean
+  /**
+   * In-app destination for the notification — the link back to the module that
+   * raised it. Built with buildPath/ROUTES so the panel never hardcodes a path.
+   */
+  link?: string
 }
 
 export interface Activity {
@@ -615,6 +665,12 @@ export interface Invitation {
   projectTitle: string
   invitedBy: string
   role: string
+  /** The team extending the invitation. */
+  teamId: string
+  /** The problem the team formed around — lets the invitee read the brief first. */
+  problemId?: string
+  /** Set once the invitation is accepted, so the UI can open the workspace. */
+  projectId?: string
 }
 
 /** Generic label/value pair for charts and breakdowns. */

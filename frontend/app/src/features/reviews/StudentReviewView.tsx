@@ -4,7 +4,9 @@
  * review-history timeline and the locked next step. Students can view status,
  * feedback, history and attachments but cannot approve or reject.
  */
+import { Link } from 'react-router-dom'
 import type { ReviewStatus, ReviewSubmission } from '@/types/domain'
+import { buildPath, ROUTES } from '@/constants/routes'
 import { Avatar } from '@/components/ui/Avatar'
 import { ReviewStatusBadge } from '@/features/reviews/ReviewStatusBadge'
 import { ArtifactRow } from '@/features/reviews/ArtifactRow'
@@ -53,6 +55,15 @@ export function StudentReviewView({ submission }: { submission: ReviewSubmission
         <p className="mt-xs text-body-md text-on-surface-variant">
           {submission.milestoneCode.replace(/_/g, ' ')}: {submission.milestone}
         </p>
+        {submission.projectId && (
+          <Link
+            to={buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: submission.projectId })}
+            className="mt-xs flex w-fit items-center gap-xs text-label-md font-medium text-secondary hover:underline"
+          >
+            Open {submission.projectTitle} workspace
+            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">arrow_forward</span>
+          </Link>
+        )}
       </div>
 
       {/* Progress bento */}

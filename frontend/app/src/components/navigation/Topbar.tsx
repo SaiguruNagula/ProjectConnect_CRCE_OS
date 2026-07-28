@@ -8,6 +8,7 @@ import { initials } from '@/utils/initials'
 import { ROUTES } from '@/constants/routes'
 import { Avatar } from '@/components/ui/Avatar'
 import { Button } from '@/components/ui/Button'
+import { NotificationBell } from '@/components/navigation/NotificationBell'
 
 interface TopbarProps {
   onMenuClick: () => void
@@ -39,15 +40,7 @@ export function Topbar({ onMenuClick, roleLabel }: TopbarProps) {
         {roleLabel} workspace
       </div>
       <div className="flex items-center gap-sm">
-        <button
-          type="button"
-          aria-label="Notifications"
-          className="rounded-lg p-xs text-on-surface-variant hover:bg-surface-container-high"
-        >
-          <span className="material-symbols-outlined" aria-hidden="true">
-            notifications
-          </span>
-        </button>
+        <NotificationBell />
         {user && (
           <div className="flex items-center gap-xs">
             <Avatar initials={initials(user.name)} size="sm" />

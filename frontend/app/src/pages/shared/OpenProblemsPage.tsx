@@ -4,8 +4,10 @@
  * and header stats derive from the data (never hardcoded).
  */
 import { useMemo, useState, type ReactNode } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useAsync } from '@/hooks/useAsync'
 import { problemsService } from '@/services/catalog.service'
+import { QUERY_PARAMS } from '@/constants/routes'
 import type { Problem } from '@/types/domain'
 import { ProblemCard } from '@/features/problems/ProblemCard'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
@@ -19,8 +21,11 @@ const PAGE_SIZE = 6
 
 export function OpenProblemsPage() {
   const { data, loading, error, reload } = useAsync<Problem[]>(() => problemsService.list())
-  const [query, setQuery] = useState('')
+  const [searchParams] = useSearchParams()
+  // Seeded from ?q= so a search started on the Innovation Hub carries over.
+  const [query, setQuery] = useState(searchParams.get(QUERY_PARAMS.SEARCH) ?? '')
   const [department, setDepartment] = useState('')
+  const [savedOnly, setSavedOnly] = useState(false)
   const [sort, setSort] = useState<Sort>('Newest')
   const [page, setPage] = useState(1)
 
@@ -44,6 +49,7 @@ export function OpenProblemsPage() {
     const matched = problems.filter(
       (p) =>
         (department === '' || p.department === department) &&
+        (!savedOnly || p.bookmarked) &&
         (q === '' ||
           p.title.toLowerCase().includes(q) ||
           p.summary.toLowerCase().includes(q) ||
@@ -53,7 +59,7 @@ export function OpenProblemsPage() {
     return sort === 'Most Credits'
       ? [...matched].sort((a, b) => b.creditReward - a.creditReward)
       : matched
-  }, [problems, query, department, sort])
+  }, [problems, query, department, savedOnly, sort])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages)
@@ -113,6 +119,9 @@ export function OpenProblemsPage() {
                 {dept}
               </Chip>
             ))}
+            <Chip active={savedOnly} onClick={() => resetPage(setSavedOnly)(!savedOnly)}>
+              Saved
+            </Chip>
           </div>
 
           <div className="relative inline-block">

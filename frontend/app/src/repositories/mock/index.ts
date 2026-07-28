@@ -14,6 +14,7 @@ import type {
   DashboardRepository,
   FacultyProfileRepository,
   LeaderboardRepository,
+  NotificationRepository,
   PortfolioRepository,
   ProblemRepository,
   ProfileRepository,
@@ -27,10 +28,17 @@ import type {
   CreateProblemInput,
   FacultyProfile,
   InstitutionInput,
+  Invitation,
+  LeaderboardEntry,
+  Notification,
+  NotificationKind,
   Portfolio,
   PortfolioCustomization,
   Problem,
+  ProblemDraft,
+  Project,
   StudentProfile,
+  Team,
 } from '@/types/domain'
 import type { Role } from '@/types'
 import { MOCK_PROBLEMS } from '@/mocks/problems'
@@ -55,12 +63,32 @@ import { ADMIN_DASHBOARD } from '@/mocks/admin-dashboard'
 import { INSTITUTION_ANALYTICS } from '@/mocks/principal-dashboard'
 import { USERS_OVERVIEW } from '@/mocks/users-overview'
 import { MOCK_ACTIVITY, MOCK_DEADLINES, MOCK_NOTIFICATIONS } from '@/mocks/notifications'
-import { DASHBOARD_STATS, CREDIT_TREND, DEPARTMENT_DISTRIBUTION } from '@/mocks/analytics'
+import {
+  DASHBOARD_STATS,
+  CREDIT_TREND,
+  DEPARTMENT_DISTRIBUTION,
+  CAMPUS_IMPACT,
+} from '@/mocks/analytics'
+import { buildPath, ROUTES, withQuery, QUERY_PARAMS } from '@/constants/routes'
+
+/**
+ * In-session notification feed. The backend raises these server-side; the mock
+ * raises them from the same mutations, so every module that performs an action
+ * produces a notification without any page owning that logic.
+ */
+let notificationStore: Notification[] = structuredClone(MOCK_NOTIFICATIONS)
+
+function raise(kind: NotificationKind, title: string, message: string, link?: string): void {
+  notificationStore = [
+    { id: `n-${Date.now()}`, kind, title, message, timestamp: new Date().toISOString(), read: false, link },
+    ...notificationStore,
+  ]
+}
 
 /** In-session problem store so a freshly published problem shows up in Open Problems. */
 let problemStore: Problem[] = [...MOCK_PROBLEMS]
 /** In-session drafts — persisted authoring state that is NOT yet public. */
-const problemDrafts: CreateProblemInput[] = []
+let problemDrafts: ProblemDraft[] = []
 
 /** Compose a read-model Problem from the create request (mirrors the future POST mapping). */
 function composeProblem(input: CreateProblemInput): Problem {
@@ -101,20 +129,172 @@ const problems: ProblemRepository = {
     // POST /api/v1/problems — publish; prepend so it surfaces in Open Problems this session.
     const problem = composeProblem(input)
     problemStore = [problem, ...problemStore]
+    raise(
+      'success',
+      'Problem published',
+      `${problem.title} is now open for applications.`,
+      buildPath(ROUTES.SHARED.PROBLEM_DETAILS, { id: problem.id }),
+    )
     return resolve(problem)
   },
   saveDraft: (input) => {
     // POST /api/v1/problems (status=draft) — kept out of the public list.
-    problemDrafts.unshift(input)
+    problemDrafts = [
+      { id: `pd-${Date.now()}`, savedAt: new Date().toISOString(), input },
+      ...problemDrafts,
+    ]
     return resolve(undefined)
+  },
+  drafts: () => resolve(problemDrafts), // GET /api/v1/problems?status=draft&author=me
+  setBookmark: (id, bookmarked) => {
+    // PUT/DELETE /api/v1/problems/{id}/bookmark
+    const existing = problemStore.find((p) => p.id === id)
+    if (!existing) return reject('Problem not found')
+    const updated: Problem = { ...existing, bookmarked }
+    problemStore = problemStore.map((p) => (p.id === id ? updated : p))
+    return resolve(updated)
   },
 }
 
+/** In-session stores so team/invitation actions persist across page navigation. */
+let projectStore: Project[] = structuredClone(MOCK_PROJECTS)
+let teamStore: Team[] = structuredClone(MOCK_TEAMS)
+let invitationStore: Invitation[] = structuredClone(PENDING_INVITATIONS)
+
+/** Progress is derived from milestones — the UI never computes it. */
+function withProgress(project: Project): Project {
+  const done = project.milestones.filter((m) => m.status === 'done').length
+  const progress = project.milestones.length
+    ? Math.round((done / project.milestones.length) * 100)
+    : project.progress
+  return { ...project, progress, status: progress === 100 ? 'completed' : project.status }
+}
+
 const projects: ProjectRepository = {
-  list: () => resolve(MOCK_PROJECTS), // GET /api/v1/projects
-  get: (id) => resolve(MOCK_PROJECTS.find((p) => p.id === id) ?? null), // GET /api/v1/projects/{id}
-  invitations: () => resolve(PENDING_INVITATIONS), // GET /api/v1/teams/invitations
-  teams: () => resolve(MOCK_TEAMS), // GET /api/v1/teams
+  list: () => resolve(projectStore), // GET /api/v1/projects
+  get: (id) => resolve(projectStore.find((p) => p.id === id) ?? null), // GET /api/v1/projects/{id}
+  invitations: () => resolve(invitationStore), // GET /api/v1/teams/invitations
+  // GET /api/v1/teams?problem_id=...
+  teams: (problemId) =>
+    resolve(problemId ? teamStore.filter((t) => t.problemId === problemId) : teamStore),
+  createTeam: (input) => {
+    // POST /api/v1/teams — the creator becomes the lead; only one team may be `mine`.
+    const problem = problemStore.find((p) => p.id === input.problemId)
+    const team: Team = {
+      id: `t-${Date.now()}`,
+      name: input.name.trim(),
+      problemId: input.problemId,
+      pitch: input.pitch.trim(),
+      mine: true,
+      openSpots: Math.max(0, (problem?.teamSize ?? input.lookingFor.length + 1) - 1),
+      lookingFor: input.lookingFor,
+      members: [
+        {
+          id: profileStore.userId,
+          name: profileStore.name,
+          role: 'Team Lead',
+          avatarInitials: profileStore.avatarInitials,
+        },
+      ],
+    }
+    teamStore = [team, ...teamStore.map((t) => (t.mine ? { ...t, mine: false } : t))]
+    raise(
+      'success',
+      'Team created',
+      `${team.name} is now recruiting${problem ? ` for ${problem.title}` : ''}.`,
+      withQuery(ROUTES.SHARED.TEAM_FORMATION, { [QUERY_PARAMS.PROBLEM]: input.problemId }),
+    )
+    return resolve(team)
+  },
+  requestToJoin: (teamId) => {
+    // POST /api/v1/teams/{id}/join-requests
+    const existing = teamStore.find((t) => t.id === teamId)
+    if (!existing) return reject('Team not found')
+    if (existing.joinRequested) return reject('You have already requested to join this team.')
+    const updated: Team = { ...existing, joinRequested: true }
+    teamStore = teamStore.map((t) => (t.id === teamId ? updated : t))
+    raise(
+      'info',
+      'Join request sent',
+      `Your request to join ${updated.name} is awaiting the team lead's response.`,
+      withQuery(ROUTES.SHARED.TEAM_FORMATION, { [QUERY_PARAMS.PROBLEM]: updated.problemId }),
+    )
+    return resolve(updated)
+  },
+  respondToInvitation: (invitationId, accept) => {
+    // POST /api/v1/teams/invitations/{id}/{accept|decline}
+    const existing = invitationStore.find((i) => i.id === invitationId)
+    if (!existing) return reject('Invitation not found')
+    invitationStore = invitationStore.filter((i) => i.id !== invitationId)
+    raise(
+      accept ? 'success' : 'info',
+      accept ? 'Invitation accepted' : 'Invitation declined',
+      `${existing.projectTitle} — invited by ${existing.invitedBy}.`,
+      accept ? ROUTES.STUDENT.PROJECTS : undefined,
+    )
+    return resolve(invitationStore)
+  },
+  applyToProblem: (problemId, teamId) => {
+    // POST /api/v1/problems/{id}/applications
+    const existing = problemStore.find((p) => p.id === problemId)
+    if (!existing) return reject('Problem not found')
+    if (existing.status === 'closed') return reject('This problem is closed to new applications.')
+    if (existing.applicationStatus && existing.applicationStatus !== 'none') {
+      return reject('You have already applied to this problem.')
+    }
+    const updated: Problem = {
+      ...existing,
+      applicantsCount: existing.applicantsCount + 1,
+      applicationStatus: teamId ? 'team' : 'solo',
+    }
+    problemStore = problemStore.map((p) => (p.id === problemId ? updated : p))
+    raise(
+      'success',
+      'Application submitted',
+      `Your application to ${updated.title} is with ${updated.facultyName}.`,
+      buildPath(ROUTES.SHARED.PROBLEM_DETAILS, { id: problemId }),
+    )
+    return resolve(updated)
+  },
+  withdrawApplication: (problemId) => {
+    // DELETE /api/v1/problems/{id}/applications/me
+    const existing = problemStore.find((p) => p.id === problemId)
+    if (!existing) return reject('Problem not found')
+    const updated: Problem = {
+      ...existing,
+      applicantsCount: Math.max(0, existing.applicantsCount - 1),
+      applicationStatus: 'none',
+    }
+    problemStore = problemStore.map((p) => (p.id === problemId ? updated : p))
+    raise(
+      'info',
+      'Application withdrawn',
+      `You are no longer applying to ${updated.title}.`,
+      buildPath(ROUTES.SHARED.PROBLEM_DETAILS, { id: problemId }),
+    )
+    return resolve(updated)
+  },
+  updateMilestone: (projectId, milestoneId, status) => {
+    // PATCH /api/v1/projects/{id}/milestones/{milestoneId}
+    const existing = projectStore.find((p) => p.id === projectId)
+    if (!existing) return reject('Project not found')
+    const milestone = existing.milestones.find((m) => m.id === milestoneId)
+    if (!milestone) return reject('Milestone not found')
+    const updated = withProgress({
+      ...existing,
+      milestones: existing.milestones.map((m) => (m.id === milestoneId ? { ...m, status } : m)),
+    })
+    projectStore = projectStore.map((p) => (p.id === projectId ? updated : p))
+    if (status === 'done') {
+      raise(
+        'success',
+        'Milestone completed',
+        `${milestone.title} — ${updated.title} is now ${updated.progress}% complete.`,
+        buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: projectId }),
+      )
+    }
+    return resolve(updated)
+  },
 }
 
 const leaderboard: LeaderboardRepository = {
@@ -179,12 +359,54 @@ function composePortfolio(p: StudentProfile): Portfolio {
   }
 }
 
+/**
+ * Another member's public portfolio, composed from the ranking data the mock
+ * actually has. Only verified, public-by-definition values are exposed — no
+ * contact details, socials or private identity fields.
+ */
+function composeFromLeaderboard(entry: LeaderboardEntry): Portfolio {
+  const faculty = entry.role === 'faculty'
+  return {
+    userId: entry.id,
+    name: entry.name,
+    headline: entry.badge,
+    tagline: `${entry.badge} | ${entry.department}`,
+    bio: faculty
+      ? `Faculty mentor in ${entry.department}, guiding ${entry.contributions} student teams across the CRCE innovation ecosystem.`
+      : `Student innovator in ${entry.department} with ${entry.contributions} verified contributions.`,
+    department: entry.department,
+    avatarInitials: entry.avatarInitials,
+    facultyValidationCount: 0,
+    hallOfFame: [entry.badge],
+    totalCredits: entry.credits,
+    globalRank: entry.rank,
+    verifiedSolutionsCount: 0,
+    projectsBuilt: entry.contributions,
+    skills: [],
+    projects: [],
+    solutions: [],
+    research: [],
+    hackathons: [],
+    certificates: [],
+    achievements: [],
+    timeline: [],
+  }
+}
+
 /** In-session store for the student's own portfolio curation (owner-editable). */
 let portfolioCustomization: PortfolioCustomization = structuredClone(MOCK_PORTFOLIO_CUSTOMIZATION)
 
 const portfolio: PortfolioRepository = {
   // GET /api/v1/portfolio/{userId} — assembled from the profile + verified modules.
-  get: (_userId) => resolve(composePortfolio(profileStore)),
+  get: (userId) => {
+    if (userId === 'me' || userId === profileStore.userId) {
+      return resolve(composePortfolio(profileStore))
+    }
+    const entry = [...MOCK_STUDENT_LEADERBOARD, ...MOCK_FACULTY_LEADERBOARD].find(
+      (e) => e.id === userId,
+    )
+    return entry ? resolve(composeFromLeaderboard(entry)) : reject('Portfolio not found')
+  },
   // GET /api/v1/portfolio/me/customization
   getCustomization: () => resolve(portfolioCustomization),
   updateCustomization: (patch) => {
@@ -215,11 +437,20 @@ const reviews: ReviewRepository = {
     // POST /api/v1/reviews/{id}/decision — mock returns the updated submission.
     const found = MOCK_REVIEWS.find((r) => r.id === input.submissionId)
     if (!found) return reject('Submission not found')
-    return resolve({
+    const updated = {
       ...found,
       status: input.decision,
       creditsAwarded: input.decision === 'approved' ? input.creditsAwarded : found.creditsAwarded,
-    })
+    }
+    raise(
+      input.decision === 'approved' ? 'success' : 'warning',
+      `Review ${input.decision.replace('_', ' ')}`,
+      `${found.projectTitle} — ${found.milestone}${
+        input.decision === 'approved' ? ` (+${input.creditsAwarded} credits)` : ''
+      }.`,
+      ROUTES.SHARED.REVIEW_ENGINE,
+    )
+    return resolve(updated)
   },
 }
 
@@ -311,15 +542,29 @@ const admin: AdminRepository = {
 
 const analytics: AnalyticsRepository = {
   institution: () => resolve(INSTITUTION_ANALYTICS), // GET /api/v1/analytics/institution
+  campusImpact: () => resolve(CAMPUS_IMPACT), // GET /api/v1/analytics/campus-impact
 }
 
 const dashboard: DashboardRepository = {
   stats: (role: Role) => resolve(DASHBOARD_STATS[role]),
   activity: () => resolve(MOCK_ACTIVITY),
   deadlines: () => resolve(MOCK_DEADLINES),
-  notifications: () => resolve(MOCK_NOTIFICATIONS), // GET /api/v1/notifications
   creditTrend: () => resolve(CREDIT_TREND),
   departmentDistribution: () => resolve(DEPARTMENT_DISTRIBUTION), // GET /api/v1/analytics/departments
+}
+
+const notifications: NotificationRepository = {
+  list: () => resolve(notificationStore), // GET /api/v1/notifications
+  markRead: (id) => {
+    // PATCH /api/v1/notifications/{id}/read
+    notificationStore = notificationStore.map((n) => (n.id === id ? { ...n, read: true } : n))
+    return resolve(notificationStore)
+  },
+  markAllRead: () => {
+    // POST /api/v1/notifications/read-all
+    notificationStore = notificationStore.map((n) => (n.read ? n : { ...n, read: true }))
+    return resolve(notificationStore)
+  },
 }
 
 export const mockRepositories: Repositories = {
@@ -335,4 +580,5 @@ export const mockRepositories: Repositories = {
   admin,
   analytics,
   dashboard,
+  notifications,
 }

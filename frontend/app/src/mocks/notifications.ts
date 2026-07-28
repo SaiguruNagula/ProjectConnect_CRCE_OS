@@ -1,10 +1,12 @@
 import type { Activity, Deadline, Notification } from '@/types/domain'
+import { buildPath, ROUTES } from '@/constants/routes'
 
+/** Every notification links back to the module that raised it (see Notification.link). */
 export const MOCK_NOTIFICATIONS: Notification[] = [
-  { id: 'n1', kind: 'success', title: 'Milestone approved', message: 'Attendance dashboard milestone was approved by Dr. Kulkarni.', timestamp: '2026-07-12T09:30:00Z', read: false },
-  { id: 'n2', kind: 'info', title: 'New team invitation', message: 'You were invited to Peer Mentorship Matching Engine.', timestamp: '2026-07-11T14:10:00Z', read: false },
-  { id: 'n3', kind: 'warning', title: 'Review due soon', message: 'Energy Dashboard faculty review closes in 3 days.', timestamp: '2026-07-10T08:00:00Z', read: true },
-  { id: 'n4', kind: 'info', title: 'Credits awarded', message: 'You earned 120 credits from a project milestone.', timestamp: '2026-07-05T16:45:00Z', read: true },
+  { id: 'n1', kind: 'success', title: 'Milestone approved', message: 'Attendance dashboard milestone was approved by Dr. Kulkarni.', timestamp: '2026-07-12T09:30:00Z', read: false, link: buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: 'pr-01' }) },
+  { id: 'n2', kind: 'info', title: 'New team invitation', message: 'You were invited to Peer Mentorship Matching Engine.', timestamp: '2026-07-11T14:10:00Z', read: false, link: ROUTES.STUDENT.PROJECTS },
+  { id: 'n3', kind: 'warning', title: 'Review due soon', message: 'Energy Dashboard faculty review closes in 3 days.', timestamp: '2026-07-10T08:00:00Z', read: true, link: ROUTES.SHARED.REVIEW_ENGINE },
+  { id: 'n4', kind: 'info', title: 'Credits awarded', message: 'You earned 120 credits from a project milestone.', timestamp: '2026-07-05T16:45:00Z', read: true, link: ROUTES.STUDENT.CREDITS },
 ]
 
 export const MOCK_ACTIVITY: Activity[] = [

@@ -27,10 +27,13 @@ import type {
   InstitutionInput,
   InstitutionsOverview,
   InstitutionStatus,
+  CreateTeamInput,
   Invitation,
   LeaderboardEntry,
+  MilestoneStatus,
   NameValue,
   Notification,
+  ProblemDraft,
   Portfolio,
   PortfolioCustomization,
   Problem,
@@ -54,13 +57,30 @@ export interface ProblemRepository {
   create(input: CreateProblemInput): Promise<Problem>
   /** Persist an in-progress draft without publishing it publicly. */
   saveDraft(input: CreateProblemInput): Promise<void>
+  /** The author's saved-but-unpublished drafts, so authoring can be resumed. */
+  drafts(): Promise<ProblemDraft[]>
+  /** Toggle the signed-in student's bookmark; returns the updated problem. */
+  setBookmark(id: string, bookmarked: boolean): Promise<Problem>
 }
 
 export interface ProjectRepository {
   list(): Promise<Project[]>
   get(id: string): Promise<Project | null>
   invitations(): Promise<Invitation[]>
-  teams(): Promise<Team[]>
+  /** Teams formed for a problem; omit `problemId` for the full list. */
+  teams(problemId?: string): Promise<Team[]>
+  /** Form a team around a problem — POST /api/v1/teams. */
+  createTeam(input: CreateTeamInput): Promise<Team>
+  /** Ask to join an existing team; returns the updated team. */
+  requestToJoin(teamId: string): Promise<Team>
+  /** Accept or decline an invitation; returns the remaining pending invitations. */
+  respondToInvitation(invitationId: string, accept: boolean): Promise<Invitation[]>
+  /** Register interest in a problem, optionally as an existing team. */
+  applyToProblem(problemId: string, teamId?: string): Promise<Problem>
+  /** Withdraw an application before the guide reviews it. */
+  withdrawApplication(problemId: string): Promise<Problem>
+  /** Advance a milestone; returns the project with recomputed progress. */
+  updateMilestone(projectId: string, milestoneId: string, status: MilestoneStatus): Promise<Project>
 }
 
 export interface LeaderboardRepository {
@@ -150,13 +170,31 @@ export interface AdminRepository {
 export interface AnalyticsRepository {
   /** Executive aggregate powering the Principal Dashboard (GET /api/v1/analytics/institution). */
   institution(): Promise<InstitutionAnalytics>
+  /**
+   * Public headline metrics shared by the Landing, About and Innovation Hub
+   * pages (GET /api/v1/analytics/campus-impact). Counted here so no page
+   * hardcodes or recomputes them.
+   */
+  campusImpact(): Promise<NameValue[]>
+}
+
+/**
+ * Cross-cutting notification feed. Every module that performs an action ends up
+ * here, so it is its own repository rather than a dashboard concern.
+ */
+export interface NotificationRepository {
+  /** GET /api/v1/notifications */
+  list(): Promise<Notification[]>
+  /** PATCH /api/v1/notifications/{id}/read — returns the updated feed. */
+  markRead(id: string): Promise<Notification[]>
+  /** POST /api/v1/notifications/read-all — returns the updated feed. */
+  markAllRead(): Promise<Notification[]>
 }
 
 export interface DashboardRepository {
   stats(role: Role): Promise<DashboardStats[]>
   activity(): Promise<Activity[]>
   deadlines(): Promise<Deadline[]>
-  notifications(): Promise<Notification[]>
   creditTrend(): Promise<TrendPoint[]>
   departmentDistribution(): Promise<NameValue[]>
 }
@@ -175,4 +213,5 @@ export interface Repositories {
   admin: AdminRepository
   analytics: AnalyticsRepository
   dashboard: DashboardRepository
+  notifications: NotificationRepository
 }

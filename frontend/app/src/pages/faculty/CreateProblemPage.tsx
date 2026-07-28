@@ -10,18 +10,20 @@
  * lives in this component and the published problem flows into Open Problems.
  * App chrome (sidebar, top bar, mobile nav) is owned by FacultyLayout.
  */
-import type { ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, type ReactNode } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useAuth } from '@/contexts/AuthContext'
 import { useCreateProblem } from '@/hooks/useCreateProblem'
 import { DEPARTMENTS, DIFFICULTIES } from '@/constants/catalog'
-import { ROUTES } from '@/constants/routes'
+import { QUERY_PARAMS, ROUTES } from '@/constants/routes'
 import type { CreateProblemInput } from '@/types/domain'
 import { cn } from '@/utils/cn'
+import { relativeTime } from '@/utils/date'
 import { TagInput } from '@/components/ui/TagInput'
+import { Banner } from '@/components/feedback/Banner'
 
 const schema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
@@ -84,7 +86,9 @@ const INPUT =
 export function CreateProblemPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const { submitting, result, error, publish, saveDraft, dismiss } = useCreateProblem()
+  const [searchParams] = useSearchParams()
+  const draftId = searchParams.get(QUERY_PARAMS.DRAFT) ?? undefined
+  const { submitting, result, error, draft, publish, saveDraft, dismiss } = useCreateProblem(draftId)
 
   const {
     register,
@@ -95,6 +99,14 @@ export function CreateProblemPage() {
     reset,
     formState: { errors },
   } = useForm<ProblemForm>({ resolver: zodResolver(schema), defaultValues: DEFAULTS, mode: 'onTouched' })
+
+  // Read a saved draft back into the form once it arrives (?draft=<id>).
+  useEffect(() => {
+    if (!draft) return
+    const { facultyName: _facultyName, department, ...form } = draft.input
+    const known = DEPARTMENTS.find((d) => d === department)
+    reset({ ...DEFAULTS, ...form, department: known ?? DEFAULTS.department })
+  }, [draft, reset])
 
   const values = watch()
   const filledCount = REQUIRED.filter((r) => r.filled(values)).length
@@ -130,18 +142,31 @@ export function CreateProblemPage() {
       </header>
 
       {/* Status banners */}
+      {draft && !result && (
+        <Banner
+          tone="info"
+          icon="history"
+          className="mb-md"
+          onClose={() => {
+            reset(DEFAULTS)
+            navigate(ROUTES.FACULTY.CREATE_PROBLEM, { replace: true })
+          }}
+        >
+          Resuming the draft saved {relativeTime(draft.savedAt)} — dismiss to start a blank problem.
+        </Banner>
+      )}
       {result?.kind === 'published' && (
-        <Banner tone="success" icon="check_circle" onClose={dismiss}>
+        <Banner tone="success" icon="check_circle" className="mb-md" onClose={dismiss}>
           Problem “{result.title}” published — redirecting to Open Problems…
         </Banner>
       )}
       {result?.kind === 'draft' && (
-        <Banner tone="info" icon="save" onClose={dismiss}>
+        <Banner tone="info" icon="save" className="mb-md" onClose={dismiss}>
           Draft saved. You can finish and publish it any time.
         </Banner>
       )}
       {error && (
-        <Banner tone="error" icon="error" onClose={dismiss}>
+        <Banner tone="error" icon="error" className="mb-md" onClose={dismiss}>
           {error}
         </Banner>
       )}
@@ -393,36 +418,6 @@ export function CreateProblemPage() {
 }
 
 /* ---------- local presentation helpers ---------- */
-
-const BANNER_TONE = {
-  success: 'bg-[#e6f4ea] text-[#1e7a3d]',
-  info: 'bg-secondary-container/20 text-secondary',
-  error: 'bg-error-container text-on-error-container',
-}
-
-function Banner({
-  tone,
-  icon,
-  onClose,
-  children,
-}: {
-  tone: keyof typeof BANNER_TONE
-  icon: string
-  onClose: () => void
-  children: ReactNode
-}) {
-  return (
-    <div className={cn('mb-md flex items-center gap-sm rounded-xl px-md py-sm text-body-md', BANNER_TONE[tone])} role="status">
-      <span className="material-symbols-outlined text-[20px]" aria-hidden="true">
-        {icon}
-      </span>
-      <span className="flex-1">{children}</span>
-      <button type="button" onClick={onClose} aria-label="Dismiss" className="flex items-center opacity-70 hover:opacity-100">
-        <span className="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
-      </button>
-    </div>
-  )
-}
 
 function BentoCard({ className, children }: { className?: string; children: ReactNode }) {
   return (

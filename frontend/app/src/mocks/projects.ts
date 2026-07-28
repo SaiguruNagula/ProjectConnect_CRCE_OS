@@ -1,4 +1,4 @@
-import type { Project, Team } from '@/types/domain'
+import type { Invitation, Project, Team } from '@/types/domain'
 
 export const MOCK_PROJECTS: Project[] = [
   {
@@ -8,6 +8,8 @@ export const MOCK_PROJECTS: Project[] = [
     status: 'active',
     progress: 65,
     mentorName: 'Dr. Neha Kulkarni',
+    problemId: 'p-01',
+    teamId: 't-alpha',
     members: [
       { id: 'm1', name: 'Aarav Sharma', role: 'Team Lead', avatarInitials: 'AS' },
       { id: 'm2', name: 'Isha Patil', role: 'ML Engineer', avatarInitials: 'IP' },
@@ -27,6 +29,7 @@ export const MOCK_PROJECTS: Project[] = [
     status: 'in_review',
     progress: 90,
     mentorName: 'Dr. Priya Nair',
+    problemId: 'p-02',
     members: [
       { id: 'm4', name: 'Aarav Sharma', role: 'Backend', avatarInitials: 'AS' },
       { id: 'm5', name: 'Meera Joshi', role: 'IoT', avatarInitials: 'MJ' },
@@ -57,6 +60,7 @@ export const MOCK_PROJECTS: Project[] = [
     status: 'completed',
     progress: 100,
     mentorName: 'Dr. Neha Kulkarni',
+    problemId: 'p-05',
     members: [
       { id: 'm6', name: 'Aarav Sharma', role: 'Team Lead', avatarInitials: 'AS' },
       { id: 'm7', name: 'Riya Verma', role: 'Designer', avatarInitials: 'RV' },
@@ -73,6 +77,7 @@ export const MOCK_TEAMS: Team[] = [
   {
     id: 't-alpha',
     name: 'Team Alpha',
+    problemId: 'p-01',
     pitch: 'A data-driven approach to on-device attendance and edge computing.',
     mine: true,
     openSpots: 1,
@@ -86,6 +91,7 @@ export const MOCK_TEAMS: Team[] = [
   {
     id: 't-nova',
     name: 'Team Nova',
+    problemId: 'p-01',
     pitch: 'Focusing on low-latency NFC integration for high-density halls.',
     openSpots: 2,
     lookingFor: ['ML Engineer', 'UI Designer'],
@@ -97,6 +103,7 @@ export const MOCK_TEAMS: Team[] = [
   {
     id: 't-quanta',
     name: 'Team Quanta',
+    problemId: 'p-01',
     pitch: 'Offline-first sync and a resilient attendance ledger.',
     openSpots: 3,
     lookingFor: ['Backend Developer', 'DevOps'],
@@ -108,6 +115,7 @@ export const MOCK_TEAMS: Team[] = [
   {
     id: 't-vertex',
     name: 'Team Vertex',
+    problemId: 'p-01',
     pitch: 'Computer-vision pipeline with privacy-preserving inference.',
     openSpots: 2,
     lookingFor: ['Computer Vision', 'UI Designer'],
@@ -118,17 +126,21 @@ export const MOCK_TEAMS: Team[] = [
   },
 ]
 
-export const PENDING_INVITATIONS = [
+export const PENDING_INVITATIONS: Invitation[] = [
   {
     id: 'inv-01',
     projectTitle: 'Peer Mentorship Matching Engine',
     invitedBy: 'Sameer Deshpande',
     role: 'Backend Developer',
+    teamId: 't-mentor',
+    problemId: 'p-03',
   },
   {
     id: 'inv-02',
     projectTitle: 'Low-Cost Water Quality Sensor',
     invitedBy: 'Anil Rao',
     role: 'Embedded Engineer',
+    teamId: 't-hydro',
+    problemId: 'p-04',
   },
 ]

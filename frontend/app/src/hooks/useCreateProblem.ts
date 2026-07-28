@@ -4,16 +4,24 @@
  * keeping the mutation out of the form UI (Component → Hook → Service →
  * Repository → API). The form state itself lives in the page (React Hook Form).
  */
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useAsync } from '@/hooks/useAsync'
 import { problemsService } from '@/services/catalog.service'
-import type { CreateProblemInput, Problem } from '@/types/domain'
+import type { CreateProblemInput, Problem, ProblemDraft } from '@/types/domain'
 
 type Result = { kind: 'published'; title: string } | { kind: 'draft' }
 
-export function useCreateProblem() {
+/** @param draftId Resume a saved draft — exposed as `draft` once it loads. */
+export function useCreateProblem(draftId?: string) {
   const [submitting, setSubmitting] = useState(false)
   const [result, setResult] = useState<Result | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const draftsQuery = useAsync<ProblemDraft[]>(() => problemsService.drafts())
+
+  const draft = useMemo(
+    () => (draftId ? (draftsQuery.data ?? []).find((d) => d.id === draftId) ?? null : null),
+    [draftsQuery.data, draftId],
+  )
 
   async function publish(input: CreateProblemInput): Promise<Problem | undefined> {
     if (submitting) return
@@ -37,6 +45,7 @@ export function useCreateProblem() {
     try {
       await problemsService.saveDraft(input)
       setResult({ kind: 'draft' })
+      draftsQuery.reload()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not save the draft. Please try again.')
     } finally {
@@ -44,5 +53,14 @@ export function useCreateProblem() {
     }
   }
 
-  return { submitting, result, error, publish, saveDraft, dismiss: () => setResult(null) }
+  return {
+    submitting,
+    result,
+    error,
+    draft,
+    drafts: draftsQuery.data ?? [],
+    publish,
+    saveDraft,
+    dismiss: () => setResult(null),
+  }
 }

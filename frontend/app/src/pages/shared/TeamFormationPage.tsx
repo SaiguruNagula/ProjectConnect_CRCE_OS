@@ -1,22 +1,23 @@
 /**
  * Team Formation — ported from the approved Stitch "dual application flow".
  *
- * Scoped to the featured open problem, a student can: browse and request to
- * join available teams (search + role filters), review their current team's
- * roster, respond to invitations, and choose how to participate — create a
- * team, apply with their existing team, or apply solo. All state resolves
- * locally for the demo; each action maps to a repository call noted inline.
+ * Scoped to the problem carried in `?problem=<id>` (falling back to the first
+ * open problem when opened without context), a student can browse and request
+ * to join teams, review their roster, respond to invitations, and choose how to
+ * participate — create a team, apply with their team, or apply solo. Every
+ * action goes through useTeamFormation; this page owns no mutation state.
  */
-import { useMemo, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Link } from 'react-router-dom'
-import { useAsync } from '@/hooks/useAsync'
-import { problemsService, projectsService } from '@/services/catalog.service'
-import { buildPath, ROUTES } from '@/constants/routes'
-import type { Invitation, Problem, Team, TeamMember } from '@/types/domain'
+import { Link, useSearchParams } from 'react-router-dom'
+import { useTeamFormation } from '@/hooks/useTeamFormation'
+import { buildPath, QUERY_PARAMS, ROUTES } from '@/constants/routes'
+import type { Team, TeamMember } from '@/types/domain'
 import { PageHeader } from '@/components/common/PageHeader'
+import { PageLoader } from '@/components/feedback/LoadingBoundary'
+import { ActionBanner } from '@/components/feedback/ActionBanner'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
@@ -31,46 +32,36 @@ const teamSchema = z.object({
 })
 type TeamForm = z.infer<typeof teamSchema>
 
-type Applied = 'team' | 'solo' | null
-
-/** Whole days until `endDate` (negative once past). */
 export function TeamFormationPage() {
-  const { data: problems } = useAsync<Problem[]>(() => problemsService.list())
-  const { data: teams } = useAsync<Team[]>(() => projectsService.teams())
-  const { data: invitations } = useAsync<Invitation[]>(() => projectsService.invitations())
+  const [searchParams] = useSearchParams()
+  const {
+    problem,
+    myTeam,
+    rows,
+    roles,
+    invitations,
+    filters,
+    setFilter,
+    loading,
+    error,
+    busy,
+    actionError,
+    actionMessage,
+    dismissError,
+    dismissMessage,
+    createTeam,
+    requestToJoin,
+    apply,
+    withdraw,
+    respondToInvitation,
+  } = useTeamFormation(searchParams.get(QUERY_PARAMS.PROBLEM) ?? undefined)
 
-  // Discovery
-  const [query, setQuery] = useState('')
-  const [role, setRole] = useState('')
-  // Local interaction state (demo — swap each setter for the noted service call).
-  const [joinRequested, setJoinRequested] = useState<Record<string, boolean>>({})
-  const [inviteState, setInviteState] = useState<Record<string, 'accepted' | 'rejected'>>({})
-  const [applied, setApplied] = useState<Applied>(null)
   const [showCreate, setShowCreate] = useState(false)
-  const [createdTeamName, setCreatedTeamName] = useState<string | null>(null)
 
-  const problem = problems?.[0]
-  const allTeams = useMemo(() => teams ?? [], [teams])
-  const myTeam = allTeams.find((t) => t.mine)
-  const available = useMemo(() => allTeams.filter((t) => !t.mine), [allTeams])
-  const myTeamName = createdTeamName ?? myTeam?.name ?? null
-
-  const roles = useMemo(
-    () => Array.from(new Set(available.flatMap((t) => t.lookingFor))).sort(),
-    [available],
-  )
-
-  const filtered = useMemo(() => {
-    const q = query.toLowerCase()
-    return available.filter(
-      (t) =>
-        (role === '' || t.lookingFor.includes(role)) &&
-        (q === '' ||
-          t.name.toLowerCase().includes(q) ||
-          t.pitch.toLowerCase().includes(q) ||
-          t.members.some((m) => m.name.toLowerCase().includes(q))),
-    )
-  }, [available, query, role])
+  const applied = problem?.applicationStatus && problem.applicationStatus !== 'none'
+    ? problem.applicationStatus
+    : null
+  const myTeamName = myTeam?.name ?? null
 
   const {
     register,
@@ -79,11 +70,41 @@ export function TeamFormationPage() {
     formState: { errors, isSubmitting },
   } = useForm<TeamForm>({ resolver: zodResolver(teamSchema) })
 
-  const onCreate = (values: TeamForm) => {
-    // ponytail: resolves locally for the demo; POST /api/v1/teams later.
-    setCreatedTeamName(values.name)
-    setShowCreate(false)
-    reset()
+  const onCreate = async (values: TeamForm) => {
+    const ok = await createTeam({
+      name: values.name,
+      pitch: values.idea,
+      lookingFor: values.lookingFor
+        .split(',')
+        .map((role) => role.trim())
+        .filter(Boolean),
+    })
+    if (ok) {
+      setShowCreate(false)
+      reset()
+    }
+  }
+
+  if (loading) return <PageLoader />
+
+  if (!problem) {
+    return (
+      <div className="mx-auto w-full max-w-container-max px-md py-lg">
+        <EmptyState
+          icon="groups"
+          title="No problem in context"
+          description={error ?? 'Pick an open problem to start forming a team.'}
+          action={
+            <Link
+              to={ROUTES.SHARED.OPEN_PROBLEMS}
+              className="text-sm font-medium text-secondary hover:underline"
+            >
+              Browse open problems
+            </Link>
+          }
+        />
+      </div>
+    )
   }
 
   return (
@@ -93,6 +114,9 @@ export function TeamFormationPage() {
         subtitle="Join a team, build your own, or apply solo to this problem."
       />
 
+      <ActionBanner tone="success" message={actionMessage} onDismiss={dismissMessage} />
+      <ActionBanner tone="error" message={actionError} onDismiss={dismissError} />
+
       {/* Featured problem context */}
       {problem && (
         <Card className="flex flex-col justify-between gap-md md:flex-row md:items-start">
@@ -101,7 +125,13 @@ export function TeamFormationPage() {
               <Badge tone="primary" className="uppercase tracking-wide">
                 {problem.department}
               </Badge>
-              <Badge tone="success">Open</Badge>
+              <Badge tone={problem.status === 'closed' ? 'neutral' : 'success'}>
+                {problem.status === 'closed'
+                  ? 'Closed'
+                  : problem.status === 'in_progress'
+                    ? 'Building Team'
+                    : 'Open'}
+              </Badge>
             </div>
             <h2 className="mb-xs text-headline-md text-primary">{problem.title}</h2>
             <p className="mb-md text-body-md text-on-surface-variant">{problem.summary}</p>
@@ -144,18 +174,22 @@ export function TeamFormationPage() {
               <input
                 type="search"
                 aria-label="Search teams"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                value={filters.query}
+                onChange={(e) => setFilter('query', e.target.value)}
                 placeholder="Search teams or members…"
                 className="h-12 w-full rounded-lg border border-outline-variant bg-surface-container-lowest pl-[44px] pr-sm text-sm text-on-surface placeholder:text-on-surface-variant focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary"
               />
             </div>
             <div className="flex flex-wrap gap-xs">
-              <Chip active={role === ''} onClick={() => setRole('')}>
+              <Chip active={filters.role === ''} onClick={() => setFilter('role', '')}>
                 All roles
               </Chip>
               {roles.map((r) => (
-                <Chip key={r} active={role === r} onClick={() => setRole(r)}>
+                <Chip
+                  key={r}
+                  active={filters.role === r}
+                  onClick={() => setFilter('role', filters.role === r ? '' : r)}
+                >
                   {r}
                 </Chip>
               ))}
@@ -166,17 +200,16 @@ export function TeamFormationPage() {
           <section className="flex flex-col gap-sm">
             <div className="flex items-center justify-between">
               <h2 className="text-headline-sm text-primary">Available Teams</h2>
-              <span className="text-label-md text-on-surface-variant">{filtered.length} Active</span>
+              <span className="text-label-md text-on-surface-variant">{rows.length} Active</span>
             </div>
-            {filtered.length > 0 ? (
+            {rows.length > 0 ? (
               <div className="grid gap-md sm:grid-cols-2">
-                {filtered.map((team) => (
+                {rows.map((team) => (
                   <TeamCard
                     key={team.id}
                     team={team}
-                    requested={!!joinRequested[team.id]}
-                    // ponytail: local for the demo; POST /api/v1/teams/{id}/join-requests later.
-                    onJoin={() => setJoinRequested((s) => ({ ...s, [team.id]: true }))}
+                    busy={busy}
+                    onJoin={() => requestToJoin(team.id)}
                   />
                 ))}
               </div>
@@ -217,7 +250,7 @@ export function TeamFormationPage() {
                 <p className="text-sm text-on-surface-variant">
                   Your application is with the project guide for review.
                 </p>
-                <Button variant="ghost" size="sm" onClick={() => setApplied(null)}>
+                <Button variant="ghost" size="sm" disabled={busy} onClick={withdraw}>
                   Withdraw
                 </Button>
               </div>
@@ -249,7 +282,7 @@ export function TeamFormationPage() {
                         aria-invalid={!!errors.lookingFor}
                       />
                     </Field>
-                    <Button type="submit" size="sm" disabled={isSubmitting} className="self-start">
+                    <Button type="submit" size="sm" disabled={isSubmitting || busy} className="self-start">
                       Create team
                     </Button>
                   </form>
@@ -262,12 +295,7 @@ export function TeamFormationPage() {
                     myTeamName ? `Submit ${myTeamName} for this project.` : 'Create or join a team first.'
                   }
                 >
-                  <Button
-                    size="sm"
-                    disabled={!myTeamName}
-                    // ponytail: local for the demo; POST /api/v1/problems/{id}/applications later.
-                    onClick={() => setApplied('team')}
-                  >
+                  <Button size="sm" disabled={!myTeam || busy} onClick={() => apply(true)}>
                     Apply as Team
                   </Button>
                 </ActionRow>
@@ -277,7 +305,7 @@ export function TeamFormationPage() {
                   title="Apply solo"
                   description="Work independently and let faculty review your application."
                 >
-                  <Button size="sm" variant="outline" onClick={() => setApplied('solo')}>
+                  <Button size="sm" variant="outline" disabled={busy} onClick={() => apply(false)}>
                     Apply Solo
                   </Button>
                 </ActionRow>
@@ -312,33 +340,32 @@ export function TeamFormationPage() {
           {/* Invitations */}
           <Card className="flex flex-col gap-sm">
             <h2 className="text-base font-semibold text-on-surface">Pending invitations</h2>
-            {invitations && invitations.length > 0 ? (
+            {invitations.length > 0 ? (
               <ul className="flex flex-col gap-sm">
-                {invitations.map((inv) => {
-                  const state = inviteState[inv.id]
-                  return (
-                    <li key={inv.id} className="flex flex-col gap-xs rounded-lg border border-outline-variant p-sm">
-                      <span className="text-sm font-medium text-on-surface">{inv.projectTitle}</span>
-                      <span className="text-xs text-on-surface-variant">
-                        Invited by {inv.invitedBy} · {inv.role}
-                      </span>
-                      {state ? (
-                        <Badge tone={state === 'accepted' ? 'success' : 'neutral'}>
-                          {state === 'accepted' ? 'Accepted' : 'Declined'}
-                        </Badge>
-                      ) : (
-                        <div className="flex gap-xs">
-                          <Button size="sm" onClick={() => setInviteState((s) => ({ ...s, [inv.id]: 'accepted' }))}>
-                            Accept
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => setInviteState((s) => ({ ...s, [inv.id]: 'rejected' }))}>
-                            Decline
-                          </Button>
-                        </div>
-                      )}
-                    </li>
-                  )
-                })}
+                {invitations.map((inv) => (
+                  <li key={inv.id} className="flex flex-col gap-xs rounded-lg border border-outline-variant p-sm">
+                    <span className="text-sm font-medium text-on-surface">{inv.projectTitle}</span>
+                    <span className="text-xs text-on-surface-variant">
+                      Invited by {inv.invitedBy} · {inv.role}
+                    </span>
+                    {inv.problemId && (
+                      <Link
+                        to={buildPath(ROUTES.SHARED.PROBLEM_DETAILS, { id: inv.problemId })}
+                        className="text-xs font-medium text-secondary hover:underline"
+                      >
+                        Read the problem brief
+                      </Link>
+                    )}
+                    <div className="flex gap-xs">
+                      <Button size="sm" disabled={busy} onClick={() => respondToInvitation(inv.id, true)}>
+                        Accept
+                      </Button>
+                      <Button size="sm" variant="outline" disabled={busy} onClick={() => respondToInvitation(inv.id, false)}>
+                        Decline
+                      </Button>
+                    </div>
+                  </li>
+                ))}
               </ul>
             ) : (
               <EmptyState icon="mail" title="No pending invitations" />
@@ -402,7 +429,9 @@ function AvatarStack({ members }: { members: TeamMember[] }) {
   )
 }
 
-function TeamCard({ team, requested, onJoin }: { team: Team; requested: boolean; onJoin: () => void }) {
+function TeamCard({ team, busy, onJoin }: { team: Team; busy: boolean; onJoin: () => void }) {
+  const requested = !!team.joinRequested
+  const full = team.openSpots === 0
   return (
     <Card className="flex flex-col gap-md transition-transform hover:-translate-y-0.5">
       <div className="flex items-center justify-between gap-xs">
@@ -414,8 +443,8 @@ function TeamCard({ team, requested, onJoin }: { team: Team; requested: boolean;
         <span className="font-mono text-label-md font-medium text-secondary">
           {team.openSpots} {team.openSpots === 1 ? 'spot' : 'spots'} open
         </span>
-        <Button size="sm" disabled={requested} onClick={onJoin}>
-          {requested ? 'Request Sent' : 'Join Team'}
+        <Button size="sm" disabled={requested || full || busy} onClick={onJoin}>
+          {requested ? 'Request Sent' : full ? 'Team Full' : 'Join Team'}
         </Button>
       </div>
     </Card>

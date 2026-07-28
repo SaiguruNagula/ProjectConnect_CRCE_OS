@@ -31,5 +31,15 @@ export function useFacultyProfile() {
     }
   }
 
-  return { profile: data, loading, error, saving, saveError, saved, save, dismissSaved: () => setSaved(false) }
+  return {
+    profile: data,
+    loading,
+    error,
+    saving,
+    saveError,
+    saved,
+    save,
+    dismissSaved: () => setSaved(false),
+    dismissSaveError: () => setSaveError(null),
+  }
 }

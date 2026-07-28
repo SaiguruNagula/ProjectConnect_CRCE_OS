@@ -7,9 +7,10 @@
  * live in small helpers below, never inside the JSX. App chrome is owned by
  * StudentLayout and is intentionally not reproduced here.
  */
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useAsync } from '@/hooks/useAsync'
+import { useInvitations } from '@/hooks/useInvitations'
 import { projectsService } from '@/services/catalog.service'
 import type { Invitation, Project } from '@/types/domain'
 import type { BadgeProps } from '@/components/ui/Badge'
@@ -21,6 +22,7 @@ import { Avatar } from '@/components/ui/Avatar'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { ActionBanner } from '@/components/feedback/ActionBanner'
 
 interface Health {
   label: string
@@ -75,8 +77,8 @@ function completedOn(project: Project): string {
 
 export function MyProjectsPage() {
   const projects = useAsync<Project[]>(() => projectsService.list())
-  const invitations = useAsync<Invitation[]>(() => projectsService.invitations())
-  const [rejected, setRejected] = useState<string[]>([])
+  // Accepting an invitation adds a project — refresh the grid with the feed.
+  const invitations = useInvitations(projects.reload)
 
   const active = useMemo(
     () => (projects.data ?? []).filter((p) => p.status !== 'completed'),
@@ -86,7 +88,7 @@ export function MyProjectsPage() {
     () => (projects.data ?? []).filter((p) => p.status === 'completed'),
     [projects.data],
   )
-  const pending = (invitations.data ?? []).filter((inv) => !rejected.includes(inv.id))
+  const pending = invitations.invitations
 
   return (
     <div className="mx-auto flex w-full max-w-container-max flex-col gap-xl">
@@ -152,10 +154,17 @@ export function MyProjectsPage() {
               </span>
             )}
           </div>
+          <ActionBanner tone="error" message={invitations.actionError} onDismiss={invitations.dismissError} />
+          <ActionBanner tone="success" message={invitations.actionMessage} onDismiss={invitations.dismissMessage} />
           {pending.length > 0 ? (
             <div className="flex flex-col gap-sm">
               {pending.map((inv) => (
-                <InvitationRow key={inv.id} invitation={inv} onReject={() => setRejected((r) => [...r, inv.id])} />
+                <InvitationRow
+                  key={inv.id}
+                  invitation={inv}
+                  busy={invitations.busy}
+                  onRespond={(accept) => invitations.respond(inv.id, accept)}
+                />
               ))}
             </div>
           ) : (
@@ -228,7 +237,13 @@ function ActiveProjectCard({ project }: { project: Project }) {
   )
 }
 
-function InvitationRow({ invitation, onReject }: { invitation: Invitation; onReject: () => void }) {
+interface InvitationRowProps {
+  invitation: Invitation
+  busy: boolean
+  onRespond: (accept: boolean) => void
+}
+
+function InvitationRow({ invitation, busy, onRespond }: InvitationRowProps) {
   return (
     <Card className="flex items-center justify-between gap-md">
       <div className="flex min-w-0 items-center gap-md">
@@ -238,17 +253,26 @@ function InvitationRow({ invitation, onReject }: { invitation: Invitation; onRej
         <div className="min-w-0">
           <h4 className="truncate text-headline-sm font-semibold text-on-surface">{invitation.projectTitle}</h4>
           <p className="text-body-md text-on-surface-variant">
-            Invited by <span className="font-semibold text-on-surface">{invitation.invitedBy}</span>
+            Invited by <span className="font-semibold text-on-surface">{invitation.invitedBy}</span> ·{' '}
+            {invitation.role}
           </p>
+          {invitation.problemId && (
+            <Link
+              to={buildPath(ROUTES.SHARED.PROBLEM_DETAILS, { id: invitation.problemId })}
+              className="text-label-md font-medium text-secondary hover:underline"
+            >
+              Read the problem brief
+            </Link>
+          )}
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-xs">
-        <Button variant="ghost" size="sm" className="h-9 px-4" onClick={onReject}>
+        <Button variant="ghost" size="sm" className="h-9 px-4" disabled={busy} onClick={() => onRespond(false)}>
           Reject
         </Button>
-        <Link to={ROUTES.SHARED.TEAM_FORMATION}>
-          <Button size="sm" className="h-9 px-4">Accept</Button>
-        </Link>
+        <Button size="sm" className="h-9 px-4" disabled={busy} onClick={() => onRespond(true)}>
+          Accept
+        </Button>
       </div>
     </Card>
   )

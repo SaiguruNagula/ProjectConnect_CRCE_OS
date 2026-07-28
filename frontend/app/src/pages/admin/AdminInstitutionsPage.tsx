@@ -23,6 +23,7 @@ import type {
   InstitutionStatus,
 } from '@/types/domain'
 import { ROUTES } from '@/constants/routes'
+import { ActionBanner } from '@/components/feedback/ActionBanner'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { initials } from '@/utils/initials'
@@ -606,35 +607,9 @@ export function AdminInstitutionsPage() {
         </div>
       </div>
 
-      {savedMessage && (
-        <div
-          role="status"
-          className="flex items-center justify-between gap-4 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-2 text-[11px] font-medium text-emerald-700"
-        >
-          <span className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">check_circle</span>
-            {savedMessage}
-          </span>
-          <button type="button" onClick={dismissSaved} aria-label="Dismiss" className="rounded p-0.5 hover:bg-emerald-500/10">
-            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">close</span>
-          </button>
-        </div>
-      )}
-
-      {actionError && !form && (
-        <div
-          role="alert"
-          className="flex items-center justify-between gap-4 rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-2 text-[11px] font-medium text-red-600"
-        >
-          <span className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">error</span>
-            {actionError}
-          </span>
-          <button type="button" onClick={dismissError} aria-label="Dismiss" className="rounded p-0.5 hover:bg-red-500/10">
-            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">close</span>
-          </button>
-        </div>
-      )}
+      <ActionBanner tone="success" message={savedMessage} onDismiss={dismissSaved} />
+      {/* The form modal shows its own error inline — don't report it twice. */}
+      <ActionBanner tone="error" message={form ? null : actionError} onDismiss={dismissError} />
 
       {/* KPI grid */}
       {overview && (

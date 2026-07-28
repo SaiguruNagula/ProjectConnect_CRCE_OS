@@ -57,15 +57,15 @@ export const PORTFOLIO_VERIFIED: PortfolioVerified = {
       id: 'sol-1',
       name: 'Smart Canteen Payment',
       description: 'Automated NFC-based wallet system for campus dining.',
-      appUrl: '#',
-      githubUrl: '#',
+      appUrl: 'https://apps.crce.edu.in/smart-canteen',
+      githubUrl: 'https://github.com/crce-os/smart-canteen',
     },
     {
       id: 'sol-2',
       name: 'CRCE Library Bot',
       description: 'AI-driven search assistant for library resources.',
-      appUrl: '#',
-      githubUrl: '#',
+      appUrl: 'https://apps.crce.edu.in/library-bot',
+      githubUrl: 'https://github.com/crce-os/library-bot',
     },
   ],
   research: [
@@ -75,7 +75,7 @@ export const PORTFOLIO_VERIFIED: PortfolioVerified = {
       venue: 'IEEE Explorer',
       year: 2024,
       description: 'Published in IEEE Explorer 2024. Focused on dynamic lane switching algorithms.',
-      url: '#',
+      url: 'https://ieeexplore.ieee.org/document/10456789',
     },
   ],
   hackathons: [

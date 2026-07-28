@@ -5,7 +5,9 @@
  * through useFacultyReview → reviewsService (no business logic in the UI).
  */
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { ReviewDecisionInput, ReviewStats, ReviewSubmission } from '@/types/domain'
+import { buildPath, ROUTES } from '@/constants/routes'
 import { Avatar } from '@/components/ui/Avatar'
 import { Button } from '@/components/ui/Button'
 import { useFacultyReview } from '@/hooks/useFacultyReview'
@@ -77,6 +79,15 @@ function EvaluationPanel({ submission }: { submission: ReviewSubmission }) {
           <p className="text-on-surface-variant">
             Faculty: <span className="font-semibold text-secondary">{submission.facultyName}</span>
           </p>
+          {submission.projectId && (
+            <Link
+              to={buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: submission.projectId })}
+              className="mt-xs flex w-fit items-center gap-xs text-label-md font-medium text-secondary hover:underline"
+            >
+              Open the project workspace
+              <span className="material-symbols-outlined text-[16px]" aria-hidden="true">open_in_new</span>
+            </Link>
+          )}
         </div>
         <div className="flex -space-x-2">
           {shownMembers.map((m) => (

@@ -59,8 +59,8 @@ export function LeaderboardPage() {
     [ranked, query],
   )
 
-  const goToPortfolio = (id: string) =>
-    navigate(buildPath(ROUTES.SHARED.PORTFOLIO, { id }))
+  // Every ranked member has a public portfolio, keyed by their user id.
+  const goToPortfolio = (id: string) => navigate(buildPath(ROUTES.SHARED.PORTFOLIO, { id }))
 
   return (
     <div className="mx-auto flex max-w-container-max flex-col gap-lg">

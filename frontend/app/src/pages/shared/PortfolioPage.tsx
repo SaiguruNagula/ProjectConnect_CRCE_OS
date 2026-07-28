@@ -15,6 +15,7 @@ import { useAsync } from '@/hooks/useAsync'
 import { portfolioService } from '@/services/catalog.service'
 import type { Portfolio, PortfolioCustomization } from '@/types/domain'
 import { cn } from '@/utils/cn'
+import { githubUrl, linkedinUrl } from '@/utils/social'
 import { Card } from '@/components/ui/Card'
 import { Avatar } from '@/components/ui/Avatar'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
@@ -45,9 +46,13 @@ export function PortfolioPage() {
   const { id = 'me' } = useParams()
   const { user, isAuthenticated } = useAuth()
   const { data, loading, error } = useAsync<Portfolio>(() => portfolioService.get(id), [id])
-  const custState = useAsync<PortfolioCustomization>(() => portfolioService.getCustomization(), [])
 
   const isOwner = id === 'me' && isAuthenticated && user?.role === 'student'
+  // Curation belongs to the owner — a visitor's view is never filtered by it.
+  const custState = useAsync<PortfolioCustomization>(
+    () => (isOwner ? portfolioService.getCustomization() : Promise.resolve(DEFAULT_CUSTOMIZATION)),
+    [isOwner],
+  )
 
   const [draft, setDraft] = useState<PortfolioCustomization | null>(null)
   const [preview, setPreview] = useState(false)
@@ -88,6 +93,7 @@ export function PortfolioPage() {
   const skillPool = [...new Set([...verifiedSkills, ...(data.personalSkills ?? [])])]
   const sectionOn = (k: SectionKey) => (applyCuration ? active.sections[k] : true)
   const firstName = data.name.split(' ')[0]
+  const contactEmail = data.institutionalEmail
 
   function startEdit() {
     setDraft(structuredClone(saved))
@@ -171,22 +177,44 @@ export function PortfolioPage() {
             ) : (
               <p className="max-w-xl text-body-md text-on-surface-variant">{displayIntro}</p>
             )}
+            {/* Links come from the profile — rendered only where the student gave one. */}
             <div className="flex flex-wrap justify-center gap-sm md:justify-start">
-              <a href="#" className="flex items-center gap-xs rounded-lg bg-surface-container px-3 py-2 font-label-md text-on-surface transition-colors hover:bg-surface-container-high">
-                <span className="material-symbols-outlined text-[18px]" aria-hidden="true">code</span> GitHub
-              </a>
-              <a href="#" className="flex items-center gap-xs rounded-lg bg-secondary-container/40 px-3 py-2 font-label-md text-on-surface transition-colors hover:bg-secondary-container/60">
-                <span className="material-symbols-outlined text-[18px]" aria-hidden="true">share</span> LinkedIn
-              </a>
-              <a href="#" className="flex items-center gap-xs rounded-lg bg-secondary px-4 py-2 font-label-md text-on-secondary transition-opacity hover:opacity-90">
-                Connect on LinkedIn
-              </a>
+              {data.github && (
+                <a
+                  href={githubUrl(data.github)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-xs rounded-lg bg-surface-container px-3 py-2 font-label-md text-on-surface transition-colors hover:bg-surface-container-high"
+                >
+                  <span className="material-symbols-outlined text-[18px]" aria-hidden="true">code</span> GitHub
+                </a>
+              )}
+              {data.linkedin && (
+                <a
+                  href={linkedinUrl(data.linkedin)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-xs rounded-lg bg-secondary-container/40 px-3 py-2 font-label-md text-on-surface transition-colors hover:bg-secondary-container/60"
+                >
+                  <span className="material-symbols-outlined text-[18px]" aria-hidden="true">share</span> LinkedIn
+                </a>
+              )}
+              {contactEmail && (
+                <a
+                  href={`mailto:${contactEmail}`}
+                  className="flex items-center gap-xs rounded-lg bg-secondary px-4 py-2 font-label-md text-on-secondary transition-opacity hover:opacity-90"
+                >
+                  <span className="material-symbols-outlined text-[18px]" aria-hidden="true">mail</span>
+                  Get in touch
+                </a>
+              )}
             </div>
           </div>
         </Card>
 
         {/* Validations + hall of fame */}
         <div className="flex flex-col gap-md">
+          {data.facultyValidationCount > 0 && (
           <Card>
             <div className="mb-sm flex items-center gap-sm">
               <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }} aria-hidden="true">verified</span>
@@ -210,6 +238,7 @@ export function PortfolioPage() {
               </p>
             </div>
           </Card>
+          )}
 
           <Card className="flex-grow">
             <h3 className="mb-sm text-label-md uppercase tracking-widest text-outline">Hall of Fame</h3>
@@ -234,6 +263,7 @@ export function PortfolioPage() {
       </section>
 
       {/* Verified skills — the student features a subset */}
+      {(showControls || displaySkills.length > 0) && (
       <Card>
         <div className="mb-md flex items-center justify-between">
           <div className="flex items-center gap-sm">
@@ -269,12 +299,13 @@ export function PortfolioPage() {
               ))}
         </div>
       </Card>
+      )}
 
       {/* Contributions + timeline */}
       <div className="grid grid-cols-1 gap-md lg:grid-cols-3">
         <div className="flex flex-col gap-md lg:col-span-2">
           {/* Live solutions */}
-          {(showControls || sectionOn('solutions')) && (
+          {data.solutions.length > 0 && (showControls || sectionOn('solutions')) && (
             <Card className={cn('overflow-hidden p-0', showControls && !active.sections.solutions && 'opacity-50')}>
               <div className="flex items-center justify-between border-b border-outline-variant bg-surface-container-low px-md py-sm">
                 <h3 className="text-headline-sm">Live Solutions</h3>
@@ -293,12 +324,12 @@ export function PortfolioPage() {
                     </div>
                     <div className="flex gap-sm">
                       {s.appUrl && (
-                        <a href={s.appUrl} className="flex items-center gap-xs font-label-md text-secondary">
+                        <a href={s.appUrl} target="_blank" rel="noreferrer" className="flex items-center gap-xs font-label-md text-secondary">
                           View App <span className="material-symbols-outlined text-[16px]" aria-hidden="true">open_in_new</span>
                         </a>
                       )}
                       {s.githubUrl && (
-                        <a href={s.githubUrl} className="flex items-center gap-xs font-label-md text-on-surface-variant">
+                        <a href={s.githubUrl} target="_blank" rel="noreferrer" className="flex items-center gap-xs font-label-md text-on-surface-variant">
                           GitHub <span className="material-symbols-outlined text-[16px]" aria-hidden="true">code</span>
                         </a>
                       )}
@@ -324,7 +355,9 @@ export function PortfolioPage() {
                   {data.research[0].description ?? `${data.research[0].venue}, ${data.research[0].year}`}
                 </p>
                 {data.research[0].url && (
-                  <a href={data.research[0].url} className="mt-sm inline-block font-label-md text-secondary">Read Publication →</a>
+                  <a href={data.research[0].url} target="_blank" rel="noreferrer" className="mt-sm inline-block font-label-md text-secondary">
+                    Read Publication →
+                  </a>
                 )}
               </Card>
             )}
@@ -347,7 +380,7 @@ export function PortfolioPage() {
         </div>
 
         {/* Timeline */}
-        {(showControls || sectionOn('timeline')) && (
+        {data.timeline.length > 0 && (showControls || sectionOn('timeline')) && (
           <Card className={cn('h-fit', showControls && !active.sections.timeline && 'opacity-50')}>
             <div className="mb-md flex items-center justify-between">
               <div className="flex items-center gap-sm">
@@ -382,12 +415,24 @@ export function PortfolioPage() {
           Open for specialized project collaborations, research assistance, and technical consultation for campus innovations.
         </p>
         <div className="flex flex-col justify-center gap-sm pt-sm sm:flex-row">
-          <button type="button" className="rounded-lg bg-surface-container-lowest px-lg py-sm font-label-md font-bold text-secondary transition-transform active:scale-95">
-            Hire for Projects
-          </button>
-          <button type="button" className="rounded-lg border border-white/20 bg-white/10 px-lg py-sm font-label-md font-bold text-on-secondary transition-transform hover:bg-white/20 active:scale-95">
-            Connect on LinkedIn
-          </button>
+          {contactEmail && (
+            <a
+              href={`mailto:${contactEmail}?subject=${encodeURIComponent(`Project collaboration with ${data.name}`)}`}
+              className="rounded-lg bg-surface-container-lowest px-lg py-sm font-label-md font-bold text-secondary transition-transform active:scale-95"
+            >
+              Hire for Projects
+            </a>
+          )}
+          {data.linkedin && (
+            <a
+              href={linkedinUrl(data.linkedin)}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-lg border border-white/20 bg-white/10 px-lg py-sm font-label-md font-bold text-on-secondary transition-transform hover:bg-white/20 active:scale-95"
+            >
+              Connect on LinkedIn
+            </a>
+          )}
         </div>
       </section>
     </div>

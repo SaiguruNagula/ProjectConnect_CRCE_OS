@@ -35,6 +35,7 @@ import { Avatar } from '@/components/ui/Avatar'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { TagInput } from '@/components/ui/TagInput'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
+import { Banner } from '@/components/feedback/Banner'
 import { EmptyState } from '@/components/ui/EmptyState'
 
 const VISIBILITY_LABEL: Record<FacultyVisibility, string> = {
@@ -44,7 +45,8 @@ const VISIBILITY_LABEL: Record<FacultyVisibility, string> = {
 }
 
 export function FacultyProfilePage() {
-  const { profile, loading, error, saving, saveError, saved, save, dismissSaved } = useFacultyProfile()
+  const { profile, loading, error, saving, saveError, saved, save, dismissSaved, dismissSaveError } =
+    useFacultyProfile()
   const reputation = useAsync<FacultyReputation>(() => facultyProfileService.reputation())
   const problems = useAsync<Problem[]>(() => problemsService.list())
   const reviewStats = useAsync<ReviewStats>(() => reviewsService.stats())
@@ -303,6 +305,7 @@ export function FacultyProfilePage() {
           profile={profile}
           saving={saving}
           error={saveError}
+          onDismissError={dismissSaveError}
           onClose={() => setEditing(false)}
           onSave={async (patch) => {
             const ok = await save(patch)
@@ -322,12 +325,14 @@ function EditProfileDrawer({
   profile,
   saving,
   error,
+  onDismissError,
   onClose,
   onSave,
 }: {
   profile: FacultyProfile
   saving: boolean
   error: string | null
+  onDismissError: () => void
   onClose: () => void
   onSave: (patch: Partial<FacultyProfile>) => void
 }) {
@@ -397,7 +402,7 @@ function EditProfileDrawer({
 
         <div className="flex-grow space-y-lg overflow-y-auto p-md pb-32">
           {error && (
-            <Banner tone="error" icon="error" onClose={() => undefined}>
+            <Banner tone="error" icon="error" onClose={onDismissError}>
               {error}
             </Banner>
           )}
@@ -638,22 +643,5 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
     >
       <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-all', checked ? 'right-0.5' : 'left-0.5')} />
     </button>
-  )
-}
-
-const BANNER_TONE = {
-  success: 'bg-[#e6f4ea] text-[#1e7a3d]',
-  error: 'bg-error-container text-on-error-container',
-}
-
-function Banner({ tone, icon, onClose, children }: { tone: keyof typeof BANNER_TONE; icon: string; onClose: () => void; children: ReactNode }) {
-  return (
-    <div className={cn('flex items-center gap-sm rounded-xl px-md py-sm text-body-md', BANNER_TONE[tone])} role="status">
-      <span className="material-symbols-outlined text-[20px]" aria-hidden="true">{icon}</span>
-      <span className="flex-1">{children}</span>
-      <button type="button" onClick={onClose} aria-label="Dismiss" className="flex items-center opacity-70 hover:opacity-100">
-        <span className="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
-      </button>
-    </div>
   )
 }

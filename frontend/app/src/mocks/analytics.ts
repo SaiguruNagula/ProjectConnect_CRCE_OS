@@ -1,4 +1,4 @@
-import type { DashboardStats } from '@/types/domain'
+import type { DashboardStats, NameValue } from '@/types/domain'
 import type { Role } from '@/types'
 
 /** Headline stat tiles per role dashboard. */
@@ -38,6 +38,18 @@ export const CREDIT_TREND = [
   { month: 'May', value: 3950 },
   { month: 'Jun', value: 4240 },
   { month: 'Jul', value: 4560 },
+]
+
+/**
+ * Public headline metrics. One source for the Landing, About and Innovation Hub
+ * stat bars — the backend replaces this with a single aggregate query.
+ */
+export const CAMPUS_IMPACT: NameValue[] = [
+  { label: 'Problems Solved', value: 124 },
+  { label: 'Projects Built', value: 82 },
+  { label: 'Faculty Mentors', value: 45 },
+  { label: 'Students', value: 600 },
+  { label: 'Credits Earned', value: 420 },
 ]
 
 /** Department distribution — for admin/principal charts. */

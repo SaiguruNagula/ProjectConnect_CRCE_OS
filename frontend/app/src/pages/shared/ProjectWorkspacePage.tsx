@@ -4,16 +4,15 @@
  * and /student/projects/:id (by id). Five tabs — Overview, Tasks, Files,
  * Meetings, Team — over service-provided data; param-aware, no duplication.
  *
- * Data comes only through the existing service layer (projectsService,
- * dashboardService) — repositories and services are untouched. Tasks and the
- * timeline derive from the project's milestones; Files and Meetings have no
+ * Data and mutations go through useProjectWorkspace → projectsService. Tasks and
+ * the timeline derive from the project's milestones; Files and Meetings have no
  * data source in the repository and render as static assets for the demo.
  */
-import { useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { useAsync } from '@/hooks/useAsync'
-import { projectsService, dashboardService } from '@/services/catalog.service'
-import type { Activity, Milestone, Project, TeamMember } from '@/types/domain'
+import { useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import { useProjectWorkspace } from '@/hooks/useProjectWorkspace'
+import { buildPath, ROUTES } from '@/constants/routes'
+import type { Activity, Milestone, MilestoneStatus, Project, TeamMember } from '@/types/domain'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Avatar } from '@/components/ui/Avatar'
@@ -21,8 +20,10 @@ import { ProgressBar } from '@/components/ui/ProgressBar'
 import { Button } from '@/components/ui/Button'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { ActionBanner } from '@/components/feedback/ActionBanner'
 import { cn } from '@/utils/cn'
-import { daysLeft, fmtDate } from '@/utils/date'
+import { daysLeft, fmtDate, relativeTime } from '@/utils/date'
+import { initials } from '@/utils/initials'
 
 const TABS = [
   { value: 'overview', label: 'Overview' },
@@ -40,25 +41,15 @@ const COLUMNS: { status: Milestone['status']; label: string }[] = [
   { status: 'done', label: 'Done' },
 ]
 
-/** Compact relative time, e.g. "4h ago", "2d ago". */
-function relTime(iso: string): string {
-  const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60_000)
-  if (mins < 60) return `${Math.max(1, mins)}m ago`
-  if (mins < 1440) return `${Math.round(mins / 60)}h ago`
-  return `${Math.round(mins / 1440)}d ago`
+/** The next status a milestone can be advanced to, or null once it is done. */
+function nextStatus(status: MilestoneStatus): MilestoneStatus | null {
+  return status === 'pending' ? 'in_progress' : status === 'in_progress' ? 'done' : null
 }
 
 export function ProjectWorkspacePage() {
   const { id } = useParams()
-  const loader = useMemo(
-    () =>
-      id
-        ? () => projectsService.get(id)
-        : () => projectsService.list().then((list) => list.find((p) => p.status === 'active') ?? list[0] ?? null),
-    [id],
-  )
-  const { data: project, loading, error } = useAsync<Project | null>(loader, [id])
-  const { data: activity } = useAsync<Activity[]>(() => dashboardService.activity())
+  const { project, activity, loading, error, busy, actionError, dismissError, updateMilestone } =
+    useProjectWorkspace(id)
   const [tab, setTab] = useState<TabValue>('overview')
 
   if (loading) return <PageLoader />
@@ -79,9 +70,24 @@ export function ProjectWorkspacePage() {
         </span>
         <div className="leading-tight">
           <h1 className="text-headline-sm font-bold tracking-tight text-primary">{project.title}</h1>
-          <p className="text-label-md text-on-surface-variant">Mentor · {project.mentorName}</p>
+          <p className="flex flex-wrap items-center gap-xs text-label-md text-on-surface-variant">
+            <span>Mentor · {project.mentorName}</span>
+            {project.problemId && (
+              <>
+                <span aria-hidden="true">·</span>
+                <Link
+                  to={buildPath(ROUTES.SHARED.PROBLEM_DETAILS, { id: project.problemId })}
+                  className="font-medium text-secondary hover:underline"
+                >
+                  View the problem brief
+                </Link>
+              </>
+            )}
+          </p>
         </div>
       </div>
+
+      <ActionBanner tone="error" message={actionError} onDismiss={dismissError} />
 
       {/* Tab bar (underline, scrollable) */}
       <div
@@ -111,8 +117,8 @@ export function ProjectWorkspacePage() {
         })}
       </div>
 
-      {tab === 'overview' && <OverviewTab project={project} activity={activity ?? []} />}
-      {tab === 'tasks' && <TasksTab project={project} />}
+      {tab === 'overview' && <OverviewTab project={project} activity={activity} />}
+      {tab === 'tasks' && <TasksTab project={project} busy={busy} onAdvance={updateMilestone} />}
       {tab === 'files' && <FilesTab />}
       {tab === 'meetings' && <MeetingsTab />}
       {tab === 'team' && <TeamTab members={project.members} />}
@@ -196,7 +202,7 @@ function OverviewTab({ project, activity }: { project: Project; activity: Activi
                       <span className="text-on-surface-variant">{a.action}</span>{' '}
                       <span className="font-medium text-secondary">{a.target}</span>
                     </p>
-                    <p className="text-label-md text-on-surface-variant">{relTime(a.timestamp)}</p>
+                    <p className="text-label-md text-on-surface-variant">{relativeTime(a.timestamp)}</p>
                   </div>
                 </li>
               ))}
@@ -253,7 +259,13 @@ function Timeline({ milestones }: { milestones: Milestone[] }) {
 
 /* --------------------------------------------------------------------- Tasks */
 
-function TasksTab({ project }: { project: Project }) {
+interface TasksTabProps {
+  project: Project
+  busy: boolean
+  onAdvance: (milestoneId: string, status: MilestoneStatus) => void
+}
+
+function TasksTab({ project, busy, onAdvance }: TasksTabProps) {
   const byStatus = (status: Milestone['status']) => project.milestones.filter((m) => m.status === status)
   return (
     <div className="grid grid-cols-1 gap-md md:grid-cols-3">
@@ -270,7 +282,9 @@ function TasksTab({ project }: { project: Project }) {
             {items.length === 0 ? (
               <p className="px-xs text-label-md text-on-surface-variant">Nothing here.</p>
             ) : (
-              items.map((m) => <TaskCard key={m.id} milestone={m} />)
+              items.map((m) => (
+                <TaskCard key={m.id} milestone={m} busy={busy} onAdvance={onAdvance} />
+              ))
             )}
           </div>
         )
@@ -279,9 +293,10 @@ function TasksTab({ project }: { project: Project }) {
   )
 }
 
-function TaskCard({ milestone: m }: { milestone: Milestone }) {
+function TaskCard({ milestone: m, busy, onAdvance }: { milestone: Milestone } & Omit<TasksTabProps, 'project'>) {
   const done = m.status === 'done'
   const current = m.status === 'in_progress'
+  const next = nextStatus(m.status)
   return (
     <Card
       className={cn(
@@ -298,9 +313,16 @@ function TaskCard({ milestone: m }: { milestone: Milestone }) {
         <span className="font-mono text-[10px] text-on-surface-variant">#{m.id.toUpperCase()}</span>
       </div>
       <h4 className={cn('text-body-md font-medium', done && 'text-on-surface-variant line-through')}>{m.title}</h4>
-      <div className="flex items-center gap-xs text-label-md text-on-surface-variant">
-        <span className="material-symbols-outlined text-[14px]" aria-hidden="true">event</span>
-        {done ? 'Completed' : `Due ${fmtDate(m.dueDate)}`}
+      <div className="flex items-center justify-between gap-xs text-label-md text-on-surface-variant">
+        <span className="flex items-center gap-xs">
+          <span className="material-symbols-outlined text-[14px]" aria-hidden="true">event</span>
+          {done ? 'Completed' : `Due ${fmtDate(m.dueDate)}`}
+        </span>
+        {next && (
+          <Button variant="ghost" size="sm" disabled={busy} onClick={() => onAdvance(m.id, next)}>
+            {next === 'in_progress' ? 'Start' : 'Mark done'}
+          </Button>
+        )}
       </div>
     </Card>
   )
@@ -440,15 +462,4 @@ function TeamTab({ members }: { members: TeamMember[] }) {
       </div>
     </Card>
   )
-}
-
-/* ------------------------------------------------------------------- helpers */
-
-function initials(name: string): string {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0] ?? '')
-    .join('')
-    .toUpperCase()
 }

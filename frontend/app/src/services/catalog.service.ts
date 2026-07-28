@@ -9,9 +9,11 @@ import { repositories } from '@/repositories'
 import type { Role } from '@/types'
 import type {
   CreateProblemInput,
+  CreateTeamInput,
   FacultyProfile,
   InstitutionInput,
   InstitutionStatus,
+  MilestoneStatus,
   PortfolioCustomization,
   ReviewDecisionInput,
   StudentProfile,
@@ -24,13 +26,35 @@ export const problemsService = {
   create: (input: CreateProblemInput) => repositories.problems.create(input),
   /** Save an in-progress draft without publishing. */
   saveDraft: (input: CreateProblemInput) => repositories.problems.saveDraft(input),
+  /** The author's saved drafts, so authoring can be resumed. */
+  drafts: () => repositories.problems.drafts(),
+  /** Bookmark or un-bookmark a problem for the signed-in student. */
+  setBookmark: (id: string, bookmarked: boolean) =>
+    repositories.problems.setBookmark(id, bookmarked),
 }
 
 export const projectsService = {
   list: () => repositories.projects.list(),
   get: (id: string) => repositories.projects.get(id),
   invitations: () => repositories.projects.invitations(),
-  teams: () => repositories.projects.teams(),
+  /** Teams for one problem, or every team when `problemId` is omitted. */
+  teams: (problemId?: string) => repositories.projects.teams(problemId),
+  /** Form a team around a problem. */
+  createTeam: (input: CreateTeamInput) => repositories.projects.createTeam(input),
+  /** Ask an existing team for a spot. */
+  requestToJoin: (teamId: string) => repositories.projects.requestToJoin(teamId),
+  /** Accept or decline a pending invitation; returns the remaining invitations. */
+  respondToInvitation: (invitationId: string, accept: boolean) =>
+    repositories.projects.respondToInvitation(invitationId, accept),
+  /** Register interest in a problem, individually or as a team. */
+  applyToProblem: (problemId: string, teamId?: string) =>
+    repositories.projects.applyToProblem(problemId, teamId),
+  /** Withdraw a pending application. */
+  withdrawApplication: (problemId: string) =>
+    repositories.projects.withdrawApplication(problemId),
+  /** Advance a milestone; the returned project carries the recomputed progress. */
+  updateMilestone: (projectId: string, milestoneId: string, status: MilestoneStatus) =>
+    repositories.projects.updateMilestone(projectId, milestoneId, status),
 }
 
 export const leaderboardService = {
@@ -119,13 +143,24 @@ export const adminService = {
  */
 export const analyticsService = {
   institution: () => repositories.analytics.institution(),
+  /** Public headline metrics for the Landing, About and Innovation Hub pages. */
+  campusImpact: () => repositories.analytics.campusImpact(),
 }
 
 export const dashboardService = {
   stats: (role: Role) => repositories.dashboard.stats(role),
   activity: () => repositories.dashboard.activity(),
   deadlines: () => repositories.dashboard.deadlines(),
-  notifications: () => repositories.dashboard.notifications(),
   creditTrend: () => repositories.dashboard.creditTrend(),
   departmentDistribution: () => repositories.dashboard.departmentDistribution(),
+}
+
+/**
+ * The cross-cutting notification feed. Notifications are raised by the layer
+ * that performs the action (repository today, backend later) — never by a page.
+ */
+export const notificationsService = {
+  list: () => repositories.notifications.list(),
+  markRead: (id: string) => repositories.notifications.markRead(id),
+  markAllRead: () => repositories.notifications.markAllRead(),
 }
