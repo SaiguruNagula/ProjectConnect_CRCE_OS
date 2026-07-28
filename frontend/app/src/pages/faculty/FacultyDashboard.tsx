@@ -21,6 +21,8 @@ import { Avatar } from '@/components/ui/Avatar'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { MentorSuggestionReview } from '@/features/problems/MentorSuggestionReview'
+import { SelectionReviewPanel } from '@/features/submissions/SelectionReviewPanel'
 
 /** Mentorship health derived from a project's progress (Stitch: Healthy / Delayed / At Risk). */
 function health(progress: number): { label: string; badge: string; bar: string; atRisk: boolean } {
@@ -213,6 +215,12 @@ export function FacultyDashboard() {
               </Card>
             </section>
           )}
+
+          {/* Stage 3 — which teams go on to build the final project */}
+          <SelectionReviewPanel />
+
+          {/* Problems suggested by students, awaiting this mentor's decision */}
+          <MentorSuggestionReview onPublished={problems.reload} />
         </div>
 
         {/* Right column — mentorship progress + recent activity */}

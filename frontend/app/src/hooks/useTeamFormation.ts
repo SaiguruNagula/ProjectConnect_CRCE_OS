@@ -9,7 +9,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useAsync } from '@/hooks/useAsync'
 import { useInvitations } from '@/hooks/useInvitations'
 import { problemsService, projectsService } from '@/services/catalog.service'
-import type { CreateTeamInput, Problem, Team } from '@/types/domain'
+import type { ApplicationInput, CreateTeamInput, JoinRequest, Problem, Team } from '@/types/domain'
 
 export interface TeamFilters {
   query: string
@@ -61,6 +61,9 @@ export function useTeamFormation(problemId?: string) {
   const invitationsState = useInvitations(teamsQuery.reload)
   const invitations = invitationsState.invitations
 
+  // Requests waiting on the student's own team; only a lead ever sees rows here.
+  const joinRequestsQuery = useAsync<JoinRequest[]>(() => projectsService.joinRequests())
+
   /** Filter options come from the data, never a hardcoded list. */
   const roles = useMemo(
     () => Array.from(new Set(available.flatMap((t) => t.lookingFor))).sort(),
@@ -111,9 +114,9 @@ export function useTeamFormation(problemId?: string) {
   )
 
   const requestToJoin = useCallback(
-    (teamId: string) =>
+    (teamId: string, message: string) =>
       run(
-        () => projectsService.requestToJoin(teamId),
+        () => projectsService.requestToJoin(teamId, message),
         'Join request sent to the team lead.',
         'Could not send the join request. Please try again.',
         reloadTeams,
@@ -121,11 +124,35 @@ export function useTeamFormation(problemId?: string) {
     [run, reloadTeams],
   )
 
+  const reloadJoinRequests = joinRequestsQuery.reload
+
+  const respondToJoinRequest = useCallback(
+    (requestId: string, accept: boolean) =>
+      run(
+        () => projectsService.respondToJoinRequest(requestId, accept),
+        accept ? 'Request accepted — they are on the team.' : 'Request rejected.',
+        'Could not respond to the request. Please try again.',
+        () => {
+          reloadJoinRequests()
+          reloadTeams()
+        },
+      ),
+    [run, reloadJoinRequests, reloadTeams],
+  )
+
+  /**
+   * Apply to the problem in context. `asTeam` picks the route — the student's
+   * own team, or solo — and `details` carries the idea being proposed.
+   */
   const apply = useCallback(
-    (asTeam: boolean) => {
+    (asTeam: boolean, details: Omit<ApplicationInput, 'teamId'>) => {
       if (!activeProblemId) return Promise.resolve(false)
       return run(
-        () => projectsService.applyToProblem(activeProblemId, asTeam ? myTeam?.id : undefined),
+        () =>
+          projectsService.applyToProblem(activeProblemId, {
+            ...details,
+            teamId: asTeam ? myTeam?.id : undefined,
+          }),
         asTeam ? `Applied as ${myTeam?.name ?? 'your team'}.` : 'Applied individually.',
         'Could not submit the application. Please try again.',
         reloadProblems,
@@ -150,6 +177,8 @@ export function useTeamFormation(problemId?: string) {
     rows,
     roles,
     invitations,
+    /** Only a team lead has rows here — the backend scopes them to the caller. */
+    joinRequests: joinRequestsQuery.data ?? [],
     filters,
     setFilter,
     loading: problems.loading || teamsQuery.loading,
@@ -167,6 +196,7 @@ export function useTeamFormation(problemId?: string) {
     },
     createTeam,
     requestToJoin,
+    respondToJoinRequest,
     apply,
     withdraw,
     respondToInvitation: invitationsState.respond,

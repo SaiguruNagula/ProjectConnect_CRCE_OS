@@ -12,20 +12,13 @@ import { useAsync } from '@/hooks/useAsync'
 import { dashboardService, projectsService, portfolioService } from '@/services/catalog.service'
 import { buildPath, ROUTES } from '@/constants/routes'
 import { initials } from '@/utils/initials'
-import type { DashboardStats, Deadline, Invitation, Portfolio, Project, ProjectStatus } from '@/types/domain'
-import type { BadgeProps } from '@/components/ui/Badge'
+import type { DashboardStats, Deadline, Invitation, Portfolio, Project } from '@/types/domain'
 import { Card } from '@/components/ui/Card'
 import { Avatar } from '@/components/ui/Avatar'
 import { Badge } from '@/components/ui/Badge'
-import { ProgressBar } from '@/components/ui/ProgressBar'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
 import { EmptyState } from '@/components/ui/EmptyState'
-
-const STATUS: Record<ProjectStatus, { label: string; tone: BadgeProps['tone'] }> = {
-  active: { label: 'Core', tone: 'primary' },
-  in_review: { label: 'Research', tone: 'warning' },
-  completed: { label: 'Innovate', tone: 'success' },
-}
+import { STAGES, STAGE_STATUS, nextAction, stageMeta, stageNumber } from '@/features/submissions/status'
 
 const QUICK_ACTIONS = [
   { label: 'Browse Problems', icon: 'search', to: ROUTES.SHARED.OPEN_PROBLEMS },
@@ -39,14 +32,6 @@ function greeting(): string {
   if (h < 12) return 'Good Morning'
   if (h < 17) return 'Good Afternoon'
   return 'Good Evening'
-}
-
-function currentMilestone(project: Project): string {
-  const m =
-    project.milestones.find((ms) => ms.status === 'in_progress') ??
-    project.milestones.find((ms) => ms.status === 'pending') ??
-    project.milestones.at(-1)
-  return m ? `Milestone: ${m.title}` : 'No active milestone'
 }
 
 function dueLabel(iso: string): string {
@@ -189,7 +174,9 @@ export function StudentDashboard() {
 }
 
 function ActiveProjectRow({ project }: { project: Project }) {
-  const status = STATUS[project.status]
+  const stage = stageMeta(project.stage)
+  const status = STAGE_STATUS[project.stageStatus]
+  const step = stageNumber(project.stage)
   return (
     <Link
       to={buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: project.id })}
@@ -198,10 +185,19 @@ function ActiveProjectRow({ project }: { project: Project }) {
       <div className="flex-1">
         <div className="mb-1 flex items-center gap-xs">
           <h3 className="text-body-lg font-semibold text-on-surface">{project.title}</h3>
-          <Badge tone={status.tone}>{status.label}</Badge>
+          <Badge tone={status.tone}>{status.short}</Badge>
         </div>
-        <p className="mb-sm text-xs text-on-surface-variant">{currentMilestone(project)}</p>
-        <ProgressBar value={project.progress} className="h-1.5" />
+        <p className="mb-sm text-xs text-on-surface-variant">
+          Stage {step} of {STAGES.length} · {stage.label} — {nextAction(project.stage, project.stageStatus)}
+        </p>
+        <ol className="flex gap-1" aria-label={`Stage ${step} of ${STAGES.length}`}>
+          {STAGES.map((s, i) => (
+            <li
+              key={s.value}
+              className={`h-1.5 flex-1 rounded-full ${i < step ? 'bg-secondary' : 'bg-surface-container-high'}`}
+            />
+          ))}
+        </ol>
       </div>
       <div className="flex items-center gap-lg md:ml-lg">
         <div className="flex -space-x-2">

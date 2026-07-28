@@ -10,6 +10,21 @@ export type ProjectStatus = 'active' | 'in_review' | 'completed'
 export type MilestoneStatus = 'pending' | 'in_progress' | 'done'
 
 /**
+ * Server-side pagination envelope. Any list that grows unbounded is served in
+ * this shape so no component slices an array itself — the same contract the
+ * FastAPI endpoints will return.
+ */
+export interface Paginated<T> {
+  items: T[]
+  /** 1-based page number actually served (clamped to `totalPages`). */
+  page: number
+  limit: number
+  /** Rows matching the query across every page. */
+  total: number
+  totalPages: number
+}
+
+/**
  * Request body for POST /api/v1/problems (Faculty Create Problem). This is the
  * create/publish CONTRACT — distinct from the read-model {@link Problem} — so the
  * form can capture richer authoring detail (statement, rationale, tooling, team
@@ -107,6 +122,105 @@ export interface Problem {
 /** The signed-in student's relationship to a problem. */
 export type ProblemApplicationStatus = 'none' | 'team' | 'solo'
 
+export type ProblemSort = 'newest' | 'credits'
+
+/**
+ * Query for GET /api/v1/problems. Search, filtering, sorting and paging all
+ * travel together so the catalog reads the same whether it is served by the mock
+ * repository or the API.
+ */
+export interface ProblemQuery {
+  page: number
+  limit: number
+  /** Free-text across title, summary, department and faculty. */
+  search?: string
+  /** Exact department match; omit for every department. */
+  department?: string
+  /** Restrict to the signed-in student's bookmarks. */
+  savedOnly?: boolean
+  sort?: ProblemSort
+}
+
+/** Catalog-wide counters, computed server-side across the whole result set. */
+export interface ProblemCatalogStats {
+  problems: number
+  departments: number
+  teams: number
+}
+
+/**
+ * One page of the Open Problems catalog plus the facets and counters the page
+ * header needs — the repository owns them so the UI never derives a filter list
+ * or a stat from the rows it happens to be showing.
+ */
+export interface ProblemCatalogPage extends Paginated<Problem> {
+  /** Every department available as a filter, not just those on this page. */
+  departments: string[]
+  stats: ProblemCatalogStats
+}
+
+/* ------------------------------------------------ Student problem suggestion */
+
+/**
+ * Lifecycle of a student-suggested problem. A suggestion is never published
+ * directly: it waits on the nominated mentor, who approves it, asks for changes
+ * or rejects it. Only an approved suggestion is published as an open
+ * {@link Problem}.
+ */
+export type ProblemSuggestionStatus =
+  | 'draft'
+  | 'pending_mentor_review'
+  | 'changes_requested'
+  | 'approved'
+  | 'published'
+  | 'rejected'
+
+/** Request body for POST /api/v1/problem-suggestions. */
+export interface ProblemSuggestionInput {
+  title: string
+  description: string
+  /** Domain the problem belongs to; becomes the published problem's department. */
+  category: string
+  /** Why is this problem important? */
+  importance: string
+  expectedImpact: string
+  /** The mentor nominated to review it — {@link MentorOption.id}. */
+  mentorId: string
+  /** Optional supporting reading, one URL per entry. */
+  referenceLinks: string[]
+}
+
+/** Read model for a suggestion, as its author and its mentor both see it. */
+export interface ProblemSuggestion {
+  id: string
+  status: ProblemSuggestionStatus
+  input: ProblemSuggestionInput
+  /** Denormalised for display — the mentor nominated on the suggestion. */
+  mentorName: string
+  submittedBy: string
+  submittedAt: string
+  reviewedAt?: string
+  /** The mentor's note; required on changes-requested and rejected decisions. */
+  mentorFeedback?: string
+  /** Set once approval publishes the suggestion into Open Problems. */
+  publishedProblemId?: string
+}
+
+/** A mentor a student can nominate — GET /api/v1/mentors. */
+export interface MentorOption {
+  id: string
+  name: string
+  department: string
+}
+
+/** Mentor decision — POST /api/v1/problem-suggestions/{id}/decision. */
+export interface SuggestionDecisionInput {
+  suggestionId: string
+  decision: Extract<ProblemSuggestionStatus, 'approved' | 'changes_requested' | 'rejected'>
+  /** Required for changes_requested and rejected so the student knows what to do. */
+  feedback: string
+}
+
 export interface TeamMember {
   id: string
   name: string
@@ -137,10 +251,42 @@ export interface Team {
 export interface CreateTeamInput {
   problemId: string
   name: string
-  /** The team's pitch/idea. */
+  /** The team's pitch/idea — shown as the idea summary on the team card. */
   pitch: string
   /** Roles/skills the team is recruiting for. */
   lookingFor: string[]
+}
+
+/**
+ * Application payload — POST /api/v1/problems/{id}/applications. One contract
+ * covers both routes into a problem: omit `teamId` to apply solo, pass it to
+ * apply as that team.
+ */
+export interface ApplicationInput {
+  /** Apply as this team; omit to apply solo. */
+  teamId?: string
+  /** Short summary of the idea being proposed. */
+  ideaSummary: string
+  /** How the student or team intends to solve it. */
+  approach: string
+  /** Optional attachment or proof-of-concept link. */
+  attachmentUrl?: string
+}
+
+/**
+ * A pending request to join a team. Only the team lead sees these, and only the
+ * lead can accept or reject one.
+ */
+export interface JoinRequest {
+  id: string
+  teamId: string
+  teamName: string
+  studentId: string
+  studentName: string
+  avatarInitials: string
+  /** What the student wants to contribute. */
+  message: string
+  requestedAt: string
 }
 
 export interface Milestone {
@@ -163,6 +309,130 @@ export interface Project {
   problemId?: string
   /** The team executing the project. */
   teamId?: string
+  /**
+   * Where the project sits in the innovation lifecycle. Derived by the
+   * repository/backend from the submission journey so no list page recomputes it.
+   */
+  stage: SubmissionStage
+  /** Status of {@link stage}. */
+  stageStatus: StageStatus
+  /** ISO date the final submission was approved; set on completed projects only. */
+  completedAt?: string
+}
+
+/* ------------------------------------------------ Four-stage submission flow */
+
+/**
+ * The CRCE OS innovation lifecycle, in order: capture the idea, prove it, get
+ * selected by faculty, then build and submit the final project. This is the
+ * whole student workflow — there is no task board behind it.
+ */
+export type SubmissionStage = 'idea' | 'poc' | 'selection' | 'final'
+
+/** Status of a student-authored stage (Idea, Proof of Concept, Final Project). */
+export type SubmissionStatus =
+  | 'draft'
+  | 'submitted'
+  | 'under_review'
+  | 'changes_requested'
+  | 'approved'
+
+/** Where the team stands in faculty selection (Stage 3). */
+export type SelectionStatus = 'not_reviewed' | 'changes_requested' | 'selected' | 'not_selected'
+
+/** Status of whichever stage a project currently sits in. */
+export type StageStatus = SubmissionStatus | SelectionStatus
+
+/** Stage 1 payload — PUT /api/v1/projects/{id}/idea. */
+export interface IdeaSubmission {
+  title: string
+  problemStatement: string
+  proposedSolution: string
+  approach: string
+  techStack: string[]
+  expectedOutcome: string
+  /** Optional slide deck link. */
+  presentationUrl?: string
+  supportingLinks: string[]
+}
+
+/** Stage 2 payload — PUT /api/v1/projects/{id}/proof-of-concept. */
+export interface PocSubmission {
+  description: string
+  githubUrl: string
+  demoUrl?: string
+  prototypeImages: string[]
+  presentationUrl?: string
+  videoUrl?: string
+  documents: string[]
+}
+
+/** Stage 4 payload — PUT /api/v1/projects/{id}/final. */
+export interface FinalSubmission {
+  description: string
+  githubUrl: string
+  liveUrl?: string
+  demoUrl?: string
+  presentationUrl?: string
+  reportUrl?: string
+  videoUrl?: string
+  techStack: string[]
+  screenshots: string[]
+  documents: string[]
+}
+
+/** A student-authored stage plus the review state the backend owns. */
+export interface StageState<T> {
+  status: SubmissionStatus
+  /** Null until the student first saves a draft. */
+  data: T | null
+  savedAt?: string
+  submittedAt?: string
+  /** Reviewer note, shown to the student verbatim. */
+  facultyFeedback?: string
+  reviewedAt?: string
+}
+
+/** Faculty's Stage 3 decision as the student sees it. */
+export interface SelectionState {
+  status: SelectionStatus
+  feedback?: string
+  decidedBy?: string
+  decidedAt?: string
+}
+
+/**
+ * One project's whole four-stage journey — GET /api/v1/projects/{id}/journey.
+ * Composed by the repository (later the backend) from the problem, the team and
+ * the submissions, so the workspace renders it without deriving anything.
+ */
+export interface ProjectJourney {
+  projectId: string
+  title: string
+  /** The problem this journey answers — links each stage back to its brief. */
+  problemId?: string
+  problemTitle?: string
+  teamId?: string
+  teamName: string
+  mentorName: string
+  /** The roster, owned by the team — the Idea stage displays it, never re-enters it. */
+  members: TeamMember[]
+  /** The stage the student should act on now. */
+  currentStage: SubmissionStage
+  /** Stages the student may open; Final unlocks only once the team is selected. */
+  unlockedStages: SubmissionStage[]
+  idea: StageState<IdeaSubmission>
+  poc: StageState<PocSubmission>
+  selection: SelectionState
+  final: StageState<FinalSubmission>
+}
+
+/** Faculty Stage-3 decision — POST /api/v1/projects/{id}/selection. */
+export interface SelectionDecisionInput {
+  projectId: string
+  decision: Extract<SelectionStatus, 'selected' | 'changes_requested' | 'not_selected'>
+  /** Required for changes_requested and not_selected so the team knows why. */
+  feedback: string
 }
 
 export interface LeaderboardEntry {

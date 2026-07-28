@@ -1,5 +1,4 @@
 import type { PortfolioCustomization, PortfolioVerified } from '@/types/domain'
-import { MOCK_PROJECTS } from '@/mocks/projects'
 
 /**
  * The student's own portfolio curation — independently editable from the
@@ -21,7 +20,12 @@ export const MOCK_PORTFOLIO_CUSTOMIZATION: PortfolioCustomization = {
  * MOCK_STUDENT_PROFILE and is merged in by the portfolio repository, so no
  * personal field is duplicated here.
  */
-export const PORTFOLIO_VERIFIED: PortfolioVerified = {
+/**
+ * `projects` is deliberately absent: the portfolio's project list is a join over
+ * the project store, which the repository supplies with each project's current
+ * lifecycle stage — never a second copy of the same rows.
+ */
+export const PORTFOLIO_VERIFIED: Omit<PortfolioVerified, 'projects'> = {
   userId: 'u-stu-01',
   facultyValidationCount: 6,
   rankPercentile: 'Top 1%',
@@ -51,7 +55,6 @@ export const PORTFOLIO_VERIFIED: PortfolioVerified = {
   verifiedSolutionsCount: 12,
   projectsBuilt: 8,
   skills: ['React', 'Node.js', 'System Architecture', 'UI Design', 'IoT'],
-  projects: MOCK_PROJECTS,
   solutions: [
     {
       id: 'sol-1',

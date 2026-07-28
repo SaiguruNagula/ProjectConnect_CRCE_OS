@@ -14,7 +14,9 @@ import { z } from 'zod'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useTeamFormation } from '@/hooks/useTeamFormation'
 import { buildPath, QUERY_PARAMS, ROUTES } from '@/constants/routes'
-import type { Team, TeamMember } from '@/types/domain'
+import type { JoinRequest, Team, TeamMember } from '@/types/domain'
+import { ApplyDialog } from '@/features/teams/ApplyDialog'
+import { JoinTeamDialog } from '@/features/teams/JoinTeamDialog'
 import { PageHeader } from '@/components/common/PageHeader'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
 import { ActionBanner } from '@/components/feedback/ActionBanner'
@@ -23,7 +25,7 @@ import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { Avatar } from '@/components/ui/Avatar'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { daysLeft } from '@/utils/date'
+import { daysLeft, relativeTime } from '@/utils/date'
 
 const teamSchema = z.object({
   name: z.string().min(3, 'Team name must be at least 3 characters'),
@@ -40,6 +42,7 @@ export function TeamFormationPage() {
     rows,
     roles,
     invitations,
+    joinRequests,
     filters,
     setFilter,
     loading,
@@ -51,12 +54,16 @@ export function TeamFormationPage() {
     dismissMessage,
     createTeam,
     requestToJoin,
+    respondToJoinRequest,
     apply,
     withdraw,
     respondToInvitation,
   } = useTeamFormation(searchParams.get(QUERY_PARAMS.PROBLEM) ?? undefined)
 
   const [showCreate, setShowCreate] = useState(false)
+  // The team whose join dialog is open, and which application route is open.
+  const [joinTarget, setJoinTarget] = useState<Team | null>(null)
+  const [applyMode, setApplyMode] = useState<'solo' | 'team' | null>(null)
 
   const applied = problem?.applicationStatus && problem.applicationStatus !== 'none'
     ? problem.applicationStatus
@@ -209,7 +216,7 @@ export function TeamFormationPage() {
                     key={team.id}
                     team={team}
                     busy={busy}
-                    onJoin={() => requestToJoin(team.id)}
+                    onJoin={() => setJoinTarget(team)}
                   />
                 ))}
               </div>
@@ -295,7 +302,7 @@ export function TeamFormationPage() {
                     myTeamName ? `Submit ${myTeamName} for this project.` : 'Create or join a team first.'
                   }
                 >
-                  <Button size="sm" disabled={!myTeam || busy} onClick={() => apply(true)}>
+                  <Button size="sm" disabled={!myTeam || busy} onClick={() => setApplyMode('team')}>
                     Apply as Team
                   </Button>
                 </ActionRow>
@@ -305,7 +312,7 @@ export function TeamFormationPage() {
                   title="Apply solo"
                   description="Work independently and let faculty review your application."
                 >
-                  <Button size="sm" variant="outline" disabled={busy} onClick={() => apply(false)}>
+                  <Button size="sm" variant="outline" disabled={busy} onClick={() => setApplyMode('solo')}>
                     Apply Solo
                   </Button>
                 </ActionRow>
@@ -334,6 +341,27 @@ export function TeamFormationPage() {
               <StatusRow label="Members" value={`${problem.currentTeamCount} / ${problem.teamSize}`} />
               <StatusRow label="Applicants" value={String(problem.applicantsCount)} />
               <StatusRow label="Deadline" value={`${daysLeft(problem.endDate)} Days`} last />
+            </Card>
+          )}
+
+          {/* Requests to join my team — only a team lead ever sees rows here */}
+          {myTeam && (
+            <Card className="flex flex-col gap-sm">
+              <h2 className="text-base font-semibold text-on-surface">Requests to join</h2>
+              {joinRequests.length > 0 ? (
+                <ul className="flex flex-col gap-sm">
+                  {joinRequests.map((request) => (
+                    <JoinRequestRow
+                      key={request.id}
+                      request={request}
+                      busy={busy}
+                      onRespond={respondToJoinRequest}
+                    />
+                  ))}
+                </ul>
+              ) : (
+                <EmptyState icon="person_add" title="No pending requests" />
+              )}
             </Card>
           )}
 
@@ -373,7 +401,63 @@ export function TeamFormationPage() {
           </Card>
         </div>
       </div>
+
+      <JoinTeamDialog
+        team={joinTarget}
+        busy={busy}
+        onClose={() => setJoinTarget(null)}
+        onSubmit={(message) => requestToJoin(joinTarget!.id, message)}
+      />
+
+      <ApplyDialog
+        open={applyMode !== null}
+        mode={applyMode ?? 'solo'}
+        problemTitle={problem.title}
+        team={myTeam}
+        busy={busy}
+        onClose={() => setApplyMode(null)}
+        onSubmit={(details) => apply(applyMode === 'team', details)}
+      />
     </div>
+  )
+}
+
+function JoinRequestRow({
+  request,
+  busy,
+  onRespond,
+}: {
+  request: JoinRequest
+  busy: boolean
+  onRespond: (requestId: string, accept: boolean) => void
+}) {
+  return (
+    <li className="flex flex-col gap-xs rounded-lg border border-outline-variant p-sm">
+      <div className="flex items-center gap-xs">
+        <Avatar initials={request.avatarInitials} size="sm" />
+        <span className="flex-1 text-sm font-medium text-on-surface">{request.studentName}</span>
+        <span className="text-xs text-on-surface-variant">{relativeTime(request.requestedAt)}</span>
+      </div>
+      <p className="text-xs leading-relaxed text-on-surface-variant">{request.message}</p>
+      <div className="flex gap-xs">
+        <Button size="sm" disabled={busy} onClick={() => onRespond(request.id, true)}>
+          Accept
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={busy}
+          onClick={() => {
+            // Rejecting removes the request for good — confirm before it runs.
+            if (window.confirm(`Reject ${request.studentName}'s request to join?`)) {
+              onRespond(request.id, false)
+            }
+          }}
+        >
+          Reject
+        </Button>
+      </div>
+    </li>
   )
 }
 

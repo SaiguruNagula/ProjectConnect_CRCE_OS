@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
 import { ActionBanner } from '@/components/feedback/ActionBanner'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { STAGE_STATUS, stageMeta } from '@/features/submissions/status'
 
 const DIFFICULTY_META: Record<Difficulty, { blurb: string; tone: BadgeProps['tone'] }> = {
   Beginner: { blurb: 'Core fundamentals', tone: 'success' },
@@ -150,7 +151,7 @@ export function ProblemDetailsPage() {
                     key={project.id}
                     icon="rocket_launch"
                     title={project.title}
-                    meta={`${project.progress}% complete`}
+                    meta={`${stageMeta(project.stage).label} · ${STAGE_STATUS[project.stageStatus].short}`}
                     to={buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: project.id })}
                   />
                 ))}

@@ -11,6 +11,7 @@ import type {
   Activity,
   AdminDashboardData,
   AdminInstitution,
+  ApplicationInput,
   CreateProblemInput,
   CreditCategory,
   CreditPipelineItem,
@@ -28,17 +29,28 @@ import type {
   InstitutionsOverview,
   InstitutionStatus,
   CreateTeamInput,
+  FinalSubmission,
+  IdeaSubmission,
   Invitation,
+  JoinRequest,
   LeaderboardEntry,
-  MilestoneStatus,
+  MentorOption,
   NameValue,
   Notification,
+  PocSubmission,
+  ProblemCatalogPage,
   ProblemDraft,
+  ProblemQuery,
+  ProblemSuggestion,
+  ProblemSuggestionInput,
   Portfolio,
   PortfolioCustomization,
   Problem,
   Project,
+  ProjectJourney,
+  SelectionDecisionInput,
   StudentProfile,
+  SuggestionDecisionInput,
   Team,
   ReviewDecisionInput,
   ReviewStats,
@@ -52,6 +64,11 @@ import type {
 
 export interface ProblemRepository {
   list(): Promise<Problem[]>
+  /**
+   * One page of the catalog with its facets and counters — searching, filtering,
+   * sorting and paging all happen here (GET /api/v1/problems?page&limit&…).
+   */
+  page(query: ProblemQuery): Promise<ProblemCatalogPage>
   get(id: string): Promise<Problem | null>
   /** Publish a new problem (status → open); it becomes available in Open Problems. */
   create(input: CreateProblemInput): Promise<Problem>
@@ -61,6 +78,28 @@ export interface ProblemRepository {
   drafts(): Promise<ProblemDraft[]>
   /** Toggle the signed-in student's bookmark; returns the updated problem. */
   setBookmark(id: string, bookmarked: boolean): Promise<Problem>
+  /** Mentors a student can nominate on a suggestion — GET /api/v1/mentors. */
+  mentors(): Promise<MentorOption[]>
+  /**
+   * Suggestions visible to the signed-in user: their own as a student, the ones
+   * nominating them as a mentor (GET /api/v1/problem-suggestions).
+   */
+  suggestions(): Promise<ProblemSuggestion[]>
+  /**
+   * Save a suggestion as a draft (`submit: false`) or send it for mentor review
+   * (`submit: true`). Pass `id` to replace an existing draft or resubmit one that
+   * came back with changes requested. A suggestion is never published from here.
+   */
+  saveSuggestion(
+    input: ProblemSuggestionInput,
+    submit: boolean,
+    id?: string,
+  ): Promise<ProblemSuggestion>
+  /**
+   * The nominated mentor's decision. Approving publishes the suggestion as an
+   * open problem and links it back via `publishedProblemId`.
+   */
+  decideSuggestion(input: SuggestionDecisionInput): Promise<ProblemSuggestion>
 }
 
 export interface ProjectRepository {
@@ -72,15 +111,27 @@ export interface ProjectRepository {
   /** Form a team around a problem — POST /api/v1/teams. */
   createTeam(input: CreateTeamInput): Promise<Team>
   /** Ask to join an existing team; returns the updated team. */
-  requestToJoin(teamId: string): Promise<Team>
+  requestToJoin(teamId: string, message: string): Promise<Team>
+  /** Requests waiting on the signed-in student's own team — lead only. */
+  joinRequests(): Promise<JoinRequest[]>
+  /** Team lead accepts or rejects a join request; returns the remaining ones. */
+  respondToJoinRequest(requestId: string, accept: boolean): Promise<JoinRequest[]>
   /** Accept or decline an invitation; returns the remaining pending invitations. */
   respondToInvitation(invitationId: string, accept: boolean): Promise<Invitation[]>
-  /** Register interest in a problem, optionally as an existing team. */
-  applyToProblem(problemId: string, teamId?: string): Promise<Problem>
+  /** Apply to a problem, solo or as a team, with the idea being proposed. */
+  applyToProblem(problemId: string, input: ApplicationInput): Promise<Problem>
   /** Withdraw an application before the guide reviews it. */
   withdrawApplication(problemId: string): Promise<Problem>
-  /** Advance a milestone; returns the project with recomputed progress. */
-  updateMilestone(projectId: string, milestoneId: string, status: MilestoneStatus): Promise<Project>
+  /** The four-stage submission journey for one project. */
+  journey(projectId: string): Promise<ProjectJourney | null>
+  /** Save the Idea stage as a draft, or submit it for review. */
+  saveIdea(projectId: string, data: IdeaSubmission, submit: boolean): Promise<ProjectJourney>
+  /** Save the Proof of Concept stage as a draft, or submit it for review. */
+  savePoc(projectId: string, data: PocSubmission, submit: boolean): Promise<ProjectJourney>
+  /** Save the Final Project stage as a draft, or submit it for review. */
+  saveFinal(projectId: string, data: FinalSubmission, submit: boolean): Promise<ProjectJourney>
+  /** Faculty Stage-3 decision — only a selected team unlocks the Final stage. */
+  decideSelection(input: SelectionDecisionInput): Promise<ProjectJourney>
 }
 
 export interface LeaderboardRepository {

@@ -1,6 +1,13 @@
 import type { Invitation, Project, Team } from '@/types/domain'
 
-export const MOCK_PROJECTS: Project[] = [
+/**
+ * A project as it is stored. `stage`/`stageStatus` are not stored: the
+ * repository joins each project with its submission journey to derive them, the
+ * same way the API will.
+ */
+export type ProjectRecord = Omit<Project, 'stage' | 'stageStatus'>
+
+export const MOCK_PROJECTS: ProjectRecord[] = [
   {
     id: 'pr-01',
     title: 'Smart Attendance System',
@@ -61,6 +68,7 @@ export const MOCK_PROJECTS: Project[] = [
     progress: 100,
     mentorName: 'Dr. Neha Kulkarni',
     problemId: 'p-05',
+    completedAt: '2026-04-01',
     members: [
       { id: 'm6', name: 'Aarav Sharma', role: 'Team Lead', avatarInitials: 'AS' },
       { id: 'm7', name: 'Riya Verma', role: 'Designer', avatarInitials: 'RV' },

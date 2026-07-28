@@ -8,19 +8,31 @@
 import { repositories } from '@/repositories'
 import type { Role } from '@/types'
 import type {
+  ApplicationInput,
   CreateProblemInput,
   CreateTeamInput,
   FacultyProfile,
+  FinalSubmission,
+  IdeaSubmission,
   InstitutionInput,
   InstitutionStatus,
-  MilestoneStatus,
+  PocSubmission,
   PortfolioCustomization,
+  ProblemQuery,
+  ProblemSuggestionInput,
   ReviewDecisionInput,
+  SelectionDecisionInput,
   StudentProfile,
+  SuggestionDecisionInput,
 } from '@/types/domain'
 
 export const problemsService = {
   list: () => repositories.problems.list(),
+  /**
+   * One page of the Open Problems catalog. Search, filters, sort and paging are
+   * all resolved below this layer, so no page slices or sorts rows itself.
+   */
+  page: (query: ProblemQuery) => repositories.problems.page(query),
   get: (id: string) => repositories.problems.get(id),
   /** Publish a new problem so students can discover it in Open Problems. */
   create: (input: CreateProblemInput) => repositories.problems.create(input),
@@ -31,6 +43,19 @@ export const problemsService = {
   /** Bookmark or un-bookmark a problem for the signed-in student. */
   setBookmark: (id: string, bookmarked: boolean) =>
     repositories.problems.setBookmark(id, bookmarked),
+  /** Faculty a student can nominate to review a suggested problem. */
+  mentors: () => repositories.problems.mentors(),
+  /** Suggestions the signed-in user raised, or was nominated to review. */
+  suggestions: () => repositories.problems.suggestions(),
+  /**
+   * Save a student's problem suggestion as a draft, or send it to the nominated
+   * mentor. Submitting never publishes: only a mentor's approval does.
+   */
+  saveSuggestion: (input: ProblemSuggestionInput, submit: boolean, id?: string) =>
+    repositories.problems.saveSuggestion(input, submit, id),
+  /** Mentor decision — approving publishes the suggestion as an open problem. */
+  decideSuggestion: (input: SuggestionDecisionInput) =>
+    repositories.problems.decideSuggestion(input),
 }
 
 export const projectsService = {
@@ -41,20 +66,40 @@ export const projectsService = {
   teams: (problemId?: string) => repositories.projects.teams(problemId),
   /** Form a team around a problem. */
   createTeam: (input: CreateTeamInput) => repositories.projects.createTeam(input),
-  /** Ask an existing team for a spot. */
-  requestToJoin: (teamId: string) => repositories.projects.requestToJoin(teamId),
+  /** Ask an existing team for a spot, saying what you would contribute. */
+  requestToJoin: (teamId: string, message: string) =>
+    repositories.projects.requestToJoin(teamId, message),
+  /** Requests waiting on the student's own team — only the lead sees these. */
+  joinRequests: () => repositories.projects.joinRequests(),
+  /** Team lead accepts or rejects a join request; returns the remaining ones. */
+  respondToJoinRequest: (requestId: string, accept: boolean) =>
+    repositories.projects.respondToJoinRequest(requestId, accept),
   /** Accept or decline a pending invitation; returns the remaining invitations. */
   respondToInvitation: (invitationId: string, accept: boolean) =>
     repositories.projects.respondToInvitation(invitationId, accept),
-  /** Register interest in a problem, individually or as a team. */
-  applyToProblem: (problemId: string, teamId?: string) =>
-    repositories.projects.applyToProblem(problemId, teamId),
+  /** Apply to a problem, solo or as a team, with the idea being proposed. */
+  applyToProblem: (problemId: string, input: ApplicationInput) =>
+    repositories.projects.applyToProblem(problemId, input),
   /** Withdraw a pending application. */
   withdrawApplication: (problemId: string) =>
     repositories.projects.withdrawApplication(problemId),
-  /** Advance a milestone; the returned project carries the recomputed progress. */
-  updateMilestone: (projectId: string, milestoneId: string, status: MilestoneStatus) =>
-    repositories.projects.updateMilestone(projectId, milestoneId, status),
+  /**
+   * The four-stage submission journey — Idea, Proof of Concept, Faculty
+   * Selection, Final Project — for one project.
+   */
+  journey: (projectId: string) => repositories.projects.journey(projectId),
+  /** Save Stage 1 as a draft (`submit: false`) or send it for review. */
+  saveIdea: (projectId: string, data: IdeaSubmission, submit: boolean) =>
+    repositories.projects.saveIdea(projectId, data, submit),
+  /** Save Stage 2 as a draft (`submit: false`) or send it for review. */
+  savePoc: (projectId: string, data: PocSubmission, submit: boolean) =>
+    repositories.projects.savePoc(projectId, data, submit),
+  /** Save Stage 4 as a draft (`submit: false`) or send it for approval. */
+  saveFinal: (projectId: string, data: FinalSubmission, submit: boolean) =>
+    repositories.projects.saveFinal(projectId, data, submit),
+  /** Faculty Stage-3 decision — selecting a team unlocks its Final Project stage. */
+  decideSelection: (input: SelectionDecisionInput) =>
+    repositories.projects.decideSelection(input),
 }
 
 export const leaderboardService = {

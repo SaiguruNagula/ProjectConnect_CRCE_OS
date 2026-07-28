@@ -29,6 +29,7 @@ import type {
   FacultyProfile,
   InstitutionInput,
   Invitation,
+  JoinRequest,
   LeaderboardEntry,
   Notification,
   NotificationKind,
@@ -36,13 +37,25 @@ import type {
   PortfolioCustomization,
   Problem,
   ProblemDraft,
+  ProblemSuggestion,
   Project,
+  ProjectJourney,
+  StageState,
+  StageStatus,
   StudentProfile,
+  SubmissionStage,
   Team,
 } from '@/types/domain'
 import type { Role } from '@/types'
 import { MOCK_PROBLEMS } from '@/mocks/problems'
-import { MOCK_PROJECTS, PENDING_INVITATIONS, MOCK_TEAMS } from '@/mocks/projects'
+import { MOCK_PROJECTS, PENDING_INVITATIONS, MOCK_TEAMS, type ProjectRecord } from '@/mocks/projects'
+import {
+  EMPTY_JOURNEY,
+  MOCK_JOIN_REQUESTS,
+  MOCK_JOURNEYS,
+  MOCK_SUGGESTIONS,
+  type JourneyRecord,
+} from '@/mocks/submissions'
 import { MOCK_STUDENT_LEADERBOARD, MOCK_FACULTY_LEADERBOARD } from '@/mocks/leaderboard'
 import { MOCK_STUDENT_PROFILE } from '@/mocks/profile'
 import { MOCK_FACULTY_PROFILE, MOCK_FACULTY_REPUTATION } from '@/mocks/faculty'
@@ -122,9 +135,169 @@ function composeProblem(input: CreateProblemInput): Problem {
   }
 }
 
+/** In-session suggestion queue — student-raised problems awaiting a mentor. */
+let suggestionStore: ProblemSuggestion[] = structuredClone(MOCK_SUGGESTIONS)
+
+/** Does a problem match the free-text part of a catalog query? */
+function matchesSearch(problem: Problem, search: string): boolean {
+  const q = search.trim().toLowerCase()
+  if (!q) return true
+  return (
+    problem.title.toLowerCase().includes(q) ||
+    problem.summary.toLowerCase().includes(q) ||
+    problem.department.toLowerCase().includes(q) ||
+    problem.facultyName.toLowerCase().includes(q)
+  )
+}
+
+/**
+ * Publish an approved suggestion as an open problem. The nominated mentor
+ * becomes the problem's faculty owner; defaults mirror what the backend applies
+ * when a suggestion carries no scheduling detail.
+ */
+function problemFromSuggestion(suggestion: ProblemSuggestion): Problem {
+  const today = new Date()
+  const close = new Date(today.getTime() + 84 * 24 * 3600 * 1000)
+  const iso = (d: Date) => d.toISOString().slice(0, 10)
+  return {
+    id: `p-${Date.now()}`,
+    title: suggestion.input.title,
+    summary: suggestion.input.description,
+    department: suggestion.input.category,
+    difficulty: 'Intermediate',
+    skills: [],
+    facultyName: suggestion.mentorName,
+    facultyId: suggestion.input.mentorId,
+    teamSize: 4,
+    currentTeamCount: 0,
+    timelineWeeks: 12,
+    creditReward: 200,
+    applicantsCount: 0,
+    solutionsCount: 0,
+    endDate: iso(close),
+    attachments: suggestion.input.referenceLinks.map((url, i) => ({
+      name: `Reference ${i + 1}`,
+      type: 'Link',
+      url,
+    })),
+    timeline: [
+      { label: 'Registration Open', date: iso(today), done: false },
+      { label: 'Final Submission', date: iso(close), done: false },
+    ],
+    status: 'open',
+    bookmarked: false,
+  }
+}
+
 const problems: ProblemRepository = {
   list: () => resolve(problemStore), // GET /api/v1/problems
+  page: (query) => {
+    // GET /api/v1/problems?page&limit&search&department&saved_only&sort
+    const matched = problemStore.filter(
+      (p) =>
+        (!query.department || p.department === query.department) &&
+        (!query.savedOnly || p.bookmarked) &&
+        matchesSearch(p, query.search ?? ''),
+    )
+    const sorted =
+      query.sort === 'credits'
+        ? [...matched].sort((a, b) => b.creditReward - a.creditReward)
+        : matched
+    const limit = Math.max(1, query.limit)
+    const totalPages = Math.max(1, Math.ceil(sorted.length / limit))
+    const page = Math.min(Math.max(1, query.page), totalPages)
+    return resolve({
+      items: sorted.slice((page - 1) * limit, page * limit),
+      page,
+      limit,
+      total: sorted.length,
+      totalPages,
+      // Facets and counters describe the whole catalog, not the current page —
+      // otherwise a filter would erase the chips needed to undo it.
+      departments: Array.from(new Set(problemStore.map((p) => p.department))).sort(),
+      stats: {
+        problems: problemStore.length,
+        departments: new Set(problemStore.map((p) => p.department)).size,
+        teams: problemStore.filter((p) => p.currentTeamCount > 0).length,
+      },
+    })
+  },
   get: (id) => resolve(problemStore.find((p) => p.id === id) ?? null), // GET /api/v1/problems/{id}
+  // GET /api/v1/mentors — faculty a student may nominate on a suggestion.
+  mentors: () =>
+    resolve(
+      MOCK_DIRECTORY_USERS.filter((u) => u.role === 'faculty' && u.status === 'active').map((u) => ({
+        id: u.id,
+        name: u.name,
+        department: u.department,
+      })),
+    ),
+  suggestions: () => resolve(suggestionStore), // GET /api/v1/problem-suggestions
+  saveSuggestion: (input, submit, id) => {
+    // POST /api/v1/problem-suggestions (new) | PUT .../{id} (draft or resubmit)
+    const mentor = MOCK_DIRECTORY_USERS.find((u) => u.id === input.mentorId)
+    if (!mentor) return reject('Select a mentor to review your suggestion.')
+    const existing = id ? suggestionStore.find((s) => s.id === id) : undefined
+    if (id && !existing) return reject('Suggestion not found')
+    if (existing && existing.status !== 'draft' && existing.status !== 'changes_requested') {
+      return reject('This suggestion is already with your mentor.')
+    }
+    const saved: ProblemSuggestion = {
+      id: existing?.id ?? `ps-${Date.now()}`,
+      // A suggestion never publishes itself — submitting only queues mentor review.
+      status: submit ? 'pending_mentor_review' : 'draft',
+      input,
+      mentorName: mentor.name,
+      submittedBy: profileStore.name,
+      submittedAt: new Date().toISOString(),
+      mentorFeedback: submit ? undefined : existing?.mentorFeedback,
+    }
+    suggestionStore = existing
+      ? suggestionStore.map((s) => (s.id === existing.id ? saved : s))
+      : [saved, ...suggestionStore]
+    if (submit) {
+      raise(
+        'info',
+        'Suggestion sent for review',
+        `${saved.input.title} is awaiting ${mentor.name}'s decision.`,
+        ROUTES.SHARED.OPEN_PROBLEMS,
+      )
+    }
+    return resolve(saved)
+  },
+  decideSuggestion: (input) => {
+    // POST /api/v1/problem-suggestions/{id}/decision
+    const existing = suggestionStore.find((s) => s.id === input.suggestionId)
+    if (!existing) return reject('Suggestion not found')
+    if (existing.status !== 'pending_mentor_review') {
+      return reject('This suggestion is not awaiting review.')
+    }
+    if (input.decision !== 'approved' && !input.feedback.trim()) {
+      return reject('Explain what the student should change.')
+    }
+    const approved = input.decision === 'approved'
+    // Approval is what publishes the problem — this is the only path from a
+    // student suggestion into the public Open Problems catalog.
+    const published = approved ? problemFromSuggestion(existing) : null
+    if (published) problemStore = [published, ...problemStore]
+    const updated: ProblemSuggestion = {
+      ...existing,
+      status: approved ? 'published' : input.decision,
+      reviewedAt: new Date().toISOString(),
+      mentorFeedback: input.feedback.trim() || undefined,
+      publishedProblemId: published?.id,
+    }
+    suggestionStore = suggestionStore.map((s) => (s.id === updated.id ? updated : s))
+    raise(
+      approved ? 'success' : input.decision === 'rejected' ? 'warning' : 'info',
+      approved ? 'Suggestion published' : `Suggestion ${input.decision.replace('_', ' ')}`,
+      `${existing.input.title} — reviewed by ${existing.mentorName}.`,
+      published
+        ? buildPath(ROUTES.SHARED.PROBLEM_DETAILS, { id: published.id })
+        : ROUTES.SHARED.OPEN_PROBLEMS,
+    )
+    return resolve(updated)
+  },
   create: (input) => {
     // POST /api/v1/problems — publish; prepend so it surfaces in Open Problems this session.
     const problem = composeProblem(input)
@@ -157,22 +330,102 @@ const problems: ProblemRepository = {
 }
 
 /** In-session stores so team/invitation actions persist across page navigation. */
-let projectStore: Project[] = structuredClone(MOCK_PROJECTS)
+let projectStore: ProjectRecord[] = structuredClone(MOCK_PROJECTS)
 let teamStore: Team[] = structuredClone(MOCK_TEAMS)
 let invitationStore: Invitation[] = structuredClone(PENDING_INVITATIONS)
+let journeyStore: Record<string, JourneyRecord> = structuredClone(MOCK_JOURNEYS)
+let joinRequestStore: JoinRequest[] = structuredClone(MOCK_JOIN_REQUESTS)
 
-/** Progress is derived from milestones — the UI never computes it. */
-function withProgress(project: Project): Project {
-  const done = project.milestones.filter((m) => m.status === 'done').length
-  const progress = project.milestones.length
-    ? Math.round((done / project.milestones.length) * 100)
-    : project.progress
-  return { ...project, progress, status: progress === 100 ? 'completed' : project.status }
+function journeyOf(projectId: string): JourneyRecord {
+  return journeyStore[projectId] ?? structuredClone(EMPTY_JOURNEY)
+}
+
+/**
+ * Which stages the student may open. Each unlocks once the previous one has
+ * left draft; the Final stage unlocks only for a team faculty has selected.
+ */
+function unlockedStages(record: JourneyRecord): SubmissionStage[] {
+  const stages: SubmissionStage[] = ['idea']
+  if (record.idea.status !== 'draft') stages.push('poc')
+  if (record.poc.status !== 'draft') stages.push('selection')
+  if (record.selection.status === 'selected') stages.push('final')
+  return stages
+}
+
+/** The stage the student has to act on — work owed comes before work waiting. */
+function currentStage(record: JourneyRecord): SubmissionStage {
+  if (record.idea.status === 'draft' || record.idea.status === 'changes_requested') return 'idea'
+  if (record.poc.status === 'draft' || record.poc.status === 'changes_requested') return 'poc'
+  if (record.selection.status !== 'selected') return 'selection'
+  return 'final'
+}
+
+function stageStatus(record: JourneyRecord, stage: SubmissionStage): StageStatus {
+  if (stage === 'selection') return record.selection.status
+  return record[stage].status
+}
+
+/**
+ * The list read model: a stored project joined with the stage it currently sits
+ * in, so dashboards and lists never open the journey to work it out.
+ */
+function withStage(project: ProjectRecord): Project {
+  const record = journeyOf(project.id)
+  const stage = currentStage(record)
+  return { ...project, stage, stageStatus: stageStatus(record, stage) }
+}
+
+/** Compose the full journey read model from the project, team, problem and stages. */
+function composeJourney(project: ProjectRecord): ProjectJourney {
+  const record = journeyOf(project.id)
+  const team = project.teamId ? teamStore.find((t) => t.id === project.teamId) : undefined
+  const problem = project.problemId ? problemStore.find((p) => p.id === project.problemId) : undefined
+  return {
+    projectId: project.id,
+    title: project.title,
+    problemId: project.problemId,
+    problemTitle: problem?.title,
+    teamId: project.teamId,
+    teamName: team?.name ?? 'Individual entry',
+    mentorName: project.mentorName,
+    members: team?.members ?? project.members,
+    currentStage: currentStage(record),
+    unlockedStages: unlockedStages(record),
+    ...record,
+  }
+}
+
+/** Apply a stage save and return the recomposed journey, or reject if unknown. */
+function saveStage(
+  projectId: string,
+  apply: (record: JourneyRecord) => JourneyRecord | string,
+): Promise<ProjectJourney> {
+  const project = projectStore.find((p) => p.id === projectId)
+  if (!project) return reject('Project not found')
+  const next = apply(journeyOf(projectId))
+  if (typeof next === 'string') return reject(next)
+  journeyStore = { ...journeyStore, [projectId]: next }
+  return resolve(composeJourney(project))
+}
+
+/**
+ * A stage the student just saved. Submitting moves it straight to `submitted`;
+ * the review status that follows is set by faculty, never by the student.
+ */
+function stageAfterSave<T>(current: StageState<T>, data: T, submit: boolean): StageState<T> {
+  const now = new Date().toISOString()
+  return submit
+    ? { status: 'submitted', data, savedAt: now, submittedAt: now }
+    : { ...current, status: 'draft', data, savedAt: now }
 }
 
 const projects: ProjectRepository = {
-  list: () => resolve(projectStore), // GET /api/v1/projects
-  get: (id) => resolve(projectStore.find((p) => p.id === id) ?? null), // GET /api/v1/projects/{id}
+  list: () => resolve(projectStore.map(withStage)), // GET /api/v1/projects
+  // GET /api/v1/projects/{id}
+  get: (id) => {
+    const found = projectStore.find((p) => p.id === id)
+    return resolve(found ? withStage(found) : null)
+  },
   invitations: () => resolve(invitationStore), // GET /api/v1/teams/invitations
   // GET /api/v1/teams?problem_id=...
   teams: (problemId) =>
@@ -206,11 +459,13 @@ const projects: ProjectRepository = {
     )
     return resolve(team)
   },
-  requestToJoin: (teamId) => {
+  requestToJoin: (teamId, message) => {
     // POST /api/v1/teams/{id}/join-requests
     const existing = teamStore.find((t) => t.id === teamId)
     if (!existing) return reject('Team not found')
     if (existing.joinRequested) return reject('You have already requested to join this team.')
+    if (existing.openSpots === 0) return reject('This team has no open slots.')
+    if (!message.trim()) return reject('Tell the team lead what you would contribute.')
     const updated: Team = { ...existing, joinRequested: true }
     teamStore = teamStore.map((t) => (t.id === teamId ? updated : t))
     raise(
@@ -220,6 +475,41 @@ const projects: ProjectRepository = {
       withQuery(ROUTES.SHARED.TEAM_FORMATION, { [QUERY_PARAMS.PROBLEM]: updated.problemId }),
     )
     return resolve(updated)
+  },
+  // GET /api/v1/teams/mine/join-requests — visible to the team lead only.
+  joinRequests: () => resolve(joinRequestStore),
+  respondToJoinRequest: (requestId, accept) => {
+    // POST /api/v1/teams/join-requests/{id}/{accept|reject}
+    const existing = joinRequestStore.find((r) => r.id === requestId)
+    if (!existing) return reject('Join request not found')
+    joinRequestStore = joinRequestStore.filter((r) => r.id !== requestId)
+    if (accept) {
+      // Accepting seats the student and consumes one of the team's open slots.
+      teamStore = teamStore.map((t) =>
+        t.id === existing.teamId
+          ? {
+              ...t,
+              openSpots: Math.max(0, t.openSpots - 1),
+              members: [
+                ...t.members,
+                {
+                  id: existing.studentId,
+                  name: existing.studentName,
+                  role: 'Member',
+                  avatarInitials: existing.avatarInitials,
+                },
+              ],
+            }
+          : t,
+      )
+    }
+    raise(
+      accept ? 'success' : 'info',
+      accept ? 'Join request accepted' : 'Join request rejected',
+      `${existing.studentName} — ${existing.teamName}.`,
+      ROUTES.SHARED.TEAM_FORMATION,
+    )
+    return resolve(joinRequestStore)
   },
   respondToInvitation: (invitationId, accept) => {
     // POST /api/v1/teams/invitations/{id}/{accept|decline}
@@ -234,7 +524,7 @@ const projects: ProjectRepository = {
     )
     return resolve(invitationStore)
   },
-  applyToProblem: (problemId, teamId) => {
+  applyToProblem: (problemId, input) => {
     // POST /api/v1/problems/{id}/applications
     const existing = problemStore.find((p) => p.id === problemId)
     if (!existing) return reject('Problem not found')
@@ -242,10 +532,13 @@ const projects: ProjectRepository = {
     if (existing.applicationStatus && existing.applicationStatus !== 'none') {
       return reject('You have already applied to this problem.')
     }
+    if (!input.ideaSummary.trim() || !input.approach.trim()) {
+      return reject('Describe your idea and how you will approach it.')
+    }
     const updated: Problem = {
       ...existing,
       applicantsCount: existing.applicantsCount + 1,
-      applicationStatus: teamId ? 'team' : 'solo',
+      applicationStatus: input.teamId ? 'team' : 'solo',
     }
     problemStore = problemStore.map((p) => (p.id === problemId ? updated : p))
     raise(
@@ -274,27 +567,97 @@ const projects: ProjectRepository = {
     )
     return resolve(updated)
   },
-  updateMilestone: (projectId, milestoneId, status) => {
-    // PATCH /api/v1/projects/{id}/milestones/{milestoneId}
-    const existing = projectStore.find((p) => p.id === projectId)
-    if (!existing) return reject('Project not found')
-    const milestone = existing.milestones.find((m) => m.id === milestoneId)
-    if (!milestone) return reject('Milestone not found')
-    const updated = withProgress({
-      ...existing,
-      milestones: existing.milestones.map((m) => (m.id === milestoneId ? { ...m, status } : m)),
-    })
-    projectStore = projectStore.map((p) => (p.id === projectId ? updated : p))
-    if (status === 'done') {
-      raise(
-        'success',
-        'Milestone completed',
-        `${milestone.title} — ${updated.title} is now ${updated.progress}% complete.`,
-        buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: projectId }),
-      )
-    }
-    return resolve(updated)
+  // GET /api/v1/projects/{id}/journey
+  journey: (projectId) => {
+    const found = projectStore.find((p) => p.id === projectId)
+    return resolve(found ? composeJourney(found) : null)
   },
+  saveIdea: (projectId, data, submit) =>
+    // PUT /api/v1/projects/{id}/idea (+ ?submit=true)
+    saveStage(projectId, (record) => {
+      if (record.idea.status === 'submitted' || record.idea.status === 'under_review') {
+        return 'Your idea is already with faculty for review.'
+      }
+      if (submit) {
+        raise(
+          'info',
+          'Idea submitted',
+          `${data.title} is with faculty for review.`,
+          buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: projectId }),
+        )
+      }
+      return { ...record, idea: stageAfterSave(record.idea, data, submit) }
+    }),
+  savePoc: (projectId, data, submit) =>
+    // PUT /api/v1/projects/{id}/proof-of-concept (+ ?submit=true)
+    saveStage(projectId, (record) => {
+      if (record.idea.status === 'draft') return 'Submit your idea before the proof of concept.'
+      if (record.poc.status === 'submitted' || record.poc.status === 'under_review') {
+        return 'Your proof of concept is already with faculty for review.'
+      }
+      if (submit) {
+        raise(
+          'info',
+          'Proof of concept submitted',
+          'Faculty will review it and decide which proposals go to final development.',
+          buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: projectId }),
+        )
+      }
+      return { ...record, poc: stageAfterSave(record.poc, data, submit) }
+    }),
+  saveFinal: (projectId, data, submit) =>
+    // PUT /api/v1/projects/{id}/final (+ ?submit=true)
+    saveStage(projectId, (record) => {
+      // The gate that makes Stage 4 meaningful — only selected teams build.
+      if (record.selection.status !== 'selected') {
+        return 'Only teams selected for final development can submit a final project.'
+      }
+      if (record.final.status === 'approved') return 'Your final project has already been approved.'
+      if (record.final.status === 'submitted' || record.final.status === 'under_review') {
+        return 'Your final project is already with faculty for review.'
+      }
+      if (submit) {
+        raise(
+          'success',
+          'Final project submitted',
+          'Your final submission is with faculty for approval.',
+          buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: projectId }),
+        )
+      }
+      return { ...record, final: stageAfterSave(record.final, data, submit) }
+    }),
+  decideSelection: (input) =>
+    // POST /api/v1/projects/{id}/selection
+    saveStage(input.projectId, (record) => {
+      if (record.poc.status === 'draft') return 'This team has not submitted a proof of concept yet.'
+      if (input.decision !== 'selected' && !input.feedback.trim()) {
+        return 'Explain the decision so the team knows what to do next.'
+      }
+      const selected = input.decision === 'selected'
+      raise(
+        selected ? 'success' : 'warning',
+        selected ? 'Selected for final development' : `Proposal ${input.decision.replace('_', ' ')}`,
+        input.feedback.trim() || 'Faculty have reviewed your proof of concept.',
+        buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: input.projectId }),
+      )
+      return {
+        ...record,
+        // Selecting a team closes out its proof of concept; asking for changes
+        // sends the team back to Stage 2 with the feedback attached.
+        poc:
+          input.decision === 'changes_requested'
+            ? { ...record.poc, status: 'changes_requested', facultyFeedback: input.feedback.trim() }
+            : selected
+              ? { ...record.poc, status: 'approved' }
+              : record.poc,
+        selection: {
+          status: input.decision,
+          feedback: input.feedback.trim() || undefined,
+          decidedBy: profileStore.name,
+          decidedAt: new Date().toISOString(),
+        },
+      }
+    }),
 }
 
 const leaderboard: LeaderboardRepository = {
@@ -341,6 +704,8 @@ const facultyProfile: FacultyProfileRepository = {
 function composePortfolio(p: StudentProfile): Portfolio {
   return {
     ...PORTFOLIO_VERIFIED,
+    // Joined the same way the API will: the project rows plus their stage.
+    projects: projectStore.map(withStage),
     userId: p.userId,
     name: p.name,
     avatarInitials: p.avatarInitials,

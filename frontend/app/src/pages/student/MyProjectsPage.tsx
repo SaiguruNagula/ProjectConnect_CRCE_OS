@@ -1,11 +1,9 @@
 /**
- * My Projects — faithful migration of the Stitch "Architectural Refinement"
- * design: a bento grid of active-project cards (status health, progress, next
- * action, team) above a two-column rail of pending invitations and completed
- * projects. Data is read-only through the existing projects service; the only
- * derived display values (health, current phase, next action, completion date)
- * live in small helpers below, never inside the JSX. App chrome is owned by
- * StudentLayout and is intentionally not reproduced here.
+ * My Projects — a bento grid of active-project cards above a two-column rail of
+ * pending invitations and completed projects. Each card reports where the team
+ * is in the four-stage lifecycle and the single next action; the stage, its
+ * status and the completion date all come from the projects service, so this
+ * page calculates nothing. App chrome is owned by StudentLayout.
  */
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
@@ -13,67 +11,16 @@ import { useAsync } from '@/hooks/useAsync'
 import { useInvitations } from '@/hooks/useInvitations'
 import { projectsService } from '@/services/catalog.service'
 import type { Invitation, Project } from '@/types/domain'
-import type { BadgeProps } from '@/components/ui/Badge'
 import { buildPath, ROUTES } from '@/constants/routes'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Avatar } from '@/components/ui/Avatar'
-import { ProgressBar } from '@/components/ui/ProgressBar'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ActionBanner } from '@/components/feedback/ActionBanner'
-
-interface Health {
-  label: string
-  tone: BadgeProps['tone']
-  /** Fill colour for the progress bar. */
-  indicator: string
-  /** Material symbol shown beside the "Next" action. */
-  icon: string
-}
-
-/** Display-only health signal derived from progress + milestone timing. */
-function health(project: Project): Health {
-  if (project.progress < 20) {
-    return { label: 'Initialization', tone: 'neutral', indicator: 'bg-secondary', icon: 'edit_note' }
-  }
-  const now = Date.now()
-  const overdue = project.milestones.some(
-    (m) => m.status === 'in_progress' && new Date(`${m.dueDate}T00:00:00`).getTime() < now,
-  )
-  if (overdue) {
-    return { label: 'At Risk', tone: 'warning', indicator: 'bg-error', icon: 'hourglass_empty' }
-  }
-  return { label: 'On Track', tone: 'success', indicator: 'bg-secondary', icon: 'event_repeat' }
-}
-
-/** The milestone currently in flight — used as the progress-bar label. */
-function currentPhase(project: Project): string {
-  const m =
-    project.milestones.find((ms) => ms.status === 'in_progress') ??
-    project.milestones.find((ms) => ms.status === 'pending') ??
-    project.milestones.at(-1)
-  return m?.title ?? 'In progress'
-}
-
-/** The next actionable milestone — used as the "Next" prompt. */
-function nextAction(project: Project): string {
-  const m =
-    project.milestones.find((ms) => ms.status === 'pending') ??
-    project.milestones.find((ms) => ms.status === 'in_progress')
-  return m?.title ?? 'Awaiting update'
-}
-
-/** Month/year a completed project wrapped up, from its final milestone. */
-function completedOn(project: Project): string {
-  const last = project.milestones.at(-1)
-  if (!last) return ''
-  return new Date(`${last.dueDate}T00:00:00`).toLocaleDateString('en-US', {
-    month: 'short',
-    year: 'numeric',
-  })
-}
+import { STAGES, STAGE_STATUS, nextAction, stageMeta, stageNumber } from '@/features/submissions/status'
+import { fmtDate } from '@/utils/date'
 
 export function MyProjectsPage() {
   const projects = useAsync<Project[]>(() => projectsService.list())
@@ -119,7 +66,7 @@ export function MyProjectsPage() {
               to={buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: active[0].id })}
               className="text-label-md font-semibold text-secondary hover:underline"
             >
-              View Timeline
+              Open Workspace
             </Link>
           )}
         </div>
@@ -190,12 +137,14 @@ export function MyProjectsPage() {
 }
 
 function ActiveProjectCard({ project }: { project: Project }) {
-  const h = health(project)
+  const stage = stageMeta(project.stage)
+  const status = STAGE_STATUS[project.stageStatus]
+  const step = stageNumber(project.stage)
   return (
     <Card className="group flex flex-col transition-all hover:-translate-y-1 hover:shadow-md">
       <div className="mb-sm flex items-start justify-between">
-        <Badge tone={h.tone} className="text-[10px] font-bold uppercase tracking-wider">
-          {h.label}
+        <Badge tone={status.tone} className="text-[10px] font-bold uppercase tracking-wider">
+          {status.short}
         </Badge>
       </div>
 
@@ -204,13 +153,27 @@ function ActiveProjectCard({ project }: { project: Project }) {
 
       <div className="mb-md">
         <div className="mb-1 flex items-center justify-between text-label-md">
-          <span className="text-on-surface-variant">{currentPhase(project)}</span>
-          <span className="font-bold text-on-surface">{project.progress}%</span>
+          <span className="text-on-surface-variant">{stage.label}</span>
+          <span className="font-bold text-on-surface">
+            Stage {step} of {STAGES.length}
+          </span>
         </div>
-        <ProgressBar value={project.progress} className="h-1.5" indicatorClassName={h.indicator} />
+        {/* Four steps, filled up to the one in flight — no percentages. */}
+        <ol className="flex gap-1" aria-label={`Stage ${step} of ${STAGES.length}`}>
+          {STAGES.map((s, i) => (
+            <li
+              key={s.value}
+              className={`h-1.5 flex-1 rounded-full ${i < step ? 'bg-secondary' : 'bg-surface-container-high'}`}
+            />
+          ))}
+        </ol>
         <div className="mt-3 flex items-center gap-1">
-          <span className="material-symbols-outlined text-[16px] text-secondary" aria-hidden="true">{h.icon}</span>
-          <span className="text-label-md text-on-surface-variant">Next: {nextAction(project)}</span>
+          <span className="material-symbols-outlined text-[16px] text-secondary" aria-hidden="true">
+            {stage.icon}
+          </span>
+          <span className="text-label-md text-on-surface-variant">
+            Next: {nextAction(project.stage, project.stageStatus)}
+          </span>
         </div>
       </div>
 
@@ -289,7 +252,9 @@ function CompletedRow({ project }: { project: Project }) {
         </span>
         <div className="min-w-0">
           <h4 className="truncate text-headline-sm font-semibold text-on-surface">{project.title}</h4>
-          <span className="text-label-md text-on-surface-variant">Completed {completedOn(project)}</span>
+          <span className="text-label-md text-on-surface-variant">
+            {project.completedAt ? `Completed ${fmtDate(project.completedAt)}` : 'Completed'}
+          </span>
         </div>
       </div>
       <Link
