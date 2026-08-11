@@ -6,6 +6,7 @@
  * in ROUTES (constants/routes.ts). Every route renders a real page.
  */
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import { PublicLayout } from '@/layouts/PublicLayout'
 import { StudentLayout } from '@/layouts/StudentLayout'
 import { FacultyLayout } from '@/layouts/FacultyLayout'
@@ -23,7 +24,7 @@ import { TeamFormationPage } from '@/pages/shared/TeamFormationPage'
 import { SolutionsHubPage } from '@/pages/shared/SolutionsHubPage'
 import { LeaderboardPage } from '@/pages/shared/LeaderboardPage'
 import { PortfolioPage } from '@/pages/shared/PortfolioPage'
-import { ProjectWorkspacePage } from '@/pages/shared/ProjectWorkspacePage'
+import { ProjectSubmissionsPage } from '@/pages/shared/ProjectSubmissionsPage'
 import { ReviewEnginePage } from '@/pages/shared/ReviewEnginePage'
 import { ProfilePage } from '@/pages/shared/ProfilePage'
 import { StudentDashboard } from '@/pages/student/StudentDashboard'
@@ -49,11 +50,14 @@ export function AppRouter() {
         <Route path="open-problems" element={<OpenProblemsPage />} />
         <Route path="problem/:id" element={<ProblemDetailsPage />} />
         <Route path="team" element={<TeamFormationPage />} />
-        <Route path="project" element={<ProjectWorkspacePage />} />
         <Route path="review" element={<ReviewEnginePage />} />
         <Route path="solutions" element={<SolutionsHubPage />} />
         <Route path="leaderboard" element={<LeaderboardPage />} />
         <Route path="portfolio/:id" element={<PortfolioPage />} />
+        {/* Credit Engine is documented as /credits (MIGRATION_MAP) but the ledger
+            is per-student, so it lives in the student workspace. Keep the
+            documented path working rather than duplicating the page. */}
+        <Route path="credits" element={<Navigate to={ROUTES.STUDENT.CREDITS} replace />} />
       </Route>
 
       {/* Student workspace */}
@@ -62,7 +66,7 @@ export function AppRouter() {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<StudentDashboard />} />
           <Route path="projects" element={<MyProjectsPage />} />
-          <Route path="projects/:id" element={<ProjectWorkspacePage />} />
+          <Route path="projects/:id" element={<ProjectSubmissionsPage />} />
           <Route path="credits" element={<CreditsPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>

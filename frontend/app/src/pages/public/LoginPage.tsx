@@ -162,14 +162,11 @@ export function LoginPage() {
                 </div>
 
                 <div className="space-y-xs">
-                  <div className="flex items-center justify-between">
-                    <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="password">
-                      Password
-                    </label>
-                    <button type="button" className="font-label-md text-label-md text-secondary hover:underline">
-                      Forgot password?
-                    </button>
-                  </div>
+                  {/* ponytail: no "Forgot password?" link — password reset needs
+                      the auth backend. Add it with the real auth phase. */}
+                  <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="password">
+                    Password
+                  </label>
                   <input
                     id="password"
                     type="password"

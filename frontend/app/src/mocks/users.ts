@@ -27,14 +27,3 @@ export const DEMO_USERS: Record<Role, User> = {
     role: 'principal',
   },
 }
-
-export const DEMO_ROLES: Role[] = ['student', 'faculty', 'admin', 'principal']
-
-export function initials(name: string): string {
-  return name
-    .replace(/^Dr\.?\s+/i, '')
-    .split(' ')
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? '')
-    .join('')
-}

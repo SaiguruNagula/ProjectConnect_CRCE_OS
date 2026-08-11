@@ -7,6 +7,7 @@
  * level and milestone progress are computed by the engine and served via
  * creditsService — this page only displays them (no business logic in the UI).
  */
+import { Link } from 'react-router-dom'
 import { useAsync } from '@/hooks/useAsync'
 import { creditsService } from '@/services/catalog.service'
 import type {
@@ -15,10 +16,11 @@ import type {
   CreditSummary,
   CreditTransaction,
 } from '@/types/domain'
+import { ROUTES } from '@/constants/routes'
 import { Card } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 /** Whole days ago for `date`, rendered as a friendly label. */
 function daysAgo(date: string): string {
@@ -36,11 +38,21 @@ export function CreditsPage() {
   const pipeline = useAsync<CreditPipelineItem[]>(() => creditsService.pipeline())
   const history = useAsync<CreditTransaction[]>(() => creditsService.history())
 
-  if (summary.loading || !summary.data) return <PageLoader />
+  if (summary.loading) return <PageLoader />
+  if (summary.error || !summary.data) {
+    return (
+      <EmptyState
+        icon="stars"
+        title="Credits unavailable"
+        description={summary.error ?? 'Your credit balance could not be loaded.'}
+      />
+    )
+  }
   const s = summary.data
 
   return (
     <div className="mx-auto flex w-full max-w-container-max flex-col gap-lg px-md py-lg md:px-lg">
+      <h1 className="sr-only">Credit Engine</h1>
       {/* Hero */}
       <Card className="flex flex-col items-start justify-between gap-md bg-gradient-to-br from-surface-container-lowest to-surface-container-low p-lg md:flex-row md:items-center">
         <div className="w-full flex-1">
@@ -106,14 +118,28 @@ export function CreditsPage() {
         <Card className="lg:col-span-7">
           <div className="mb-md flex items-center justify-between">
             <h3 className="text-headline-sm">Recent Activity</h3>
-            <button type="button" className="text-label-md text-secondary hover:underline">View All</button>
+            <Link to={ROUTES.STUDENT.PROJECTS} className="text-label-md text-secondary hover:underline">
+              My Projects
+            </Link>
           </div>
-          <div className="relative flex flex-col">
-            <div className="absolute bottom-4 left-6 top-4 w-px bg-outline-variant" aria-hidden="true" />
-            {history.data?.map((t, i) => (
-              <ActivityItem key={t.id} transaction={t} first={i === 0} />
-            ))}
-          </div>
+          {history.loading ? (
+            <PageLoader />
+          ) : history.error ? (
+            <EmptyState icon="error" title="Couldn't load your ledger" description={history.error} />
+          ) : history.data && history.data.length > 0 ? (
+            <div className="relative flex flex-col">
+              <div className="absolute bottom-4 left-6 top-4 w-px bg-outline-variant" aria-hidden="true" />
+              {history.data.map((t, i) => (
+                <ActivityItem key={t.id} transaction={t} first={i === 0} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              icon="savings"
+              title="No credits yet"
+              description="Credits are awarded by faculty once your final project is approved."
+            />
+          )}
         </Card>
 
         <div className="flex flex-col gap-lg lg:col-span-5">
@@ -138,32 +164,22 @@ export function CreditsPage() {
                 </div>
               ))}
             </div>
-            <Button className="mt-md w-full bg-surface-container-lowest text-primary hover:bg-secondary-fixed">
-              Claim New Credits
-            </Button>
-          </Card>
-
-          <div className="flex flex-col items-center justify-center gap-sm rounded-xl border-2 border-dashed border-outline-variant p-lg text-center">
-            <span className="material-symbols-outlined text-4xl text-outline" aria-hidden="true">auto_awesome</span>
-            <p className="px-md text-label-md text-on-surface-variant">
-              Auto-sync with CRCE Faculty Portal is active. New publications detected.
+            {/* Credits cannot be claimed — faculty award them on final approval. */}
+            <p className="mt-md flex items-center gap-xs text-label-md text-white/80">
+              <span className="material-symbols-outlined text-[18px]" aria-hidden="true">info</span>
+              Credits are awarded automatically once faculty approve your final submission.
             </p>
-          </div>
+          </Card>
         </div>
       </div>
 
-      {/* Footer meta */}
+      {/* Footer meta — ponytail: System Status/Terms have no page yet; linking to
+          the real destinations beats dead href="#" anchors. */}
       <div className="flex flex-col items-center justify-between gap-sm border-t border-outline-variant/30 pt-md font-mono text-mono text-on-surface-variant opacity-80 md:flex-row">
+        <span>CRCE OS Credit Engine</span>
         <span className="flex items-center gap-md">
-          CRCE OS Credit Engine
-          <span className="flex items-center gap-1 text-green-600">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" aria-hidden="true" />
-            Sync Status: Online
-          </span>
-        </span>
-        <span className="flex items-center gap-md">
-          <a href="#" className="hover:text-primary">System Status</a>
-          <a href="#" className="hover:text-primary">Terms</a>
+          <Link to={ROUTES.SHARED.LEADERBOARD} className="hover:text-primary">Leaderboard</Link>
+          <Link to={ROUTES.PUBLIC.ABOUT} className="hover:text-primary">About CRCE OS</Link>
         </span>
       </div>
     </div>

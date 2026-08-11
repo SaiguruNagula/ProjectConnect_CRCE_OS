@@ -10,6 +10,7 @@ import { SaasLaunched } from '@/features/landing/SaasLaunched'
 export function AboutPage() {
   return (
     <>
+      <h1 className="sr-only">About CRCE OS</h1>
       <AboutPillars />
       <CampusImpactStats />
       <SaasLaunched />

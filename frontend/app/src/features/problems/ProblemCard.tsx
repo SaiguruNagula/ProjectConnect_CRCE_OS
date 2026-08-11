@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import type { Problem, Difficulty, ProblemStatus } from '@/types/domain'
 import { buildPath, ROUTES } from '@/constants/routes'
+import { daysLeft } from '@/utils/date'
 
 const DIFFICULTY_CHIP: Record<Difficulty, string> = {
   Beginner: 'bg-green-50 text-green-800',
@@ -17,10 +18,6 @@ const STATUS_CHIP: Record<ProblemStatus, { label: string; className: string }> =
 }
 
 /** Whole days until `endDate` (negative once past). */
-function daysLeft(endDate: string): number {
-  return Math.ceil((new Date(endDate).getTime() - Date.now()) / 86_400_000)
-}
-
 function InfoRow({ icon, children }: { icon: string; children: ReactNode }) {
   return (
     <div className="flex items-center gap-2">
@@ -68,7 +65,17 @@ export function ProblemCard({ problem }: { problem: Problem }) {
         <span className="rounded-md bg-surface-container-high px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-wider text-on-surface-variant">
           Dept: {problem.department}
         </span>
-        <div className="flex flex-shrink-0 gap-2">
+        <div className="flex flex-shrink-0 items-center gap-2">
+          {problem.bookmarked && (
+            <span
+              className="material-symbols-outlined text-[18px] text-secondary"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+              title="Saved"
+              aria-label="Saved"
+            >
+              bookmark
+            </span>
+          )}
           <span className={`rounded-md px-2 py-1 text-label-md font-medium ${DIFFICULTY_CHIP[problem.difficulty]}`}>
             {problem.difficulty}
           </span>

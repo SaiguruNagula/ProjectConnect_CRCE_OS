@@ -1,38 +1,74 @@
-import type { Portfolio } from '@/types/domain'
-import { MOCK_PROJECTS } from '@/mocks/projects'
+import type { PortfolioCustomization, PortfolioVerified } from '@/types/domain'
 
-export const MOCK_PORTFOLIO: Portfolio = {
+/**
+ * The student's own portfolio curation — independently editable from the
+ * Profile. Empty headline/introduction and featuredSkills mean "fall back to
+ * the composed profile/verified data"; the student overrides them at will.
+ */
+export const MOCK_PORTFOLIO_CUSTOMIZATION: PortfolioCustomization = {
+  published: true,
+  headline: '',
+  introduction: '',
+  featuredSkills: [],
+  sections: { solutions: true, research: true, hackathons: true, timeline: true, credentials: true },
+}
+
+/**
+ * Verified/generated portfolio data only — everything sourced from trusted
+ * modules (Credit Engine, Leaderboard, Project Workspace, Review Engine,
+ * Research). Editable identity (name, bio, skills, socials, …) lives in
+ * MOCK_STUDENT_PROFILE and is merged in by the portfolio repository, so no
+ * personal field is duplicated here.
+ */
+/**
+ * `projects` is deliberately absent: the portfolio's project list is a join over
+ * the project store, which the repository supplies with each project's current
+ * lifecycle stage — never a second copy of the same rows.
+ */
+export const PORTFOLIO_VERIFIED: Omit<PortfolioVerified, 'projects'> = {
   userId: 'u-stu-01',
-  name: 'Aarav Sharma',
-  headline: 'Final-year Computer Engineering · Full-stack & Applied ML',
-  tagline: 'Innovation Champion | Computer Engineering',
-  bio: 'Passionate about building scalable campus solutions and open-source contributions. Currently leading the Smart Attendance project.',
-  department: 'Computer Engineering',
-  avatarInitials: 'AS',
-  github: 'aarav-sharma',
-  linkedin: 'aarav-sharma',
   facultyValidationCount: 6,
+  rankPercentile: 'Top 1%',
+  verifiedAchievements: [
+    {
+      icon: 'military_tech',
+      title: "Dean's List — 2025",
+      description: 'Maintained a 9.4 CGPA across advanced core computer engineering subjects.',
+      tag: 'Verified by Registry',
+    },
+    {
+      icon: 'rocket_launch',
+      title: 'Winner, Smart India Hackathon 2024',
+      description: 'Built a disaster-management protocol using mesh networking at the national finals.',
+      tag: 'Project Excellence',
+    },
+    {
+      icon: 'groups',
+      title: 'Student Mentor Program',
+      description: 'Mentored 4 junior students in Data Structures & Algorithms over 12 weeks.',
+      tag: 'Community Service',
+    },
+  ],
   hallOfFame: ['Innovation Champion', 'Top Researcher', 'Hackathon Hero'],
   totalCredits: 2450,
   globalRank: 1,
   verifiedSolutionsCount: 12,
   projectsBuilt: 8,
   skills: ['React', 'Node.js', 'System Architecture', 'UI Design', 'IoT'],
-  projects: MOCK_PROJECTS,
   solutions: [
     {
       id: 'sol-1',
       name: 'Smart Canteen Payment',
       description: 'Automated NFC-based wallet system for campus dining.',
-      appUrl: '#',
-      githubUrl: '#',
+      appUrl: 'https://apps.crce.edu.in/smart-canteen',
+      githubUrl: 'https://github.com/crce-os/smart-canteen',
     },
     {
       id: 'sol-2',
       name: 'CRCE Library Bot',
       description: 'AI-driven search assistant for library resources.',
-      appUrl: '#',
-      githubUrl: '#',
+      appUrl: 'https://apps.crce.edu.in/library-bot',
+      githubUrl: 'https://github.com/crce-os/library-bot',
     },
   ],
   research: [
@@ -42,7 +78,7 @@ export const MOCK_PORTFOLIO: Portfolio = {
       venue: 'IEEE Explorer',
       year: 2024,
       description: 'Published in IEEE Explorer 2024. Focused on dynamic lane switching algorithms.',
-      url: '#',
+      url: 'https://ieeexplore.ieee.org/document/10456789',
     },
   ],
   hackathons: [

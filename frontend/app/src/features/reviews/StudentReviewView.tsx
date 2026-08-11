@@ -1,42 +1,47 @@
 /**
- * Student Review Engine — read-only. Ported from the Stitch "Review Engine"
- * design: live status hero, progress bento, active phase, faculty feedback,
- * review-history timeline and the locked next step. Students can view status,
- * feedback, history and attachments but cannot approve or reject.
+ * Student Review Engine — read-only. Keeps the Stitch layout (status hero,
+ * progress bento, active stage, decision, feedback, timeline, locked next step)
+ * but reads the same journey the faculty reviewed, so the student sees the
+ * reviewer's own words and the same seven timeline steps. Students can view
+ * status, feedback and files; they can never approve or reject.
  */
-import type { ReviewStatus, ReviewSubmission } from '@/types/domain'
-import { Avatar } from '@/components/ui/Avatar'
-import { ReviewStatusBadge } from '@/features/reviews/ReviewStatusBadge'
-import { ArtifactRow } from '@/features/reviews/ArtifactRow'
+import { Link } from 'react-router-dom'
+import type { ProjectJourney, SubmissionStage } from '@/types/domain'
+import { buildPath, ROUTES } from '@/constants/routes'
+import { STAGES, nextAction, stageMeta, statusOf } from '@/features/submissions/status'
+import { FeedbackNote } from '@/features/submissions/fields'
+import { ReviewStatusBadge } from './ReviewStatusBadge'
+import { LIFECYCLE_STATUS } from './stages'
+import { ReviewTimeline } from './ReviewTimeline'
+import { fmtDate } from '@/utils/date'
 
-const HERO_LABEL: Record<ReviewStatus, string> = {
-  pending: 'Pending Review',
-  under_review: 'In Review',
-  approved: 'Approved',
-  rejected: 'Rejected',
-  changes_requested: 'Changes Requested',
-}
-
-function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-}
-
-function fmtTime(iso: string): string {
-  return new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+/** The most recent stage a faculty has actually written feedback on. */
+function latestFeedback(journey: ProjectJourney) {
+  for (const stage of ['final', 'poc', 'idea'] as const) {
+    const state = journey[stage]
+    if (state.review) return { stage, ...state }
+  }
+  return null
 }
 
 function SectionLabel({ children }: { children: string }) {
   return (
-    <h3 className="mb-xs ml-1 text-label-md font-bold uppercase tracking-tight text-on-surface-variant">{children}</h3>
+    <h3 className="mb-xs ml-1 text-label-md font-bold uppercase tracking-tight text-on-surface-variant">
+      {children}
+    </h3>
   )
 }
 
-export function StudentReviewView({ submission }: { submission: ReviewSubmission }) {
-  const isLive = submission.status === 'under_review'
-  const decisionPending = submission.status === 'under_review' || submission.status === 'pending'
-  const approvedCount = submission.history.filter((h) => h.status === 'approved').length
-  const pendingCount = decisionPending ? 1 : 0
-  const feedback = submission.comments.at(-1)
+export function StudentReviewView({ journey }: { journey: ProjectJourney }) {
+  const status = LIFECYCLE_STATUS[journey.status]
+  const isLive = journey.status.endsWith('_submitted')
+  const current = stageMeta(journey.currentStage)
+  const currentStatus = statusOf(journey, journey.currentStage)
+  const feedback = latestFeedback(journey)
+  const approved = journey.timeline.filter((e) => e.done).length
+  const next: SubmissionStage | undefined = STAGES.find(
+    (s) => !journey.unlockedStages.includes(s.value),
+  )?.value
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-sm px-sm py-md">
@@ -45,7 +50,7 @@ export function StudentReviewView({ submission }: { submission: ReviewSubmission
         <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-secondary/10 blur-3xl" aria-hidden="true" />
         <p className="mb-xs text-label-md uppercase tracking-widest text-on-surface-variant/70">Review Status</p>
         <div className="flex items-baseline gap-xs">
-          <h2 className="text-headline-lg-mobile text-primary">{HERO_LABEL[submission.status]}</h2>
+          <h2 className="text-headline-lg-mobile text-primary">{status.label}</h2>
           {isLive && (
             <span className="flex items-center gap-1 rounded-full border border-secondary/20 bg-secondary-container/20 px-2 py-0.5">
               <span className="h-2 w-2 animate-pulse rounded-full bg-secondary" aria-hidden="true" />
@@ -54,130 +59,125 @@ export function StudentReviewView({ submission }: { submission: ReviewSubmission
           )}
         </div>
         <p className="mt-xs text-body-md text-on-surface-variant">
-          {submission.milestoneCode.replace(/_/g, ' ')}: {submission.milestone}
+          {journey.problemTitle ?? journey.title}
         </p>
+        <Link
+          to={buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: journey.projectId })}
+          className="mt-xs flex w-fit items-center gap-xs text-label-md font-medium text-secondary hover:underline"
+        >
+          Open {journey.title} submissions
+          <span className="material-symbols-outlined text-[16px]" aria-hidden="true">arrow_forward</span>
+        </Link>
       </div>
 
       {/* Progress bento */}
       <div className="grid grid-cols-3 gap-xs">
-        <BentoTile icon="verified" iconClass="text-on-tertiary-fixed-variant" filled value={approvedCount} label="Approved" />
-        <BentoTile icon="pending" iconClass="text-secondary-container" value={pendingCount} label="Pending" />
+        <BentoTile icon="verified" iconClass="text-on-tertiary-fixed-variant" filled value={`${approved}/${journey.timeline.length}`} label="Steps Done" />
+        <BentoTile icon="pending" iconClass="text-secondary-container" value={isLive ? 1 : 0} label="In Review" />
         <BentoTile
-          icon="lock"
-          iconClass="text-on-surface-variant/40"
-          value={submission.creditsAwarded ?? '--'}
+          icon={journey.credits ? 'military_tech' : 'lock'}
+          iconClass={journey.credits ? 'text-secondary' : 'text-on-surface-variant/40'}
+          value={journey.credits?.total ?? '--'}
           label="Credits"
-          muted
+          muted={!journey.credits}
         />
       </div>
 
-      {/* Active phase */}
+      {/* Active stage */}
       <section>
-        <SectionLabel>Active Phase</SectionLabel>
+        <SectionLabel>Active Stage</SectionLabel>
         <div className="space-y-md rounded-xl border border-l-4 border-outline-variant border-l-primary bg-surface-container-lowest p-lg">
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between gap-sm">
             <div>
-              <h4 className="text-headline-sm">
-                <span className="mr-1 font-mono text-label-md text-on-surface-variant/60">#{submission.milestoneCode}</span>
-                {submission.milestone}
-              </h4>
-              <p className="text-body-md text-on-surface-variant">{submission.milestoneSubtitle}</p>
+              <h4 className="text-headline-sm">{current.label}</h4>
+              <p className="text-body-md text-on-surface-variant">
+                {nextAction(journey.currentStage, currentStatus)}
+              </p>
             </div>
-            <span className="material-symbols-outlined text-primary" aria-hidden="true">architecture</span>
+            <span className="material-symbols-outlined text-primary" aria-hidden="true">{current.icon}</span>
           </div>
           <div className="grid grid-cols-2 gap-sm pt-xs">
             <div className="space-y-1">
-              <p className="text-label-md text-on-surface-variant/60">Due Date</p>
-              <p className="font-mono text-mono font-medium">{fmtDate(submission.dueDate)}</p>
+              <p className="text-label-md text-on-surface-variant/60">Team</p>
+              <p className="text-body-md font-medium">{journey.teamName}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-label-md text-on-surface-variant/60">Faculty</p>
-              <p className="text-body-md font-medium">
-                {submission.facultyName}{' '}
-                <span className="font-mono text-[10px] text-on-surface-variant/60">(ID: {submission.facultyId})</span>
-              </p>
+              <p className="text-label-md text-on-surface-variant/60">Mentor</p>
+              <p className="text-body-md font-medium">{journey.mentorName}</p>
             </div>
           </div>
-          {submission.attachments.length > 0 && (
-            <div className="space-y-xs pt-xs">
-              {submission.attachments.map((a) => (
-                <ArtifactRow key={a.id} attachment={a} />
-              ))}
-            </div>
-          )}
         </div>
       </section>
 
       {/* Review decision */}
       <section>
         <SectionLabel>Review Decision</SectionLabel>
-        {decisionPending ? (
+        {isLive ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-outline-variant bg-surface-container-low py-xl text-center">
-            <span className="material-symbols-outlined mb-sm text-[32px] text-on-surface-variant/40" aria-hidden="true">hourglass_empty</span>
+            <span className="material-symbols-outlined mb-sm text-[32px] text-on-surface-variant/40" aria-hidden="true">
+              hourglass_empty
+            </span>
             <p className="text-body-md font-medium text-on-surface-variant">Decision Pending</p>
             <p className="max-w-sm text-label-md text-on-surface-variant/60">
-              Faculty is currently reviewing {submission.milestone}. Expected response within 24–48 hours.
+              {journey.mentorName} is reviewing your {current.label.toLowerCase()}.
             </p>
           </div>
         ) : (
-          <div className="flex items-center justify-between rounded-xl border border-outline-variant bg-surface-container-lowest p-lg">
+          <div className="flex items-center justify-between gap-sm rounded-xl border border-outline-variant bg-surface-container-lowest p-lg">
             <div className="flex items-center gap-sm">
               <span className="material-symbols-outlined text-secondary" aria-hidden="true">task_alt</span>
-              <p className="text-body-md font-medium">Milestone {submission.status === 'approved' ? 'approved' : 'returned for changes'}.</p>
+              <p className="text-body-md font-medium">
+                {nextAction(journey.currentStage, currentStatus)}
+              </p>
             </div>
-            <ReviewStatusBadge status={submission.status} />
+            <ReviewStatusBadge status={journey.status} short />
           </div>
         )}
       </section>
 
       {/* Faculty feedback */}
-      {feedback && (
+      {feedback?.review && (
         <section>
           <SectionLabel>Faculty Feedback</SectionLabel>
-          <div className="rounded-xl border border-outline-variant/10 bg-primary-container p-lg text-on-primary-container shadow-sm">
-            <div className="flex items-start gap-sm">
-              <Avatar initials={feedback.authorInitials} size="sm" />
-              <div className="space-y-xs">
-                <p className="text-body-md italic leading-relaxed opacity-90">“{feedback.text}”</p>
-                <div className="flex items-center gap-xs text-on-primary-container/60">
-                  <span className="font-mono text-[11px]">{fmtTime(feedback.timestamp)}</span>
-                  <span className="h-1 w-1 rounded-full bg-current" aria-hidden="true" />
-                  <span className="text-label-md">{feedback.phase}</span>
-                </div>
-              </div>
+          <FeedbackNote from={journey.mentorName} review={feedback.review} at={feedback.reviewedAt} />
+        </section>
+      )}
+
+      {/* Submission timeline */}
+      <section>
+        <SectionLabel>Submission Timeline</SectionLabel>
+        <div className="rounded-xl border border-outline-variant/50 bg-surface-container-lowest p-lg">
+          <ReviewTimeline events={journey.timeline} />
+        </div>
+      </section>
+
+      {/* Credits + publication, once the project is finished */}
+      {journey.credits && (
+        <section>
+          <SectionLabel>Credits Awarded</SectionLabel>
+          <div className="flex items-center justify-between gap-sm rounded-xl border border-outline-variant bg-surface-container-lowest p-lg">
+            <div>
+              <p className="font-mono text-headline-sm text-primary">{journey.credits.total}</p>
+              <p className="text-label-md text-on-surface-variant">
+                {journey.credits.awardedBy}
+                {journey.credits.awardedAt ? ` · ${fmtDate(journey.credits.awardedAt)}` : ''}
+              </p>
             </div>
+            {journey.published && (
+              <Link
+                to={ROUTES.SHARED.SOLUTIONS}
+                className="flex items-center gap-xs text-label-md font-medium text-secondary hover:underline"
+              >
+                View in the Solutions Hub
+                <span className="material-symbols-outlined text-[16px]" aria-hidden="true">open_in_new</span>
+              </Link>
+            )}
           </div>
         </section>
       )}
 
-      {/* Review history */}
-      {submission.history.length > 0 && (
-        <section>
-          <SectionLabel>Review History</SectionLabel>
-          <ol className="space-y-0 pl-1">
-            {submission.history.map((h, i) => (
-              <li key={h.id} className="relative pb-lg pl-8 last:pb-0">
-                {i < submission.history.length - 1 && (
-                  <span className="absolute left-[11px] top-6 h-full w-0.5 bg-outline-variant/40" aria-hidden="true" />
-                )}
-                <span className="absolute left-0 top-0 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-on-tertiary-fixed-variant">
-                  <span className="material-symbols-outlined text-[14px] text-white" style={{ fontVariationSettings: "'FILL' 1" }} aria-hidden="true">check</span>
-                </span>
-                <div className="flex flex-col gap-xs">
-                  <div className="flex items-center justify-between">
-                    <h5 className="text-body-md font-bold">{h.title}</h5>
-                    <ReviewStatusBadge status={h.status} />
-                  </div>
-                  <p className="text-[13px] text-on-surface-variant">Submitted: {fmtDate(h.submittedAt)} • {h.note}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
-
       {/* Next step (locked) */}
-      {submission.nextStep && (
+      {next && (
         <section>
           <div className="flex items-center justify-between rounded-xl border border-dashed border-outline-variant bg-surface-container-low p-sm opacity-60">
             <div className="flex items-center gap-sm">
@@ -186,7 +186,7 @@ export function StudentReviewView({ submission }: { submission: ReviewSubmission
               </span>
               <div>
                 <p className="text-label-md text-on-surface-variant">Next Step</p>
-                <p className="text-body-md font-bold">{submission.nextStep}</p>
+                <p className="text-body-md font-bold">{stageMeta(next).label}</p>
               </div>
             </div>
             <span className="font-mono text-label-md">Locked</span>

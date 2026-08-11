@@ -7,8 +7,11 @@
  * displays and filters it. Reuses SolutionCard / SolutionStatusBadge.
  */
 import { useMemo, useState, type ReactNode } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useAsync } from '@/hooks/useAsync'
+import { useRole } from '@/contexts/RoleContext'
 import { solutionsService } from '@/services/catalog.service'
+import { buildPath, QUERY_PARAMS, ROUTES } from '@/constants/routes'
 import type { Solution, SolutionStats } from '@/types/domain'
 import { Button } from '@/components/ui/Button'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
@@ -17,8 +20,12 @@ import { SolutionCard } from '@/features/solutions/SolutionCard'
 import { SolutionStatusBadge } from '@/features/solutions/SolutionStatusBadge'
 
 export function SolutionsHubPage() {
-  const { data, loading } = useAsync<Solution[]>(() => solutionsService.list())
+  const { data, loading, error } = useAsync<Solution[]>(() => solutionsService.list())
   const { data: stats } = useAsync<SolutionStats>(() => solutionsService.stats())
+  const { role } = useRole()
+  const [searchParams] = useSearchParams()
+  // Seeded from ?q= so a search started on the Innovation Hub carries over.
+  const [query, setQuery] = useState(searchParams.get(QUERY_PARAMS.SEARCH) ?? '')
   const [category, setCategory] = useState('')
 
   const solutions = useMemo(() => data ?? [], [data])
@@ -27,10 +34,18 @@ export function SolutionsHubPage() {
     () => Array.from(new Set(solutions.map((s) => s.category))).sort(),
     [solutions],
   )
-  const listed = useMemo(
-    () => solutions.filter((s) => category === '' || s.category === category),
-    [solutions, category],
-  )
+  const listed = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return solutions.filter(
+      (s) =>
+        (category === '' || s.category === category) &&
+        (q === '' ||
+          s.name.toLowerCase().includes(q) ||
+          s.description.toLowerCase().includes(q) ||
+          s.category.toLowerCase().includes(q) ||
+          s.tags.some((t) => t.toLowerCase().includes(q))),
+    )
+  }, [solutions, category, query])
 
   return (
     <div className="mx-auto w-full max-w-container-max px-gutter pb-xl">
@@ -41,7 +56,12 @@ export function SolutionsHubPage() {
             <span className="material-symbols-outlined text-headline-md text-secondary" style={{ fontVariationSettings: "'FILL' 1" }} aria-hidden="true">apps</span>
             <span className="text-headline-sm font-semibold">Campus Solutions</span>
           </span>
-          <Button>Submit Idea</Button>
+          {/* Authoring a brief is a faculty capability — hidden for everyone else. */}
+          {role === 'faculty' && (
+            <Link to={ROUTES.FACULTY.CREATE_PROBLEM}>
+              <Button>Post a Problem</Button>
+            </Link>
+          )}
         </div>
         <div className="max-w-4xl">
           <h1 className="mb-sm text-display text-on-surface">Building a Smarter CRCE</h1>
@@ -69,20 +89,56 @@ export function SolutionsHubPage() {
         </section>
       )}
 
-      {/* Category filters */}
-      <section className="no-scrollbar -mx-gutter mb-md flex items-center gap-xs overflow-x-auto px-gutter py-md">
-        <Chip active={category === ''} onClick={() => setCategory('')}>All</Chip>
-        {categories.map((c) => (
-          <Chip key={c} active={category === c} onClick={() => setCategory(c)}>{c}</Chip>
-        ))}
+      {/* Search + category filters */}
+      <section className="mb-md flex flex-col gap-md pt-md">
+        <div className="group relative">
+          <span
+            className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline transition-colors group-focus-within:text-secondary"
+            aria-hidden="true"
+          >
+            search
+          </span>
+          <input
+            type="search"
+            aria-label="Search solutions"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search solutions, categories, tags..."
+            className="h-12 w-full rounded-xl border border-outline-variant bg-surface-container-lowest pl-12 pr-4 text-body-md outline-none transition-all focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+          />
+        </div>
+        <div className="no-scrollbar -mx-gutter flex items-center gap-xs overflow-x-auto px-gutter">
+          <Chip active={category === ''} onClick={() => setCategory('')}>All</Chip>
+          {categories.map((c) => (
+            <Chip key={c} active={category === c} onClick={() => setCategory(c)}>{c}</Chip>
+          ))}
+        </div>
       </section>
 
       {/* Solution grid */}
       <section className="pb-xl">
         {loading ? (
           <PageLoader />
+        ) : error ? (
+          <EmptyState icon="error" title="Solutions unavailable" description={error} />
         ) : listed.length === 0 ? (
-          <EmptyState icon="apps" title="No solutions in this category" description="Try a different filter." />
+          <EmptyState
+            icon="apps"
+            title="No solutions match your filters"
+            description="Try a different category or search term."
+            action={
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setQuery('')
+                  setCategory('')
+                }}
+              >
+                Clear filters
+              </Button>
+            }
+          />
         ) : (
           <div className="grid grid-cols-1 gap-md md:grid-cols-2">
             {listed.map((s) => (
@@ -97,10 +153,18 @@ export function SolutionsHubPage() {
         <div className="flex flex-col items-center gap-xs">
           <span className="text-label-md font-black tracking-tighter text-on-surface">CRCE OS / SOLUTIONS</span>
           <p className="text-body-md text-on-surface-variant">© 2026 College of Engineering Innovation Ecosystem.</p>
+          {/* ponytail: Privacy/Support have no in-app page yet — dropped rather than
+              left as dead href="#". Restore as links once those routes exist. */}
           <div className="mt-sm flex gap-md">
-            <a href="#" className="text-label-md text-on-surface-variant transition-colors hover:text-secondary">Impact Report</a>
-            <a href="#" className="text-label-md text-on-surface-variant transition-colors hover:text-secondary">Privacy Policy</a>
-            <a href="#" className="text-label-md text-on-surface-variant transition-colors hover:text-secondary">Support</a>
+            <Link to={ROUTES.PUBLIC.ABOUT} className="text-label-md text-on-surface-variant transition-colors hover:text-secondary">
+              Impact Report
+            </Link>
+            <Link to={ROUTES.SHARED.LEADERBOARD} className="text-label-md text-on-surface-variant transition-colors hover:text-secondary">
+              Leaderboard
+            </Link>
+            <Link to={ROUTES.SHARED.OPEN_PROBLEMS} className="text-label-md text-on-surface-variant transition-colors hover:text-secondary">
+              Open Problems
+            </Link>
           </div>
         </div>
       </footer>
@@ -118,7 +182,13 @@ function StatCell({ value, label, divider = false }: { value: string; label: str
 }
 
 function FeaturedCard({ solution }: { solution: Solution }) {
-  return (
+  // Featured solutions lead back to the brief that produced them. The Solutions
+  // Hub is public, so it never links into a role-protected route.
+  const to = solution.problemId
+    ? buildPath(ROUTES.SHARED.PROBLEM_DETAILS, { id: solution.problemId })
+    : null
+
+  const card = (
     <div className="w-[85vw] flex-none snap-center md:w-[450px]">
       <div className="group relative h-64 overflow-hidden rounded-2xl border border-outline-variant/50 bg-gradient-to-br from-primary-container to-inverse-surface">
         <span className="pointer-events-none absolute -right-6 -top-6 transition-transform duration-700 group-hover:scale-110" aria-hidden="true">
@@ -139,6 +209,8 @@ function FeaturedCard({ solution }: { solution: Solution }) {
       </div>
     </div>
   )
+
+  return to ? <Link to={to}>{card}</Link> : card
 }
 
 function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {

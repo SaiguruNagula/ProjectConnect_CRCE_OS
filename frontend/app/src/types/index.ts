@@ -27,12 +27,51 @@ export interface NavItem {
   icon?: string
 }
 
-/**
- * Standard API response envelope (API_SPEC.md). Declared now so services and the
- * API client share one contract; not yet used for real requests.
- */
+/** Standard success envelope — API_SPEC.md "Standard Success Response". */
 export interface ApiResponse<T = unknown> {
   success: boolean
   message: string
   data: T
+}
+
+/** One field-level failure inside an error envelope. */
+export interface ApiFieldError {
+  field: string
+  message: string
+}
+
+/** Standard error envelope — API_SPEC.md "Standard Error Fields". */
+export interface ApiErrorBody {
+  success: false
+  message: string
+  errors?: ApiFieldError[]
+  error_code?: string
+  timestamp?: string
+  path?: string
+}
+
+/** Pagination metadata returned with every collection (API_SPEC.md §Pagination). */
+export interface PaginationMeta {
+  page: number
+  limit: number
+  total_items: number
+  total_pages: number
+  has_next: boolean
+  has_previous: boolean
+}
+
+/** `data` payload of a paginated collection response. */
+export interface Paginated<T> {
+  items: T[]
+  pagination: PaginationMeta
+}
+
+/** Standard collection query string. Defaults: page 1, limit 20 (max 100). */
+export interface PageQuery {
+  page?: number
+  limit?: number
+  sort?: string
+  order?: 'asc' | 'desc'
+  search?: string
+  filter?: string
 }

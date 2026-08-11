@@ -15,6 +15,7 @@ export const MOCK_PROBLEMS: Problem[] = [
     timelineWeeks: 12,
     creditReward: 300,
     applicantsCount: 12,
+    solutionsCount: 2,
     endDate: '2026-07-30',
     attachments: [
       { name: 'Problem Brief.pdf', type: 'PDF', url: '/resources/p-01-brief.pdf' },
@@ -127,6 +128,7 @@ export const MOCK_PROBLEMS: Problem[] = [
     timelineWeeks: 6,
     creditReward: 150,
     applicantsCount: 4,
+    solutionsCount: 1,
     endDate: '2026-07-25',
     attachments: [
       { name: 'Accessibility Guidelines.pdf', type: 'PDF', url: '/resources/p-05-a11y.pdf' },
@@ -170,12 +172,3 @@ export const MOCK_PROBLEMS: Problem[] = [
     bookmarked: false,
   },
 ]
-
-export const PROBLEM_DEPARTMENTS = [
-  'Computer Engineering',
-  'Electronics Engineering',
-  'Information Technology',
-  'Mechanical Engineering',
-]
-
-export const PROBLEM_DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced'] as const

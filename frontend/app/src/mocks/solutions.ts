@@ -18,6 +18,7 @@ export const MOCK_SOLUTIONS: Solution[] = [
   {
     id: 's-lab-booking',
     name: 'Lab Booking System',
+    problemId: 'p-06',
     icon: 'science',
     status: 'pilot',
     description: 'Streamlined scheduling for specialized laboratories.',
@@ -45,6 +46,8 @@ export const MOCK_SOLUTIONS: Solution[] = [
   {
     id: 's-smart-attendance',
     name: 'Smart Attendance',
+    projectId: 'pr-01',
+    problemId: 'p-01',
     icon: 'fact_check',
     status: 'testing',
     description: 'Bluetooth-proximity based attendance tracking for lecturers.',
@@ -58,6 +61,8 @@ export const MOCK_SOLUTIONS: Solution[] = [
   {
     id: 's-campus-maps',
     name: 'Campus Maps',
+    projectId: 'pr-03',
+    problemId: 'p-05',
     icon: 'near_me',
     status: 'live',
     description: 'Interactive 3D navigation for labs and administrative offices.',
@@ -84,6 +89,7 @@ export const MOCK_SOLUTIONS: Solution[] = [
   {
     id: 's-peer-tutor',
     name: 'Peer Tutor Match',
+    problemId: 'p-03',
     icon: 'groups',
     status: 'live',
     description: 'Connects students with senior mentors for subject-wise doubt solving.',

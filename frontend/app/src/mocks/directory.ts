@@ -1,14 +1,14 @@
 import type { DirectoryUser, Institution } from '@/types/domain'
 
 export const MOCK_DIRECTORY_USERS: DirectoryUser[] = [
-  { id: 'u1', name: 'Aarav Sharma', email: 'aarav.sharma@crce.edu.in', role: 'student', department: 'Computer Engineering', status: 'active' },
-  { id: 'u2', name: 'Isha Patil', email: 'isha.patil@crce.edu.in', role: 'student', department: 'Computer Engineering', status: 'active' },
-  { id: 'u3', name: 'Kabir Singh', email: 'kabir.singh@crce.edu.in', role: 'student', department: 'Information Technology', status: 'active' },
-  { id: 'u4', name: 'Dr. Neha Kulkarni', email: 'neha.kulkarni@crce.edu.in', role: 'faculty', department: 'Computer Engineering', status: 'active' },
-  { id: 'u5', name: 'Dr. Priya Nair', email: 'priya.nair@crce.edu.in', role: 'faculty', department: 'Electronics Engineering', status: 'active' },
-  { id: 'u6', name: 'Rohan Mehta', email: 'rohan.mehta@crce.edu.in', role: 'admin', department: 'Administration', status: 'active' },
-  { id: 'u7', name: 'Meera Joshi', email: 'meera.joshi@crce.edu.in', role: 'student', department: 'Electronics Engineering', status: 'suspended' },
-  { id: 'u8', name: 'Dr. Anil Rao', email: 'anil.rao@crce.edu.in', role: 'faculty', department: 'Mechanical Engineering', status: 'active' },
+  { id: 'u1', name: 'Aarav Sharma', email: 'aarav.sharma@crce.edu.in', role: 'student', department: 'Computer Engineering', institution: 'CRCE', credits: 620, projects: 3, status: 'active' },
+  { id: 'u2', name: 'Isha Patil', email: 'isha.patil@vesit.edu.in', role: 'student', department: 'Computer Engineering', institution: 'VESIT', credits: 450, projects: 2, status: 'pending' },
+  { id: 'u3', name: 'Kabir Singh', email: 'kabir.singh@crce.edu.in', role: 'student', department: 'Information Technology', institution: 'CRCE', credits: 780, projects: 4, status: 'active' },
+  { id: 'u4', name: 'Dr. Neha Kulkarni', email: 'neha.kulkarni@crce.edu.in', role: 'faculty', department: 'Computer Engineering', institution: 'CRCE', credits: 1450, projects: 12, status: 'active' },
+  { id: 'u5', name: 'Dr. Priya Nair', email: 'priya.nair@spit.edu.in', role: 'faculty', department: 'Electronics Engineering', institution: 'SPIT', credits: 1120, projects: 9, status: 'active' },
+  { id: 'u6', name: 'Rohan Mehta', email: 'rohan.mehta@crce.edu.in', role: 'admin', department: 'Administration', institution: 'CRCE', credits: 0, projects: 0, status: 'active' },
+  { id: 'u7', name: 'Meera Joshi', email: 'meera.joshi@vesit.edu.in', role: 'student', department: 'Electronics Engineering', institution: 'VESIT', credits: 210, projects: 1, status: 'suspended' },
+  { id: 'u8', name: 'Dr. Anil Rao', email: 'anil.rao@crce.edu.in', role: 'faculty', department: 'Mechanical Engineering', institution: 'CRCE', credits: 890, projects: 7, status: 'active' },
 ]
 
 export const MOCK_INSTITUTIONS: Institution[] = [

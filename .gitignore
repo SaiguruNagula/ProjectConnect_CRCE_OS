@@ -46,3 +46,6 @@ htmlcov/
 
 # Claude Code local settings (whole dir)
 .claude/
+
+# === Personal notes ===
+CRCE_OS_INTERVIEW_PREPARATION.md

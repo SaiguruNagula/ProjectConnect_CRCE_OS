@@ -1,21 +1,27 @@
-/** Status pill for a review submission — shared by the student and faculty views. */
-import { Badge, type BadgeProps } from '@/components/ui/Badge'
-import type { ReviewStatus } from '@/types/domain'
+/**
+ * The lifecycle status pill — the one place a status is turned into words and a
+ * colour. Shared by the queue cards, the review panel, the student view and the
+ * timeline so no two surfaces can name the same state differently.
+ */
+import { Badge } from '@/components/ui/Badge'
+import type { ReviewLifecycleStatus } from '@/types/domain'
 import { cn } from '@/utils/cn'
+import { LIFECYCLE_STATUS } from './stages'
 
-const MAP: Record<ReviewStatus, { label: string; tone: BadgeProps['tone'] }> = {
-  pending: { label: 'Pending', tone: 'neutral' },
-  under_review: { label: 'Under Review', tone: 'primary' },
-  approved: { label: 'Approved', tone: 'success' },
-  rejected: { label: 'Rejected', tone: 'error' },
-  changes_requested: { label: 'Changes Requested', tone: 'error' },
-}
-
-export function ReviewStatusBadge({ status, className }: { status: ReviewStatus; className?: string }) {
-  const { label, tone } = MAP[status]
+export function ReviewStatusBadge({
+  status,
+  short = false,
+  className,
+}: {
+  status: ReviewLifecycleStatus
+  /** Use the compact wording where the full label will not fit. */
+  short?: boolean
+  className?: string
+}) {
+  const meta = LIFECYCLE_STATUS[status]
   return (
-    <Badge tone={tone} className={cn('text-[10px] font-bold uppercase tracking-wide', className)}>
-      {label}
+    <Badge tone={meta.tone} className={cn('text-[10px] font-bold uppercase tracking-wide', className)}>
+      {short ? meta.short : meta.label}
     </Badge>
   )
 }
