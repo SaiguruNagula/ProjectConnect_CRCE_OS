@@ -32,6 +32,7 @@ import type {
   FinalSubmission,
   IdeaSubmission,
   Invitation,
+  InviteMemberInput,
   JoinRequest,
   LeaderboardEntry,
   MentorOption,
@@ -48,14 +49,13 @@ import type {
   Problem,
   Project,
   ProjectJourney,
-  SelectionDecisionInput,
   StudentProfile,
   SuggestionDecisionInput,
   Team,
-  ReviewDecisionInput,
-  ReviewStats,
-  ReviewSubmission,
-  RubricCriterion,
+  CreditAwardInput,
+  PublicationInput,
+  ReviewQueues,
+  StageReviewInput,
   Solution,
   SolutionStats,
   TrendPoint,
@@ -108,8 +108,19 @@ export interface ProjectRepository {
   invitations(): Promise<Invitation[]>
   /** Teams formed for a problem; omit `problemId` for the full list. */
   teams(problemId?: string): Promise<Team[]>
+  /** One team by id — backs the contextual Team Details surface. */
+  team(teamId: string): Promise<Team | null>
   /** Form a team around a problem — POST /api/v1/teams. */
   createTeam(input: CreateTeamInput): Promise<Team>
+  /** Invite a student to the team — lead only, and only while slots remain. */
+  inviteMember(teamId: string, input: InviteMemberInput): Promise<Team>
+  /** Remove a member — lead only, and never the lead themselves. */
+  removeMember(teamId: string, memberId: string): Promise<Team>
+  /**
+   * Leave the team. Resolves to the updated team, or null once the last member
+   * leaves and the team is disbanded.
+   */
+  leaveTeam(teamId: string): Promise<Team | null>
   /** Ask to join an existing team; returns the updated team. */
   requestToJoin(teamId: string, message: string): Promise<Team>
   /** Requests waiting on the signed-in student's own team — lead only. */
@@ -130,8 +141,6 @@ export interface ProjectRepository {
   savePoc(projectId: string, data: PocSubmission, submit: boolean): Promise<ProjectJourney>
   /** Save the Final Project stage as a draft, or submit it for review. */
   saveFinal(projectId: string, data: FinalSubmission, submit: boolean): Promise<ProjectJourney>
-  /** Faculty Stage-3 decision — only a selected team unlocks the Final stage. */
-  decideSelection(input: SelectionDecisionInput): Promise<ProjectJourney>
 }
 
 export interface LeaderboardRepository {
@@ -183,12 +192,22 @@ export interface CreditRepository {
   pipeline(): Promise<CreditPipelineItem[]>
 }
 
+/**
+ * The Review Engine. Faculty evaluate submissions stage by stage; every queue,
+ * transition and credit total is decided here (later by FastAPI), never in a
+ * component.
+ */
 export interface ReviewRepository {
-  list(): Promise<ReviewSubmission[]>
-  rubric(): Promise<RubricCriterion[]>
-  stats(): Promise<ReviewStats>
-  /** Post a faculty decision; returns the updated submission. */
-  submitDecision(input: ReviewDecisionInput): Promise<ReviewSubmission>
+  /** Stage-based queues — Idea, Proof of Concept, Final Project, Completed. */
+  queues(): Promise<ReviewQueues>
+  /** The submission under review, with the stage payload and its history. */
+  detail(projectId: string): Promise<ProjectJourney | null>
+  /** Record a stage decision; returns the updated journey. */
+  decide(input: StageReviewInput): Promise<ProjectJourney>
+  /** Award credits after a final approval; the Credit Engine consumes them later. */
+  awardCredits(input: CreditAwardInput): Promise<ProjectJourney>
+  /** Publish an approved project to the Solutions Hub, or keep it internal. */
+  setPublication(input: PublicationInput): Promise<ProjectJourney>
 }
 
 export interface SolutionRepository {

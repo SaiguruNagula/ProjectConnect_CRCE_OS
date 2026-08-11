@@ -8,7 +8,7 @@ import type { ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useProblemDetails } from '@/hooks/useProblemDetails'
 import type { Difficulty, Problem, ProblemAttachment, ProblemMilestone } from '@/types/domain'
-import { buildPath, QUERY_PARAMS, ROUTES, withQuery } from '@/constants/routes'
+import { QUERY_PARAMS, ROUTES, withQuery } from '@/constants/routes'
 import { Card } from '@/components/ui/Card'
 import { Badge, type BadgeProps } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -152,7 +152,6 @@ export function ProblemDetailsPage() {
                     icon="rocket_launch"
                     title={project.title}
                     meta={`${stageMeta(project.stage).label} · ${STAGE_STATUS[project.stageStatus].short}`}
-                    to={buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: project.id })}
                   />
                 ))}
               </ul>
@@ -258,7 +257,11 @@ function SectionCard({ title, children }: { title: string; children: ReactNode }
   )
 }
 
-/** A link out to an entity built from this problem (project or solution). */
+/**
+ * An entity built from this problem (project or solution). `to` is omitted when
+ * there is no publicly reachable destination — this page is public, so it never
+ * links into a role-protected route.
+ */
 function RelatedRow({
   icon,
   title,
@@ -268,21 +271,33 @@ function RelatedRow({
   icon: string
   title: string
   meta: string
-  to: string
+  to?: string
 }) {
+  const body = (
+    <>
+      <span className="material-symbols-outlined text-outline group-hover:text-secondary" aria-hidden="true">
+        {icon}
+      </span>
+      <span className="flex min-w-0 flex-grow flex-col">
+        <span className="truncate text-body-md font-medium text-on-surface">{title}</span>
+        <span className="truncate text-label-sm text-on-surface-variant">{meta}</span>
+      </span>
+    </>
+  )
+
+  if (!to) {
+    return (
+      <li className="flex items-center gap-3 rounded-xl border border-outline-variant p-3">{body}</li>
+    )
+  }
+
   return (
     <li>
       <Link
         to={to}
         className="group flex items-center gap-3 rounded-xl border border-outline-variant p-3 transition-colors hover:border-secondary hover:bg-surface-container-low"
       >
-        <span className="material-symbols-outlined text-outline group-hover:text-secondary" aria-hidden="true">
-          {icon}
-        </span>
-        <span className="flex min-w-0 flex-grow flex-col">
-          <span className="truncate text-body-md font-medium text-on-surface">{title}</span>
-          <span className="truncate text-label-sm text-on-surface-variant">{meta}</span>
-        </span>
+        {body}
         <span className="material-symbols-outlined text-[18px] text-outline group-hover:text-secondary" aria-hidden="true">
           arrow_outward
         </span>
@@ -296,6 +311,9 @@ function AttachmentRow({ file }: { file: ProblemAttachment }) {
     <li>
       <a
         href={file.url}
+        target="_blank"
+        rel="noreferrer"
+        download
         className="group flex items-center gap-3 rounded-xl border border-outline-variant p-3 transition-colors hover:border-secondary hover:bg-surface-container-low"
       >
         <span className="material-symbols-outlined text-outline group-hover:text-secondary" aria-hidden="true">

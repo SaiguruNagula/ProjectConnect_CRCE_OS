@@ -16,6 +16,7 @@ import { Field, LinkLines, inputClass, textareaClass } from '@/components/ui/for
 import { FeedbackNote, StageActions } from './fields'
 import { isEditable } from './status'
 import { StageSummary } from './StageSummary'
+import { finalRows } from './summaryRows'
 
 const optionalUrl = z.union([z.literal(''), z.string().url('Enter a valid URL')]).optional()
 
@@ -100,8 +101,8 @@ export function FinalStage({ journey, busy, onSave }: FinalStageProps) {
 
   return (
     <div className="flex flex-col gap-md">
-      {stage.facultyFeedback && (
-        <FeedbackNote from={journey.mentorName} feedback={stage.facultyFeedback} at={stage.reviewedAt} />
+      {stage.review && (
+        <FeedbackNote from={journey.mentorName} review={stage.review} at={stage.reviewedAt} />
       )}
 
       <Card className="flex flex-col gap-md">
@@ -188,21 +189,7 @@ export function FinalStage({ journey, busy, onSave }: FinalStageProps) {
             />
           </form>
         ) : (
-          <StageSummary
-            emptyMessage="No final project recorded."
-            rows={[
-              { label: 'Description', value: stage.data?.description },
-              { label: 'GitHub Repository', value: stage.data?.githubUrl, link: true },
-              { label: 'Live Project', value: stage.data?.liveUrl, link: true },
-              { label: 'Working Demo', value: stage.data?.demoUrl, link: true },
-              { label: 'Final Presentation', value: stage.data?.presentationUrl, link: true },
-              { label: 'Project Report', value: stage.data?.reportUrl, link: true },
-              { label: 'Demo Video', value: stage.data?.videoUrl, link: true },
-              { label: 'Technology Stack', value: stage.data?.techStack.join(', ') },
-              { label: 'Final Screenshots', value: stage.data?.screenshots, link: true },
-              { label: 'Additional Documents', value: stage.data?.documents, link: true },
-            ]}
-          />
+          <StageSummary emptyMessage="No final project recorded." rows={finalRows(stage.data)} />
         )}
       </Card>
     </div>

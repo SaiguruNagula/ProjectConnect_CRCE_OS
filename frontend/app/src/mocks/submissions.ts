@@ -5,6 +5,7 @@
  * so nothing here duplicates a title, roster or mentor.
  */
 import type {
+  CreditAward,
   FinalSubmission,
   IdeaSubmission,
   JoinRequest,
@@ -20,6 +21,10 @@ export interface JourneyRecord {
   poc: StageState<PocSubmission>
   selection: SelectionState
   final: StageState<FinalSubmission>
+  /** Awarded by faculty once the final project is approved. */
+  credits?: CreditAward
+  /** Whether the approved project was published to the Solutions Hub. */
+  published?: boolean
 }
 
 /** A journey that has not started — every new project begins here. */
@@ -37,7 +42,11 @@ export const MOCK_JOURNEYS: Record<string, JourneyRecord> = {
       status: 'approved',
       submittedAt: '2026-05-14T10:00:00Z',
       reviewedAt: '2026-05-18T09:00:00Z',
-      facultyFeedback: 'Strong framing. Keep the on-device constraint explicit in the PoC.',
+      review: {
+        strengths: 'The problem is well quantified and the on-device privacy constraint is a real differentiator.',
+        suggestions: 'Keep the on-device constraint explicit in the proof of concept.',
+        reviewedBy: 'Dr. Neha Kulkarni',
+      },
       data: {
         title: 'Smart Attendance System',
         problemStatement:
@@ -57,8 +66,13 @@ export const MOCK_JOURNEYS: Record<string, JourneyRecord> = {
       status: 'changes_requested',
       submittedAt: '2026-07-08T11:30:00Z',
       reviewedAt: '2026-07-12T09:30:00Z',
-      facultyFeedback:
-        'The demo covers the happy path only. Add the offline sync recording and show the false-match rate on the held-out set before resubmitting.',
+      review: {
+        strengths: 'Quantised inference runs on the target hardware — the hardest part is already working.',
+        weaknesses: 'The demo covers the happy path only, and no accuracy evidence is attached.',
+        suggestions:
+          'Add the offline sync recording and show the false-match rate on the held-out set before resubmitting.',
+        reviewedBy: 'Dr. Neha Kulkarni',
+      },
       data: {
         description:
           'Working kiosk prototype running quantised inference on a Jetson Nano, with a React dashboard reading the local ledger.',
@@ -97,7 +111,11 @@ export const MOCK_JOURNEYS: Record<string, JourneyRecord> = {
       status: 'approved',
       submittedAt: '2026-05-28T10:00:00Z',
       reviewedAt: '2026-06-02T10:00:00Z',
-      facultyFeedback: 'Calibration data is convincing. Proceed to the full build.',
+      review: {
+        strengths: 'Calibration data is convincing and the alerting threshold is justified.',
+        suggestions: 'Proceed to the full build.',
+        reviewedBy: 'Dr. Priya Nair',
+      },
       data: {
         description: 'Two blocks instrumented end to end with a live dashboard and alerting.',
         githubUrl: 'https://github.com/crce-innovation/campus-energy',
@@ -130,6 +148,154 @@ export const MOCK_JOURNEYS: Record<string, JourneyRecord> = {
 
   // Nothing submitted yet — the workspace opens on an empty Stage 1 form.
   'pr-04': EMPTY_JOURNEY,
+
+  // Waiting on an Idea review.
+  'pr-05': {
+    idea: {
+      status: 'submitted',
+      submittedAt: '2026-07-26T09:10:00Z',
+      data: {
+        title: 'NFC Attendance Terminal',
+        problemStatement:
+          'Face recognition struggles in the back rows of a 300-seat hall, where the camera cannot resolve a face.',
+        proposedSolution:
+          'A tap-in NFC terminal at every entrance, tied to the existing student ID card.',
+        approach:
+          'Read the existing MIFARE card ID, debounce duplicate taps locally, and post batched check-ins to the attendance service.',
+        techStack: ['ESP32', 'MFRC522', 'FastAPI', 'React'],
+        expectedOutcome:
+          'A full hall checked in within 90 seconds with no per-student hardware cost.',
+        presentationUrl: 'https://drive.crce.edu.in/decks/nfc-terminal-idea.pdf',
+        supportingLinks: [],
+      },
+    },
+    poc: { status: 'draft', data: null },
+    selection: { status: 'not_reviewed' },
+    final: { status: 'draft', data: null },
+  },
+
+  // Waiting on a Proof of Concept review — the selection decision happens here.
+  'pr-06': {
+    idea: {
+      status: 'approved',
+      submittedAt: '2026-05-02T09:00:00Z',
+      reviewedAt: '2026-05-07T09:00:00Z',
+      review: {
+        strengths: 'Correctly identifies the network as the real failure mode in older blocks.',
+        reviewedBy: 'Dr. Neha Kulkarni',
+      },
+      data: {
+        title: 'Offline-First Attendance Ledger',
+        problemStatement:
+          'Attendance terminals in the older blocks lose the campus network several times a week, and every lost session is re-entered by hand.',
+        proposedSolution:
+          'A conflict-free local ledger on each terminal that reconciles with the server whenever the link returns.',
+        approach:
+          'Model each check-in as an append-only CRDT entry, persist it locally, and reconcile on reconnect with a deterministic merge.',
+        techStack: ['Rust', 'SQLite', 'CRDT', 'FastAPI'],
+        expectedOutcome: 'Zero lost sessions across a two-week outage simulation.',
+        supportingLinks: [],
+      },
+    },
+    poc: {
+      status: 'submitted',
+      submittedAt: '2026-07-27T14:20:00Z',
+      data: {
+        description:
+          'Two terminals running the local ledger, reconciling correctly after a simulated 36-hour outage.',
+        githubUrl: 'https://github.com/crce-innovation/attendance-ledger',
+        demoUrl: 'https://ledger-demo.crce.edu.in',
+        prototypeImages: ['https://cdn.crce.edu.in/poc/ledger-reconcile.png'],
+        presentationUrl: 'https://drive.crce.edu.in/decks/attendance-ledger-poc.pdf',
+        videoUrl: 'https://youtu.be/crce-ledger-poc',
+        documents: ['https://drive.crce.edu.in/docs/ledger-merge-proof.pdf'],
+      },
+    },
+    selection: { status: 'not_reviewed' },
+    final: { status: 'draft', data: null },
+  },
+
+  // Selected, built and now waiting on the Final Project review.
+  'pr-07': {
+    idea: {
+      status: 'approved',
+      submittedAt: '2026-02-18T09:00:00Z',
+      reviewedAt: '2026-02-22T09:00:00Z',
+      data: {
+        title: 'Privacy-Preserving Vision Pipeline',
+        problemStatement:
+          'Camera-based attendance is resisted because students assume their faces are stored somewhere.',
+        proposedSolution:
+          'A pipeline that derives an irreversible embedding at the sensor and discards the frame immediately.',
+        approach:
+          'Run the embedding model in the camera module, hash the embedding against the enrolled set, and never write a frame to disk.',
+        techStack: ['C++', 'TensorRT', 'FastAPI', 'React'],
+        expectedOutcome: 'Attendance accuracy above 97% with no recoverable image data at rest.',
+        supportingLinks: [],
+      },
+    },
+    poc: {
+      status: 'approved',
+      submittedAt: '2026-04-10T09:00:00Z',
+      reviewedAt: '2026-04-16T09:00:00Z',
+      review: {
+        strengths: 'The no-frame-at-rest guarantee is demonstrated, not just claimed.',
+        reviewedBy: 'Dr. Neha Kulkarni',
+      },
+      data: {
+        description: 'Single-camera prototype hitting 96% accuracy with frames discarded in-memory.',
+        githubUrl: 'https://github.com/crce-innovation/vision-privacy',
+        prototypeImages: ['https://cdn.crce.edu.in/poc/vision-pipeline.png'],
+        presentationUrl: 'https://drive.crce.edu.in/decks/vision-privacy-poc.pdf',
+        documents: [],
+      },
+    },
+    selection: {
+      status: 'selected',
+      feedback: 'Selected — take the privacy guarantee through to a full hall deployment.',
+      decidedBy: 'Dr. Neha Kulkarni',
+      decidedAt: '2026-04-20T09:00:00Z',
+    },
+    final: {
+      status: 'submitted',
+      submittedAt: '2026-07-28T08:45:00Z',
+      data: {
+        description:
+          'Deployed across four lecture halls for a full term, with an independent audit of the no-frame-at-rest claim.',
+        githubUrl: 'https://github.com/crce-innovation/vision-privacy',
+        liveUrl: 'https://attendance.crce.edu.in',
+        demoUrl: 'https://youtu.be/crce-vision-privacy',
+        presentationUrl: 'https://drive.crce.edu.in/decks/vision-privacy-final.pdf',
+        reportUrl: 'https://drive.crce.edu.in/docs/vision-privacy-report.pdf',
+        videoUrl: 'https://youtu.be/crce-vision-privacy-demo',
+        techStack: ['C++', 'TensorRT', 'FastAPI', 'React'],
+        screenshots: ['https://cdn.crce.edu.in/final/vision-privacy-hall.png'],
+        documents: ['https://drive.crce.edu.in/docs/vision-privacy-audit.pdf'],
+      },
+    },
+  },
+
+  // A solo application waiting on its Idea review.
+  'pr-08': {
+    idea: {
+      status: 'submitted',
+      submittedAt: '2026-07-28T16:05:00Z',
+      data: {
+        title: 'Hostel Water Usage Monitor',
+        problemStatement:
+          'A burst line in a hostel wing runs for days before anyone notices, because usage is only read at the mains.',
+        proposedSolution: 'Per-wing flow meters with a nightly baseline and a leak alert.',
+        approach:
+          'Fit pulse-output flow meters per wing, stream readings hourly, and alert when overnight flow never drops to zero.',
+        techStack: ['ESP32', 'MQTT', 'TimescaleDB'],
+        expectedOutcome: 'Leaks flagged within one night instead of one billing cycle.',
+        supportingLinks: [],
+      },
+    },
+    poc: { status: 'draft', data: null },
+    selection: { status: 'not_reviewed' },
+    final: { status: 'draft', data: null },
+  },
 
   // Finished: selected, built and approved.
   'pr-03': {
@@ -171,7 +337,20 @@ export const MOCK_JOURNEYS: Record<string, JourneyRecord> = {
       status: 'approved',
       submittedAt: '2026-03-28T10:00:00Z',
       reviewedAt: '2026-04-01T10:00:00Z',
-      facultyFeedback: 'Approved. Shipped to the campus app and handed to the estates team.',
+      review: {
+        strengths: 'Genuine accessibility audit behind the routing graph, and eight real testers.',
+        comments: 'Approved. Shipped to the campus app and handed to the estates team.',
+        reviewedBy: 'Dr. Neha Kulkarni',
+        evaluation: {
+          innovation: 8,
+          technicalQuality: 9,
+          implementation: 9,
+          documentation: 8,
+          presentation: 8,
+          overallRemarks:
+            'A finished, adopted product with the survey work to back it up. The strongest submission of the cohort.',
+        },
+      },
       data: {
         description:
           'Step-free routing across the whole campus, tested with eight students and adopted by the estates team.',
@@ -185,6 +364,17 @@ export const MOCK_JOURNEYS: Record<string, JourneyRecord> = {
         documents: [],
       },
     },
+    credits: {
+      innovation: 40,
+      implementation: 45,
+      documentation: 25,
+      presentation: 20,
+      bonus: 10,
+      total: 140,
+      awardedBy: 'Dr. Neha Kulkarni',
+      awardedAt: '2026-04-01T10:30:00Z',
+    },
+    published: true,
   },
 }
 

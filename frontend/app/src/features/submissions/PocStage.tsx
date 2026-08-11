@@ -14,6 +14,7 @@ import { Field, LinkLines, inputClass, textareaClass } from '@/components/ui/for
 import { FeedbackNote, StageActions } from './fields'
 import { isEditable } from './status'
 import { StageSummary } from './StageSummary'
+import { pocRows } from './summaryRows'
 
 const optionalUrl = z.union([z.literal(''), z.string().url('Enter a valid URL')]).optional()
 
@@ -72,8 +73,8 @@ export function PocStage({ journey, busy, onSave }: PocStageProps) {
 
   return (
     <div className="flex flex-col gap-md">
-      {stage.facultyFeedback && (
-        <FeedbackNote from={journey.mentorName} feedback={stage.facultyFeedback} at={stage.reviewedAt} />
+      {stage.review && (
+        <FeedbackNote from={journey.mentorName} review={stage.review} at={stage.reviewedAt} />
       )}
 
       <Card className="flex flex-col gap-md">
@@ -137,18 +138,7 @@ export function PocStage({ journey, busy, onSave }: PocStageProps) {
             />
           </form>
         ) : (
-          <StageSummary
-            emptyMessage="No proof of concept recorded."
-            rows={[
-              { label: 'Description', value: stage.data?.description },
-              { label: 'GitHub Repository', value: stage.data?.githubUrl, link: true },
-              { label: 'Demo Link', value: stage.data?.demoUrl, link: true },
-              { label: 'Prototype Images', value: stage.data?.prototypeImages, link: true },
-              { label: 'Presentation', value: stage.data?.presentationUrl, link: true },
-              { label: 'Video', value: stage.data?.videoUrl, link: true },
-              { label: 'Documents', value: stage.data?.documents, link: true },
-            ]}
-          />
+          <StageSummary emptyMessage="No proof of concept recorded." rows={pocRows(stage.data)} />
         )}
       </Card>
     </div>

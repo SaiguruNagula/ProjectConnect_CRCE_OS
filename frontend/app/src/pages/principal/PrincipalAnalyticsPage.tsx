@@ -3,7 +3,7 @@
  * Faithful migration of the approved Stitch prototype
  * (frontend/crce_os_institution_analytics_production_master_console): innovation
  * health hero, four headline KPIs, department performance table, approvals rail
- * and the two quick controls (broadcast + report generation).
+ * and report generation.
  *
  * Reads the SAME analytics aggregate as the Principal Dashboard through
  * useInstitutionAnalytics() — one hook, one service, one endpoint, no second
@@ -16,6 +16,8 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useInstitutionAnalytics } from '@/hooks/useInstitutionAnalytics'
 import type { InstitutionAnalytics, ReportOption } from '@/types/domain'
+import { DEPARTMENT_COLUMNS } from '@/features/analytics/exports'
+import { downloadCsv } from '@/utils/csv'
 import { ROUTES } from '@/constants/routes'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -36,22 +38,23 @@ function useEscape(onClose: () => void) {
 }
 
 /**
- * Report generation drawer. Category and format are local presentation state;
- * the download itself is not wired — there is no reporting endpoint yet and
- * analytics stays read-only.
+ * Report generation drawer. Category picks the slice; the department table is
+ * exported as CSV from the analytics aggregate already in hand.
+ *
+ * ponytail: PDF needs a reporting endpoint — CSV is offered instead of an inert
+ * button, and the format choice is dropped until that endpoint exists.
  */
 function ReportsDrawer({
   categories,
-  formats,
+  departments,
   onClose,
 }: {
   categories: ReportOption[]
-  formats: ReportOption[]
+  departments: InstitutionAnalytics['departments']
   onClose: () => void
 }) {
   useEscape(onClose)
   const [category, setCategory] = useState(categories[0]?.id ?? '')
-  const [format, setFormat] = useState(formats[0]?.id ?? '')
 
   return (
     <div className="fixed inset-0 z-[60]">
@@ -101,35 +104,21 @@ function ReportsDrawer({
             </div>
           </fieldset>
 
-          <fieldset>
-            <legend className="mb-xs text-label-md uppercase text-outline">Format</legend>
-            <div className="flex gap-xs">
-              {formats.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  aria-pressed={format === option.id}
-                  onClick={() => setFormat(option.id)}
-                  className={`flex-1 rounded-lg border p-sm font-medium transition-colors ${
-                    format === option.id
-                      ? 'border-secondary bg-surface-container text-secondary'
-                      : 'border-outline-variant hover:bg-surface-container'
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          </fieldset>
+          <p className="text-body-sm text-on-surface-variant">
+            Exports the department health table as CSV.
+          </p>
         </div>
 
         <div className="border-t border-outline-variant/20 p-md">
-          {/* ponytail: export needs a reporting endpoint; no client-side PDF generator. */}
           <button
             type="button"
+            onClick={() => {
+              downloadCsv(`crce-os-${category || 'departments'}.csv`, DEPARTMENT_COLUMNS, departments)
+              onClose()
+            }}
             className="w-full rounded-lg bg-primary py-3 font-semibold text-on-primary hover:opacity-90"
           >
-            Download Report
+            Download CSV
           </button>
         </div>
       </aside>
@@ -137,112 +126,8 @@ function ReportsDrawer({
   )
 }
 
-/**
- * Broadcast composer — the one action the approved design grants the principal
- * here. Sending is not wired: announcements have no service yet, and nothing in
- * the analytics aggregate is touched.
- */
-function BroadcastModal({ onClose }: { onClose: () => void }) {
-  useEscape(onClose)
-  const [title, setTitle] = useState('')
-  const [message, setMessage] = useState('')
-  const [audience, setAudience] = useState('All Institution')
-  const field = 'w-full rounded-lg border-outline-variant text-body-md focus:border-secondary focus:ring-secondary'
-
-  return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-gutter">
-      <div
-        className="absolute inset-0 bg-inverse-surface/40 backdrop-blur-sm"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="broadcast-title"
-        className="relative w-full max-w-lg rounded-xl bg-surface-container-lowest p-lg shadow-2xl"
-      >
-        <div className="mb-md flex items-center justify-between">
-          <h2 id="broadcast-title" className="text-headline-md">New Broadcast Announcement</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close broadcast composer"
-            className="text-outline hover:text-primary"
-          >
-            <span className="material-symbols-outlined" aria-hidden="true">close</span>
-          </button>
-        </div>
-
-        <div className="space-y-sm">
-          <div>
-            <label htmlFor="broadcast-heading" className="mb-xs block text-label-md text-outline">
-              Announcement Title
-            </label>
-            <input
-              id="broadcast-heading"
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter title..."
-              className={field}
-            />
-          </div>
-          <div>
-            <label htmlFor="broadcast-message" className="mb-xs block text-label-md text-outline">
-              Message Content
-            </label>
-            <textarea
-              id="broadcast-message"
-              rows={4}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Type your message here..."
-              className={field}
-            />
-          </div>
-          <div>
-            <label htmlFor="broadcast-audience" className="mb-xs block text-label-md text-outline">
-              Target Audience
-            </label>
-            <select
-              id="broadcast-audience"
-              value={audience}
-              onChange={(e) => setAudience(e.target.value)}
-              className={field}
-            >
-              <option>All Institution</option>
-              <option>Faculty Only</option>
-              <option>Students Only</option>
-              <option>Specific Department</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="mt-lg flex gap-sm">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 rounded-lg border border-outline-variant py-3 font-semibold hover:bg-surface-container"
-          >
-            Cancel
-          </button>
-          {/* ponytail: no announcements domain yet; wire to POST /announcements when it lands. */}
-          <button
-            type="button"
-            className="flex-1 rounded-lg bg-secondary py-3 font-semibold text-on-secondary hover:opacity-90"
-          >
-            Send Broadcast
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function AnalyticsView({ analytics }: { analytics: InstitutionAnalytics }) {
   const [reportsOpen, setReportsOpen] = useState(false)
-  const [broadcastOpen, setBroadcastOpen] = useState(false)
 
   return (
     <>
@@ -400,31 +285,11 @@ function AnalyticsView({ analytics }: { analytics: InstitutionAnalytics }) {
       </div>
 
       {/* Quick controls */}
-      <div className="mt-lg grid gap-md md:grid-cols-2">
-        <button
-          type="button"
-          onClick={() => setBroadcastOpen(true)}
-          className="group flex items-center justify-between gap-md rounded-xl bg-secondary-container p-lg text-left transition-opacity hover:opacity-95"
-        >
-          <span className="flex items-center gap-md">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/20">
-              <span className="material-symbols-outlined text-white" aria-hidden="true">campaign</span>
-            </span>
-            <span>
-              <span className="block text-headline-sm text-white">Broadcast Banner</span>
-              <span className="block text-body-md text-white/70">
-                Push announcements to all students and faculty.
-              </span>
-            </span>
-          </span>
-          <span
-            className="material-symbols-outlined text-white transition-transform group-hover:translate-x-1"
-            aria-hidden="true"
-          >
-            chevron_right
-          </span>
-        </button>
-
+      {/* ponytail: the broadcast composer is gone — announcements have no
+          domain, no service and no notification fan-out, so it could only ever
+          have been a form that discarded its input. Restore it with the
+          announcements API. */}
+      <div className="mt-lg">
         <button
           type="button"
           onClick={() => setReportsOpen(true)}
@@ -437,7 +302,7 @@ function AnalyticsView({ analytics }: { analytics: InstitutionAnalytics }) {
             <span>
               <span className="block text-headline-sm">Institution Report</span>
               <span className="block text-body-md text-outline">
-                Export 2023-24 comprehensive analytics (PDF).
+                Export department analytics as a spreadsheet.
               </span>
             </span>
           </span>
@@ -453,11 +318,10 @@ function AnalyticsView({ analytics }: { analytics: InstitutionAnalytics }) {
       {reportsOpen && (
         <ReportsDrawer
           categories={analytics.reportCategories}
-          formats={analytics.reportFormats}
+          departments={analytics.departments}
           onClose={() => setReportsOpen(false)}
         />
       )}
-      {broadcastOpen && <BroadcastModal onClose={() => setBroadcastOpen(false)} />}
     </>
   )
 }

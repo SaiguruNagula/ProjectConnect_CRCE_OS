@@ -10,7 +10,7 @@ export const MOCK_PORTFOLIO_CUSTOMIZATION: PortfolioCustomization = {
   headline: '',
   introduction: '',
   featuredSkills: [],
-  sections: { solutions: true, research: true, hackathons: true, timeline: true },
+  sections: { solutions: true, research: true, hackathons: true, timeline: true, credentials: true },
 }
 
 /**

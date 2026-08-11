@@ -35,10 +35,6 @@ export const INSTITUTION_ANALYTICS: InstitutionAnalytics = {
     { id: 'innovation', label: 'Innovation & Research', icon: 'rocket_launch' },
     { id: 'grants', label: 'Financial Grants', icon: 'payments' },
   ],
-  reportFormats: [
-    { id: 'pdf', label: 'PDF' },
-    { id: 'excel', label: 'Excel' },
-  ],
   snapshot: [
     { id: 'students', label: 'Total Students', value: '4,284', badge: '+2.4%', badgeTone: 'positive', fill: 85, fillTone: 'brand' },
     { id: 'faculty', label: 'Total Faculty', value: '86', note: 'PhD Ratio: 64%', noteTone: 'muted' },

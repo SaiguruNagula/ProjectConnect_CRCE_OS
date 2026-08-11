@@ -12,6 +12,8 @@
  * (sidebar, top bar, mobile nav) is owned by FacultyLayout.
  */
 import { useEffect, useState, type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import { useFacultyProfile } from '@/hooks/useFacultyProfile'
 import { useAsync } from '@/hooks/useAsync'
 import {
@@ -28,7 +30,7 @@ import type {
   FacultyVisibility,
   LeaderboardEntry,
   Problem,
-  ReviewStats,
+  ReviewQueues,
 } from '@/types/domain'
 import { cn } from '@/utils/cn'
 import { Avatar } from '@/components/ui/Avatar'
@@ -49,7 +51,7 @@ export function FacultyProfilePage() {
     useFacultyProfile()
   const reputation = useAsync<FacultyReputation>(() => facultyProfileService.reputation())
   const problems = useAsync<Problem[]>(() => problemsService.list())
-  const reviewStats = useAsync<ReviewStats>(() => reviewsService.stats())
+  const reviewQueues = useAsync<ReviewQueues>(() => reviewsService.queues())
   const facultyStats = useAsync<DashboardStats[]>(() => dashboardService.stats('faculty'))
   const leaderboard = useAsync<LeaderboardEntry[]>(() => leaderboardService.faculty())
 
@@ -71,7 +73,7 @@ export function FacultyProfilePage() {
 
   const impact = [
     { icon: 'problem', value: problemsCreated ?? '—', label: 'Problems Created', caption: 'Published', primary: false },
-    { icon: 'fact_check', value: reviewStats.data?.completed ?? '—', label: 'Reviews Completed', caption: 'Verified', primary: false },
+    { icon: 'fact_check', value: reviewQueues.data?.completed.length ?? '—', label: 'Reviews Completed', caption: 'Verified', primary: false },
     { icon: 'groups', value: stat('Students Guided'), label: 'Students Mentored', caption: 'Guided', primary: false },
     { icon: 'token', value: stat('Credits Awarded'), label: 'Credits Awarded', caption: 'Awarded', primary: true },
   ]
@@ -130,13 +132,15 @@ export function FacultyProfilePage() {
             <span className="material-symbols-outlined text-[18px]" aria-hidden="true">edit</span>
             Edit Profile
           </button>
-          <button
-            type="button"
+          {/* ponytail: "Export Dossier" had no document to export — faculty
+              reach their working queue from here instead. */}
+          <Link
+            to={ROUTES.FACULTY.REVIEWS}
             className="flex items-center justify-center gap-sm rounded-lg border border-outline-variant bg-surface-container-lowest px-lg py-sm font-bold text-primary transition-all hover:bg-surface-container-low active:scale-95"
           >
-            <span className="material-symbols-outlined text-[18px]" aria-hidden="true">share</span>
-            Export Dossier
-          </button>
+            <span className="material-symbols-outlined text-[18px]" aria-hidden="true">rate_review</span>
+            Review Queue
+          </Link>
         </div>
       </section>
 

@@ -40,15 +40,31 @@ import type {
   ProblemSuggestion,
   Project,
   ProjectJourney,
+  ReviewableStage,
+  ReviewDecision,
+  ReviewLifecycleStatus,
+  ReviewQueueId,
+  ReviewQueueItem,
+  ReviewQueues,
+  ReviewTimelineEvent,
+  StageReview,
+  StageReviewInput,
   StageState,
   StageStatus,
   StudentProfile,
   SubmissionStage,
+  SubmissionStatus,
   Team,
 } from '@/types/domain'
 import type { Role } from '@/types'
 import { MOCK_PROBLEMS } from '@/mocks/problems'
-import { MOCK_PROJECTS, PENDING_INVITATIONS, MOCK_TEAMS, type ProjectRecord } from '@/mocks/projects'
+import {
+  MOCK_PROJECTS,
+  PENDING_INVITATIONS,
+  MOCK_TEAMS,
+  type ProjectRecord,
+  type TeamRecord,
+} from '@/mocks/projects'
 import {
   EMPTY_JOURNEY,
   MOCK_JOIN_REQUESTS,
@@ -68,7 +84,6 @@ import {
   CREDIT_CATEGORIES,
   CREDIT_PIPELINE,
 } from '@/mocks/credits'
-import { MOCK_REVIEWS, REVIEW_RUBRIC, REVIEW_STATS } from '@/mocks/reviews'
 import { MOCK_SOLUTIONS, SOLUTION_STATS } from '@/mocks/solutions'
 import { MOCK_DIRECTORY_USERS, MOCK_INSTITUTIONS } from '@/mocks/directory'
 import { MOCK_ADMIN_INSTITUTIONS, INSTITUTIONS_OVERVIEW } from '@/mocks/institutions'
@@ -331,13 +346,26 @@ const problems: ProblemRepository = {
 
 /** In-session stores so team/invitation actions persist across page navigation. */
 let projectStore: ProjectRecord[] = structuredClone(MOCK_PROJECTS)
-let teamStore: Team[] = structuredClone(MOCK_TEAMS)
+let teamStore: TeamRecord[] = structuredClone(MOCK_TEAMS)
 let invitationStore: Invitation[] = structuredClone(PENDING_INVITATIONS)
 let journeyStore: Record<string, JourneyRecord> = structuredClone(MOCK_JOURNEYS)
 let joinRequestStore: JoinRequest[] = structuredClone(MOCK_JOIN_REQUESTS)
 
 function journeyOf(projectId: string): JourneyRecord {
   return journeyStore[projectId] ?? structuredClone(EMPTY_JOURNEY)
+}
+
+/**
+ * Roster permission gate. The API will enforce this from the auth token; the
+ * mock mirrors it so the UI is exercised against the same rule.
+ */
+function isLead(team: TeamRecord): boolean {
+  return team.leaderId === profileStore.userId
+}
+
+/** Compose the caller's roster permission onto a stored team, as the API will. */
+function withPermissions(team: TeamRecord): Team {
+  return { ...team, canManage: isLead(team) }
 }
 
 /**
@@ -375,6 +403,53 @@ function withStage(project: ProjectRecord): Project {
   return { ...project, stage, stageStatus: stageStatus(record, stage) }
 }
 
+/**
+ * The single lifecycle status every surface reads. Derived from the stage
+ * states, latest-first, so a card, a badge and a timeline can never disagree.
+ */
+function lifecycleStatus(record: JourneyRecord): ReviewLifecycleStatus {
+  const { idea, poc, selection, final } = record
+  if (final.status === 'approved') return record.credits ? 'completed' : 'approved'
+  if (final.status === 'rejected') return 'rejected'
+  if (final.status === 'changes_requested') return 'changes_requested'
+  if (final.status === 'submitted' || final.status === 'under_review') return 'final_submitted'
+  if (selection.status === 'selected') return 'selected_for_final'
+  if (selection.status === 'not_selected') return 'rejected'
+  if (poc.status === 'approved') return 'poc_approved'
+  if (poc.status === 'rejected') return 'rejected'
+  if (poc.status === 'changes_requested') return 'changes_requested'
+  if (poc.status === 'submitted' || poc.status === 'under_review') return 'poc_submitted'
+  if (idea.status === 'approved') return 'idea_approved'
+  if (idea.status === 'rejected') return 'rejected'
+  if (idea.status === 'changes_requested') return 'changes_requested'
+  // ponytail: a journey with nothing submitted still reads as the first step —
+  // the timeline's `done` flags carry the truth, so no extra 'draft' status.
+  return 'idea_submitted'
+}
+
+/**
+ * The submission timeline, always the same seven steps in the same order. A
+ * step is done once it has actually happened, so the shape never changes with
+ * the project — only the ticks do.
+ */
+function composeTimeline(record: JourneyRecord): ReviewTimelineEvent[] {
+  const { idea, poc, selection, final } = record
+  return [
+    { status: 'idea_submitted', label: 'Idea Submitted', at: idea.submittedAt, done: idea.status !== 'draft' },
+    { status: 'idea_approved', label: 'Idea Approved', at: idea.reviewedAt, done: idea.status === 'approved' },
+    { status: 'poc_submitted', label: 'PoC Submitted', at: poc.submittedAt, done: poc.status !== 'draft' },
+    { status: 'poc_approved', label: 'PoC Approved', at: poc.reviewedAt, done: poc.status === 'approved' },
+    {
+      status: 'selected_for_final',
+      label: 'Selected for Final Development',
+      at: selection.decidedAt,
+      done: selection.status === 'selected',
+    },
+    { status: 'final_submitted', label: 'Final Submitted', at: final.submittedAt, done: final.status !== 'draft' },
+    { status: 'completed', label: 'Completed', at: final.reviewedAt, done: final.status === 'approved' },
+  ]
+}
+
 /** Compose the full journey read model from the project, team, problem and stages. */
 function composeJourney(project: ProjectRecord): ProjectJourney {
   const record = journeyOf(project.id)
@@ -386,12 +461,14 @@ function composeJourney(project: ProjectRecord): ProjectJourney {
     problemId: project.problemId,
     problemTitle: problem?.title,
     teamId: project.teamId,
-    teamName: team?.name ?? 'Individual entry',
+    teamName: team?.name ?? project.members[0]?.name ?? 'Individual entry',
     mentorName: project.mentorName,
     members: team?.members ?? project.members,
     currentStage: currentStage(record),
     unlockedStages: unlockedStages(record),
     ...record,
+    status: lifecycleStatus(record),
+    timeline: composeTimeline(record),
   }
 }
 
@@ -429,18 +506,31 @@ const projects: ProjectRepository = {
   invitations: () => resolve(invitationStore), // GET /api/v1/teams/invitations
   // GET /api/v1/teams?problem_id=...
   teams: (problemId) =>
-    resolve(problemId ? teamStore.filter((t) => t.problemId === problemId) : teamStore),
+    resolve(
+      (problemId ? teamStore.filter((t) => t.problemId === problemId) : teamStore).map(
+        withPermissions,
+      ),
+    ),
+  // GET /api/v1/teams/{id}
+  team: (teamId) => {
+    const found = teamStore.find((t) => t.id === teamId)
+    return resolve(found ? withPermissions(found) : null)
+  },
   createTeam: (input) => {
     // POST /api/v1/teams — the creator becomes the lead; only one team may be `mine`.
     const problem = problemStore.find((p) => p.id === input.problemId)
-    const team: Team = {
+    const team: TeamRecord = {
       id: `t-${Date.now()}`,
       name: input.name.trim(),
       problemId: input.problemId,
       pitch: input.pitch.trim(),
       mine: true,
+      leaderId: profileStore.userId,
+      createdAt: new Date().toISOString(),
+      status: 'recruiting',
       openSpots: Math.max(0, (problem?.teamSize ?? input.lookingFor.length + 1) - 1),
       lookingFor: input.lookingFor,
+      pendingInvites: [],
       members: [
         {
           id: profileStore.userId,
@@ -457,7 +547,7 @@ const projects: ProjectRepository = {
       `${team.name} is now recruiting${problem ? ` for ${problem.title}` : ''}.`,
       withQuery(ROUTES.SHARED.TEAM_FORMATION, { [QUERY_PARAMS.PROBLEM]: input.problemId }),
     )
-    return resolve(team)
+    return resolve(withPermissions(team))
   },
   requestToJoin: (teamId, message) => {
     // POST /api/v1/teams/{id}/join-requests
@@ -466,7 +556,7 @@ const projects: ProjectRepository = {
     if (existing.joinRequested) return reject('You have already requested to join this team.')
     if (existing.openSpots === 0) return reject('This team has no open slots.')
     if (!message.trim()) return reject('Tell the team lead what you would contribute.')
-    const updated: Team = { ...existing, joinRequested: true }
+    const updated: TeamRecord = { ...existing, joinRequested: true }
     teamStore = teamStore.map((t) => (t.id === teamId ? updated : t))
     raise(
       'info',
@@ -474,7 +564,74 @@ const projects: ProjectRepository = {
       `Your request to join ${updated.name} is awaiting the team lead's response.`,
       withQuery(ROUTES.SHARED.TEAM_FORMATION, { [QUERY_PARAMS.PROBLEM]: updated.problemId }),
     )
-    return resolve(updated)
+    return resolve(withPermissions(updated))
+  },
+  inviteMember: (teamId, input) => {
+    // POST /api/v1/teams/{id}/invitations — lead only.
+    const existing = teamStore.find((t) => t.id === teamId)
+    if (!existing) return reject('Team not found')
+    if (!isLead(existing)) return reject('Only the team lead can invite members.')
+    if (existing.openSpots === 0) return reject('Your team has no open slots left.')
+    const email = input.email.trim().toLowerCase()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reject('Enter a valid email address.')
+    if (existing.members.some((m) => m.name.toLowerCase() === email)) {
+      return reject('That student is already on the team.')
+    }
+    if (existing.pendingInvites.some((i) => i.email === email)) {
+      return reject('That student has already been invited.')
+    }
+    const updated: TeamRecord = {
+      ...existing,
+      pendingInvites: [
+        ...existing.pendingInvites,
+        { id: `ti-${Date.now()}`, email, role: input.role.trim() || 'Member', invitedAt: new Date().toISOString() },
+      ],
+    }
+    teamStore = teamStore.map((t) => (t.id === teamId ? updated : t))
+    raise('success', 'Invitation sent', `${email} was invited to ${updated.name}.`)
+    return resolve(withPermissions(updated))
+  },
+  removeMember: (teamId, memberId) => {
+    // DELETE /api/v1/teams/{id}/members/{memberId} — lead only.
+    const existing = teamStore.find((t) => t.id === teamId)
+    if (!existing) return reject('Team not found')
+    if (!isLead(existing)) return reject('Only the team lead can remove members.')
+    if (memberId === existing.leaderId) return reject('The team lead cannot be removed.')
+    const member = existing.members.find((m) => m.id === memberId)
+    if (!member) return reject('That student is not on the team.')
+    const updated: TeamRecord = {
+      ...existing,
+      members: existing.members.filter((m) => m.id !== memberId),
+      // Removing a member frees the slot they occupied.
+      openSpots: existing.openSpots + 1,
+    }
+    teamStore = teamStore.map((t) => (t.id === teamId ? updated : t))
+    raise('info', 'Member removed', `${member.name} is no longer on ${updated.name}.`)
+    return resolve(withPermissions(updated))
+  },
+  leaveTeam: (teamId) => {
+    // DELETE /api/v1/teams/{id}/members/me
+    const existing = teamStore.find((t) => t.id === teamId)
+    if (!existing) return reject('Team not found')
+    if (isLead(existing) && existing.members.length > 1) {
+      return reject('Hand the team lead role to another member before leaving.')
+    }
+    const remaining = existing.members.filter((m) => m.id !== profileStore.userId)
+    if (remaining.length === 0) {
+      // The last member out disbands the team rather than orphaning it.
+      teamStore = teamStore.filter((t) => t.id !== teamId)
+      raise('info', 'Team disbanded', `${existing.name} was closed when its last member left.`)
+      return resolve(null)
+    }
+    const updated: TeamRecord = {
+      ...existing,
+      mine: false,
+      members: remaining,
+      openSpots: existing.openSpots + 1,
+    }
+    teamStore = teamStore.map((t) => (t.id === teamId ? updated : t))
+    raise('info', 'Left team', `You are no longer part of ${updated.name}.`)
+    return resolve(withPermissions(updated))
   },
   // GET /api/v1/teams/mine/join-requests — visible to the team lead only.
   joinRequests: () => resolve(joinRequestStore),
@@ -626,38 +783,6 @@ const projects: ProjectRepository = {
       }
       return { ...record, final: stageAfterSave(record.final, data, submit) }
     }),
-  decideSelection: (input) =>
-    // POST /api/v1/projects/{id}/selection
-    saveStage(input.projectId, (record) => {
-      if (record.poc.status === 'draft') return 'This team has not submitted a proof of concept yet.'
-      if (input.decision !== 'selected' && !input.feedback.trim()) {
-        return 'Explain the decision so the team knows what to do next.'
-      }
-      const selected = input.decision === 'selected'
-      raise(
-        selected ? 'success' : 'warning',
-        selected ? 'Selected for final development' : `Proposal ${input.decision.replace('_', ' ')}`,
-        input.feedback.trim() || 'Faculty have reviewed your proof of concept.',
-        buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: input.projectId }),
-      )
-      return {
-        ...record,
-        // Selecting a team closes out its proof of concept; asking for changes
-        // sends the team back to Stage 2 with the feedback attached.
-        poc:
-          input.decision === 'changes_requested'
-            ? { ...record.poc, status: 'changes_requested', facultyFeedback: input.feedback.trim() }
-            : selected
-              ? { ...record.poc, status: 'approved' }
-              : record.poc,
-        selection: {
-          status: input.decision,
-          feedback: input.feedback.trim() || undefined,
-          decidedBy: profileStore.name,
-          decidedAt: new Date().toISOString(),
-        },
-      }
-    }),
 }
 
 const leaderboard: LeaderboardRepository = {
@@ -794,29 +919,206 @@ const credits: CreditRepository = {
   pipeline: () => resolve(CREDIT_PIPELINE), // GET /api/v1/credits/pipeline
 }
 
-const reviews: ReviewRepository = {
-  list: () => resolve(MOCK_REVIEWS), // GET /api/v1/reviews
-  rubric: () => resolve(REVIEW_RUBRIC), // GET /api/v1/reviews/{id}/rubric
-  stats: () => resolve(REVIEW_STATS), // GET /api/v1/reviews/stats
-  submitDecision: (input) => {
-    // POST /api/v1/reviews/{id}/decision — mock returns the updated submission.
-    const found = MOCK_REVIEWS.find((r) => r.id === input.submissionId)
-    if (!found) return reject('Submission not found')
-    const updated = {
-      ...found,
-      status: input.decision,
-      creditsAwarded: input.decision === 'approved' ? input.creditsAwarded : found.creditsAwarded,
+/* ----------------------------------------------------------- Review Engine */
+
+/** How many links and files a stage payload actually carries. */
+function attachmentCount(record: JourneyRecord, stage: ReviewableStage): number {
+  const data = record[stage].data
+  if (!data) return 0
+  return Object.entries(data).reduce((total, [key, value]) => {
+    if (key === 'techStack') return total // a tag list, not an attachment
+    if (Array.isArray(value)) return total + value.filter((v) => String(v).trim()).length
+    return total + (typeof value === 'string' && value.startsWith('http') ? 1 : 0)
+  }, 0)
+}
+
+/** Which queue a project belongs in, or null when nothing is waiting on faculty. */
+function queueOf(record: JourneyRecord): ReviewQueueId | null {
+  const pending = (status: SubmissionStatus) => status === 'submitted' || status === 'under_review'
+  if (pending(record.final.status)) return 'final'
+  if (pending(record.poc.status)) return 'poc'
+  if (pending(record.idea.status)) return 'idea'
+  const done = lifecycleStatus(record)
+  return done === 'approved' || done === 'completed' || done === 'rejected' ? 'completed' : null
+}
+
+/** The queue card read model — the same join the API will do server-side. */
+function composeQueueItem(project: ProjectRecord, stage: ReviewableStage): ReviewQueueItem {
+  const record = journeyOf(project.id)
+  const journey = composeJourney(project)
+  return {
+    projectId: project.id,
+    problemId: project.problemId,
+    problemTitle: journey.problemTitle ?? project.title,
+    teamName: journey.teamName,
+    teamId: project.teamId,
+    members: journey.members,
+    stage,
+    submittedAt: record[stage].submittedAt,
+    status: journey.status,
+    mentorName: project.mentorName,
+    attachments: attachmentCount(record, stage),
+  }
+}
+
+/** The stage the Completed queue should show the content of. */
+function lastReviewedStage(record: JourneyRecord): ReviewableStage {
+  if (record.final.status !== 'draft') return 'final'
+  if (record.poc.status !== 'draft') return 'poc'
+  return 'idea'
+}
+
+/**
+ * Apply a stage decision. Approving unlocks the next stage for the student;
+ * requesting changes hands the stage back to them; selecting is the PoC
+ * approval that also opens final development.
+ */
+function applyDecision(
+  record: JourneyRecord,
+  input: StageReviewInput,
+  reviewedAt: string,
+): JourneyRecord | string {
+  const stage = record[input.stage]
+  if (stage.status !== 'submitted' && stage.status !== 'under_review') {
+    return 'This submission is not waiting for a review.'
+  }
+  if (input.decision === 'select' && input.stage !== 'poc') {
+    return 'Teams are selected for final development from the proof of concept review.'
+  }
+  const wrote = [input.review.strengths, input.review.weaknesses, input.review.suggestions, input.review.comments]
+    .some((v) => v?.trim())
+  if (input.decision !== 'approve' && input.decision !== 'select' && !wrote) {
+    return 'Explain the decision so the team knows what to do next.'
+  }
+
+  const status: SubmissionStatus =
+    input.decision === 'reject'
+      ? 'rejected'
+      : input.decision === 'changes_requested'
+        ? 'changes_requested'
+        : 'approved'
+
+  const review: StageReview = { ...input.review, reviewedBy: facultyProfileStore.name }
+  const next: JourneyRecord = {
+    ...record,
+    [input.stage]: { ...stage, status, review, reviewedAt },
+  }
+
+  // Selecting a team is the one decision that also settles Stage 3.
+  if (input.decision === 'select') {
+    next.selection = {
+      status: 'selected',
+      feedback: input.review.comments?.trim() || input.review.suggestions?.trim(),
+      decidedBy: facultyProfileStore.name,
+      decidedAt: reviewedAt,
     }
-    raise(
-      input.decision === 'approved' ? 'success' : 'warning',
-      `Review ${input.decision.replace('_', ' ')}`,
-      `${found.projectTitle} — ${found.milestone}${
-        input.decision === 'approved' ? ` (+${input.creditsAwarded} credits)` : ''
-      }.`,
-      ROUTES.SHARED.REVIEW_ENGINE,
-    )
-    return resolve(updated)
+  } else if (input.stage === 'poc' && input.decision === 'reject') {
+    next.selection = {
+      status: 'not_selected',
+      feedback: input.review.weaknesses?.trim() || input.review.comments?.trim(),
+      decidedBy: facultyProfileStore.name,
+      decidedAt: reviewedAt,
+    }
+  }
+  return next
+}
+
+const DECISION_NOTICE: Record<ReviewDecision, { title: string; kind: NotificationKind }> = {
+  approve: { title: 'Submission approved', kind: 'success' },
+  select: { title: 'Selected for final development', kind: 'success' },
+  changes_requested: { title: 'Changes requested', kind: 'warning' },
+  reject: { title: 'Submission rejected', kind: 'warning' },
+}
+
+const reviews: ReviewRepository = {
+  // GET /api/v1/reviews/queues
+  queues: () => {
+    const empty: ReviewQueues = { idea: [], poc: [], final: [], completed: [] }
+    const queues = projectStore.reduce<ReviewQueues>((acc, project) => {
+      const record = journeyOf(project.id)
+      const queue = queueOf(record)
+      if (!queue) return acc
+      const stage = queue === 'completed' ? lastReviewedStage(record) : queue
+      acc[queue] = [...acc[queue], composeQueueItem(project, stage)]
+      return acc
+    }, empty)
+    // Oldest submission first — the team that has waited longest is reviewed first.
+    for (const key of Object.keys(queues) as ReviewQueueId[]) {
+      queues[key].sort((a, b) => (a.submittedAt ?? '').localeCompare(b.submittedAt ?? ''))
+    }
+    return resolve(queues)
   },
+  // GET /api/v1/reviews/{projectId}
+  detail: (projectId) => {
+    const project = projectStore.find((p) => p.id === projectId)
+    return resolve(project ? composeJourney(project) : null)
+  },
+  // POST /api/v1/reviews/{projectId}/{stage}
+  decide: (input) =>
+    saveStage(input.projectId, (record) => {
+      const next = applyDecision(record, input, new Date().toISOString())
+      if (typeof next === 'string') return next
+      const notice = DECISION_NOTICE[input.decision]
+      raise(
+        notice.kind,
+        notice.title,
+        `${STAGE_LABEL[input.stage]} — ${notice.title.toLowerCase()} by ${facultyProfileStore.name}.`,
+        buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: input.projectId }),
+      )
+      return next
+    }),
+  // POST /api/v1/projects/{id}/credits — the Credit Engine consumes these later.
+  awardCredits: (input) =>
+    saveStage(input.projectId, (record) => {
+      if (record.final.status !== 'approved') {
+        return 'Approve the final project before awarding credits.'
+      }
+      const parts = [input.innovation, input.implementation, input.documentation, input.presentation, input.bonus]
+      if (parts.some((n) => !Number.isFinite(n) || n < 0)) return 'Credits cannot be negative.'
+      const total = parts.reduce((sum, n) => sum + n, 0)
+      raise(
+        'success',
+        'Credits awarded',
+        `${total} credits were awarded for your final project.`,
+        ROUTES.STUDENT.CREDITS,
+      )
+      return {
+        ...record,
+        credits: {
+          innovation: input.innovation,
+          implementation: input.implementation,
+          documentation: input.documentation,
+          presentation: input.presentation,
+          bonus: input.bonus,
+          total,
+          awardedBy: facultyProfileStore.name,
+          awardedAt: new Date().toISOString(),
+        },
+      }
+    }),
+  // POST /api/v1/projects/{id}/publication
+  setPublication: (input) =>
+    saveStage(input.projectId, (record) => {
+      if (record.final.status !== 'approved') {
+        return 'Only an approved final project can be published.'
+      }
+      if (input.publish) {
+        raise(
+          'success',
+          'Published to the Solutions Hub',
+          'Your approved project is now visible in the Solutions Hub.',
+          ROUTES.SHARED.SOLUTIONS,
+        )
+      }
+      return { ...record, published: input.publish }
+    }),
+}
+
+/** Stage wording used in the notifications the Review Engine raises. */
+const STAGE_LABEL: Record<ReviewableStage, string> = {
+  idea: 'Idea',
+  poc: 'Proof of Concept',
+  final: 'Final Project',
 }
 
 const solutions: SolutionRepository = {

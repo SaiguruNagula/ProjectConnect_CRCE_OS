@@ -9,7 +9,8 @@
  * re-entering profile data. Empty overrides fall back to the composed profile.
  */
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import { useAuth } from '@/contexts/AuthContext'
 import { useAsync } from '@/hooks/useAsync'
 import { portfolioService } from '@/services/catalog.service'
@@ -32,7 +33,7 @@ const DEFAULT_CUSTOMIZATION: PortfolioCustomization = {
   headline: '',
   introduction: '',
   featuredSkills: [],
-  sections: { solutions: true, research: true, hackathons: true, timeline: true },
+  sections: { solutions: true, research: true, hackathons: true, timeline: true, credentials: true },
 }
 
 type SectionKey = keyof PortfolioCustomization['sections']
@@ -377,6 +378,57 @@ export function PortfolioPage() {
               </Card>
             )}
           </div>
+
+          {/* Certificates + achievements — earned off-platform, entered on the Profile */}
+          {(data.certificates.length > 0 || data.achievements.length > 0) &&
+            (showControls || sectionOn('credentials')) && (
+              <Card className={cn('flex flex-col gap-md', showControls && !active.sections.credentials && 'opacity-50')}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-sm">
+                    <span className="material-symbols-outlined text-secondary" aria-hidden="true">school</span>
+                    <h2 className="text-headline-sm">Certificates &amp; Achievements</h2>
+                  </div>
+                  {showControls && (
+                    <SectionToggle on={active.sections.credentials} onClick={() => toggleSection('credentials')} />
+                  )}
+                </div>
+                {data.certificates.length > 0 && (
+                  <ul className="grid grid-cols-1 gap-sm md:grid-cols-2">
+                    {data.certificates.map((c) => (
+                      <li
+                        key={c.id}
+                        className="flex items-start gap-sm rounded-xl border border-outline-variant p-sm"
+                      >
+                        <span className="material-symbols-outlined text-[20px] text-secondary" aria-hidden="true">
+                          verified
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block truncate text-body-md font-bold text-on-surface">{c.title}</span>
+                          <span className="block text-label-md text-on-surface-variant">
+                            {c.issuer} · {c.date}
+                          </span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {data.achievements.length > 0 && (
+                  <ul className="flex flex-wrap gap-xs">
+                    {data.achievements.map((a) => (
+                      <li
+                        key={a}
+                        className="flex items-center gap-xs rounded-full bg-surface-container px-3 py-1 font-label-md text-on-surface-variant"
+                      >
+                        <span className="material-symbols-outlined text-[14px] text-secondary" aria-hidden="true">
+                          military_tech
+                        </span>
+                        {a}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </Card>
+            )}
         </div>
 
         {/* Timeline */}
@@ -524,9 +576,20 @@ function OwnerToolbar({
             onClick={onEdit}
             className="flex items-center gap-xs rounded-lg bg-secondary px-sm py-xs text-label-md font-medium text-on-secondary transition-opacity hover:opacity-90"
           >
-            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">edit</span>
+            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">tune</span>
             Customize Portfolio
           </button>
+        )}
+        {/* This toolbar only controls presentation — the content itself is
+            authored in the profile, so give owners the way back to it. */}
+        {!editing && (
+          <Link
+            to={ROUTES.STUDENT.PROFILE}
+            className="flex items-center gap-xs rounded-lg border border-outline-variant px-sm py-xs text-label-md font-medium text-on-surface transition-colors hover:bg-surface-container-high"
+          >
+            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">edit</span>
+            Edit Profile
+          </Link>
         )}
       </div>
     </div>

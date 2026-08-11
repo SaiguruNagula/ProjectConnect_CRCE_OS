@@ -30,7 +30,7 @@ const DIFFICULTY_ICON: Record<Problem['difficulty'], string> = {
 const PIPELINE = [
   { icon: 'search', label: 'Problem', to: ROUTES.SHARED.OPEN_PROBLEMS, accent: 'border-secondary text-secondary' },
   { icon: 'groups', label: 'Team', to: ROUTES.SHARED.TEAM_FORMATION, accent: 'border-outline-variant text-on-surface-variant' },
-  { icon: 'developer_mode', label: 'Project', to: ROUTES.SHARED.PROJECT_SPACE, accent: 'border-outline-variant text-on-surface-variant' },
+  { icon: 'rate_review', label: 'Review', to: ROUTES.SHARED.REVIEW_ENGINE, accent: 'border-outline-variant text-on-surface-variant' },
   { icon: 'package_2', label: 'Product', to: ROUTES.SHARED.SOLUTIONS, accent: 'border-outline-variant text-on-surface-variant' },
   { icon: 'auto_graph', label: 'Impact', to: ROUTES.SHARED.LEADERBOARD, accent: 'border-primary text-primary' },
 ]

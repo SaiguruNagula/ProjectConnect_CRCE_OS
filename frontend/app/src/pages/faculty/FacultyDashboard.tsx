@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useAsync } from '@/hooks/useAsync'
 import { dashboardService, reviewsService, problemsService, projectsService } from '@/services/catalog.service'
-import type { Activity, DashboardStats, Problem, ProblemDraft, Project, ReviewSubmission } from '@/types/domain'
+import type { Activity, DashboardStats, Problem, ProblemDraft, Project, ReviewQueues } from '@/types/domain'
 import { buildPath, QUERY_PARAMS, ROUTES, withQuery } from '@/constants/routes'
 import { cn } from '@/utils/cn'
 import { relativeTime } from '@/utils/date'
@@ -22,26 +22,22 @@ import { ProgressBar } from '@/components/ui/ProgressBar'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { MentorSuggestionReview } from '@/features/problems/MentorSuggestionReview'
-import { SelectionReviewPanel } from '@/features/submissions/SelectionReviewPanel'
-
-/** Mentorship health derived from a project's progress (Stitch: Healthy / Delayed / At Risk). */
-function health(progress: number): { label: string; badge: string; bar: string; atRisk: boolean } {
-  if (progress >= 70) return { label: 'Healthy', badge: 'bg-green-100 text-green-700', bar: 'bg-green-500', atRisk: false }
-  if (progress >= 40) return { label: 'Delayed', badge: 'bg-yellow-100 text-yellow-700', bar: 'bg-yellow-500', atRisk: false }
-  return { label: 'At Risk', badge: 'bg-red-100 text-red-700', bar: 'bg-red-500', atRisk: true }
-}
+import { STAGE_REVIEW } from '@/features/reviews/stages'
+import { stageMeta } from '@/features/submissions/status'
 
 export function FacultyDashboard() {
   const { user } = useAuth()
   const stats = useAsync<DashboardStats[]>(() => dashboardService.stats('faculty'))
-  const reviews = useAsync<ReviewSubmission[]>(() => reviewsService.list())
+  const reviews = useAsync<ReviewQueues>(() => reviewsService.queues())
   const problems = useAsync<Problem[]>(() => problemsService.list())
   const projects = useAsync<Project[]>(() => projectsService.list())
   const activity = useAsync<Activity[]>(() => dashboardService.activity())
   const drafts = useAsync<ProblemDraft[]>(() => problemsService.drafts())
 
   const firstName = user?.name?.split(' ').slice(0, 2).join(' ') ?? 'Faculty'
-  const pending = (reviews.data ?? []).filter((r) => r.status !== 'approved')
+  // The three open stage queues, oldest first — the same backlog the Review Engine works through.
+  const q = reviews.data
+  const pending = q ? [...q.idea, ...q.poc, ...q.final] : []
 
   // The faculty's own problems (fall back to open problems if none match this user).
   const own = (problems.data ?? []).filter(
@@ -122,16 +118,16 @@ export function FacultyDashboard() {
                   const lead = r.members[0]
                   return (
                     <Link
-                      key={r.id}
+                      key={r.projectId}
                       to={ROUTES.FACULTY.REVIEWS}
                       className="group flex items-center justify-between p-md transition-colors hover:bg-surface-container-low"
                     >
                       <div className="flex items-center gap-md">
                         <Avatar initials={lead?.avatarInitials ?? r.teamName.slice(0, 2).toUpperCase()} />
                         <div>
-                          <div className="text-body-md font-semibold text-on-surface">{lead?.name ?? r.teamName}</div>
+                          <div className="text-body-md font-semibold text-on-surface">{r.teamName}</div>
                           <div className="text-xs text-on-surface-variant">
-                            {r.projectTitle} • <span className="text-secondary">{r.milestone}</span>
+                            {r.problemTitle} • <span className="text-secondary">{STAGE_REVIEW[r.stage].label}</span>
                           </div>
                         </div>
                       </div>
@@ -216,9 +212,6 @@ export function FacultyDashboard() {
             </section>
           )}
 
-          {/* Stage 3 — which teams go on to build the final project */}
-          <SelectionReviewPanel />
-
           {/* Problems suggested by students, awaiting this mentor's decision */}
           <MentorSuggestionReview onPublished={problems.reload} />
         </div>
@@ -232,31 +225,29 @@ export function FacultyDashboard() {
               <PageLoader />
             ) : mentored.length > 0 ? (
               <div className="flex flex-col gap-md">
-                {mentored.map((p) => {
-                  const h = health(p.progress)
-                  const done = p.milestones.filter((m) => m.status === 'done').length
-                  return (
-                    <Link key={p.id} to={buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: p.id })}>
-                      <Card className={cn('shadow-sm transition-colors hover:border-secondary', h.atRisk && 'border-l-4 border-l-error')}>
-                        <div className="mb-sm flex items-start justify-between">
-                          <h3 className="text-body-md font-bold leading-tight text-on-surface">{p.title}</h3>
-                          <span className={cn('rounded px-xs py-0.5 text-[10px] font-bold uppercase tracking-tighter', h.badge)}>
-                            {h.label}
-                          </span>
-                        </div>
-                        <ProgressBar
-                          value={p.progress}
-                          className="mb-xs h-1 bg-surface-container-highest"
-                          indicatorClassName={h.bar}
-                        />
-                        <div className="flex justify-between text-[10px] font-medium uppercase text-on-surface-variant">
-                          <span>Milestone {done}/{p.milestones.length}</span>
-                          <span>{p.progress}%</span>
-                        </div>
-                      </Card>
-                    </Link>
-                  )
-                })}
+                {/* /student/projects/:id is student-only — faculty follow their
+                    mentored projects through the Review Engine. */}
+                {mentored.map((p) => (
+                  <Link key={p.id} to={ROUTES.FACULTY.REVIEWS}>
+                    <Card className="shadow-sm transition-colors hover:border-secondary">
+                      <div className="mb-sm flex items-start justify-between gap-sm">
+                        <h3 className="text-body-md font-bold leading-tight text-on-surface">{p.title}</h3>
+                        <span className="shrink-0 text-[10px] font-bold uppercase tracking-tighter text-on-surface-variant">
+                          {stageMeta(p.stage).label}
+                        </span>
+                      </div>
+                      <ProgressBar
+                        value={p.progress}
+                        className="mb-xs h-1 bg-surface-container-highest"
+                        indicatorClassName="bg-secondary"
+                      />
+                      <div className="flex justify-between text-[10px] font-medium uppercase text-on-surface-variant">
+                        <span>Submission progress</span>
+                        <span>{p.progress}%</span>
+                      </div>
+                    </Card>
+                  </Link>
+                ))}
               </div>
             ) : (
               <Card>

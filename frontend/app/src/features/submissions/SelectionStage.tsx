@@ -71,7 +71,13 @@ export function SelectionStage({ journey, onOpenStage }: SelectionStageProps) {
 
       <p className="text-body-md leading-relaxed text-on-surface-variant">{outcome.message}</p>
 
-      {feedback && <FeedbackNote from={decidedBy ?? journey.mentorName} feedback={feedback} at={decidedAt} />}
+      {feedback && (
+        <FeedbackNote
+          from={decidedBy ?? journey.mentorName}
+          review={{ comments: feedback }}
+          at={decidedAt}
+        />
+      )}
 
       {status === 'changes_requested' && (
         <div>

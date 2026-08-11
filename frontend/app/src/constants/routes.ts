@@ -19,7 +19,6 @@ export const ROUTES = {
     OPEN_PROBLEMS: '/open-problems',
     PROBLEM_DETAILS: '/problem/:id',
     TEAM_FORMATION: '/team',
-    PROJECT_SPACE: '/project',
     REVIEW_ENGINE: '/review',
     SOLUTIONS: '/solutions',
     LEADERBOARD: '/leaderboard',

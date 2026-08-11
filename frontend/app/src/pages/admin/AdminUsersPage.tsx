@@ -13,7 +13,7 @@
  * `success`/`warning` tokens map to Tailwind emerald/amber (the app palette has
  * no such tokens), matching the Admin Dashboard.
  */
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useAsync } from '@/hooks/useAsync'
 import { adminService } from '@/services/catalog.service'
 import type {
@@ -26,9 +26,24 @@ import type {
 import { Avatar } from '@/components/ui/Avatar'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { Pagination } from '@/components/ui/Pagination'
+import { downloadCsv } from '@/utils/csv'
 import { initials } from '@/utils/initials'
 
 const CARD = 'bg-surface-container-lowest border border-outline-variant rounded-lg'
+const PAGE_SIZE = 10
+
+/** Export shape of the directory — header order and fields in one place. */
+const USER_COLUMNS: { header: string; value: (u: DirectoryUser) => unknown }[] = [
+  { header: 'Name', value: (u) => u.name },
+  { header: 'Email', value: (u) => u.email },
+  { header: 'Institution', value: (u) => u.institution },
+  { header: 'Department', value: (u) => u.department },
+  { header: 'Role', value: (u) => u.role },
+  { header: 'Credits', value: (u) => u.credits },
+  { header: 'Projects', value: (u) => u.projects },
+  { header: 'Status', value: (u) => u.status },
+]
 
 /** Per-role badge colours (Stitch: Faculty indigo, Student blue). */
 const ROLE_BADGE: Record<DirectoryUser['role'], string> = {
@@ -122,6 +137,13 @@ export function AdminUsersPage() {
     )
   }, [users.data, query, institution])
 
+  const [page, setPage] = useState(1)
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
+  // A narrowed filter can leave the reader on a page that no longer exists.
+  useEffect(() => setPage(1), [query, institution])
+  const pageRows = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const firstOnPage = rows.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1
+
   return (
     <div className="mx-auto max-w-[1600px] space-y-6 text-[13px] text-on-surface">
       {/* Header & quick actions */}
@@ -132,26 +154,17 @@ export function AdminUsersPage() {
             Comprehensive control over students, faculty, and administrative accounts.
           </p>
         </div>
+        {/* ponytail: invites and bulk actions need endpoints that do not exist —
+            dropped rather than shipped as inert buttons. Export is real. */}
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest p-1.5">
           <button
             type="button"
-            className="flex items-center gap-1.5 rounded bg-secondary px-3 py-1.5 text-[11px] font-bold text-on-secondary transition-colors hover:bg-secondary/90"
+            disabled={rows.length === 0}
+            onClick={() => downloadCsv('crce-os-users.csv', USER_COLUMNS, rows)}
+            className="flex items-center gap-1.5 rounded border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-[11px] font-bold transition-colors hover:bg-surface-container disabled:opacity-40"
           >
-            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">person_add</span> Invite User
-          </button>
-          <button
-            type="button"
-            className="flex items-center gap-1.5 rounded border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-[11px] font-bold transition-colors hover:bg-surface-container"
-          >
-            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">file_download</span> Export
-            <span className="material-symbols-outlined text-[14px]" aria-hidden="true">expand_more</span>
-          </button>
-          <div className="mx-1 h-6 w-px bg-outline-variant" />
-          <button
-            type="button"
-            className="flex items-center gap-1.5 rounded px-3 py-1.5 text-[11px] font-bold text-on-surface-variant transition-colors hover:bg-surface-container"
-          >
-            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">layers</span> Bulk Actions
+            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">file_download</span>
+            Export {rows.length > 0 && <span className="font-mono">({rows.length})</span>}
           </button>
         </div>
       </div>
@@ -173,12 +186,9 @@ export function AdminUsersPage() {
             Verification Center
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Counters, not actions — there is no verification workflow route. */}
             {overview.data.verificationQueue.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={`${CARD} flex items-center gap-4 p-3 text-left transition-colors hover:border-secondary`}
-              >
+              <div key={item.id} className={`${CARD} flex items-center gap-4 p-3 text-left`}>
                 <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${QUEUE_TONE[item.tone].chip}`}>
                   <span className="material-symbols-outlined" aria-hidden="true">{item.icon}</span>
                 </div>
@@ -193,7 +203,7 @@ export function AdminUsersPage() {
                     {item.count} <span className="text-[10px] font-normal text-on-surface-variant">{item.unit}</span>
                   </div>
                 </div>
-              </button>
+              </div>
             ))}
           </div>
         </section>
@@ -258,11 +268,10 @@ export function AdminUsersPage() {
                     <th scope="col" className="px-4 py-3 text-center">Credits</th>
                     <th scope="col" className="px-4 py-3 text-center">Projects</th>
                     <th scope="col" className="px-4 py-3">Status</th>
-                    <th scope="col" className="px-4 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant">
-                  {rows.map((u) => {
+                  {pageRows.map((u) => {
                     const status = STATUS_DOT[u.status]
                     return (
                       <tr key={u.id} className="transition-colors hover:bg-surface-container/40">
@@ -291,15 +300,6 @@ export function AdminUsersPage() {
                             {u.status}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-right">
-                          <button
-                            type="button"
-                            aria-label={`Actions for ${u.name}`}
-                            className="rounded p-1 hover:bg-surface-container"
-                          >
-                            <span className="material-symbols-outlined" aria-hidden="true">more_vert</span>
-                          </button>
-                        </td>
                       </tr>
                     )
                   })}
@@ -308,16 +308,18 @@ export function AdminUsersPage() {
             </div>
           )}
 
-          <div className="flex items-center justify-between border-t border-outline-variant bg-surface-container/10 p-3">
-            <p className="text-[10px] font-medium text-on-surface-variant">
-              Showing {rows.length} of {users.data?.length ?? 0} users
-            </p>
-            <div className="flex gap-1">
-              <button type="button" className="rounded border border-outline-variant px-2 py-1 text-[10px] hover:bg-surface-container">Prev</button>
-              <button type="button" aria-current="page" className="rounded border border-secondary bg-secondary px-2 py-1 text-[10px] text-on-secondary">1</button>
-              <button type="button" className="rounded border border-outline-variant px-2 py-1 text-[10px] hover:bg-surface-container">2</button>
-              <button type="button" className="rounded border border-outline-variant px-2 py-1 text-[10px] hover:bg-surface-container">Next</button>
-            </div>
+          <div className="border-t border-outline-variant bg-surface-container/10 p-3">
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onChange={setPage}
+              summary={`Showing ${firstOnPage}–${Math.min(page * PAGE_SIZE, rows.length)} of ${rows.length} users`}
+            />
+            {totalPages <= 1 && (
+              <p className="text-[10px] font-medium text-on-surface-variant">
+                Showing {rows.length} of {users.data?.length ?? 0} users
+              </p>
+            )}
           </div>
         </section>
 
@@ -341,7 +343,9 @@ export function AdminUsersPage() {
             <div className={`${CARD} flex flex-col overflow-hidden`}>
               <div className="flex items-center justify-between border-b border-outline-variant p-4">
                 <h3 className="text-sm font-bold">Audit Log</h3>
-                <button type="button" className="text-[10px] font-bold text-secondary hover:underline">Full Logs</button>
+                <span className="text-[10px] font-medium text-on-surface-variant">
+                  Last {overview.data.auditLog.length} events
+                </span>
               </div>
               <div className="flex-1 divide-y divide-outline-variant">
                 {overview.data.auditLog.map((entry) => (

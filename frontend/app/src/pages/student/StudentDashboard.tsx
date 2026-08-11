@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useAsync } from '@/hooks/useAsync'
 import { dashboardService, projectsService, portfolioService } from '@/services/catalog.service'
-import { buildPath, ROUTES } from '@/constants/routes'
+import { buildPath, QUERY_PARAMS, ROUTES, withQuery } from '@/constants/routes'
 import { initials } from '@/utils/initials'
 import type { DashboardStats, Deadline, Invitation, Portfolio, Project } from '@/types/domain'
 import { Card } from '@/components/ui/Card'
@@ -236,7 +236,14 @@ function UrgentInvitation({ invitation }: { invitation: Invitation }) {
       <p className="text-[10px] text-on-surface-variant">
         Invited by {invitation.invitedBy} • {invitation.role}
       </p>
-      <Link to={ROUTES.SHARED.TEAM_FORMATION} className="mt-xs inline-block text-[10px] font-bold text-secondary hover:underline">
+      <Link
+        to={
+          invitation.problemId
+            ? withQuery(ROUTES.SHARED.TEAM_FORMATION, { [QUERY_PARAMS.PROBLEM]: invitation.problemId })
+            : ROUTES.SHARED.TEAM_FORMATION
+        }
+        className="mt-xs inline-block text-[10px] font-bold text-secondary hover:underline"
+      >
         VIEW INVITE
       </Link>
     </div>

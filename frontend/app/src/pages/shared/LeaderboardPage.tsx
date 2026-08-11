@@ -24,15 +24,11 @@ import { cn } from '@/utils/cn'
 
 type View = 'student' | 'faculty'
 
-const TIMEFRAMES = ['All Time', 'This Month'] as const
-type Timeframe = (typeof TIMEFRAMES)[number]
-
 export function LeaderboardPage() {
   const navigate = useNavigate()
   const [view, setView] = useState<View>('student')
   const [query, setQuery] = useState('')
-  // ponytail: visual-only until the API exposes per-timeframe snapshots.
-  const [timeframe, setTimeframe] = useState<Timeframe>('All Time')
+  const [department, setDepartment] = useState('')
 
   const { data, loading, error, reload } = useAsync<LeaderboardEntry[]>(
     () => (view === 'student' ? leaderboardService.students() : leaderboardService.faculty()),
@@ -47,16 +43,21 @@ export function LeaderboardPage() {
     () => [...(data ?? [])].sort((a, b) => a.rank - b.rank),
     [data],
   )
-  // Podium reflects the full ranking; the table below is search-filtered.
+  const departments = useMemo(
+    () => Array.from(new Set(ranked.map((e) => e.department))).sort(),
+    [ranked],
+  )
+  // Podium reflects the full ranking; the table below is search- and dept-filtered.
   const podium = ranked.slice(0, 3)
   const rows = useMemo(
     () =>
       ranked.filter(
         (e) =>
-          e.name.toLowerCase().includes(query.toLowerCase()) ||
-          e.department.toLowerCase().includes(query.toLowerCase()),
+          (department === '' || e.department === department) &&
+          (e.name.toLowerCase().includes(query.toLowerCase()) ||
+            e.department.toLowerCase().includes(query.toLowerCase())),
       ),
-    [ranked, query],
+    [ranked, query, department],
   )
 
   // Every ranked member has a public portfolio, keyed by their user id.
@@ -66,7 +67,7 @@ export function LeaderboardPage() {
     <div className="mx-auto flex max-w-container-max flex-col gap-lg">
       <PageHeader title="Leaderboard" subtitle="Recognizing innovation and contribution across CRCE." />
 
-      {/* Controls: toggle · search · timeframe */}
+      {/* Controls: toggle · search · department */}
       <div className="flex flex-col gap-md md:flex-row md:items-center md:justify-between">
         <Tabs
           className="w-full md:w-auto"
@@ -84,27 +85,17 @@ export function LeaderboardPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <div className="flex shrink-0 gap-xs" role="group" aria-label="Timeframe">
-            {TIMEFRAMES.map((t) => {
-              const active = t === timeframe
-              return (
-                <button
-                  key={t}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => setTimeframe(t)}
-                  className={cn(
-                    'whitespace-nowrap rounded-full px-md py-xs text-label-md font-medium transition-all active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary',
-                    active
-                      ? 'bg-secondary text-on-primary'
-                      : 'border border-outline-variant bg-surface text-on-surface-variant hover:bg-surface-container',
-                  )}
-                >
-                  {t}
-                </button>
-              )
-            })}
-          </div>
+          <select
+            aria-label="Filter by department"
+            value={department}
+            onChange={(e) => setDepartment(e.target.value)}
+            className="h-10 shrink-0 rounded-lg border border-outline-variant bg-surface px-sm text-label-md text-on-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
+          >
+            <option value="">All departments</option>
+            {departments.map((d) => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -134,7 +125,23 @@ export function LeaderboardPage() {
 
           {/* Ranking table */}
           {rows.length === 0 ? (
-            <EmptyState icon="search_off" title="No results" description="Try a different search." />
+            <EmptyState
+              icon="search_off"
+              title="No results"
+              description="Try a different search or department."
+              action={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setQuery('')
+                    setDepartment('')
+                  }}
+                >
+                  Clear filters
+                </Button>
+              }
+            />
           ) : (
             <Card className="overflow-hidden p-0 shadow-sm">
               <div className="overflow-x-auto">

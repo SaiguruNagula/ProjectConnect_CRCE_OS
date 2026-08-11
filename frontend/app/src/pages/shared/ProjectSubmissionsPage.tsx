@@ -1,12 +1,12 @@
 /**
- * Project Workspace — the student's submission journey for one project. Serves
- * the shared /project route (their current project) and /student/projects/:id.
+ * Project Submissions — the student's submission journey for one project,
+ * served at /student/projects/:id.
  *
  * Four stages, in order: Idea → Proof of Concept → Faculty Selection → Final
  * Project. This is a submission flow, not a project-management tool: there are
- * no boards, no meetings and no progress arithmetic here. Stage order, unlocking
- * and status transitions are decided by useProjectJourney → projectsService, so
- * this page only chooses which stage to render.
+ * no boards, no tasks, no meetings and no progress arithmetic here. Stage order,
+ * unlocking and status transitions are decided by useProjectJourney →
+ * projectsService, so this page only chooses which stage to render.
  */
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -25,7 +25,7 @@ import { SelectionStage } from '@/features/submissions/SelectionStage'
 import { FinalStage } from '@/features/submissions/FinalStage'
 import { stageMeta } from '@/features/submissions/status'
 
-export function ProjectWorkspacePage() {
+export function ProjectSubmissionsPage() {
   const { id } = useParams()
   const {
     journey,
@@ -51,7 +51,7 @@ export function ProjectWorkspacePage() {
         <EmptyState
           icon="folder_off"
           title="Project not found"
-          description={error ?? 'You do not have a project workspace yet. Apply to an open problem to start one.'}
+          description={error ?? 'You have no submissions yet. Apply to an open problem to start one.'}
           action={
             <Link
               to={ROUTES.SHARED.OPEN_PROBLEMS}
@@ -71,6 +71,13 @@ export function ProjectWorkspacePage() {
   return (
     <div className="mx-auto flex w-full max-w-container-max flex-col gap-lg px-md py-lg md:px-lg">
       <header className="flex flex-col gap-sm">
+        <nav aria-label="Breadcrumb" className="text-label-md text-on-surface-variant">
+          <Link to={ROUTES.STUDENT.PROJECTS} className="font-medium text-secondary hover:underline">
+            My Projects
+          </Link>
+          <span className="mx-xs" aria-hidden="true">/</span>
+          <span>{journey.title}</span>
+        </nav>
         <div className="flex items-center gap-sm">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-surface-container-high text-primary">
             <span className="material-symbols-outlined" aria-hidden="true">

@@ -47,6 +47,15 @@ export function stageMeta(stage: SubmissionStage): StageMeta {
   return STAGES.find((s) => s.value === stage) ?? STAGES[0]
 }
 
+/** The five scored evaluation categories, in the order faculty fill them in. */
+export const EVALUATION_SCORES = [
+  { key: 'innovation', label: 'Innovation' },
+  { key: 'technicalQuality', label: 'Technical Quality' },
+  { key: 'implementation', label: 'Implementation' },
+  { key: 'documentation', label: 'Documentation' },
+  { key: 'presentation', label: 'Presentation' },
+] as const
+
 interface StatusMeta {
   label: string
   /** Compact label for list rows, where the full wording does not fit. */
@@ -60,6 +69,7 @@ export const STAGE_STATUS: Record<StageStatus, StatusMeta> = {
   under_review: { label: 'Under Review', short: 'Under review', tone: 'warning' },
   changes_requested: { label: 'Changes Requested', short: 'Changes requested', tone: 'error' },
   approved: { label: 'Approved', short: 'Approved', tone: 'success' },
+  rejected: { label: 'Rejected', short: 'Rejected', tone: 'error' },
   not_reviewed: { label: 'Not Yet Reviewed', short: 'Awaiting review', tone: 'neutral' },
   selected: { label: 'Selected for Final Development', short: 'Selected', tone: 'success' },
   not_selected: { label: 'Not Selected', short: 'Not selected', tone: 'error' },
@@ -96,6 +106,8 @@ export function nextAction(stage: SubmissionStage, status: StageStatus): string 
       return 'Build and submit your final project'
     case 'not_selected':
       return 'Not selected — explore other open problems'
+    case 'rejected':
+      return `Your ${label} was rejected — explore other open problems`
     case 'approved':
       return stage === 'final' ? 'Complete — credits awarded' : 'Approved — continue to the next stage'
   }

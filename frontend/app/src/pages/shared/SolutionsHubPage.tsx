@@ -59,7 +59,7 @@ export function SolutionsHubPage() {
           {/* Authoring a brief is a faculty capability — hidden for everyone else. */}
           {role === 'faculty' && (
             <Link to={ROUTES.FACULTY.CREATE_PROBLEM}>
-              <Button>Submit Idea</Button>
+              <Button>Post a Problem</Button>
             </Link>
           )}
         </div>
@@ -182,12 +182,11 @@ function StatCell({ value, label, divider = false }: { value: string; label: str
 }
 
 function FeaturedCard({ solution }: { solution: Solution }) {
-  // Featured solutions lead back to the work that produced them.
-  const to = solution.projectId
-    ? buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: solution.projectId })
-    : solution.problemId
-      ? buildPath(ROUTES.SHARED.PROBLEM_DETAILS, { id: solution.problemId })
-      : null
+  // Featured solutions lead back to the brief that produced them. The Solutions
+  // Hub is public, so it never links into a role-protected route.
+  const to = solution.problemId
+    ? buildPath(ROUTES.SHARED.PROBLEM_DETAILS, { id: solution.problemId })
+    : null
 
   const card = (
     <div className="w-[85vw] flex-none snap-center md:w-[450px]">

@@ -327,6 +327,10 @@ export function StudentProfilePage() {
                 <span className="text-body-md text-zinc-300">Show Contact Info</span>
                 <Switch checked={visibility?.showContact ?? false} onChange={() => toggle('showContact')} label="Show contact info" />
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-body-md text-zinc-300">Show Social Links</span>
+                <Switch checked={visibility?.showSocials ?? false} onChange={() => toggle('showSocials')} label="Show social links" />
+              </div>
             </div>
             <Link
               to={buildPath(ROUTES.SHARED.PORTFOLIO, { id: 'me' })}
@@ -432,10 +436,21 @@ export function StudentProfilePage() {
         {/* Account settings */}
         <SectionCard className="md:col-span-4">
           <h3 className="mb-md text-headline-sm font-semibold text-on-surface">Account Settings</h3>
+          {/* ponytail: notification/security/data settings need backend endpoints
+              that do not exist yet — dropped rather than shipped as inert rows. */}
           <div className="space-y-md">
-            <SettingRow icon="notifications" title="Notification Preferences" detail="Email & push notification rules" />
-            <SettingRow icon="security" title="Security & Auth" detail="Password, MFA, and active sessions" />
-            <SettingRow icon="database" title="Data & Privacy" detail="Export or request data deletion" />
+            <SettingRow
+              icon="badge"
+              title="Public Portfolio"
+              detail="Review how your profile appears to visitors"
+              to={buildPath(ROUTES.SHARED.PORTFOLIO, { id: 'me' })}
+            />
+            <SettingRow
+              icon="savings"
+              title="Credit Ledger"
+              detail="Every credit awarded, and why"
+              to={ROUTES.STUDENT.CREDITS}
+            />
             <div className="mt-lg border-t border-outline-variant pt-md">
               <button
                 type="button"
@@ -531,9 +546,9 @@ function AchievementRow({ achievement }: { achievement: ProfileAchievement }) {
   )
 }
 
-function SettingRow({ icon, title, detail }: { icon: string; title: string; detail: string }) {
+function SettingRow({ icon, title, detail, to }: { icon: string; title: string; detail: string; to: string }) {
   return (
-    <div className="group cursor-pointer rounded-lg p-sm transition-colors hover:bg-surface-container-low">
+    <Link to={to} className="group block rounded-lg p-sm transition-colors hover:bg-surface-container-low">
       <div className="flex items-center gap-md">
         <span className="material-symbols-outlined text-on-surface-variant group-hover:text-secondary" aria-hidden="true">{icon}</span>
         <div>
@@ -541,7 +556,7 @@ function SettingRow({ icon, title, detail }: { icon: string; title: string; deta
           <p className="text-label-md text-on-surface-variant">{detail}</p>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
 

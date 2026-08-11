@@ -11,17 +11,19 @@ import type {
   ApplicationInput,
   CreateProblemInput,
   CreateTeamInput,
+  CreditAwardInput,
   FacultyProfile,
   FinalSubmission,
   IdeaSubmission,
   InstitutionInput,
   InstitutionStatus,
+  InviteMemberInput,
   PocSubmission,
   PortfolioCustomization,
   ProblemQuery,
   ProblemSuggestionInput,
-  ReviewDecisionInput,
-  SelectionDecisionInput,
+  PublicationInput,
+  StageReviewInput,
   StudentProfile,
   SuggestionDecisionInput,
 } from '@/types/domain'
@@ -64,8 +66,18 @@ export const projectsService = {
   invitations: () => repositories.projects.invitations(),
   /** Teams for one problem, or every team when `problemId` is omitted. */
   teams: (problemId?: string) => repositories.projects.teams(problemId),
+  /** One team — the contextual Team Details surface reads through here. */
+  team: (teamId: string) => repositories.projects.team(teamId),
   /** Form a team around a problem. */
   createTeam: (input: CreateTeamInput) => repositories.projects.createTeam(input),
+  /** Invite a student to the team — lead only. */
+  inviteMember: (teamId: string, input: InviteMemberInput) =>
+    repositories.projects.inviteMember(teamId, input),
+  /** Remove a member from the team — lead only. */
+  removeMember: (teamId: string, memberId: string) =>
+    repositories.projects.removeMember(teamId, memberId),
+  /** Leave the team; resolves to null once the last member out disbands it. */
+  leaveTeam: (teamId: string) => repositories.projects.leaveTeam(teamId),
   /** Ask an existing team for a spot, saying what you would contribute. */
   requestToJoin: (teamId: string, message: string) =>
     repositories.projects.requestToJoin(teamId, message),
@@ -97,9 +109,6 @@ export const projectsService = {
   /** Save Stage 4 as a draft (`submit: false`) or send it for approval. */
   saveFinal: (projectId: string, data: FinalSubmission, submit: boolean) =>
     repositories.projects.saveFinal(projectId, data, submit),
-  /** Faculty Stage-3 decision — selecting a team unlocks its Final Project stage. */
-  decideSelection: (input: SelectionDecisionInput) =>
-    repositories.projects.decideSelection(input),
 }
 
 export const leaderboardService = {
@@ -150,11 +159,23 @@ export const creditsService = {
   pipeline: () => repositories.credits.pipeline(),
 }
 
+/**
+ * The Review Engine. Faculty evaluate submissions stage by stage — Idea, Proof
+ * of Concept (where teams are selected for final development), Final Project —
+ * then award credits and choose whether to publish. Every transition is decided
+ * below this layer.
+ */
 export const reviewsService = {
-  list: () => repositories.reviews.list(),
-  rubric: () => repositories.reviews.rubric(),
-  stats: () => repositories.reviews.stats(),
-  submitDecision: (input: ReviewDecisionInput) => repositories.reviews.submitDecision(input),
+  /** Stage-based queues with their pending counts. */
+  queues: () => repositories.reviews.queues(),
+  /** The full submission under review, including its timeline. */
+  detail: (projectId: string) => repositories.reviews.detail(projectId),
+  /** Approve, request changes, reject, or select the proposal for final development. */
+  decide: (input: StageReviewInput) => repositories.reviews.decide(input),
+  /** Award credits once a final project is approved. */
+  awardCredits: (input: CreditAwardInput) => repositories.reviews.awardCredits(input),
+  /** Publish an approved project to the Solutions Hub, or keep it internal. */
+  setPublication: (input: PublicationInput) => repositories.reviews.setPublication(input),
 }
 
 export const solutionsService = {

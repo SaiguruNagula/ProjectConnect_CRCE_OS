@@ -24,6 +24,8 @@ import type {
   NameValue,
 } from '@/types/domain'
 import { ROUTES, buildPath } from '@/constants/routes'
+import { DEPARTMENT_COLUMNS } from '@/features/analytics/exports'
+import { downloadCsv } from '@/utils/csv'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
 import { EmptyState } from '@/components/ui/EmptyState'
 
@@ -267,18 +269,23 @@ export function PrincipalDashboard() {
         <div className="flex flex-wrap gap-sm">
           <button
             type="button"
+            onClick={() =>
+              downloadCsv('crce-os-departments.csv', DEPARTMENT_COLUMNS, analytics.departments)
+            }
             className="flex items-center gap-xs rounded-lg border border-outline-variant bg-surface px-md py-sm font-medium text-primary transition-all hover:bg-surface-container-low"
           >
             <span className="material-symbols-outlined text-[20px]" aria-hidden="true">file_download</span>
-            Export Report
+            Export Departments
           </button>
-          <button
-            type="button"
+          {/* ponytail: "Quick Actions" had no menu behind it — the one action a
+              principal actually has from here is the analytics workspace. */}
+          <Link
+            to={ROUTES.PRINCIPAL.ANALYTICS}
             className="flex items-center gap-xs rounded-lg bg-primary px-md py-sm font-medium text-on-primary shadow-sm transition-all hover:opacity-90"
           >
-            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">bolt</span>
-            Quick Actions
-          </button>
+            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">analytics</span>
+            Institution Analytics
+          </Link>
         </div>
       </div>
 

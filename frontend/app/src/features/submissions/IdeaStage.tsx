@@ -19,6 +19,7 @@ import { Field, LinkLines, inputClass, textareaClass } from '@/components/ui/for
 import { FeedbackNote, StageActions } from './fields'
 import { isEditable } from './status'
 import { StageSummary } from './StageSummary'
+import { ideaRows } from './summaryRows'
 
 const optionalUrl = z.union([z.literal(''), z.string().url('Enter a valid URL')]).optional()
 
@@ -81,8 +82,8 @@ export function IdeaStage({ journey, busy, onSave }: IdeaStageProps) {
 
   return (
     <div className="flex flex-col gap-md">
-      {stage.facultyFeedback && (
-        <FeedbackNote from={journey.mentorName} feedback={stage.facultyFeedback} at={stage.reviewedAt} />
+      {stage.review && (
+        <FeedbackNote from={journey.mentorName} review={stage.review} at={stage.reviewedAt} />
       )}
 
       <Card className="flex flex-col gap-md">
@@ -155,19 +156,7 @@ export function IdeaStage({ journey, busy, onSave }: IdeaStageProps) {
             />
           </form>
         ) : (
-          <StageSummary
-            emptyMessage="No idea recorded."
-            rows={[
-              { label: 'Project Title', value: stage.data?.title },
-              { label: 'Problem Statement', value: stage.data?.problemStatement },
-              { label: 'Proposed Solution', value: stage.data?.proposedSolution },
-              { label: 'Approach', value: stage.data?.approach },
-              { label: 'Technology Stack', value: stage.data?.techStack.join(', ') },
-              { label: 'Expected Outcome', value: stage.data?.expectedOutcome },
-              { label: 'Presentation', value: stage.data?.presentationUrl, link: true },
-              { label: 'Supporting Links', value: stage.data?.supportingLinks, link: true },
-            ]}
-          />
+          <StageSummary emptyMessage="No idea recorded." rows={ideaRows(stage.data)} />
         )}
       </Card>
     </div>

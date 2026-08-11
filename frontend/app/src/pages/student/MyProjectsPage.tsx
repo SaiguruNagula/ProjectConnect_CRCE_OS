@@ -66,7 +66,7 @@ export function MyProjectsPage() {
               to={buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: active[0].id })}
               className="text-label-md font-semibold text-secondary hover:underline"
             >
-              Open Workspace
+              Open Submissions
             </Link>
           )}
         </div>
@@ -192,7 +192,7 @@ function ActiveProjectCard({ project }: { project: Project }) {
           to={buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: project.id })}
           className="flex items-center gap-xs text-body-md font-bold text-secondary transition-all hover:gap-sm"
         >
-          Open Workspace
+          Open Submissions
           <span className="material-symbols-outlined text-[18px]" aria-hidden="true">arrow_forward</span>
         </Link>
       </div>

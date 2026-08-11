@@ -26,9 +26,28 @@ import { ROUTES } from '@/constants/routes'
 import { ActionBanner } from '@/components/feedback/ActionBanner'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { Pagination } from '@/components/ui/Pagination'
+import { downloadCsv } from '@/utils/csv'
 import { initials } from '@/utils/initials'
 
 const CARD = 'bg-surface-container-lowest border border-outline-variant rounded-lg'
+const PAGE_SIZE = 10
+
+/** Export shape of the directory — header order and fields in one place. */
+const INSTITUTION_COLUMNS: { header: string; value: (i: AdminInstitution) => unknown }[] = [
+  { header: 'Name', value: (i) => i.name },
+  { header: 'Registered Name', value: (i) => i.fullName },
+  { header: 'Code', value: (i) => i.code },
+  { header: 'Type', value: (i) => i.type },
+  { header: 'City', value: (i) => i.city },
+  { header: 'State', value: (i) => i.state },
+  { header: 'Principal', value: (i) => i.principal?.name ?? '' },
+  { header: 'Students', value: (i) => i.students },
+  { header: 'Faculty', value: (i) => i.faculty },
+  { header: 'Projects', value: (i) => i.projects },
+  { header: 'Credits', value: (i) => i.credits },
+  { header: 'Status', value: (i) => i.status },
+]
 const INPUT =
   'w-full rounded border border-outline-variant bg-background px-2 py-1.5 text-[12px] text-on-surface focus:outline-none focus:ring-1 focus:ring-secondary/50'
 const SELECT =
@@ -284,12 +303,12 @@ function InstitutionDrawer({
               <span className="material-symbols-outlined text-[18px] text-outline-variant" aria-hidden="true">chevron_right</span>
             </Link>
             <Link
-              to={ROUTES.SHARED.PROJECT_SPACE}
+              to={ROUTES.SHARED.SOLUTIONS}
               className="group flex items-center justify-between rounded-lg border border-outline-variant p-3 transition-colors hover:bg-surface-container"
             >
               <span className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-on-surface-variant group-hover:text-secondary" aria-hidden="true">assignment</span>
-                <span className="text-[12px] font-bold">Review Institutional Projects</span>
+                <span className="text-[12px] font-bold">Browse Published Solutions</span>
               </span>
               <span className="material-symbols-outlined text-[18px] text-outline-variant" aria-hidden="true">chevron_right</span>
             </Link>
@@ -557,6 +576,18 @@ export function AdminInstitutionsPage() {
   )
 
   const allSelected = rows.length > 0 && rows.every((i) => selectedIds.includes(i.id))
+  // Ticked rows win; otherwise export exactly what the filters are showing.
+  const exportRows = useMemo(
+    () => (selectedIds.length > 0 ? rows.filter((i) => selectedIds.includes(i.id)) : rows),
+    [rows, selectedIds],
+  )
+
+  const [page, setPage] = useState(1)
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
+  // A narrowed filter can leave the reader on a page that no longer exists.
+  useEffect(() => setPage(1), [filters])
+  const pageRows = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const firstOnPage = rows.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1
 
   function toggleRow(id: string) {
     setSelectedIds((current) => (current.includes(id) ? current.filter((x) => x !== id) : [...current, id]))
@@ -568,7 +599,17 @@ export function AdminInstitutionsPage() {
   }
 
   async function handleStatus(status: InstitutionStatus) {
-    if (selected) await setStatus(selected.id, status)
+    if (!selected) return
+    // Suspension cuts off every student and faculty member on that campus.
+    if (
+      status === 'suspended' &&
+      !window.confirm(
+        `Suspend ${selected.name}? Its ${selected.students.toLocaleString()} students and ${selected.faculty} faculty lose platform access until it is restored.`,
+      )
+    ) {
+      return
+    }
+    await setStatus(selected.id, status)
   }
 
   return (
@@ -581,20 +622,17 @@ export function AdminInstitutionsPage() {
             Manage campus identities, principal assignments, and institutional scale.
           </p>
         </div>
+        {/* ponytail: bulk actions need an endpoint that does not exist — dropped
+            rather than shipped as an inert button. Export is real. */}
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest p-1.5">
           <button
             type="button"
-            className="flex items-center gap-1.5 rounded border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-[11px] font-bold transition-colors hover:bg-surface-container"
-          >
-            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">file_download</span> Export
-          </button>
-          <button
-            type="button"
-            disabled={selectedIds.length === 0}
+            disabled={exportRows.length === 0}
+            onClick={() => downloadCsv('crce-os-institutions.csv', INSTITUTION_COLUMNS, exportRows)}
             className="flex items-center gap-1.5 rounded border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-[11px] font-bold transition-colors hover:bg-surface-container disabled:opacity-40"
           >
-            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">layers</span> Bulk Actions
-            {selectedIds.length > 0 && <span className="font-mono">({selectedIds.length})</span>}
+            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">file_download</span>
+            Export {exportRows.length > 0 && <span className="font-mono">({exportRows.length})</span>}
           </button>
           <div className="mx-1 h-6 w-px bg-outline-variant" />
           <button
@@ -713,7 +751,7 @@ export function AdminInstitutionsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant">
-                {rows.map((institution) => (
+                {pageRows.map((institution) => (
                   <tr
                     key={institution.id}
                     onClick={() => setSelectedId(institution.id)}
@@ -787,16 +825,18 @@ export function AdminInstitutionsPage() {
           </div>
         )}
 
-        <div className="flex items-center justify-between border-t border-outline-variant bg-surface-container/10 p-3">
-          <p className="text-[10px] font-medium text-on-surface-variant">
-            Showing {rows.length} of {institutions.length} entries
-          </p>
-          <div className="flex gap-1">
-            <button type="button" className="rounded border border-outline-variant px-2 py-1 text-[10px] hover:bg-surface-container">Prev</button>
-            <button type="button" aria-current="page" className="rounded border border-secondary bg-secondary px-2 py-1 text-[10px] text-on-secondary">1</button>
-            <button type="button" className="rounded border border-outline-variant px-2 py-1 text-[10px] hover:bg-surface-container">2</button>
-            <button type="button" className="rounded border border-outline-variant px-2 py-1 text-[10px] hover:bg-surface-container">Next</button>
-          </div>
+        <div className="border-t border-outline-variant bg-surface-container/10 p-3">
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onChange={setPage}
+            summary={`Showing ${firstOnPage}–${Math.min(page * PAGE_SIZE, rows.length)} of ${rows.length} institutions`}
+          />
+          {totalPages <= 1 && (
+            <p className="text-[10px] font-medium text-on-surface-variant">
+              Showing {rows.length} of {institutions.length} entries
+            </p>
+          )}
         </div>
       </section>
 

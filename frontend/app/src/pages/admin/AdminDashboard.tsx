@@ -14,17 +14,42 @@
  * Tailwind emerald/amber (the app palette has no such tokens), matching how the
  * other role dashboards render status colors.
  */
+import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import { useAsync } from '@/hooks/useAsync'
 import { adminService } from '@/services/catalog.service'
 import type {
   AdminDashboardData,
+  AdminInstitutionRow,
   AdminKpiTone,
+  AuditEntry,
   ModerationStat,
   OperationalQueueItem,
   PlatformHealthMetric,
 } from '@/types/domain'
+import { downloadCsv } from '@/utils/csv'
 import { PageLoader } from '@/components/feedback/LoadingBoundary'
 import { EmptyState } from '@/components/ui/EmptyState'
+
+const SNAPSHOT_COLUMNS: { header: string; value: (i: AdminInstitutionRow) => unknown }[] = [
+  { header: 'Institution', value: (i) => i.name },
+  { header: 'Location', value: (i) => i.location },
+  { header: 'Principal', value: (i) => i.principal },
+  { header: 'Students', value: (i) => i.students },
+  { header: 'Faculty', value: (i) => i.faculty },
+  { header: 'Projects', value: (i) => i.projects },
+  { header: 'Status', value: (i) => i.status },
+  { header: 'Participation', value: (i) => i.participation },
+]
+
+const AUDIT_COLUMNS: { header: string; value: (e: AuditEntry) => unknown }[] = [
+  { header: 'Timestamp', value: (e) => e.timestamp },
+  { header: 'Action', value: (e) => e.action },
+  { header: 'Actor', value: (e) => e.actor },
+  { header: 'Target', value: (e) => e.target },
+  { header: 'Result', value: (e) => e.result },
+]
 
 const KPI_NOTE_TONE: Record<AdminKpiTone, string> = {
   positive: 'text-emerald-600',
@@ -80,6 +105,18 @@ function HealthRow({ metric }: { metric: PlatformHealthMetric }) {
 
 export function AdminDashboard() {
   const { data, loading, error } = useAsync<AdminDashboardData>(() => adminService.dashboard())
+  const [query, setQuery] = useState('')
+  const institutions = useMemo(() => {
+    const term = query.trim().toLowerCase()
+    if (!data) return []
+    if (!term) return data.institutions
+    return data.institutions.filter(
+      (i) =>
+        i.name.toLowerCase().includes(term) ||
+        i.location.toLowerCase().includes(term) ||
+        i.principal.toLowerCase().includes(term),
+    )
+  }, [data, query])
 
   if (loading) return <PageLoader />
   if (error || !data) {
@@ -104,31 +141,30 @@ export function AdminDashboard() {
             Control and monitoring of global SaaS infrastructure.
           </p>
         </div>
+        {/* ponytail: creating institutions, inviting principals and minting
+            admins all need write endpoints the admin repository does not
+            expose — the dashboard routes to the directories that do the work
+            instead of shipping three buttons that do nothing. */}
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-lowest p-1.5">
-          <button
-            type="button"
+          <Link
+            to={ROUTES.ADMIN.INSTITUTIONS}
             className="flex items-center gap-1.5 rounded bg-secondary px-3 py-1.5 text-[11px] font-bold text-on-secondary transition-colors hover:bg-secondary/90"
           >
-            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">add</span> Add Institution
-          </button>
-          <button
-            type="button"
+            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">apartment</span> Manage Institutions
+          </Link>
+          <Link
+            to={ROUTES.ADMIN.USERS}
             className="flex items-center gap-1.5 rounded border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-[11px] font-bold transition-colors hover:bg-surface-container"
           >
-            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">person_add</span> Invite Principal
-          </button>
-          <button
-            type="button"
-            className="flex items-center gap-1.5 rounded border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-[11px] font-bold transition-colors hover:bg-surface-container"
-          >
-            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">admin_panel_settings</span> Create Admin
-          </button>
+            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">group</span> Manage Users
+          </Link>
           <div className="mx-1 h-6 w-px bg-outline-variant" />
           <button
             type="button"
+            onClick={() => downloadCsv('crce-os-institutions-snapshot.csv', SNAPSHOT_COLUMNS, data.institutions)}
             className="flex items-center gap-1.5 rounded px-3 py-1.5 text-[11px] font-bold text-on-surface-variant transition-colors hover:bg-surface-container"
           >
-            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">download</span> Export Reports
+            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">download</span> Export Snapshot
           </button>
         </div>
       </div>
@@ -241,28 +277,21 @@ export function AdminDashboard() {
         <section className={`${CARD} flex flex-col lg:col-span-8`}>
           <div className="flex flex-col justify-between gap-4 border-b border-outline-variant p-4 sm:flex-row sm:items-center">
             <h3 className="text-sm font-bold">Institution Management</h3>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <span
-                  className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant"
-                  aria-hidden="true"
-                >
-                  search
-                </span>
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  aria-label="Search institutions"
-                  className="w-48 rounded border border-outline-variant bg-background py-1.5 pl-8 pr-3 text-[11px] focus:outline-none focus:ring-1 focus:ring-secondary/50 xl:w-64"
-                />
-              </div>
-              <button
-                type="button"
-                aria-label="Filter institutions"
-                className="flex items-center gap-1.5 rounded border border-outline-variant px-3 py-1.5 text-[11px] font-medium transition-colors hover:bg-surface-container"
+            <div className="relative">
+              <span
+                className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant"
+                aria-hidden="true"
               >
-                <span className="material-symbols-outlined text-[16px]" aria-hidden="true">filter_list</span>
-              </button>
+                search
+              </span>
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search institutions..."
+                aria-label="Search institutions"
+                className="w-48 rounded border border-outline-variant bg-background py-1.5 pl-8 pr-3 text-[11px] focus:outline-none focus:ring-1 focus:ring-secondary/50 xl:w-64"
+              />
             </div>
           </div>
           <div className="flex-1 overflow-x-auto">
@@ -276,11 +305,10 @@ export function AdminDashboard() {
                   <th scope="col" className="px-4 py-3 text-center">Projects</th>
                   <th scope="col" className="px-4 py-3">Status</th>
                   <th scope="col" className="px-4 py-3">Participation</th>
-                  <th scope="col" className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant">
-                {data.institutions.map((inst) => (
+                {institutions.map((inst) => (
                   <tr key={inst.id} className="transition-colors hover:bg-surface-container/40">
                     <td className="px-4 py-3">
                       <div className="font-bold">{inst.name}</div>
@@ -310,28 +338,23 @@ export function AdminDashboard() {
                         {inst.participation}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        type="button"
-                        aria-label={`Actions for ${inst.name}`}
-                        className="rounded p-1 hover:bg-surface-container"
-                      >
-                        <span className="material-symbols-outlined" aria-hidden="true">more_vert</span>
-                      </button>
-                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            {institutions.length === 0 && (
+              <p className="p-4 text-center text-[11px] text-on-surface-variant">
+                No institutions match “{query}”.
+              </p>
+            )}
           </div>
           <div className="flex items-center justify-between border-t border-outline-variant bg-surface-container/10 p-3">
-            <p className="text-[10px] font-medium text-on-surface-variant">Showing 1-4 of 42 institutions</p>
-            <div className="flex gap-1">
-              <button type="button" className="rounded border border-outline-variant px-2 py-1 text-[10px] hover:bg-surface-container">Prev</button>
-              <button type="button" aria-current="page" className="rounded border border-secondary bg-secondary px-2 py-1 text-[10px] text-on-secondary">1</button>
-              <button type="button" className="rounded border border-outline-variant px-2 py-1 text-[10px] hover:bg-surface-container">2</button>
-              <button type="button" className="rounded border border-outline-variant px-2 py-1 text-[10px] hover:bg-surface-container">Next</button>
-            </div>
+            <p className="text-[10px] font-medium text-on-surface-variant">
+              Showing {institutions.length} of {data.institutions.length} institutions
+            </p>
+            <Link to={ROUTES.ADMIN.INSTITUTIONS} className="text-[10px] font-bold text-secondary hover:underline">
+              Open full directory
+            </Link>
           </div>
         </section>
 
@@ -370,7 +393,9 @@ export function AdminDashboard() {
           <div className={`${CARD} flex flex-col overflow-hidden`}>
             <div className="flex items-center justify-between border-b border-outline-variant p-4">
               <h3 className="text-sm font-bold">System Logs</h3>
-              <button type="button" className="text-[10px] font-bold text-secondary hover:underline">View All</button>
+              <span className="text-[10px] font-medium text-on-surface-variant">
+                Last {data.systemLogs.length} events
+              </span>
             </div>
             <div className="max-h-[300px] flex-1 divide-y divide-outline-variant overflow-y-auto">
               {data.systemLogs.map((log) => (
@@ -401,7 +426,11 @@ export function AdminDashboard() {
       <section className={`${CARD} overflow-hidden`}>
         <div className="flex items-center justify-between border-b border-outline-variant p-4">
           <h3 className="text-sm font-bold">Full Transaction Audit</h3>
-          <button type="button" className="flex items-center gap-1 text-[11px] font-bold text-secondary hover:underline">
+          <button
+            type="button"
+            onClick={() => downloadCsv('crce-os-audit-log.csv', AUDIT_COLUMNS, data.auditLog)}
+            className="flex items-center gap-1 text-[11px] font-bold text-secondary hover:underline"
+          >
             <span className="material-symbols-outlined text-[16px]" aria-hidden="true">file_download</span> Export CSV
           </button>
         </div>

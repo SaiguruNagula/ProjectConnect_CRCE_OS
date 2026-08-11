@@ -7,7 +7,6 @@ import type { Role } from '@/types'
 export type Difficulty = 'Beginner' | 'Intermediate' | 'Advanced'
 export type ProblemStatus = 'open' | 'in_progress' | 'closed'
 export type ProjectStatus = 'active' | 'in_review' | 'completed'
-export type MilestoneStatus = 'pending' | 'in_progress' | 'done'
 
 /**
  * Server-side pagination envelope. Any list that grows unbounded is served in
@@ -228,6 +227,21 @@ export interface TeamMember {
   avatarInitials: string
 }
 
+/**
+ * Where a team sits in the problem lifecycle. Composed by the API from the
+ * team's application and selection state — never derived in the UI.
+ */
+export type TeamStatus = 'recruiting' | 'applied' | 'selected' | 'completed'
+
+/** An outstanding invitation the team lead has sent but nobody has answered. */
+export interface TeamInvite {
+  id: string
+  email: string
+  /** The role the invitee is being recruited for. */
+  role: string
+  invitedAt: string
+}
+
 /** A team students can join or apply with (mirrors the teams table). */
 export interface Team {
   id: string
@@ -237,14 +251,32 @@ export interface Team {
   /** One-line pitch shown on the team card. */
   pitch: string
   members: TeamMember[]
+  /** The member who owns the roster — only they may invite or remove. */
+  leaderId: string
+  /** ISO timestamp the team was formed. */
+  createdAt: string
+  status: TeamStatus
   /** Remaining open slots. */
   openSpots: number
   /** Roles/skills the team still needs — powers the discovery filters. */
   lookingFor: string[]
+  /** Invitations sent by the lead and still unanswered. */
+  pendingInvites: TeamInvite[]
+  /**
+   * Whether the caller may invite and remove members. Composed server-side from
+   * the auth token so no surface has to re-derive the permission.
+   */
+  canManage: boolean
   /** The current student's own team (drives the member list + apply-as-team). */
   mine?: boolean
   /** Set once the student has requested to join (drives the disabled CTA). */
   joinRequested?: boolean
+}
+
+/** Invite payload — POST /api/v1/teams/{id}/invitations. */
+export interface InviteMemberInput {
+  email: string
+  role: string
 }
 
 /** Create-team payload — POST /api/v1/teams. */
@@ -289,13 +321,6 @@ export interface JoinRequest {
   requestedAt: string
 }
 
-export interface Milestone {
-  id: string
-  title: string
-  status: MilestoneStatus
-  dueDate: string
-}
-
 export interface Project {
   id: string
   title: string
@@ -304,7 +329,6 @@ export interface Project {
   progress: number
   mentorName: string
   members: TeamMember[]
-  milestones: Milestone[]
   /** The problem this project was built to solve — links the workspace back to its brief. */
   problemId?: string
   /** The team executing the project. */
@@ -336,6 +360,7 @@ export type SubmissionStatus =
   | 'under_review'
   | 'changes_requested'
   | 'approved'
+  | 'rejected'
 
 /** Where the team stands in faculty selection (Stage 3). */
 export type SelectionStatus = 'not_reviewed' | 'changes_requested' | 'selected' | 'not_selected'
@@ -381,6 +406,31 @@ export interface FinalSubmission {
   documents: string[]
 }
 
+/**
+ * Structured faculty feedback on one stage. Every field is optional so a
+ * reviewer can leave only what is useful; the student sees it verbatim.
+ */
+export interface StageReview {
+  strengths?: string
+  weaknesses?: string
+  suggestions?: string
+  /** Free-form closing remarks. */
+  comments?: string
+  reviewedBy?: string
+  /** Stage 3 evaluation, present on the Final Project review only. */
+  evaluation?: FinalEvaluation
+}
+
+/** Scored evaluation captured when a final project is reviewed (0–10 each). */
+export interface FinalEvaluation {
+  innovation: number
+  technicalQuality: number
+  implementation: number
+  documentation: number
+  presentation: number
+  overallRemarks: string
+}
+
 /** A student-authored stage plus the review state the backend owns. */
 export interface StageState<T> {
   status: SubmissionStatus
@@ -388,8 +438,8 @@ export interface StageState<T> {
   data: T | null
   savedAt?: string
   submittedAt?: string
-  /** Reviewer note, shown to the student verbatim. */
-  facultyFeedback?: string
+  /** Reviewer verdict, shown to the student verbatim. */
+  review?: StageReview
   reviewedAt?: string
 }
 
@@ -399,6 +449,48 @@ export interface SelectionState {
   feedback?: string
   decidedBy?: string
   decidedAt?: string
+}
+
+/**
+ * The single lifecycle status shown on every review surface. Replaces the old
+ * per-module status vocabularies so a card, a badge and a timeline all read the
+ * same value.
+ */
+export type ReviewLifecycleStatus =
+  | 'idea_submitted'
+  | 'idea_approved'
+  | 'poc_submitted'
+  | 'poc_approved'
+  | 'selected_for_final'
+  | 'final_submitted'
+  | 'approved'
+  | 'rejected'
+  | 'changes_requested'
+  | 'completed'
+
+/** One step of the submission timeline, composed by the repository/backend. */
+export interface ReviewTimelineEvent {
+  status: ReviewLifecycleStatus
+  label: string
+  /** ISO timestamp once the step has happened. */
+  at?: string
+  done: boolean
+}
+
+/**
+ * Credits a faculty awards on final approval. The Credit Engine consumes these
+ * values later; the frontend only captures and displays them.
+ */
+export interface CreditAward {
+  innovation: number
+  implementation: number
+  documentation: number
+  presentation: number
+  bonus: number
+  /** Sum of the five components, computed below the UI. */
+  total: number
+  awardedBy?: string
+  awardedAt?: string
 }
 
 /**
@@ -425,14 +517,14 @@ export interface ProjectJourney {
   poc: StageState<PocSubmission>
   selection: SelectionState
   final: StageState<FinalSubmission>
-}
-
-/** Faculty Stage-3 decision — POST /api/v1/projects/{id}/selection. */
-export interface SelectionDecisionInput {
-  projectId: string
-  decision: Extract<SelectionStatus, 'selected' | 'changes_requested' | 'not_selected'>
-  /** Required for changes_requested and not_selected so the team knows why. */
-  feedback: string
+  /** Where the project sits in the review lifecycle — one status for every surface. */
+  status: ReviewLifecycleStatus
+  /** Idea → Approved → PoC → Selected → Final → Completed, already ordered. */
+  timeline: ReviewTimelineEvent[]
+  /** Set once faculty award credits on final approval. */
+  credits?: CreditAward
+  /** Whether the approved project was published to the Solutions Hub. */
+  published?: boolean
 }
 
 export interface LeaderboardEntry {
@@ -622,6 +714,8 @@ export interface PortfolioCustomization {
     research: boolean
     hackathons: boolean
     timeline: boolean
+    /** Certificates and achievements earned outside the platform. */
+    credentials: boolean
   }
 }
 
@@ -756,90 +850,65 @@ export type ProfileOwnedField =
  */
 export type PortfolioVerified = Omit<Portfolio, ProfileOwnedField>
 
-export type ReviewStatus = 'pending' | 'under_review' | 'approved' | 'rejected' | 'changes_requested'
+/* --------------------------------------------------------- Review Engine */
 
-/** An artifact submitted for review (mirrors submission_files). */
-export interface ReviewAttachment {
-  id: string
-  name: string
-  /** File kind label shown on the row, e.g. 'PDF', 'ZIP'. */
-  kind: string
-  /** Human-readable size, e.g. '4.2 MB'. */
-  size: string
-  updatedAt: string
-}
+/**
+ * The four faculty review queues. `poc` also carries the "select for final
+ * development" decision, so selection is not a queue of its own.
+ */
+export type ReviewQueueId = 'idea' | 'poc' | 'final' | 'completed'
 
-/** A faculty comment on a submission (mirrors review_comments). */
-export interface ReviewComment {
-  id: string
-  author: string
-  authorInitials: string
-  text: string
-  timestamp: string
-  /** Review phase the comment belongs to, e.g. 'Phase 3 Review'. */
-  phase: string
-}
+/** The stages a faculty actually reviews — Stage 3 rides on the PoC queue. */
+export type ReviewableStage = Extract<SubmissionStage, 'idea' | 'poc' | 'final'>
 
-/** A past evaluation in the submission's history (mirrors review_events). */
-export interface ReviewHistoryEntry {
-  id: string
-  title: string
-  submittedAt: string
-  /** Short outcome note, e.g. '4.5/5.0 Rating' or 'Complete Docs'. */
-  note: string
-  status: ReviewStatus
-}
-
-export interface ReviewSubmission {
-  id: string
-  /** The project under review — links a submission back to its workspace. */
-  projectId?: string
-  projectTitle: string
+/** One card in a review queue — a submission waiting on (or past) a decision. */
+export interface ReviewQueueItem {
+  projectId: string
+  /** Problem the submission answers — the review's entry point. */
+  problemId?: string
+  problemTitle: string
+  /** Team name, or the student's name for a solo application. */
   teamName: string
-  /** The team that submitted. */
   teamId?: string
   members: TeamMember[]
-  /** Human milestone label, e.g. 'Core Architecture'. */
-  milestone: string
-  /** Machine milestone code, e.g. 'MILESTONE_3_PROTOTYPE'. */
-  milestoneCode: string
-  /** One-line milestone description. */
-  milestoneSubtitle: string
-  submittedAt: string
-  dueDate: string
-  status: ReviewStatus
-  facultyName: string
-  facultyId: string
-  /** Credits awarded on approval; null until decided. */
-  creditsAwarded: number | null
-  /** Ceiling for the credit-award control. */
-  creditsMax: number
-  attachments: ReviewAttachment[]
-  comments: ReviewComment[]
-  history: ReviewHistoryEntry[]
-  /** Next locked phase label, or null at the final phase. */
-  nextStep: string | null
+  /** Stage the pending submission belongs to. */
+  stage: ReviewableStage
+  submittedAt?: string
+  status: ReviewLifecycleStatus
+  mentorName: string
+  /** Number of links/files attached to the submission under review. */
+  attachments: number
 }
 
-/** Aggregate review counts for the faculty dashboard header. */
-export interface ReviewStats {
-  pending: number
-  underReview: number
-  completed: number
+/** Every queue plus its pending count — GET /api/v1/reviews/queues. */
+export type ReviewQueues = Record<ReviewQueueId, ReviewQueueItem[]>
+
+/** What a faculty can decide on a stage. `select` exists on the PoC stage only. */
+export type ReviewDecision = 'approve' | 'changes_requested' | 'reject' | 'select'
+
+/** Payload a faculty decision posts — POST /api/v1/reviews/{projectId}/{stage}. */
+export interface StageReviewInput {
+  projectId: string
+  stage: ReviewableStage
+  decision: ReviewDecision
+  review: StageReview
 }
 
-/** Payload a faculty decision posts — shaped for the future review API. */
-export interface ReviewDecisionInput {
-  submissionId: string
-  decision: Extract<ReviewStatus, 'approved' | 'rejected' | 'changes_requested'>
-  comment: string
-  creditsAwarded: number
+/** Credit award posted on final approval — POST /api/v1/projects/{id}/credits. */
+export interface CreditAwardInput {
+  projectId: string
+  innovation: number
+  implementation: number
+  documentation: number
+  presentation: number
+  bonus: number
 }
 
-export interface RubricCriterion {
-  id: string
-  label: string
-  maxScore: number
+/** Publication choice after final approval — POST /api/v1/projects/{id}/publication. */
+export interface PublicationInput {
+  projectId: string
+  /** True publishes to the Solutions Hub, false keeps the project internal. */
+  publish: boolean
 }
 
 export interface CreditRule {
@@ -1318,7 +1387,6 @@ export interface InstitutionAnalytics {
   /** Count behind the 'N NEW' badge on the approvals rail. */
   newApprovalsCount: number
   reportCategories: ReportOption[]
-  reportFormats: ReportOption[]
   snapshot: InstitutionMetric[]
   innovation: InstitutionMetric[]
   departments: DepartmentHealth[]
