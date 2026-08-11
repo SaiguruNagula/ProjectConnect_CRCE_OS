@@ -1,0 +1,34 @@
+# On-premise deployment stack. Values come from a root .env file (see .env.example);
+# no credentials are committed here.
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-projectconnect}
+      POSTGRES_USER: ${POSTGRES_USER:-projectconnect}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-projectconnect}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ENV: ${ENV:-production}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-projectconnect}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-projectconnect}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost}
+    ports:
+      - "127.0.0.1:8000:8000"
+
+volumes:
+  pgdata:

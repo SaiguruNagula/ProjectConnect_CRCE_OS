@@ -1102,7 +1102,222 @@ Future complexity should only be introduced when justified by real usage.
 
 ---
 
-# 15. Decision Log
+# 15. Architecture Decision Records — Backend V1
+
+These five ADRs were resolved on 2026-08-11 during the final architecture
+freeze before backend implementation. They are FINAL for V1. This section is
+the canonical record; `docs/BACKEND_ARCHITECTURE.md` §47 summarizes them.
+
+---
+
+## ADR-1 — Application Automatically Creates Project
+
+**Status:** ACCEPTED
+
+**Context**
+
+The frozen frontend provides apply/withdraw for students and renders existing
+projects, but has no surface where faculty accept or reject an application. A
+separate approval stage would be invisible and unusable in the current UI, yet
+without a defined moment of project creation no journey can start.
+
+**Decision**
+
+A successful student application atomically creates the corresponding Project
+record in the same transaction. The project's mentor is the problem's faculty
+author. The IDEA stage becomes available immediately.
+
+```
+Student → Application → Project automatically created → IDEA stage available
+```
+
+The backend must still validate, before creating the application/project pair:
+
+- student eligibility (role, active status, same institution)
+- problem availability (status `open`)
+- duplicate application (one per student per problem)
+- institution ownership
+- team membership rules (team applications: caller is a member; team belongs
+  to the same problem)
+- valid stage transition (journey starts at IDEA/draft)
+
+Withdrawal remains available while the project's IDEA stage is still a draft;
+withdrawing soft-deletes the project.
+
+**Consequences**
+
+- No faculty "accept application" workflow exists in V1; do not build one.
+- The application endpoint carries the full validation burden.
+- Quality gating happens where the frontend already puts it: stage reviews.
+
+**Alternatives Considered**
+
+- Faculty accept/reject step that creates the project on acceptance —
+  rejected: the current frontend cannot render it, and it adds a gate the
+  product does not define.
+
+---
+
+## ADR-2 — Institution Tenancy From V1
+
+**Status:** ACCEPTED
+
+**Context**
+
+The pilot is a single college, but the product is a multi-tenant SaaS.
+Retrofitting tenant isolation after launch is a rewrite of every query and
+authorization check.
+
+**Decision**
+
+All institution-owned resources are institution-scoped from V1: users,
+problems, applications, teams, team memberships, projects, stage submissions,
+reviews, credit records, notifications, analytics. Every protected query
+filters by the caller's `institution_id` (from the JWT), centralized in a
+repository-layer helper. Cross-institution access must be impossible through
+authorization checks — an Institution A user must never access Institution B's
+protected resources (scoped reads return 404).
+
+**Consequences**
+
+- The pilot ships with one seeded institution; adding a second is a data row,
+  not a refactor.
+- Admin operates cross-institution as platform operator; principal is scoped
+  to their own institution.
+- Isolation is not postponed to the SaaS version.
+
+**Alternatives Considered**
+
+- Global (unscoped) public surfaces and single-tenant schema until SaaS —
+  rejected: riskier data boundaries, guaranteed rework.
+
+---
+
+## ADR-3 — Mentor-Only Review Authority
+
+**Status:** ACCEPTED
+
+**Context**
+
+The review engine needs an authorization rule: any faculty, or only the
+project's mentor? The frontend's single-faculty demo cannot distinguish, but
+queue items carry the mentor's identity.
+
+**Decision**
+
+For V1, only the assigned project mentor performs stage reviews for the
+project — IDEA, POC, SELECTION, and FINAL PROJECT wherever the current
+workflow requires review. Review queues are filtered to
+`projects.mentor_id = caller`.
+
+Do not introduce review pools, external reviewers, admin reassignment, or
+multiple-reviewer workflows. The single `reviewed_by` column and the
+authorization module leave room for future expansion without schema churn.
+
+**Consequences**
+
+- Simple, auditable authorization: one predicate (`is_project_mentor`).
+- A mentor's absence blocks their projects' reviews — acceptable at pilot
+  scale; reassignment is a future decision, not a V1 feature.
+
+**Alternatives Considered**
+
+- Department-wide review pools — rejected: broader access, harder to audit,
+  not required by the current frontend.
+
+---
+
+## ADR-4 — One Team Per Student Per Problem
+
+**Status:** ACCEPTED
+
+**Context**
+
+The mock's `mine` flag implies one own team overall, but teams are formed
+around a problem and the catalog encourages multi-problem participation.
+
+**Decision**
+
+A student may participate in multiple problems. For each individual problem, a
+student may belong to at most one team.
+
+Valid: Student A in Team Alpha (Problem 1), Team Beta (Problem 2), solo
+(Problem 3). Invalid: Student A in two teams on the same problem.
+
+Enforcement is dual: `team_members` carries a denormalized `problem_id`
+(copied from its team) with `UNIQUE(student_id, problem_id)` at the database
+level, and the service layer validates team↔problem consistency inside the
+seating transaction.
+
+There is no global one-team-per-student restriction and no separate Team
+Profile domain. Team remains a workflow entity: identity, problem
+relationship, members, leader, and its application/project relationship.
+
+**Consequences**
+
+- Multi-problem participation works as the catalog implies.
+- The DB constraint makes the rule race-proof (concurrent joins/invitations
+  cannot double-seat a student on one problem).
+
+**Alternatives Considered**
+
+- One active team globally (the mock's literal behavior) — rejected: blocks
+  multi-problem participation.
+- Service-layer-only enforcement — rejected: racy under concurrent seating.
+
+---
+
+## ADR-5 — Shared Credit Engine With Configurable Faculty Rules
+
+**Status:** ACCEPTED
+
+**Context**
+
+The leaderboard ranks faculty by credits, but the seeded `CREDIT_RULES` are
+student-oriented. Faculty need a credit source without creating a second
+scoring system.
+
+**Decision**
+
+Faculty and students use the SAME Credit Engine: one credit transaction
+system, one source of truth. Credit rules are configurable/seeded rows, not
+hardcoded logic:
+
+```
+credit_rules(role, event_type, points, description, active,
+             effective_from, effective_to)
+```
+
+V1 implements only events the current product represents. Faculty events:
+
+- `PROBLEM_PUBLISHED`
+- `REVIEW_COMPLETED`
+- `MENTORED_PROJECT_COMPLETED`
+
+Research publication, industry collaboration, and student-success impact are
+future extensions — do not implement them in V1.
+
+The flow is: Verified Activity → Credit Rule → Credit Transaction → Credit
+Balance → Leaderboard / Portfolio / Analytics. Duplicate awards are prevented
+by a unique event key on transactions (`UNIQUE(user_id, source, source_id)`).
+Corrections are compensating transactions (admin-only, audited), never edits.
+
+**Consequences**
+
+- One auditable ledger serves student leaderboard, faculty leaderboard,
+  portfolio, dashboards, and analytics — none of them compute credits
+  independently.
+- Rule changes are data changes (seed/config), not code changes.
+
+**Alternatives Considered**
+
+- Ranking faculty by raw activity counts — rejected: violates "leaderboard
+  derives from the Credit Engine".
+- A separate faculty credit system — rejected: duplicate source of truth.
+
+---
+
+# 16. Decision Log
 
 The Decision Log records significant architectural or engineering changes made during the project's lifecycle.
 
@@ -1130,6 +1345,20 @@ Each entry should include:
 | Auto-Generated Portfolio adopted | Portfolios generated only from verified platform activity |
 | Docker-based deployment selected | Consistent deployments across environments |
 | NGINX selected as reverse proxy | HTTPS, security, static asset serving, and request routing |
+
+---
+
+## Backend V1 Architecture Freeze (2026-08-11)
+
+| Date | Decision | Reason | Impact | Approved By |
+|------|----------|--------|--------|-------------|
+| 2026-08-11 | ADR-1: successful application automatically creates the Project | No faculty accept-application surface exists in the frozen frontend | Application endpoint validates everything; journey starts at IDEA immediately | CRCE OS Team |
+| 2026-08-11 | ADR-2: institution tenancy enforced from V1 | Retrofitting isolation is a rewrite; SaaS is the product direction | Every protected query institution-scoped; cross-tenant access impossible | CRCE OS Team |
+| 2026-08-11 | ADR-3: mentor-only stage review for V1 | Simplest auditable authority matching the current workflow | Review queues filtered to the project mentor; no pools/reassignment | CRCE OS Team |
+| 2026-08-11 | ADR-4: one team per student per problem | Teams form around problems; multi-problem participation is intended | DB-enforced UNIQUE(student, problem) on membership | CRCE OS Team |
+| 2026-08-11 | ADR-5: shared Credit Engine with configurable faculty rules | One source of truth; rules as data, not code | `credit_rules` seeded; faculty events limited to current product | CRCE OS Team |
+
+Full records with context, consequences, and alternatives: §15 above.
 
 ---
 

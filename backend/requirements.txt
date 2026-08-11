@@ -1,0 +1,12 @@
+# Pinned runtime dependencies — reproducible builds for Docker and the college server.
+# Regenerate with: pip install -r requirements.in && pip freeze
+fastapi==0.141.1
+uvicorn[standard]==0.52.1
+sqlalchemy==2.0.51
+alembic==1.19.1
+psycopg[binary]==3.3.4
+pydantic==2.13.4
+pydantic-settings==2.15.0
+pyjwt==2.13.0
+bcrypt==5.0.0
+python-multipart==0.0.32
