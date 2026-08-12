@@ -20,6 +20,18 @@ class HasInstitution(Protocol):
     institution_id: uuid.UUID
 
 
+class HasLeader(Protocol):
+    leader_id: uuid.UUID
+
+
+class HasAuthor(Protocol):
+    created_by: uuid.UUID
+
+
+class HasMentor(Protocol):
+    mentor_id: uuid.UUID
+
+
 def same_institution(user: User, resource: HasInstitution | None) -> bool:
     if resource is None:
         return False
@@ -28,6 +40,19 @@ def same_institution(user: User, resource: HasInstitution | None) -> bool:
 
 def is_self(user: User, user_id: uuid.UUID) -> bool:
     return user.id == user_id
+
+
+def is_team_lead(user: User, team: HasLeader | None) -> bool:
+    return team is not None and team.leader_id == user.id
+
+
+def is_problem_author(user: User, problem: HasAuthor | None) -> bool:
+    return problem is not None and problem.created_by == user.id
+
+
+def is_nominated_mentor(user: User, resource: HasMentor | None) -> bool:
+    """The mentor named on a suggestion, or the mentor assigned to a project."""
+    return resource is not None and resource.mentor_id == user.id
 
 
 def ensure_same_institution[T: HasInstitution](user: User, resource: T | None) -> T:
@@ -40,3 +65,9 @@ def ensure_same_institution[T: HasInstitution](user: User, resource: T | None) -
 def ensure_self(user: User, user_id: uuid.UUID) -> None:
     if not is_self(user, user_id):
         raise AuthorizationError("You do not have permission to perform this action.")
+
+
+def ensure(allowed: bool, message: str) -> None:
+    """Deny with 403 unless the caller-supplied predicate holds."""
+    if not allowed:
+        raise AuthorizationError(message)

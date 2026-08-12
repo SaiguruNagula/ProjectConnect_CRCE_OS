@@ -11,6 +11,7 @@ service code can call `commit()` for real without leaking rows between tests.
 from __future__ import annotations
 
 from collections.abc import Iterator
+from datetime import date, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
@@ -18,13 +19,14 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine, make_url
 from sqlalchemy.orm import Session
 
-from app.common.enums import InstitutionStatus, UserRole, UserStatus
+from app.common.enums import InstitutionStatus, ProblemStatus, UserRole, UserStatus
 from app.core.config import get_settings
 from app.core.security import hash_password
 from app.db.base import Base
 from app.db.session import get_db
 from app.main import create_app
 from app.modules.institutions.models import Institution
+from app.modules.problems.models import Problem
 from app.modules.users.models import User
 
 TEST_PASSWORD = "correct-horse-battery"
@@ -132,6 +134,63 @@ def make_user(
     db.add(user)
     db.flush()
     return user
+
+
+@pytest.fixture
+def faculty(db: Session, institution_a: Institution) -> User:
+    return make_user(
+        db, institution=institution_a, email="neha.kulkarni@crce.edu", role=UserRole.FACULTY
+    )
+
+
+@pytest.fixture
+def student(db: Session, institution_a: Institution) -> User:
+    return make_user(db, institution=institution_a, email="aarav.sharma@crce.edu")
+
+
+@pytest.fixture
+def other_student(db: Session, institution_a: Institution) -> User:
+    return make_user(db, institution=institution_a, email="isha.patil@crce.edu")
+
+
+@pytest.fixture
+def problem(db: Session, institution_a: Institution, faculty: User) -> Problem:
+    return make_problem(db, institution=institution_a, author=faculty)
+
+
+def make_problem(
+    db: Session,
+    *,
+    institution: Institution,
+    author: User,
+    title: str = "Smart Attendance System",
+    department: str = "Computer Engineering",
+    base_credits: int = 200,
+    team_size: int = 4,
+    status: ProblemStatus = ProblemStatus.OPEN,
+) -> Problem:
+    today = date.today()
+    problem = Problem(
+        institution_id=institution.id,
+        created_by=author.id,
+        title=title,
+        summary="On-device face recognition for automated lecture attendance.",
+        statement="Manual attendance wastes ten minutes of every lecture on campus.",
+        department=department,
+        difficulty="Intermediate",
+        required_skills=["Python", "Computer Vision"],
+        tools=[],
+        team_size=team_size,
+        allow_individual=True,
+        start_date=today,
+        end_date=today + timedelta(days=84),
+        base_credits=base_credits,
+        status=status,
+        attachments=[],
+    )
+    db.add(problem)
+    db.flush()
+    return problem
 
 
 def login(client: TestClient, email: str, password: str = TEST_PASSWORD) -> dict:
