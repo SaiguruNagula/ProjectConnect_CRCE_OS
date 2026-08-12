@@ -11,7 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.common.audit import AuditLog
-from app.common.enums import UserRole, UserStatus
+from app.common.enums import InstitutionStatus, UserRole, UserStatus
 from app.core.config import get_settings
 from app.modules.auth.models import RefreshToken
 from tests.conftest import TEST_PASSWORD, auth_header, make_user
@@ -65,6 +65,35 @@ def test_inactive_account_cannot_log_in(client: TestClient, db, institution_a, s
         "/api/v1/auth/login", json={"email": user.email, "password": TEST_PASSWORD}
     )
     assert response.status_code == 401
+
+
+@pytest.mark.parametrize("status", [InstitutionStatus.SUSPENDED, InstitutionStatus.PENDING])
+def test_a_non_active_institution_cannot_log_in(
+    client: TestClient, db: Session, institution_a, student, status
+):
+    """Institution status is the deployment's local lifecycle gate (ADR-9)."""
+    institution_a.status = status
+    db.flush()
+
+    response = client.post(
+        "/api/v1/auth/login", json={"email": student.email, "password": TEST_PASSWORD}
+    )
+    assert response.status_code == 401
+    assert response.json()["error_code"] == "UNAUTHENTICATED"
+
+
+def test_suspending_an_institution_stops_refresh(
+    client: TestClient, db: Session, institution_a, student
+):
+    tokens = client.post(
+        "/api/v1/auth/login", json={"email": student.email, "password": TEST_PASSWORD}
+    ).json()["data"]
+
+    institution_a.status = InstitutionStatus.SUSPENDED
+    db.flush()
+
+    replayed = client.post("/api/v1/auth/refresh", json={"refresh_token": tokens["refresh_token"]})
+    assert replayed.status_code == 401
 
 
 def test_lockout_after_repeated_failures(client: TestClient, db: Session, student):

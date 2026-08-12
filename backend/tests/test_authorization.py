@@ -96,17 +96,19 @@ def test_institution_id_in_the_request_is_ignored(client: TestClient, users, ins
 # --- Scenario B / H: role escalation and insufficient permissions ------------
 
 
-@pytest.mark.parametrize("actor", ["student_a", "faculty_a"])
+@pytest.mark.parametrize("actor", ["student_a", "faculty_a", "principal_a"])
 def test_non_admin_roles_cannot_read_the_directory(client: TestClient, users, actor):
+    """§7: the user directory is admin-exclusive — principal included."""
     response = client.get("/api/v1/users", headers=auth_header(client, users[actor].email))
     assert response.status_code == 403
     assert response.json()["error_code"] == "FORBIDDEN"
 
 
-@pytest.mark.parametrize("actor", ["admin_a", "principal_a"])
-def test_admin_and_principal_can_read_the_directory(client: TestClient, users, actor):
+def test_admin_can_read_the_directory(client: TestClient, users):
     assert (
-        client.get("/api/v1/users", headers=auth_header(client, users[actor].email)).status_code
+        client.get(
+            "/api/v1/users", headers=auth_header(client, users["admin_a"].email)
+        ).status_code
         == 200
     )
 
@@ -141,10 +143,21 @@ def test_unknown_user_id_is_404_not_a_leak(client: TestClient, users):
     assert response.status_code == 404
 
 
-def test_a_user_may_read_their_own_record(client: TestClient, users):
+def test_a_user_reads_their_own_record_through_me_not_by_id(client: TestClient, users):
+    """§15: ids in paths are for admin only; self-reads derive identity from the JWT."""
     student = users["student_a"]
+    headers = auth_header(client, student.email)
+
+    assert client.get(f"/api/v1/users/{student.id}", headers=headers).status_code == 403
+
+    me = client.get("/api/v1/auth/me", headers=headers)
+    assert me.status_code == 200
+    assert me.json()["data"]["id"] == str(student.id)
+
+
+def test_non_admin_cannot_read_another_user_in_the_same_institution(client: TestClient, users):
     response = client.get(
-        f"/api/v1/users/{student.id}", headers=auth_header(client, student.email)
+        f"/api/v1/users/{users['admin_a'].id}",
+        headers=auth_header(client, users["student_a"].email),
     )
-    assert response.status_code == 200
-    assert response.json()["data"]["id"] == str(student.id)
+    assert response.status_code == 403

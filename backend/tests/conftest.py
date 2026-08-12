@@ -18,7 +18,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine, make_url
 from sqlalchemy.orm import Session
 
-from app.common.enums import UserRole, UserStatus
+from app.common.enums import InstitutionStatus, UserRole, UserStatus
 from app.core.config import get_settings
 from app.core.security import hash_password
 from app.db.base import Base
@@ -103,7 +103,9 @@ def _make_institution(db: Session, code: str, full_name: str) -> Institution:
         type="Engineering College",
         city="Mumbai",
         state="Maharashtra",
-        status="active",
+        # The enum, not "active": a flushed-but-not-reloaded row keeps whatever
+        # was assigned, and `Institution.is_active` compares enum identity.
+        status=InstitutionStatus.ACTIVE,
     )
     db.add(institution)
     db.flush()

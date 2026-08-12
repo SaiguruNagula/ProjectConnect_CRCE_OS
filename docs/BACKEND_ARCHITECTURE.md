@@ -408,7 +408,9 @@ institutions(id, name, full_name, code UNIQUE, type, city, state, website,
   support_email, address, status inst_status DEFAULT 'pending', tier,
   principal_name, principal_email, principal_verified bool DEFAULT false)
 
-users(id, institution_id FK, department_id FK NULL, email UNIQUE(institution_id,email),
+users(id, institution_id FK, department_id FK NULL, email UNIQUE (global — ADR-6:
+  login is email-only, so one address must resolve to one identity; strictly
+  stronger than UNIQUE(institution_id,email)),
   password_hash, name, role role_enum, status user_status DEFAULT 'active')
 
 problems(id, institution_id, department_id, created_by FK users, title, summary,
@@ -535,14 +537,31 @@ Indexes (query-driven, from actual frontend queries):
 Per DECISIONS.md §6 (still valid) and `api/client.ts` (already built for it):
 
 - `POST /api/v1/auth/login` — email + password → access token (JWT, ~15 min) +
-  refresh token (httpOnly cookie or body; **recommend httpOnly cookie**,
-  rotation on refresh, revocation row in `refresh_tokens`).
+  refresh token. **AS BUILT (ADR-8): both tokens are returned in the response
+  body and presented as `Authorization: Bearer`. No cookie is set, so there is
+  no CSRF exposure and no CSRF protection.** The earlier httpOnly-cookie
+  recommendation is deferred to V2: it contradicts the frozen `API_SPEC.md` and
+  `api/client.ts`. Rotation on refresh and a revocation row in `refresh_tokens`
+  are implemented, plus family-wide revocation on replay of a rotated token.
 - `POST /api/v1/auth/refresh`, `POST /api/v1/auth/logout` (revokes refresh),
   `GET /api/v1/auth/me` → `{ id, name, email, role }` (the frontend `User`).
-- Passwords: bcrypt via passlib, min-length + complexity validated server-side.
-- JWT claims: `sub` (user id), `role`, `institution_id`, `exp`, `jti`.
-- Login attempts recorded (audit log); brute-force: per-account + per-IP rate
-  limit (§33). Account lockout with backoff after repeated failures.
+- Passwords: bcrypt, min-length validated server-side. **AS BUILT:** the
+  `bcrypt` package is called directly rather than through passlib — same
+  algorithm, one dependency fewer, and passlib's bcrypt backend is unreliable
+  against bcrypt 4.x+. Length is bounded at bcrypt's hard 72-byte limit at the
+  trust boundary rather than silently truncated.
+- JWT claims: `sub` (user id), `role`, `institution_id`, `exp`, `jti`, plus
+  `type` (`access` | `refresh`) so the two token kinds are not interchangeable.
+- Login attempts recorded (audit log); brute-force: per-account lockout with a
+  fixed cool-off is **implemented in Phase 2**; per-IP rate limiting (§33) is
+  **NOT YET IMPLEMENTED** and remains scheduled for the hardening phase.
+- Login gates, in order, all after the password is verified so that none of them
+  answers a question an anonymous caller could otherwise ask: user status must
+  be ACTIVE and not soft-deleted, **and the user's institution status must be
+  ACTIVE** (§37, ADR-9). `POST /auth/refresh` re-checks both against the
+  database rather than trusting the token, so suspending an institution ends
+  live sessions within one access-token lifetime (~15 min), not one refresh
+  lifetime. The check is a local row read — no external service is contacted.
 - Change/forgot/reset password endpoints per API_SPEC §4 — implement change-
   password in v1; forgot/reset requires email infrastructure → **PLANNED**, not
   v1 (no frontend surface exists for it).
@@ -925,7 +944,7 @@ from this table.
 | AuthZ: role dependency + ownership module + institution scoping | REQUIRED FOR V1 — to be implemented during backend build |
 | SQL injection: SQLAlchemy bound params only, no string SQL | REQUIRED FOR V1 — to be implemented during backend build |
 | XSS: JSON-only API; React escapes by default; validate/limit user HTML-free text | REQUIRED FOR V1 — to be implemented during backend build |
-| CSRF: bearer-token API is not cookie-authenticated → not applicable, **unless** refresh token is an httpOnly cookie → SameSite=Strict + CSRF token on `/auth/refresh` | REQUIRED FOR V1 — to be implemented during backend build |
+| CSRF: **NOT APPLICABLE AS BUILT (ADR-8)** — no cookie is set, no ambient credential, so no CSRF token or SameSite policy exists. Trade-off: tokens held by the SPA are XSS-reachable; mitigated by 15-min access tokens, refresh rotation with family revocation, and the SPA CSP below | DONE — Phase 2 |
 | Rate limiting: slowapi/nginx — tight on `/auth/*`, generous elsewhere | REQUIRED FOR V1 — to be implemented during backend build |
 | Brute force: account lockout/backoff + audit | REQUIRED FOR V1 — to be implemented during backend build |
 | Security headers (nginx): HSTS, X-Content-Type-Options, X-Frame-Options, CSP for the SPA | REQUIRED FOR V1 — to be implemented during backend build |
@@ -964,8 +983,10 @@ The college's question — "what happens if something fails?":
 | Failed deployment | Previous image kept; rollback = retag + restart (§37) |
 | Backup failure | Backup job exits non-zero → visible in logs + ops checklist; weekly restore test |
 
-Health: `GET /health` (liveness) and `GET /health/ready` (DB ping) — used by
-Docker healthchecks and nginx.
+Health: `GET /api/v1/health` (liveness, never touches the database) and
+`GET /api/v1/health/db` (readiness, DB ping, 503 when unreachable) — used by
+Docker healthchecks and nginx. An earlier draft called the readiness probe
+`/health/ready`; the implemented name is `/health/db` (ADR-7).
 
 ## 36. Backup and Recovery
 
@@ -980,18 +1001,52 @@ Docker healthchecks and nginx.
 
 ## 37. On-Premise Deployment
 
+**Deployment model (ADR-9).** ProjectConnect uses an isolated per-institution
+deployment model for the initial SaaS deployment. Each institution operates its
+own ProjectConnect application instance and PostgreSQL database on its own
+infrastructure. Institutional academic data remains within that deployment.
+
 ```
-LAN / Internet → Nginx (TLS, static SPA, /api proxy, headers, rate limit)
-              → FastAPI (uvicorn, 2–4 workers)   → PostgreSQL 16 (volume)
+ONE COLLEGE = ONE DEPLOYMENT = ONE POSTGRESQL DATABASE = ONE INSTITUTION
+
+CRCE server                        SFIT server
+├── ProjectConnect (api)           ├── ProjectConnect (api)
+└── CRCE PostgreSQL                └── SFIT PostgreSQL
 ```
 
-- Docker Compose (fill the currently-empty `docker-compose.yml`): `nginx`,
-  `api`, `db`, plus a `backup` cron sidecar. Frontend is built static and
-  served by nginx — no Node in production.
-- Sizing for 100–500 users: 4 vCPU, 8 GB RAM, 100 GB SSD, Ubuntu LTS. Ports:
-  443/80 only exposed; DB internal network only.
-- Config via env: `DATABASE_URL`, `JWT_SECRET`, `JWT_EXPIRES`, `CORS_ORIGINS`,
-  `ENV`, backup paths. `.env.example` committed.
+No academic data (students, faculty, problems, teams, projects, reviews,
+credits, portfolios, analytics) ever leaves the college's infrastructure, and no
+runtime path reaches a ProjectConnect-operated service. Centralized licensing
+and deployment management may be introduced in a future version, but are
+intentionally outside the scope of the initial pilot. What exists locally today
+is the identity needed to support that later: `institutions.id` (institution
+identity), the `DEPLOYMENT_ID` environment value (installation identity), and
+`institutions.status` (ACTIVE / PENDING / SUSPENDED — the local lifecycle gate,
+enforced at login and refresh, §14).
+
+Institution isolation (§16, ADR-2) is retained even though the pilot database
+holds a single institution row: the scoping is defence in depth and the seam
+that lets a shared deployment exist later without re-auditing every query.
+
+```
+LAN / Internet → Nginx (TLS, static SPA, /api proxy, headers, rate limit)
+              → FastAPI (uvicorn, 2–4 workers)   → PostgreSQL 17 (volume)
+```
+
+- Docker Compose (`docker-compose.yml`, root): `db` and `api` are implemented,
+  both with healthchecks and `restart: unless-stopped`. **Still to add before
+  the pilot: an `nginx` service (TLS, SPA, security headers, rate limiting) and
+  a `backup` cron sidecar (§36).** Frontend is built static and served by
+  nginx — no Node in production.
+- Sizing for the 1,000–1,500 registered-user pilot: 4 vCPU, 8 GB RAM, 100 GB
+  SSD, Ubuntu LTS. Ports: 443/80 only exposed; DB internal network only. This
+  is a sizing target, not a measured concurrency guarantee — see §38.
+- Config via env: `DATABASE_URL`, `JWT_SECRET`, `DEPLOYMENT_ID`,
+  `CORS_ORIGINS`, `ENV`, backup paths. `.env.example` committed. In
+  `ENV=production` the app refuses to start without a unique `JWT_SECRET` of at
+  least 32 bytes and a non-empty `DEPLOYMENT_ID`.
+- Operational procedures (install, migrate, backup, restore, rollback,
+  suspend/reactivate) live in `docs/OPERATIONS.md`.
 - Update procedure: build image → `docker compose up -d api` (old image kept) →
   health check → done. Rollback: retag previous image, restart. Migrations run
   as an explicit step (`alembic upgrade head`) before the new API serves.
@@ -999,7 +1054,15 @@ LAN / Internet → Nginx (TLS, static SPA, /api proxy, headers, rate limit)
 
 ## 38. Scalability
 
-- Stage 1 (one college, ≤500 users): the above. Nothing else.
+- Stage 1 (one college, 1,000–1,500 registered users): the above. Nothing else.
+  Registered ≠ concurrent; the realistic concurrent working set is a small
+  fraction of it. **No load test has been run and none is claimed** — load
+  testing is meaningful only once the core domain endpoints exist.
+  Connection budget: `DB_POOL_SIZE` (10) + `DB_MAX_OVERFLOW` (20) = 30
+  connections **per uvicorn worker**. Four workers can therefore demand 120
+  connections against PostgreSQL's default `max_connections = 100`. Either
+  raise `max_connections`, or lower the pool per worker, before running
+  multi-worker in production.
 - Stage 2 (few colleges, ≤5k): same monolith; add connection pooling tuning
   (SQLAlchemy pool or pgbouncer), pagination is already universal, indexes per
   §13, cache only the public counters (`campus-impact`) if measured hot.

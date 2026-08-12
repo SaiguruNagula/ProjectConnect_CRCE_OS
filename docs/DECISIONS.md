@@ -1317,6 +1317,225 @@ Corrections are compensating transactions (admin-only, audited), never edits.
 
 ---
 
+## ADR-6 — Globally Unique User Email
+
+**Status:** ACCEPTED
+
+**Context**
+
+`users` carries `institution_id`, and §12 of the architecture originally
+specified `UNIQUE(institution_id, email)`. Authentication, however, is
+email-and-password only: `POST /api/v1/auth/login` receives `{email, password}`
+and nothing else. The frontend `LoginPage` has no institution selector, and
+`API_SPEC.md` defines no institution field on the login request.
+
+With a composite constraint, one address could exist at two institutions and the
+login lookup would be ambiguous. Every way of resolving that ambiguity is worse
+than avoiding it: asking the user to pick an institution changes the frozen
+frontend contract, inferring it from the email domain breaks for shared domains
+(gmail), and returning the first match silently authenticates the wrong identity.
+
+**Decision**
+
+`users.email` is UNIQUE platform-wide (`uq_users_email`), enforced by the
+database. `institution_id` remains on the row and remains the tenancy key for
+every other query; it is indexed via `ix_users_institution_id_role`.
+
+Email is normalised to lowercase at the model layer (`@validates("email")`) so
+the constraint and the login lookup can never disagree about case.
+
+This constraint is strictly stronger than `UNIQUE(institution_id, email)` — it
+satisfies the architecture's requirement and adds to it.
+
+**Consequences**
+
+- One email address = one identity, platform-wide. Login is unambiguous.
+- `get_by_email` is the only repository function not scoped by institution, by
+  necessity: it runs before any institution context exists.
+- A person who belongs to two institutions needs two addresses. Acceptable: the
+  pilot is single-institution, and the multi-tenant direction is one account per
+  campus identity anyway.
+- Institution transfer is an `UPDATE users SET institution_id`, not a new row.
+
+**Alternatives Considered**
+
+- `UNIQUE(institution_id, email)` with an institution selector on the login
+  form — rejected: changes the frozen frontend contract for no security gain.
+- `UNIQUE(institution_id, email)` with domain-based inference — rejected:
+  unreliable for shared domains, and it makes tenancy depend on a string the
+  user controls.
+- Composite constraint plus "first match wins" — rejected: silently
+  authenticates the wrong identity. Fails the fail-safe rule.
+
+---
+
+## ADR-7 — Readiness Endpoint Is `/health/db`
+
+**Status:** ACCEPTED
+
+**Context**
+
+Phase 1 shipped two health endpoints: `GET /api/v1/health` (liveness, never
+touches the database) and `GET /api/v1/health/db` (readiness, 503 when the
+database is unreachable). §35 of the architecture refers to the readiness probe
+as `/health/ready`.
+
+The endpoint is implemented, tested and already referenced by the deployment
+notes. The difference is a name, not behaviour.
+
+**Decision**
+
+Keep `GET /api/v1/health/db`. The architecture document is corrected to match
+the implementation; the implementation is not renamed.
+
+**Consequences**
+
+- No change to running code, tests, or the Docker healthcheck.
+- `/health/db` is arguably the more accurate name: it states what is probed.
+- If a future orchestrator convention demands `/health/ready`, it can be added
+  as an alias rather than a rename.
+
+**Alternatives Considered**
+
+- Renaming the endpoint to `/health/ready` — rejected: churn in tests and
+  deployment config to satisfy a naming preference, with a window where a stale
+  probe URL reports a false outage.
+- Serving both paths now — rejected: two names for one probe invites drift.
+
+---
+
+## ADR-8 — Bearer Token Transport, No Cookie/CSRF Model
+
+**Status:** ACCEPTED
+
+**Context**
+
+`API_SPEC.md` defines `POST /api/v1/auth/login` as returning
+`{access_token, refresh_token, user}` in the response body, and the frontend API
+client stores an access token via `setAccessToken` and sends it as
+`Authorization: Bearer`. The architecture permits either an httpOnly cookie or
+the body for the refresh token.
+
+**Decision**
+
+Both tokens are transported in the JSON response body and presented in the
+`Authorization` header. **The platform does not use cookie-based sessions and
+therefore has no CSRF protection, because it needs none: no credential is
+attached automatically by the browser.** No httpOnly, Secure or SameSite cookie
+protection is claimed or implemented.
+
+**Consequences**
+
+- Honest security posture: tokens live wherever the frontend stores them.
+  Storage in `localStorage` is readable by any script running on the origin, so
+  **XSS on the frontend is a token-theft vector.** The mitigations are the
+  standard ones — React's default escaping, no `dangerouslySetInnerHTML` on
+  user content, and a CSP at the NGINX layer — not cookie flags.
+- Blast radius is bounded by design: access tokens expire in 15 minutes, refresh
+  tokens rotate on every use, and replaying a rotated refresh token revokes the
+  entire token family for that user.
+- No CSRF tokens, no double-submit cookie, no SameSite reasoning anywhere in the
+  codebase — there is no ambient credential for an attacker's site to ride.
+- `allow_credentials=True` on the CORS middleware is vestigial in this model;
+  the explicit origin allowlist is what matters.
+
+**Alternatives Considered**
+
+- httpOnly refresh cookie + in-memory access token — genuinely stronger against
+  XSS, and the likely V2 direction. Rejected for V1: it contradicts the frozen
+  `API_SPEC.md` and frontend client, and it requires CSRF machinery
+  (double-submit or SameSite=Strict plus origin checks) that the frozen frontend
+  has no code for.
+- Access token in the body, refresh token in a cookie — rejected: the hybrid
+  carries the CSRF obligation of cookies with the XSS exposure of body tokens.
+
+---
+
+## ADR-9 — Isolated Per-Institution Deployment, No Central Control Plane
+
+**Status:** ACCEPTED
+
+**Context**
+
+ProjectConnect OS is sold as a SaaS product, but colleges expect their academic
+data — students, faculty, problems, teams, projects, reviews, credits,
+portfolios, institutional analytics — to stay on infrastructure they control.
+The pilot is a single college (CRCE). Phase 2 shipped institution-scoped
+authorization (ADR-2) that would also support several institutions inside one
+database, which left an unstated question: is the product one shared
+installation with many tenants, or many installations with one tenant each?
+
+**Decision**
+
+ProjectConnect uses an isolated per-institution deployment model for the initial
+SaaS deployment. Each institution operates its own ProjectConnect application
+instance and PostgreSQL database on its own infrastructure. Institutional
+academic data remains within that deployment.
+
+```
+ONE COLLEGE = ONE DEPLOYMENT = ONE POSTGRESQL DATABASE = ONE INSTITUTION
+```
+
+The deployment carries three identity/lifecycle values, all local:
+
+| Value | Where it lives | Purpose |
+|---|---|---|
+| Institution identity | `institutions.id` (+ `code`) | names the college |
+| Deployment identity | `DEPLOYMENT_ID` environment variable | names *this* installation |
+| Lifecycle / licence state | `institutions.status` (ACTIVE / PENDING / SUSPENDED) | gates authentication |
+
+`institutions.status` is enforced at login and at refresh: a non-ACTIVE
+institution cannot authenticate, and suspending one ends live sessions within an
+access-token lifetime. This is the local half of a future licensing story, and
+it is the *only* half being built now.
+
+Centralized licensing and deployment management may be introduced in a future
+version, but are intentionally outside the scope of the initial pilot. No
+central licence server, no network licence check, no telemetry, and no new
+dependency is introduced for licensing. **The college deployment must remain
+fully functional when ProjectConnect's future central services are unavailable,
+which today is trivially true because no such call exists.**
+
+**Consequences**
+
+- Data ownership is structural, not contractual: there is no code path that can
+  send academic data to a ProjectConnect-operated service, so the guarantee
+  cannot be violated by configuration.
+- Availability is unaffected by anything ProjectConnect operates. An outage at
+  the vendor is invisible to the college.
+- Institution isolation (ADR-2) is retained even though the pilot database holds
+  one institution row. It is defence in depth and the seam that would let a
+  shared deployment exist later without re-auditing every query. Nothing in the
+  code assumes exactly one institution row, and no single-row constraint is
+  added.
+- Upgrades, backups and restores are per-college operations. This is the real
+  cost: `N` colleges means `N` upgrade windows and `N` backup jobs. Acceptable
+  at pilot scale; it is what a control plane would later automate.
+- Adding a licence registry later is additive — a client that reports
+  `DEPLOYMENT_ID` and sets `institutions.status` — and requires no schema
+  redesign and no change to how authentication reads that status.
+
+**Alternatives Considered**
+
+- **Shared multi-tenant installation** (one database, many institutions).
+  Rejected for the pilot: it puts several colleges' academic records in one
+  blast radius, makes data ownership a policy promise rather than a physical
+  fact, and colleges asked for on-premise. The authorization work that would
+  make it safe is already done and is being kept.
+- **Central licence server checked at startup or per login.** Rejected: it
+  creates exactly the dependency the deployment model exists to avoid — a vendor
+  outage or a firewalled campus network would lock a college out of its own
+  data. Also premature: there is one pilot customer.
+- **Per-college database, single shared app instance.** Rejected: shared
+  compute reintroduces a shared failure domain and cross-college blast radius
+  for a saving that does not matter at pilot scale.
+- **`deployment_id` as a database column on `institutions`.** Rejected: the
+  deployment is a property of the installation, not of a row. An environment
+  value cannot be duplicated by a bad restore into another box's database, and
+  it needs no migration.
+
+---
+
 # 16. Decision Log
 
 The Decision Log records significant architectural or engineering changes made during the project's lifecycle.
@@ -1357,6 +1576,25 @@ Each entry should include:
 | 2026-08-11 | ADR-3: mentor-only stage review for V1 | Simplest auditable authority matching the current workflow | Review queues filtered to the project mentor; no pools/reassignment | CRCE OS Team |
 | 2026-08-11 | ADR-4: one team per student per problem | Teams form around problems; multi-problem participation is intended | DB-enforced UNIQUE(student, problem) on membership | CRCE OS Team |
 | 2026-08-11 | ADR-5: shared Credit Engine with configurable faculty rules | One source of truth; rules as data, not code | `credit_rules` seeded; faculty events limited to current product | CRCE OS Team |
+
+Full records with context, consequences, and alternatives: §15 above.
+
+---
+
+## Backend Phase 2 — Security & Identity (2026-08-12)
+
+| Date | Decision | Reason | Impact | Approved By |
+|------|----------|--------|--------|-------------|
+| 2026-08-12 | ADR-6: `users.email` is globally unique | Login is email-only, so one address must resolve to one identity | `uq_users_email`; emails normalised to lowercase; strictly stronger than UNIQUE(institution_id, email) | CRCE OS Team |
+| 2026-08-12 | ADR-7: readiness probe stays `/health/db` | Endpoint is implemented and tested; the difference is a name, not behaviour | §35 of the architecture corrected to match the implementation | CRCE OS Team |
+| 2026-08-12 | ADR-8: bearer tokens in the response body, no cookie/CSRF model | Matches the frozen API_SPEC and frontend client | No CSRF protection is needed or claimed; XSS is the token-theft vector, mitigated by 15-min access tokens and refresh rotation | CRCE OS Team |
+
+### Backend Pilot Deployment Model (2026-08-12)
+
+| Date | Decision | Reason | Impact | Approved By |
+|------|----------|--------|--------|-------------|
+| 2026-08-12 | ADR-9: one college = one deployment = one database = one institution | Colleges own their academic data; on-premise was the stated requirement | `DEPLOYMENT_ID` env value added; institution status enforced at login/refresh; institution scoping (ADR-2) retained as defence in depth | CRCE OS Team |
+| 2026-08-12 | No central licence server in the pilot; local `institutions.status` only | A network licence check would lock a college out of its own data during a vendor or network outage | Architecturally prepared, not built: adding a registry later is additive | CRCE OS Team |
 
 Full records with context, consequences, and alternatives: §15 above.
 

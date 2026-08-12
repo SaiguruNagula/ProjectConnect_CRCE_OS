@@ -134,3 +134,13 @@ def test_committed_config_contains_no_real_secrets(filename: str):
 def test_env_file_is_git_ignored():
     gitignore = (BACKEND_ROOT / ".gitignore").read_text(encoding="utf-8").splitlines()
     assert ".env" in {line.strip() for line in gitignore}
+
+
+def test_a_validation_error_does_not_echo_the_submitted_password(client: TestClient):
+    """422 bodies list field names and reasons — never the value that was sent."""
+    response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "not-an-email", "password": "s3cret-value-submitted"},
+    )
+    assert response.status_code == 422
+    assert "s3cret-value-submitted" not in response.text

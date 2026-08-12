@@ -26,6 +26,12 @@ class Settings(BaseSettings):
     api_v1_prefix: str = "/api/v1"
     project_name: str = "ProjectConnect OS API"
 
+    # Identity of *this* installation (ADR-9). One deployment serves one
+    # institution, so the deployment id belongs to the environment, not to a
+    # row. Nothing contacts a remote service to validate it; it exists so that
+    # support, logs and a future licence registry can name this box.
+    deployment_id: str = ""
+
     database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/projectconnect"
     db_pool_size: int = 10
     db_max_overflow: int = 20
@@ -60,8 +66,16 @@ class Settings(BaseSettings):
 
     def assert_production_safe(self) -> None:
         """Fail fast rather than serve production traffic with development secrets."""
-        if self.is_production and self.jwt_secret == "change-me-in-production":
+        if not self.is_production:
+            return
+        if self.jwt_secret == "change-me-in-production":
             raise RuntimeError("JWT_SECRET must be set to a unique value in production.")
+        # RFC 7518 §3.2: an HS256 key shorter than the hash output weakens the
+        # signature. PyJWT only warns; a college deployment should not start.
+        if len(self.jwt_secret.encode()) < 32:
+            raise RuntimeError("JWT_SECRET must be at least 32 bytes in production.")
+        if not self.deployment_id:
+            raise RuntimeError("DEPLOYMENT_ID must identify this installation in production.")
 
 
 @lru_cache

@@ -31,7 +31,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     configure_logging("DEBUG" if settings.debug else "INFO")
     settings.assert_production_safe()
-    logger.info("Application starting", extra={"env": settings.env})
+    logger.info(
+        "Application starting",
+        # deployment_id names this installation in the logs an operator ships
+        # to support; there is no call home (ADR-9).
+        extra={"env": settings.env, "deployment_id": settings.deployment_id or "unset"},
+    )
     yield
     engine.dispose()
     logger.info("Application stopped")

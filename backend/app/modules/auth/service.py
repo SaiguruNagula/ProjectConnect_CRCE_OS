@@ -23,12 +23,14 @@ from app.core.security import (
 )
 from app.modules.auth import repository as token_repo
 from app.modules.auth.schemas import TokenPair
+from app.modules.institutions import repository as institution_repo
 from app.modules.users import repository as user_repo
 from app.modules.users.models import User
 from app.modules.users.schemas import UserOut
 
 INVALID_CREDENTIALS = "Invalid email or password."
 INACTIVE_ACCOUNT = "This account is not active. Contact your institution administrator."
+INACTIVE_INSTITUTION = "This ProjectConnect deployment is not active. Contact your administrator."
 
 # Verified against when no user row exists, so a missing account costs the same
 # ~100ms of bcrypt as a wrong password and cannot be spotted by response timing.
@@ -48,6 +50,17 @@ def _issue_pair(db: Session, user: User) -> TokenPair:
         refresh_token=refresh_token,
         user=UserOut.model_validate(user),
     )
+
+
+def _institution_active(db: Session, user: User) -> bool:
+    """Institution status is the deployment's local lifecycle gate (ADR-9).
+
+    A suspended institution must not be able to authenticate, and the check is
+    a local row read — never a call to an external service, so the college
+    deployment keeps working when ProjectConnect's future central services do not.
+    """
+    institution = institution_repo.get_by_id(db, user.institution_id)
+    return institution is not None and institution.is_active
 
 
 def _is_locked(user: User) -> bool:
@@ -117,6 +130,21 @@ def login(db: Session, *, email: str, password: str) -> TokenPair:
         db.commit()
         raise AuthenticationError(INACTIVE_ACCOUNT)
 
+    if not _institution_active(db, user):
+        # Also after the password check: the caller owns the account, so the
+        # real reason costs nothing and prevents a pointless support ticket.
+        record_audit(
+            db,
+            action="login.denied",
+            entity="user",
+            entity_id=str(user.id),
+            actor_id=user.id,
+            institution_id=user.institution_id,
+            meta={"reason": "institution_inactive"},
+        )
+        db.commit()
+        raise AuthenticationError(INACTIVE_INSTITUTION)
+
     user.failed_login_attempts = 0
     user.locked_until = None
     user.last_login_at = datetime.now(UTC)
@@ -155,7 +183,9 @@ def refresh(db: Session, *, refresh_token: str) -> TokenPair:
         raise AuthenticationError("Invalid or expired token.")
 
     user = db.get(User, stored.user_id)
-    if user is None or not user.is_active:
+    if user is None or not user.is_active or not _institution_active(db, user):
+        # Suspending an institution therefore ends every session within one
+        # access-token lifetime rather than one refresh-token lifetime.
         raise AuthenticationError("Invalid or expired token.")
 
     # The token's own claims are not trusted for role/institution: a user
