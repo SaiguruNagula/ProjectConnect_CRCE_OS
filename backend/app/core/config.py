@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     access_token_minutes: int = 15
     refresh_token_days: int = 14
 
+    # Account lockout (BACKEND_ARCHITECTURE.md §14). Per-account, stored in the
+    # database; per-IP rate limiting is a separate concern handled at the edge.
+    max_failed_logins: int = 5
+    lockout_minutes: int = 15
+
     # Comma-separated in the environment, e.g. "http://localhost:5173,https://campus.edu".
     # NoDecode stops pydantic-settings from trying to JSON-decode it first.
     cors_origins: Annotated[list[str], NoDecode] = Field(

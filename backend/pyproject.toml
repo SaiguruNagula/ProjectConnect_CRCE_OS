@@ -10,6 +10,7 @@ dependencies = [
     "alembic>=1.14",
     "psycopg[binary]>=3.2",
     "pydantic-settings>=2.6",
+    "email-validator>=2.2",
     "pyjwt>=2.10",
     "bcrypt>=4.2",
     "python-multipart>=0.0.17",
@@ -28,3 +29,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# Alembic writes these; hand-wrapping generated DDL only causes merge noise.
+"alembic/versions/*" = ["E501", "I001"]
