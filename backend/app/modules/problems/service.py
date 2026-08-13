@@ -92,8 +92,9 @@ def _to_out(row: repo.CatalogRow) -> ProblemOut:
         timeline_weeks=_timeline_weeks(problem),
         credit_reward=problem.base_credits,
         applicants_count=row.applicants_count,
-        # Solutions Hub is Phase 5; the field is optional in the contract.
-        solutions_count=None,
+        # Published projects answering this problem — the Solutions Hub's own
+        # eligibility rule, counted in the same query.
+        solutions_count=row.solutions_count,
         end_date=problem.end_date,
         attachments=problem.attachments,
         timeline=_timeline(problem, datetime.now(UTC).date()),

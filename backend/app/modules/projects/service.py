@@ -425,9 +425,10 @@ def set_publication(
     """Show an approved project in the Solutions Hub, or take it back down.
 
     Publication is a flag on the project and nothing more: it awards no
-    credits, completes nothing and creates no Solutions Hub row (that surface
-    is a later phase). Credits are not a precondition — an approved final
-    project can be published before anyone has scored it.
+    credits, completes nothing and creates no Solutions Hub row — the hub is a
+    read of this flag, so it follows both ways on the next request. Credits are
+    not a precondition: an approved final project can be published before
+    anyone has scored it.
     """
     project = _load(db, project_id, faculty)
     authorize.ensure(

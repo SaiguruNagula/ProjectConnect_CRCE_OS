@@ -24,7 +24,7 @@ from app.modules.problems.models import (
     ProblemDraft,
     ProblemSuggestion,
 )
-from app.modules.projects.models import Application
+from app.modules.projects.models import Application, Project
 from app.modules.teams.models import Team, TeamMember
 from app.modules.users.models import User
 
@@ -37,6 +37,7 @@ class CatalogRow:
     faculty_name: str
     applicants_count: int
     team_count: int
+    solutions_count: int
     bookmarked: bool
     applied: bool
     application_team_id: uuid.UUID | None
@@ -72,6 +73,25 @@ def _team_count_subquery() -> ColumnElement[int]:
     )
 
 
+def _solutions_subquery() -> ColumnElement[int]:
+    """Solutions Hub entries answering this problem — published, not deleted.
+
+    The Hub owns no table of its own, so the count is over `projects` and uses
+    exactly the eligibility the Hub itself reads.
+    """
+    return (
+        select(func.count())
+        .select_from(Project)
+        .where(
+            Project.problem_id == Problem.id,
+            Project.published.is_(True),
+            Project.deleted_at.is_(None),
+        )
+        .correlate(Problem)
+        .scalar_subquery()
+    )
+
+
 def _catalog_select(institution_id: uuid.UUID, viewer_id: uuid.UUID) -> Select:
     return (
         select(
@@ -79,6 +99,7 @@ def _catalog_select(institution_id: uuid.UUID, viewer_id: uuid.UUID) -> Select:
             User.name,
             _applicants_subquery(),
             _team_count_subquery(),
+            _solutions_subquery(),
             ProblemBookmark.problem_id.is_not(None),
             Application.id.is_not(None),
             Application.team_id,
@@ -107,12 +128,22 @@ def _catalog_select(institution_id: uuid.UUID, viewer_id: uuid.UUID) -> Select:
 
 
 def _row(record) -> CatalogRow:
-    problem, faculty_name, applicants, teams, bookmarked, applied, application_team_id = record
+    (
+        problem,
+        faculty_name,
+        applicants,
+        teams,
+        solutions,
+        bookmarked,
+        applied,
+        application_team_id,
+    ) = record
     return CatalogRow(
         problem=problem,
         faculty_name=faculty_name,
         applicants_count=applicants,
         team_count=teams,
+        solutions_count=solutions,
         bookmarked=bool(bookmarked),
         applied=bool(applied),
         application_team_id=application_team_id,

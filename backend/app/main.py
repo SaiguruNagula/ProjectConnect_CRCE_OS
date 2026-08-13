@@ -27,6 +27,7 @@ from app.modules.portfolio.router import router as portfolio_router
 from app.modules.problems.router import router as problems_router
 from app.modules.projects.router import router as projects_router
 from app.modules.reviews.router import router as reviews_router
+from app.modules.solutions.router import router as solutions_router
 from app.modules.teams.router import router as teams_router
 from app.modules.users.router import router as users_router
 
@@ -102,6 +103,7 @@ def create_app() -> FastAPI:
         credits_router,
         leaderboard_router,
         portfolio_router,
+        solutions_router,
     ):
         app.include_router(module_router, prefix=settings.api_v1_prefix)
     return app
