@@ -23,6 +23,7 @@ from app.modules.health.router import router as health_router
 from app.modules.institutions.router import router as institutions_router
 from app.modules.problems.router import router as problems_router
 from app.modules.projects.router import router as projects_router
+from app.modules.reviews.router import router as reviews_router
 from app.modules.teams.router import router as teams_router
 from app.modules.users.router import router as users_router
 
@@ -94,6 +95,7 @@ def create_app() -> FastAPI:
         problems_router,
         teams_router,
         projects_router,
+        reviews_router,
     ):
         app.include_router(module_router, prefix=settings.api_v1_prefix)
     return app

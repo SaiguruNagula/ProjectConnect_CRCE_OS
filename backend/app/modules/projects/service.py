@@ -47,6 +47,12 @@ NEEDS_WORK = (SubmissionStatus.DRAFT, SubmissionStatus.CHANGES_REQUESTED)
 
 SOLO_TEAM_NAME = "Individual entry"
 
+STAGE_NOUN = {
+    SubmissionStage.IDEA: "idea",
+    SubmissionStage.POC: "proof of concept",
+    SubmissionStage.FINAL: "final project",
+}
+
 
 class _Journey:
     """The four stage states of one project, however sparse the rows are."""
@@ -159,6 +165,13 @@ def _lifecycle(journey: _Journey) -> LifecycleStatus:
     return "idea_submitted"
 
 
+def lifecycle_of(
+    project: Project, rows: dict[SubmissionStage, StageSubmission]
+) -> LifecycleStatus:
+    """The lifecycle status of one project — the review queues read it too."""
+    return _lifecycle(_Journey(project, rows))
+
+
 def _timeline(journey: _Journey) -> list[TimelineEventOut]:
     """Always the same seven steps in the same order — only the ticks change."""
     idea, poc, final = (
@@ -234,7 +247,7 @@ def _project_status(journey: _Journey) -> ProjectStatus:
     return "active"
 
 
-def _members(
+def members_by_project(
     db: Session, projects: list[Project]
 ) -> dict[uuid.UUID, list[TeamMemberOut]]:
     """Team roster for team projects; the applicant alone for solo ones."""
@@ -260,7 +273,7 @@ def _members(
 
 def _views(db: Session, projects: list[Project]) -> list[ProjectOut]:
     submissions = repo.submissions_by_project(db, {p.id for p in projects})
-    members = _members(db, projects)
+    members = members_by_project(db, projects)
     mentors = repo.names_by_id(db, {p.mentor_id for p in projects if p.mentor_id})
     views = []
     for project in projects:
@@ -327,13 +340,13 @@ def get_project(db: Session, viewer: User, project_id: uuid.UUID) -> ProjectOut:
 def journey(db: Session, viewer: User, project_id: uuid.UUID) -> ProjectJourneyOut:
     project = _load(db, project_id, viewer)
     _ensure_can_read(db, project, viewer)
-    return _compose_journey(db, project)
+    return compose_journey(db, project)
 
 
-def _compose_journey(db: Session, project: Project) -> ProjectJourneyOut:
+def compose_journey(db: Session, project: Project) -> ProjectJourneyOut:
     rows = repo.submissions_by_project(db, {project.id}).get(project.id, {})
     state = _Journey(project, rows)
-    members = _members(db, [project])[project.id]
+    members = members_by_project(db, [project])[project.id]
 
     team = (
         teams_repo.get(db, project.team_id, institution_id=project.institution_id)
@@ -509,28 +522,36 @@ def withdraw_application(db: Session, student: User, problem_id: uuid.UUID) -> N
 
 
 def _guard(journey: _Journey, stage: SubmissionStage) -> None:
-    """The mock's stage gates, in the mock's order and wording."""
+    """The mock's stage gates, in the mock's order and wording.
+
+    Only `draft` and `changes_requested` are writable: an approved stage is
+    settled and a rejected one is terminal, so neither takes another edit.
+    """
     current = journey.status(stage)
+    noun = STAGE_NOUN[stage]
     if stage is SubmissionStage.POC and journey.idea is SubmissionStatus.DRAFT:
         raise BusinessRuleError("Submit your idea before the proof of concept.")
     if stage is SubmissionStage.FINAL and journey.selection is not SelectionStatus.SELECTED:
         raise BusinessRuleError(
             "Only teams selected for final development can submit a final project."
         )
-    if stage is SubmissionStage.FINAL and current is SubmissionStatus.APPROVED:
-        raise BusinessRuleError("Your final project has already been approved.")
+    if current is SubmissionStatus.APPROVED:
+        raise BusinessRuleError(f"Your {noun} has already been approved.")
+    if current is SubmissionStatus.REJECTED:
+        raise BusinessRuleError(f"Your {noun} was rejected and cannot be resubmitted.")
     if current in PENDING:
-        raise BusinessRuleError(
-            {
-                SubmissionStage.IDEA: "Your idea is already with faculty for review.",
-                SubmissionStage.POC: (
-                    "Your proof of concept is already with faculty for review."
-                ),
-                SubmissionStage.FINAL: (
-                    "Your final project is already with faculty for review."
-                ),
-            }[stage]
-        )
+        raise BusinessRuleError(f"Your {noun} is already with faculty for review.")
+
+
+def _clear_review(row: StageSubmission) -> None:
+    """There is no review history: a resubmission drops the previous verdict."""
+    row.reviewed_at = None
+    row.reviewed_by = None
+    row.review_strengths = None
+    row.review_weaknesses = None
+    row.review_suggestions = None
+    row.review_comments = None
+    row.evaluation = None
 
 
 def save_stage(
@@ -561,6 +582,7 @@ def save_stage(
             ),
         )
         rows[stage] = row
+    resubmission = row.reviewed_at is not None
     row.payload = payload
     row.saved_at = now
     # Submitting moves the stage to `submitted`; the review status that follows
@@ -568,13 +590,18 @@ def save_stage(
     if submit:
         row.status = SubmissionStatus.SUBMITTED
         row.submitted_at = now
+        # A stage carries one review at a time: the verdict on the version that
+        # was rewritten no longer describes what faculty are about to read.
+        if resubmission:
+            _clear_review(row)
     else:
         row.status = SubmissionStatus.DRAFT
 
     if submit:
         record_audit(
             db,
-            action=f"submission.{stage.value}_submitted",
+            action=f"submission.{stage.value}_"
+            + ("resubmitted" if resubmission else "submitted"),
             entity="stage_submission",
             entity_id=str(row.id),
             actor_id=student.id,
@@ -582,4 +609,4 @@ def save_stage(
             meta={"project_id": str(project.id)},
         )
     db.commit()
-    return _compose_journey(db, project)
+    return compose_journey(db, project)
