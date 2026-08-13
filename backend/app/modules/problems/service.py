@@ -22,6 +22,7 @@ from app.common.enums import (
 )
 from app.common.errors import BusinessRuleError, NotFoundError, ValidationError
 from app.core import authorize
+from app.modules.credits import service as credits
 from app.modules.problems import repository as repo
 from app.modules.problems.models import Problem, ProblemDraft, ProblemSuggestion
 from app.modules.problems.schemas import (
@@ -151,6 +152,22 @@ def detail(db: Session, viewer: User, problem_id: uuid.UUID) -> ProblemOut:
     return _to_out(row)
 
 
+def _credit_publication(db: Session, author: User, problem: Problem) -> None:
+    """Publishing is a faculty event; the Credit Engine prices it (ADR-5).
+
+    Keyed on the problem id, so re-running this for a problem already in the
+    catalog credits nobody a second time.
+    """
+    credits.earn(
+        db,
+        author,
+        event_type="PROBLEM_PUBLISHED",
+        source_id=problem.id,
+        description=problem.title,
+        context=f"Dept. of {problem.department}",
+    )
+
+
 def create(db: Session, author: User, payload: ProblemCreate) -> ProblemOut:
     problem = repo.add(
         db,
@@ -185,6 +202,7 @@ def create(db: Session, author: User, payload: ProblemCreate) -> ProblemOut:
         institution_id=author.institution_id,
         meta={"department": problem.department},
     )
+    _credit_publication(db, author, problem)
     db.commit()
     return detail(db, author, problem.id)
 
@@ -432,6 +450,7 @@ def decide_suggestion(
         published = repo.add(db, _problem_from_suggestion(suggestion, mentor))
         suggestion.published_problem_id = published.id
         suggestion.status = ProblemSuggestionStatus.PUBLISHED
+        _credit_publication(db, mentor, published)
     else:
         suggestion.status = ProblemSuggestionStatus(payload.decision)
 

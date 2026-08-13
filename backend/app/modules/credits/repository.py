@@ -16,7 +16,7 @@ from datetime import datetime
 from sqlalchemy import Row, func, or_, select
 from sqlalchemy.orm import Session
 
-from app.common.enums import SubmissionStatus
+from app.common.enums import SubmissionStatus, UserRole
 from app.modules.credits.models import CreditAward, CreditRule, CreditTransaction
 from app.modules.problems.models import Problem
 from app.modules.projects.models import Project, StageSubmission
@@ -73,6 +73,22 @@ def add_transaction(db: Session, transaction: CreditTransaction) -> CreditTransa
     return transaction
 
 
+def transaction_exists(
+    db: Session, *, user_id: uuid.UUID, source: str, source_id: uuid.UUID
+) -> bool:
+    """The `UNIQUE(user_id, source, source_id)` key, read before writing.
+
+    The constraint is the guarantee; this read keeps a repeated event from
+    aborting the transaction the triggering operation is running in.
+    """
+    stmt = select(CreditTransaction.id).where(
+        CreditTransaction.user_id == user_id,
+        CreditTransaction.source == source,
+        CreditTransaction.source_id == source_id,
+    )
+    return db.execute(stmt).first() is not None
+
+
 # --- ledger ----------------------------------------------------------------------
 
 
@@ -112,6 +128,25 @@ def by_source(db: Session, user_id: uuid.UUID) -> list[Row[tuple[str, int]]]:
 
 
 # --- rules -----------------------------------------------------------------------
+
+
+def active_rule(
+    db: Session, role: UserRole, event_type: str, now: datetime
+) -> CreditRule | None:
+    """What this event is worth to this role right now, or nothing if unruled."""
+    stmt = (
+        select(CreditRule)
+        .where(
+            CreditRule.role == role,
+            CreditRule.event_type == event_type,
+            CreditRule.active.is_(True),
+            CreditRule.effective_from <= now,
+            or_(CreditRule.effective_to.is_(None), CreditRule.effective_to > now),
+        )
+        .order_by(CreditRule.effective_from.desc())
+        .limit(1)
+    )
+    return db.execute(stmt).scalars().first()
 
 
 def active_rules(db: Session, now: datetime) -> Sequence[CreditRule]:

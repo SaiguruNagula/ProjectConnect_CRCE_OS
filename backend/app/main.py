@@ -22,6 +22,7 @@ from app.modules.auth.router import router as auth_router
 from app.modules.credits.router import router as credits_router
 from app.modules.health.router import router as health_router
 from app.modules.institutions.router import router as institutions_router
+from app.modules.leaderboard.router import router as leaderboard_router
 from app.modules.problems.router import router as problems_router
 from app.modules.projects.router import router as projects_router
 from app.modules.reviews.router import router as reviews_router
@@ -98,6 +99,7 @@ def create_app() -> FastAPI:
         projects_router,
         reviews_router,
         credits_router,
+        leaderboard_router,
     ):
         app.include_router(module_router, prefix=settings.api_v1_prefix)
     return app

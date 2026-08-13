@@ -143,6 +143,18 @@ def award(
     # credits, not the day the work finished.
     if project.completed_at is None:
         project.completed_at = now
+        # Completion is also the mentor's event. Their credit is priced by the
+        # rule table, never by the award they just typed, and it is emitted
+        # here — the one place a project becomes completed, so a later revision
+        # cannot pay them twice.
+        earn(
+            db,
+            faculty,
+            event_type="MENTORED_PROJECT_COMPLETED",
+            source_id=project.id,
+            description=project.title,
+            context="Mentorship",
+        )
 
     record_audit(
         db,
@@ -166,6 +178,62 @@ def award(
     )
     db.commit()
     return projects.compose_journey(db, project)
+
+
+# --- rule-priced events -------------------------------------------------------------
+
+
+def earn(
+    db: Session,
+    user: User,
+    *,
+    event_type: str,
+    source_id: uuid.UUID,
+    description: str,
+    context: str | None = None,
+) -> CreditTransaction | None:
+    """Credit a platform event at the rate `credit_rules` says it is worth.
+
+    The caller reports what happened and names the row it happened to; the
+    engine decides the points. Nothing a request body carries can reach this
+    function, so nobody prices their own work.
+
+    Idempotent on `(user, source, source_id)`: the same event, replayed, adds
+    nothing. Returns `None` when the event is unruled or already paid — an
+    unpriced event is simply not worth credits, never an error.
+
+    Joins the caller's transaction. The triggering operation still owns the
+    commit, so the event and its credit land together or not at all.
+    """
+    rule = repo.active_rule(db, user.role, event_type, datetime.now(UTC))
+    if rule is None:
+        return None
+    source = config.EVENT_LABELS.get(event_type, event_type)
+    if repo.transaction_exists(db, user_id=user.id, source=source, source_id=source_id):
+        return None
+
+    row = repo.add_transaction(
+        db,
+        CreditTransaction(
+            institution_id=user.institution_id,
+            user_id=user.id,
+            source=source,
+            source_id=source_id,
+            points=rule.points,
+            description=description,
+            context=context,
+        ),
+    )
+    record_audit(
+        db,
+        action="credit.earned",
+        entity="credit_transaction",
+        entity_id=str(row.id),
+        actor_id=user.id,
+        institution_id=user.institution_id,
+        meta={"event_type": event_type, "points": rule.points, "source_id": str(source_id)},
+    )
+    return row
 
 
 # --- reads ------------------------------------------------------------------------

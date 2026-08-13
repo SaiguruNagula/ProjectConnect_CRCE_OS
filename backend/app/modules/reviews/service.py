@@ -20,6 +20,7 @@ from app.common.audit import record_audit
 from app.common.enums import SelectionStatus, SubmissionStage, SubmissionStatus
 from app.common.errors import BusinessRuleError, NotFoundError, ValidationError
 from app.core import authorize
+from app.modules.credits import service as credits
 from app.modules.projects import repository as projects_repo
 from app.modules.projects import service as projects
 from app.modules.projects.models import Project, StageSubmission
@@ -284,6 +285,18 @@ def decide(
             "from_status": was.value,
             "to_status": row.status.value,
         },
+    )
+
+    # Reviewing is faculty work, whatever the verdict. The Credit Engine prices
+    # it from the rule table and keys it on the stage row, so re-reviewing a
+    # resubmission of the same stage pays once (Phase 5B).
+    credits.earn(
+        db,
+        faculty,
+        event_type="REVIEW_COMPLETED",
+        source_id=row.id,
+        description=project.title,
+        context=f"{projects.STAGE_NOUN[stage].capitalize()} review",
     )
 
     # Approving the final project makes it credit-eligible and nothing more.

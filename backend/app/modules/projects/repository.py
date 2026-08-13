@@ -56,14 +56,35 @@ def lock_submission(
 
 
 def _team_ids_of(student_id: uuid.UUID):
-    return select(TeamMember.team_id).where(TeamMember.student_id == student_id)
+    # correlate_except: when `student_id` is a column from an outer query, that
+    # table must not join in here — otherwise the subquery matches every student.
+    return (
+        select(TeamMember.team_id)
+        .where(TeamMember.student_id == student_id)
+        .correlate_except(TeamMember)
+    )
 
 
 def _solo_project_ids_of(student_id: uuid.UUID):
-    return select(Application.project_id).where(
-        Application.student_id == student_id,
-        Application.status == ApplicationStatus.ACTIVE,
-        Application.project_id.is_not(None),
+    return (
+        select(Application.project_id)
+        .where(
+            Application.student_id == student_id,
+            Application.status == ApplicationStatus.ACTIVE,
+            Application.project_id.is_not(None),
+        )
+        .correlate_except(Application)
+    )
+
+
+def belongs_to_student(student_id):
+    """A project is a student's if their team owns it or they applied solo.
+
+    Takes an id or a column, so a caller can correlate it against `users` in an
+    aggregate instead of asking per student.
+    """
+    return Project.team_id.in_(_team_ids_of(student_id)) | Project.id.in_(
+        _solo_project_ids_of(student_id)
     )
 
 
@@ -75,8 +96,7 @@ def list_for_student(
         .where(
             Project.institution_id == institution_id,
             Project.deleted_at.is_(None),
-            Project.team_id.in_(_team_ids_of(student_id))
-            | Project.id.in_(_solo_project_ids_of(student_id)),
+            belongs_to_student(student_id),
         )
         .order_by(Project.created_at.desc())
     )
