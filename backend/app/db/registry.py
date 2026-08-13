@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from app.common.audit import AuditLog
 from app.modules.auth.models import RefreshToken
+from app.modules.credits.models import CreditAward, CreditRule, CreditTransaction
 from app.modules.institutions.models import Institution
 from app.modules.problems.models import (
     Problem,
@@ -22,6 +23,9 @@ from app.modules.users.models import User
 __all__ = [
     "Application",
     "AuditLog",
+    "CreditAward",
+    "CreditRule",
+    "CreditTransaction",
     "Institution",
     "Problem",
     "ProblemBookmark",

@@ -31,6 +31,30 @@ def get_project(
     return db.execute(stmt).scalar_one_or_none()
 
 
+def lock_project(db: Session, project_id: uuid.UUID) -> Project | None:
+    """Take the project row first — writers lock project, then stage, always."""
+    stmt = (
+        select(Project)
+        .where(Project.id == project_id, Project.deleted_at.is_(None))
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+    return db.execute(stmt).scalar_one_or_none()
+
+
+def lock_submission(
+    db: Session, *, project_id: uuid.UUID, stage: SubmissionStage
+) -> StageSubmission | None:
+    """The arbitration point between a resubmission and anything reading a verdict."""
+    stmt = (
+        select(StageSubmission)
+        .where(StageSubmission.project_id == project_id, StageSubmission.stage == stage)
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+    return db.execute(stmt).scalar_one_or_none()
+
+
 def _team_ids_of(student_id: uuid.UUID):
     return select(TeamMember.team_id).where(TeamMember.student_id == student_id)
 

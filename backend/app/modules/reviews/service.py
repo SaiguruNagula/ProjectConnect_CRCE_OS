@@ -286,10 +286,9 @@ def decide(
         },
     )
 
-    # Approving the final project is what makes it credit-eligible; the award
-    # itself belongs to the Credit Engine (Phase 5), not here.
-    if stage is SubmissionStage.FINAL and row.status is SubmissionStatus.APPROVED:
-        project.completed_at = now
+    # Approving the final project makes it credit-eligible and nothing more.
+    # `completed_at` belongs to the Credit Engine: a project is completed once
+    # its credits are awarded (UD-1), so the review engine never sets it.
 
     # Selecting is the PoC approval that also settles Stage 3, and rejecting a
     # PoC settles it the other way. Both write the project in this transaction.

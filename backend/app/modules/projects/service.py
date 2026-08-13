@@ -24,6 +24,8 @@ from app.common.enums import (
 )
 from app.common.errors import BusinessRuleError, NotFoundError
 from app.core import authorize
+from app.modules.credits import repository as credits_repo
+from app.modules.credits.schemas import CreditAwardOut
 from app.modules.problems import repository as problems_repo
 from app.modules.projects import repository as repo
 from app.modules.projects.models import Application, Project, StageSubmission
@@ -343,6 +345,24 @@ def journey(db: Session, viewer: User, project_id: uuid.UUID) -> ProjectJourneyO
     return compose_journey(db, project)
 
 
+def _credits(db: Session, project: Project) -> dict | None:
+    """The live award, read from the Credit Engine — nothing is summed here."""
+    row = credits_repo.active_award_with_awarder(db, project.id)
+    if row is None:
+        return None
+    award, awarded_by = row
+    return CreditAwardOut(
+        innovation=award.innovation,
+        implementation=award.implementation,
+        documentation=award.documentation,
+        presentation=award.presentation,
+        bonus=award.bonus,
+        total=award.total,
+        awarded_by=awarded_by,
+        awarded_at=award.awarded_at,
+    ).model_dump(mode="json")
+
+
 def compose_journey(db: Session, project: Project) -> ProjectJourneyOut:
     rows = repo.submissions_by_project(db, {project.id}).get(project.id, {})
     state = _Journey(project, rows)
@@ -392,8 +412,45 @@ def compose_journey(db: Session, project: Project) -> ProjectJourneyOut:
         final=stage_out(SubmissionStage.FINAL),
         status=_lifecycle(state),
         timeline=_timeline(state),
+        credits=_credits(db, project),
         published=project.published,
     )
+
+
+def set_publication(
+    db: Session, faculty: User, project_id: uuid.UUID, publish: bool
+) -> ProjectJourneyOut:
+    """Show an approved project in the Solutions Hub, or take it back down.
+
+    Publication is a flag on the project and nothing more: it awards no
+    credits, completes nothing and creates no Solutions Hub row (that surface
+    is a later phase). Credits are not a precondition — an approved final
+    project can be published before anyone has scored it.
+    """
+    project = _load(db, project_id, faculty)
+    authorize.ensure(
+        authorize.is_nominated_mentor(faculty, project),
+        "Only the assigned mentor can publish this project.",
+    )
+    project = repo.lock_project(db, project.id)
+    if project is None:
+        raise NotFoundError("Project not found.")
+    final = repo.get_submission(db, project_id=project.id, stage=SubmissionStage.FINAL)
+    if final is None or final.status is not SubmissionStatus.APPROVED:
+        raise BusinessRuleError("Only an approved final project can be published.")
+
+    project.published = publish
+    record_audit(
+        db,
+        action="project.published" if publish else "project.unpublished",
+        entity="project",
+        entity_id=str(project.id),
+        actor_id=faculty.id,
+        institution_id=faculty.institution_id,
+        meta={"published": publish},
+    )
+    db.commit()
+    return compose_journey(db, project)
 
 
 # --- applying -------------------------------------------------------------------

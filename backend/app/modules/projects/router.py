@@ -16,6 +16,8 @@ from fastapi import APIRouter, Depends, Query
 from app.common.enums import SubmissionStage, UserRole
 from app.common.envelope import ok
 from app.core.deps import CurrentUser, DbSession, require_role
+from app.modules.credits import service as credits
+from app.modules.credits.schemas import CreditAwardIn, PublicationIn
 from app.modules.projects import service
 from app.modules.projects.schemas import (
     ApplicationInput,
@@ -28,6 +30,7 @@ from app.modules.users.models import User
 router = APIRouter(tags=["projects"])
 
 Student = Annotated[User, Depends(require_role(UserRole.STUDENT))]
+Faculty = Annotated[User, Depends(require_role(UserRole.FACULTY))]
 Submit = Annotated[bool, Query()]
 
 
@@ -125,3 +128,31 @@ def save_final(
         submit=submit,
     )
     return ok(journey, "Final project submitted." if submit else "Draft saved.")
+
+
+# The mentor's two post-approval verbs. They live on the project surface
+# because that is where the frozen frontend posts them (StageReviewPanel), and
+# both return the whole journey so the panel re-renders from one response.
+
+
+@router.post("/projects/{project_id}/credits")
+def award_credits(
+    project_id: uuid.UUID,
+    payload: CreditAwardIn,
+    current_user: Faculty,
+    db: DbSession,
+) -> dict[str, object]:
+    journey = credits.award(db, current_user, project_id, payload)
+    return ok(journey, "Credits awarded.")
+
+
+@router.post("/projects/{project_id}/publication")
+def set_publication(
+    project_id: uuid.UUID,
+    payload: PublicationIn,
+    current_user: Faculty,
+    db: DbSession,
+) -> dict[str, object]:
+    journey = service.set_publication(db, current_user, project_id, payload.publish)
+    message = "Published to the Solutions Hub." if payload.publish else "Publication removed."
+    return ok(journey, message)

@@ -248,7 +248,8 @@ def test_finished_projects_move_to_the_completed_queue(
     ).json()["data"]
 
     assert [item["id"] for item in queues["completed"]] == [project_id]
-    assert queues["completed"][0]["status"] == "completed"
+    # Approved, not completed: completion waits for the credits (UD-1).
+    assert queues["completed"][0]["status"] == "approved"
     assert queues["completed"][0]["stage"] == "final"
 
 
@@ -355,9 +356,10 @@ def test_approval_needs_no_feedback_before_the_final_stage(
     assert response.json()["data"]["selection"]["status"] == "not_reviewed"
 
 
-def test_approving_the_final_project_completes_it(
+def test_approving_the_final_project_makes_it_credit_eligible(
     client: TestClient, db: Session, student, faculty, problem
 ) -> None:
+    """Approval is not completion — the credit award completes a project (UD-1)."""
     project_id = selected_project(client, student, faculty, problem)
     submit(client, student, project_id, SubmissionStage.FINAL)
 
@@ -366,10 +368,10 @@ def test_approving_the_final_project_completes_it(
     ).json()["data"]
 
     assert journey["final"]["status"] == "approved"
-    assert journey["status"] == "completed"
+    assert journey["status"] == "approved"
     assert journey["final"]["review"]["evaluation"] == EVALUATION
     assert journey["timeline"][-1]["done"] is True
-    assert db.get(Project, uuid.UUID(project_id)).completed_at is not None
+    assert db.get(Project, uuid.UUID(project_id)).completed_at is None
 
 
 def test_a_final_project_is_never_approved_unscored(

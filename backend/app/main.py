@@ -19,6 +19,7 @@ from app.core.config import get_settings
 from app.core.logging import configure_logging
 from app.db.session import engine
 from app.modules.auth.router import router as auth_router
+from app.modules.credits.router import router as credits_router
 from app.modules.health.router import router as health_router
 from app.modules.institutions.router import router as institutions_router
 from app.modules.problems.router import router as problems_router
@@ -96,6 +97,7 @@ def create_app() -> FastAPI:
         teams_router,
         projects_router,
         reviews_router,
+        credits_router,
     ):
         app.include_router(module_router, prefix=settings.api_v1_prefix)
     return app
