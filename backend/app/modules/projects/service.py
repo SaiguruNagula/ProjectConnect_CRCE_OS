@@ -273,7 +273,9 @@ def members_by_project(
     return members
 
 
-def _views(db: Session, projects: list[Project]) -> list[ProjectOut]:
+def views(db: Session, projects: list[Project]) -> list[ProjectOut]:
+    """The list read model, batched. Public because Portfolio composes with it
+    rather than keeping a second copy of a project."""
     submissions = repo.submissions_by_project(db, {p.id for p in projects})
     members = members_by_project(db, projects)
     mentors = repo.names_by_id(db, {p.mentor_id for p in projects if p.mentor_id})
@@ -330,13 +332,13 @@ def list_projects(db: Session, viewer: User) -> list[ProjectOut]:
         projects = repo.list_for_mentor(
             db, institution_id=viewer.institution_id, mentor_id=viewer.id
         )
-    return _views(db, list(projects))
+    return views(db, list(projects))
 
 
 def get_project(db: Session, viewer: User, project_id: uuid.UUID) -> ProjectOut:
     project = _load(db, project_id, viewer)
     _ensure_can_read(db, project, viewer)
-    return _views(db, [project])[0]
+    return views(db, [project])[0]
 
 
 def journey(db: Session, viewer: User, project_id: uuid.UUID) -> ProjectJourneyOut:
@@ -531,7 +533,7 @@ def apply_to_problem(
         },
     )
     db.commit()
-    return _views(db, [project])[0]
+    return views(db, [project])[0]
 
 
 def withdraw_application(db: Session, student: User, problem_id: uuid.UUID) -> None:
