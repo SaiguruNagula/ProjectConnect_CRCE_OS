@@ -282,11 +282,21 @@ def test_phase_3_endpoints_require_authentication(client: TestClient, path) -> N
 
 
 def test_a_tampered_token_is_rejected(client: TestClient, student, problem) -> None:
-    token = auth_header(client, student.email)["Authorization"]
+    """Rewriting a claim invalidates the signature over it.
+
+    The claims, not the last character of the signature: a 32-byte HMAC ends in
+    43 base64url characters, so the final one carries only four significant bits
+    and two others encode the same byte. Editing it leaves the signature intact
+    about one time in sixteen, which made the earlier form of this test pass by
+    luck. Every character before the last carries a full six bits.
+    """
+    scheme, token = auth_header(client, student.email)["Authorization"].split(" ")
+    head, payload, signature = token.split(".")
+    tampered = f"{head}.{'a' if payload[0] != 'a' else 'b'}{payload[1:]}.{signature}"
 
     response = client.get(
         f"/api/v1/problems/{problem.id}",
-        headers={"Authorization": token[:-1] + ("a" if token[-1] != "a" else "b")},
+        headers={"Authorization": f"{scheme} {tampered}"},
     )
 
     assert response.status_code == 401

@@ -11,7 +11,8 @@ import uuid
 from collections.abc import Callable
 from typing import Annotated
 
-from fastapi import Depends, Request
+from fastapi import Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.common.enums import UserRole
@@ -22,20 +23,21 @@ from app.modules.users.models import User
 
 DbSession = Annotated[Session, Depends(get_db)]
 
+# `auto_error=False` so a missing or malformed header falls through to this
+# module's own 401 envelope instead of Starlette's bare HTTPException. The
+# scheme exists so the generated OpenAPI document says which endpoints need a
+# token — every route resolving `CurrentUser` carries it.
+_bearer = HTTPBearer(auto_error=False, description="Access token issued by /auth/login.")
 
-def _bearer_token(request: Request) -> str:
-    header = request.headers.get("Authorization")
-    if not header:
-        raise AuthenticationError("Authentication required.")
-    scheme, _, token = header.partition(" ")
-    if scheme.lower() != "bearer" or not token.strip():
-        raise AuthenticationError("Authentication required.")
-    return token.strip()
+BearerToken = Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)]
 
 
-def get_current_user(request: Request, db: DbSession) -> User:
+def get_current_user(credentials: BearerToken, db: DbSession) -> User:
     """The single source of authenticated identity for the whole API."""
-    claims = decode_token(_bearer_token(request), expected_type="access")
+    if credentials is None or not credentials.credentials.strip():
+        raise AuthenticationError("Authentication required.")
+
+    claims = decode_token(credentials.credentials.strip(), expected_type="access")
 
     user = db.get(User, claims.user_id)
     if user is None or not user.is_active:
