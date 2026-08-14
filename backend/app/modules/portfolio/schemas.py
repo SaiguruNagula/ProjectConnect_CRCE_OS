@@ -41,8 +41,8 @@ class PortfolioOut(BaseModel):
     role: UserRole
     email: str
     avatar_initials: str
-    # The canonical user model has no department column, so there is nothing to
-    # report. Serialised as null until a phase adds one (see the Phase 5B blocker).
+    # Read from `users.department`, the one place a person's department is
+    # stored. Still null for anyone who has not filled in their profile.
     department: str | None = None
 
     total_credits: int

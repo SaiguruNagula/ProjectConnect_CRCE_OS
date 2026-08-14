@@ -25,6 +25,7 @@ from app.modules.institutions.router import router as institutions_router
 from app.modules.leaderboard.router import router as leaderboard_router
 from app.modules.portfolio.router import router as portfolio_router
 from app.modules.problems.router import router as problems_router
+from app.modules.profiles.router import router as profiles_router
 from app.modules.projects.router import router as projects_router
 from app.modules.reviews.router import router as reviews_router
 from app.modules.solutions.router import router as solutions_router
@@ -96,6 +97,7 @@ def create_app() -> FastAPI:
         auth_router,
         institutions_router,
         users_router,
+        profiles_router,
         problems_router,
         teams_router,
         projects_router,

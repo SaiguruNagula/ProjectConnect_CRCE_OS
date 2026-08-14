@@ -37,6 +37,13 @@ class User(UUIDPrimaryKey, Timestamped, Base):
     role: Mapped[UserRole] = mapped_column(ROLE_ENUM)
     status: Mapped[UserStatus] = mapped_column(USER_STATUS_ENUM, default=UserStatus.ACTIVE)
 
+    # The canonical department of a person. Both `StudentProfile` and
+    # `FacultyProfile` carry it and both let the owner edit it, so it lives on
+    # the row they share rather than being written twice; the portfolio reads it
+    # from here whatever the role. Nullable because every existing account
+    # predates the column and nobody has been asked yet.
+    department: Mapped[str | None] = mapped_column(String(120))
+
     # Authentication metadata (BACKEND_ARCHITECTURE.md §14 lockout/backoff).
     failed_login_attempts: Mapped[int] = mapped_column(default=0)
     locked_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

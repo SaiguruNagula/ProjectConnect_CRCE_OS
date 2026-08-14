@@ -92,6 +92,18 @@ class JoinRequestStatus(StrEnum):
     REJECTED = "rejected"
 
 
+class FacultyVisibility(StrEnum):
+    """domain.ts `FacultyVisibility` — who may see a faculty profile.
+
+    Recorded on the profile the faculty owns. Nothing reads it yet: the only
+    profile read is the owner's own, and there is no public profile route.
+    """
+
+    PUBLIC = "public"
+    INSTITUTIONAL = "institutional"
+    FACULTY = "faculty"
+
+
 def pg_enum(enum_class: type[Enum], name: str) -> sa.Enum:
     """Persist the enum *values* ('student'), not the member names ('STUDENT')."""
     return sa.Enum(
@@ -112,6 +124,7 @@ SELECTION_STATUS_ENUM = pg_enum(SelectionStatus, "selection_status")
 APPLICATION_STATUS_ENUM = pg_enum(ApplicationStatus, "application_status")
 INVITATION_STATUS_ENUM = pg_enum(InvitationStatus, "invitation_status")
 JOIN_REQUEST_STATUS_ENUM = pg_enum(JoinRequestStatus, "join_request_status")
+FACULTY_VISIBILITY_ENUM = pg_enum(FacultyVisibility, "faculty_visibility")
 
 # The frontend ships a fixed list (constants/catalog.ts DIFFICULTIES); it stays a
 # validated string rather than a ninth enum type because nothing queries on it.

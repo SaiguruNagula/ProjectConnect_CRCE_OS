@@ -45,7 +45,7 @@ def _contributions(role: UserRole) -> ColumnElement[int]:
 
 def board(
     db: Session, *, institution_id: uuid.UUID, role: UserRole
-) -> list[Row[tuple[uuid.UUID, str, UserRole, int, int, int]]]:
+) -> list[Row[tuple[uuid.UUID, str, UserRole, str | None, int, int, int]]]:
     """One institution's board for one role, ranked by the database.
 
     RANK(), not ROW_NUMBER(): two people on the same credits share a place.
@@ -60,6 +60,7 @@ def board(
             User.id,
             User.name,
             User.role,
+            User.department,
             credits.label("credits"),
             func.rank().over(order_by=credits.desc()).label("rank"),
             _contributions(role).label("contributions"),
@@ -76,7 +77,7 @@ def board(
             User.role == role,
             User.deleted_at.is_(None),
         )
-        .group_by(User.id, User.name, User.role)
+        .group_by(User.id, User.name, User.role, User.department)
         .order_by(credits.desc(), User.name)
     )
     return list(db.execute(stmt).all())

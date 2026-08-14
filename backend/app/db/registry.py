@@ -16,6 +16,7 @@ from app.modules.problems.models import (
     ProblemDraft,
     ProblemSuggestion,
 )
+from app.modules.profiles.models import FacultyProfile, StudentProfile
 from app.modules.projects.models import Application, Project, StageSubmission
 from app.modules.teams.models import Team, TeamInvitation, TeamJoinRequest, TeamMember
 from app.modules.users.models import User
@@ -26,6 +27,7 @@ __all__ = [
     "CreditAward",
     "CreditRule",
     "CreditTransaction",
+    "FacultyProfile",
     "Institution",
     "Problem",
     "ProblemBookmark",
@@ -34,6 +36,7 @@ __all__ = [
     "Project",
     "RefreshToken",
     "StageSubmission",
+    "StudentProfile",
     "Team",
     "TeamInvitation",
     "TeamJoinRequest",

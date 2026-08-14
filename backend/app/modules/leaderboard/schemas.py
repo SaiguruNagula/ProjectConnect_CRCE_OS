@@ -19,9 +19,9 @@ class LeaderboardEntryOut(BaseModel):
     id: uuid.UUID
     rank: int
     name: str
-    # Blocked: `users` has no department column, so there is nothing truthful to
-    # put here. Not derived from problems/projects — that would invent an
-    # affiliation the platform never recorded. See the Phase 5B report.
+    # `users.department`, which its owner sets on their profile. Null until they
+    # do — never derived from a problem or project they touched, which would
+    # invent an affiliation the platform never recorded.
     department: str | None = None
     role: UserRole
     credits: int

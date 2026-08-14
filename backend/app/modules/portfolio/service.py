@@ -49,6 +49,7 @@ def me(db: Session, user: User) -> PortfolioOut:
         role=user.role,
         email=user.email,
         avatar_initials=initials(user.name),
+        department=user.department,
         total_credits=total,
         level=level,
         level_name=level_name,

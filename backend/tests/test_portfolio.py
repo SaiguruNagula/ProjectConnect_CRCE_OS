@@ -188,10 +188,23 @@ def test_identity_comes_from_the_user_row(client: TestClient, student) -> None:
     assert page["avatar_initials"] == "AS"
 
 
-def test_department_is_null_because_the_user_model_has_none(client: TestClient, student) -> None:
-    """`problems.department` exists; `users.department` does not, so there is
-    nothing to report and nothing is invented."""
+def test_department_is_the_one_the_user_set_on_their_profile(
+    client: TestClient, student
+) -> None:
+    """Phase 5E gave `users` a department, so there is now something to report.
+
+    Until the student fills it in there still is not: an unset department is
+    null, never a guess borrowed from a problem they worked on.
+    """
     assert portfolio(client, student)["department"] is None
+
+    client.patch(
+        "/api/v1/students/me/profile",
+        json={"department": "Computer Engineering"},
+        headers=auth_header(client, student.email),
+    )
+
+    assert portfolio(client, student)["department"] == "Computer Engineering"
 
 
 def test_the_response_shape_is_the_same_for_every_role(

@@ -27,6 +27,9 @@ def board(db: Session, viewer: User, role: UserRole) -> list[LeaderboardEntryOut
             id=user_id,
             rank=rank,
             name=name,
+            # The department its owner set on their profile. A filter label on
+            # the board, never an input to the credits or the rank above it.
+            department=department,
             role=user_role,
             credits=int(credits),
             contributions=int(contributions),
@@ -34,7 +37,7 @@ def board(db: Session, viewer: User, role: UserRole) -> list[LeaderboardEntryOut
             badge=config.level_of(int(credits))[1],
             avatar_initials=initials(name),
         )
-        for user_id, name, user_role, credits, rank, contributions in repo.board(
+        for user_id, name, user_role, department, credits, rank, contributions in repo.board(
             db, institution_id=viewer.institution_id, role=role
         )
     ]
