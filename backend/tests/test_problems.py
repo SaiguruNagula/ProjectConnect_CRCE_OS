@@ -171,9 +171,11 @@ def test_students_cannot_create_problems(client: TestClient, student) -> None:
 
 
 def test_deadline_before_registration_is_rejected(client: TestClient, faculty) -> None:
-    payload = VALID_PROBLEM | {
-        "deadline_date": (date.today() - timedelta(days=1)).isoformat()
-    }
+    # A day before the registration date this payload actually carries. `date.today()`
+    # would be a different day from the one in VALID_PROBLEM whenever the suite runs
+    # across midnight, and the two dates would then be equal rather than inverted.
+    registration = date.fromisoformat(VALID_PROBLEM["registration_date"])
+    payload = VALID_PROBLEM | {"deadline_date": (registration - timedelta(days=1)).isoformat()}
 
     response = client.post(
         "/api/v1/problems", json=payload, headers=auth_header(client, faculty.email)
