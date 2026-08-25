@@ -21,7 +21,7 @@ export function SolutionCard({ solution }: { solution: Solution }) {
       <div className="min-w-0 flex-grow">
         <div className="mb-xs flex items-center justify-between gap-xs">
           <h4 className="truncate text-headline-sm">{solution.name}</h4>
-          <SolutionStatusBadge status={solution.status} />
+          {solution.status && <SolutionStatusBadge status={solution.status} />}
         </div>
         <p className="mb-sm line-clamp-2 text-body-md text-on-surface-variant">{solution.description}</p>
         <div className="mb-sm flex flex-wrap gap-xs">

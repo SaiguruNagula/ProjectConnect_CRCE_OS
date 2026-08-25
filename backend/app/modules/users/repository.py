@@ -13,6 +13,7 @@ from collections.abc import Sequence
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.common.enums import UserRole, UserStatus
 from app.modules.users.models import User
 
 
@@ -42,3 +43,24 @@ def list_by_institution(
     total = db.execute(select(func.count()).select_from(base.subquery())).scalar_one()
     rows = db.execute(base.order_by(User.name).limit(limit).offset(offset)).scalars().all()
     return rows, total
+
+
+def counts_by_role(db: Session, institution_id: uuid.UUID) -> dict[UserRole, int]:
+    """The institution's headcount per role. Roles with nobody in them are absent."""
+    return _counts(db, institution_id, User.role)
+
+
+def counts_by_status(db: Session, institution_id: uuid.UUID) -> dict[UserStatus, int]:
+    """The same headcount split by account status."""
+    return _counts(db, institution_id, User.status)
+
+
+def _counts(db: Session, institution_id: uuid.UUID, column) -> dict:
+    # Counted here rather than off a listed page: the directory endpoint is
+    # capped at one page, so anything counted from it would be wrong past the cap.
+    stmt = (
+        select(column, func.count())
+        .where(User.institution_id == institution_id, User.deleted_at.is_(None))
+        .group_by(column)
+    )
+    return {value: int(count) for value, count in db.execute(stmt)}

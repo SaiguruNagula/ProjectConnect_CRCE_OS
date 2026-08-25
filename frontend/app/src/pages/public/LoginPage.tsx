@@ -2,25 +2,16 @@
  * Public login — the authentication gateway
  * (crce_os_authentication_gateway_connected). Two-column layout: hero + campus
  * flow on the left, credential card on the right. The top nav and footer are
- * provided by the shared PublicLayout.
+ * provided by the shared SiteLayout.
  *
- * Auth is still the DEMO implementation: credentials are not verified. The
- * primary Login button and each role link sign in as a representative user for
- * that role and route to its workspace, matching the prototype's link mapping
- * (Login → Student). Real JWT auth replaces the handlers in the auth phase;
- * the useAuth() contract stays the same.
+ * Credentials go to the backend, which answers with the user's role, and that
+ * role decides the workspace to land in — the page never picks one. The role
+ * names below the form are the prototype's tagline, not a way in.
  */
-import { useNavigate } from 'react-router-dom'
-import type { Role } from '@/types'
+import { useState } from 'react'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
-import { ROUTES } from '@/constants/routes'
-
-const ROLE_HOME: Record<Role, string> = {
-  student: ROUTES.STUDENT.DASHBOARD,
-  faculty: ROUTES.FACULTY.DASHBOARD,
-  admin: ROUTES.ADMIN.DASHBOARD,
-  principal: ROUTES.PRINCIPAL.DASHBOARD,
-}
+import { ROLE_HOME } from '@/constants/navigation'
 
 const FEATURES: { icon: string; label: string }[] = [
   { icon: 'lock', label: 'Secure Authentication' },
@@ -35,12 +26,7 @@ const FLOW: { icon: string; title: string; desc: string }[] = [
   { icon: 'stars', title: 'Earn Recognition', desc: 'Build your portfolio and campus impact.' },
 ]
 
-const ROLE_LINKS: { label: string; role: Role }[] = [
-  { label: 'Student', role: 'student' },
-  { label: 'Faculty', role: 'faculty' },
-  { label: 'Administration', role: 'admin' },
-  { label: 'Leadership', role: 'principal' },
-]
+const ROLE_LABELS = ['Student', 'Faculty', 'Administration', 'Leadership']
 
 function WorkspaceCard() {
   return (
@@ -55,19 +41,35 @@ function WorkspaceCard() {
 }
 
 export function LoginPage() {
-  const { login } = useAuth()
+  const { user: signedIn, login } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
 
-  const signIn = (role: Role) => {
-    login(role)
-    navigate(ROLE_HOME[role], { replace: true })
-  }
+  // Already signed in — the login page is not a place to be, and showing it to
+  // someone with a live session is what made the session look dead.
+  if (signedIn) return <Navigate to={ROLE_HOME[signedIn.role]} replace />
 
-  // Demo: credentials are not verified; the primary Login mirrors the prototype
-  // and signs in as a student.
-  const handleSubmit = (e: React.FormEvent) => {
+  // Set by the route guard when it turned an anonymous visitor away.
+  const from = (location.state as { from?: string } | null)?.from
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    signIn('student')
+    setError(null)
+    setSubmitting(true)
+    try {
+      const user = await login(email, password)
+      navigate(from ?? ROLE_HOME[user.role], { replace: true })
+    } catch (err: unknown) {
+      // The backend's own message ("Invalid email or password.") — this page
+      // does not guess why a sign-in failed.
+      setError(err instanceof Error ? err.message : 'Sign in failed. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -156,6 +158,9 @@ export function LoginPage() {
                     id="email"
                     type="email"
                     required
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@crce.org.in"
                     className="input-focus-ring w-full rounded-lg border border-outline-variant bg-white px-md py-[10px] font-body-md transition-all placeholder:text-outline"
                   />
@@ -171,6 +176,9 @@ export function LoginPage() {
                     id="password"
                     type="password"
                     required
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     className="input-focus-ring w-full rounded-lg border border-outline-variant bg-white px-md py-[10px] font-body-md transition-all placeholder:text-outline"
                   />
@@ -187,29 +195,31 @@ export function LoginPage() {
                   </label>
                 </div>
 
+                {error && (
+                  <p
+                    role="alert"
+                    className="flex items-start gap-xs rounded-lg bg-error-container/30 p-sm font-body-md text-error"
+                  >
+                    <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
+                      error
+                    </span>
+                    {error}
+                  </p>
+                )}
+
                 <button
                   type="submit"
-                  className="flex w-full items-center justify-center gap-xs rounded-lg bg-primary py-[10px] font-headline-sm text-white transition-all hover:bg-black/90 active:scale-[0.98]"
+                  disabled={submitting}
+                  className="flex w-full items-center justify-center gap-xs rounded-lg bg-primary py-[10px] font-headline-sm text-white transition-all hover:bg-black/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Login
+                  {submitting ? 'Signing in…' : 'Login'}
                   <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
                     arrow_forward
                   </span>
                 </button>
 
                 <p className="pt-xs text-center text-[10px] uppercase tracking-widest text-outline">
-                  {ROLE_LINKS.map((link, i) => (
-                    <span key={link.role}>
-                      {i > 0 && ' • '}
-                      <button
-                        type="button"
-                        onClick={() => signIn(link.role)}
-                        className="uppercase transition-colors hover:text-primary"
-                      >
-                        {link.label}
-                      </button>
-                    </span>
-                  ))}
+                  {ROLE_LABELS.join(' • ')}
                   {' | One Platform. Personalized Experience.'}
                 </p>
               </form>
@@ -223,10 +233,13 @@ export function LoginPage() {
                 </div>
               </div>
 
+              {/* Campus SSO has no backend yet, so the button says so rather
+                  than signing anyone in. */}
               <button
                 type="button"
-                onClick={() => signIn('student')}
-                className="flex w-full items-center justify-center gap-sm rounded-lg border border-outline-variant bg-white py-[10px] font-body-md text-primary transition-colors hover:bg-surface-container-low"
+                disabled
+                title="Campus Single Sign-On is not available yet."
+                className="flex w-full cursor-not-allowed items-center justify-center gap-sm rounded-lg border border-outline-variant bg-white py-[10px] font-body-md text-primary opacity-50"
               >
                 <span className="material-symbols-outlined text-secondary" aria-hidden="true">
                   school

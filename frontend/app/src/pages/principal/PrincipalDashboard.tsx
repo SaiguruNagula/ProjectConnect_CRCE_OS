@@ -267,16 +267,20 @@ export function PrincipalDashboard() {
           <p className="text-body-lg text-on-surface-variant">{analytics.period}</p>
         </div>
         <div className="flex flex-wrap gap-sm">
-          <button
-            type="button"
-            onClick={() =>
-              downloadCsv('crce-os-departments.csv', DEPARTMENT_COLUMNS, analytics.departments)
-            }
-            className="flex items-center gap-xs rounded-lg border border-outline-variant bg-surface px-md py-sm font-medium text-primary transition-all hover:bg-surface-container-low"
-          >
-            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">file_download</span>
-            Export Departments
-          </button>
+          {/* Attributing a project to a department has no canonical rule yet, so
+              the table below is empty and this would download a header row. */}
+          {analytics.departments.length > 0 && (
+            <button
+              type="button"
+              onClick={() =>
+                downloadCsv('crce-os-departments.csv', DEPARTMENT_COLUMNS, analytics.departments)
+              }
+              className="flex items-center gap-xs rounded-lg border border-outline-variant bg-surface px-md py-sm font-medium text-primary transition-all hover:bg-surface-container-low"
+            >
+              <span className="material-symbols-outlined text-[20px]" aria-hidden="true">file_download</span>
+              Export Departments
+            </button>
+          )}
           {/* ponytail: "Quick Actions" had no menu behind it — the one action a
               principal actually has from here is the analytics workspace. */}
           <Link
@@ -331,150 +335,173 @@ export function PrincipalDashboard() {
         />
       </div>
 
-      {/* Department health */}
-      <section className="mb-xl" aria-labelledby="department-health">
-        <h2 id="department-health" className={SECTION_LABEL}>Department Health</h2>
-        <div className={`${CARD} overflow-x-auto`}>
-          <table className="w-full min-w-[720px] text-left text-body-md">
-            <caption className="sr-only">
-              Active projects, credits earned, success rate and pending reviews by department
-            </caption>
-            <thead className="bg-surface-container-low/50 text-[11px] uppercase tracking-wider text-outline">
-              <tr>
-                <th scope="col" className="p-md font-medium">Department</th>
-                <th scope="col" className="p-md font-medium">Active Projects</th>
-                <th scope="col" className="p-md font-medium">Credits Earned</th>
-                <th scope="col" className="p-md font-medium">Success Rate</th>
-                <th scope="col" className="p-md text-right font-medium">Pending Reviews</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-outline-variant">
-              {analytics.departments.map((dept) => (
-                <tr key={dept.id} className="transition-colors hover:bg-surface-container-low">
-                  <th scope="row" className="p-md text-left font-semibold text-primary">{dept.name}</th>
-                  <td className="p-md">{dept.activeProjects}</td>
-                  <td className="p-md font-mono">{dept.credits}</td>
-                  <td className="p-md">
-                    <span className="sr-only">{dept.successRate}%</span>
-                    <div className="h-1.5 w-24 overflow-hidden rounded-full bg-surface-container" aria-hidden="true">
-                      <div className="h-full bg-secondary" style={{ width: `${dept.successRate}%` }} />
-                    </div>
-                  </td>
-                  <td className={`p-md text-right font-bold ${dept.pendingReviewsCritical ? 'text-error' : ''}`}>
-                    {dept.pendingReviews}
-                  </td>
+      {/* Department health — hidden until departments have a canonical source.
+          Nothing attributes a project, a credit or a review to a department:
+          there is no `Project.department`, and the problem's department is the
+          author's, not the team's. Phase 13 decides that rule; inventing one
+          here would put an analytics engine in a dashboard. */}
+      {analytics.departments.length > 0 && (
+        <section className="mb-xl" aria-labelledby="department-health">
+          <h2 id="department-health" className={SECTION_LABEL}>Department Health</h2>
+          <div className={`${CARD} overflow-x-auto`}>
+            <table className="w-full min-w-[720px] text-left text-body-md">
+              <caption className="sr-only">
+                Active projects, credits earned, success rate and pending reviews by department
+              </caption>
+              <thead className="bg-surface-container-low/50 text-[11px] uppercase tracking-wider text-outline">
+                <tr>
+                  <th scope="col" className="p-md font-medium">Department</th>
+                  <th scope="col" className="p-md font-medium">Active Projects</th>
+                  <th scope="col" className="p-md font-medium">Credits Earned</th>
+                  <th scope="col" className="p-md font-medium">Success Rate</th>
+                  <th scope="col" className="p-md text-right font-medium">Pending Reviews</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* Institution decisions */}
-      <section className="mb-xl" aria-labelledby="institution-decisions">
-        <div className={`${CARD} overflow-hidden`}>
-          <div className="flex items-center justify-between border-b border-outline-variant bg-surface-container-low/30 p-md">
-            <h2 id="institution-decisions" className="flex items-center gap-xs text-headline-sm text-primary">
-              <span className="material-symbols-outlined text-[20px]" aria-hidden="true">gavel</span>
-              Institution Decisions
-            </h2>
-            <span className="rounded bg-error px-xs py-0.5 text-[10px] font-bold text-on-error">
-              {analytics.decisionCount} ITEMS
-            </span>
+              </thead>
+              <tbody className="divide-y divide-outline-variant">
+                {analytics.departments.map((dept) => (
+                  <tr key={dept.id} className="transition-colors hover:bg-surface-container-low">
+                    <th scope="row" className="p-md text-left font-semibold text-primary">{dept.name}</th>
+                    <td className="p-md">{dept.activeProjects}</td>
+                    <td className="p-md font-mono">{dept.credits}</td>
+                    <td className="p-md">
+                      <span className="sr-only">{dept.successRate}%</span>
+                      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-surface-container" aria-hidden="true">
+                        <div className="h-full bg-secondary" style={{ width: `${dept.successRate}%` }} />
+                      </div>
+                    </td>
+                    <td className={`p-md text-right font-bold ${dept.pendingReviewsCritical ? 'text-error' : ''}`}>
+                      {dept.pendingReviews}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div className="grid grid-cols-1 divide-x divide-y divide-outline-variant md:grid-cols-2 lg:grid-cols-3">
-            {analytics.decisions.map((decision, index) => (
-              <article
-                key={decision.id}
-                className={`group flex flex-col p-md transition-colors hover:bg-surface-container-low ${
-                  // Odd count: the last card fills the orphan cell of the 2-column layout (Stitch parity).
-                  index === analytics.decisions.length - 1 && analytics.decisions.length % 2 === 1
-                    ? 'md:col-span-2 lg:col-span-1'
-                    : ''
-                }`}
-              >
-                <div className={`mb-sm flex items-start justify-between ${decision.tone === 'critical' ? 'text-error' : ''}`}>
-                  <h3 className={`text-body-md font-semibold ${decision.tone === 'critical' ? '' : 'text-primary'}`}>
-                    {decision.title}
-                  </h3>
-                  <span
-                    className={`material-symbols-outlined ${
-                      decision.tone === 'critical' ? '' : 'text-outline group-hover:text-secondary'
-                    }`}
-                    aria-hidden="true"
-                  >
-                    {decision.icon}
-                  </span>
-                </div>
-                <p className="mb-md text-label-md text-outline">{decision.detail}</p>
-                <p
-                  className={`mt-auto text-[10px] font-bold uppercase tracking-wider ${
-                    decision.tone === 'critical' ? 'text-error' : 'text-secondary'
+        </section>
+      )}
+
+      {/* Institution decisions — hidden until a governance queue exists. Four of
+          the five cards (verifications, grants, moderation flags, policy) have
+          no domain at all, and the fifth is the faculty review queue, which is
+          not the principal's to action. Phase 12 owns this. */}
+      {analytics.decisions.length > 0 && (
+        <section className="mb-xl" aria-labelledby="institution-decisions">
+          <div className={`${CARD} overflow-hidden`}>
+            <div className="flex items-center justify-between border-b border-outline-variant bg-surface-container-low/30 p-md">
+              <h2 id="institution-decisions" className="flex items-center gap-xs text-headline-sm text-primary">
+                <span className="material-symbols-outlined text-[20px]" aria-hidden="true">gavel</span>
+                Institution Decisions
+              </h2>
+              <span className="rounded bg-error px-xs py-0.5 text-[10px] font-bold text-on-error">
+                {analytics.decisionCount} ITEMS
+              </span>
+            </div>
+            <div className="grid grid-cols-1 divide-x divide-y divide-outline-variant md:grid-cols-2 lg:grid-cols-3">
+              {analytics.decisions.map((decision, index) => (
+                <article
+                  key={decision.id}
+                  className={`group flex flex-col p-md transition-colors hover:bg-surface-container-low ${
+                    // Odd count: the last card fills the orphan cell of the 2-column layout (Stitch parity).
+                    index === analytics.decisions.length - 1 && analytics.decisions.length % 2 === 1
+                      ? 'md:col-span-2 lg:col-span-1'
+                      : ''
                   }`}
                 >
-                  {decision.cta}
+                  <div className={`mb-sm flex items-start justify-between ${decision.tone === 'critical' ? 'text-error' : ''}`}>
+                    <h3 className={`text-body-md font-semibold ${decision.tone === 'critical' ? '' : 'text-primary'}`}>
+                      {decision.title}
+                    </h3>
+                    <span
+                      className={`material-symbols-outlined ${
+                        decision.tone === 'critical' ? '' : 'text-outline group-hover:text-secondary'
+                      }`}
+                      aria-hidden="true"
+                    >
+                      {decision.icon}
+                    </span>
+                  </div>
+                  <p className="mb-md text-label-md text-outline">{decision.detail}</p>
+                  <p
+                    className={`mt-auto text-[10px] font-bold uppercase tracking-wider ${
+                      decision.tone === 'critical' ? 'text-error' : 'text-secondary'
+                    }`}
+                  >
+                    {decision.cta}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Analytics. The growth chart is live from Phase 13; the radar beside it
+          is not, because four of its five drawn axes measure nothing the
+          platform records. Each card is gated on its own data — both charts
+          divide by their input length, so neither can render empty — and the
+          chart widens to fill the row when the radar has nothing to show. */}
+      {analytics.growth.length > 0 && (
+        <section className="mb-xl grid grid-cols-12 gap-gutter" aria-labelledby="growth-analytics">
+          <div
+            className={`col-span-12 ${CARD} p-lg ${
+              analytics.departmentRadar.length > 0 ? 'lg:col-span-8' : 'lg:col-span-12'
+            }`}
+          >
+            <div className="mb-lg flex flex-col justify-between gap-sm sm:flex-row sm:items-start">
+              <div>
+                <h2 id="growth-analytics" className="font-display text-headline-md text-primary">
+                  Project Growth &amp; Credit Distribution
+                </h2>
+                <p className="text-body-md text-on-surface-variant">
+                  Institutional throughput and department comparison
                 </p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Analytics */}
-      <section className="mb-xl grid grid-cols-12 gap-gutter" aria-labelledby="growth-analytics">
-        <div className={`col-span-12 ${CARD} p-lg lg:col-span-8`}>
-          <div className="mb-lg flex flex-col justify-between gap-sm sm:flex-row sm:items-start">
-            <div>
-              <h2 id="growth-analytics" className="font-display text-headline-md text-primary">
-                Project Growth &amp; Credit Distribution
-              </h2>
-              <p className="text-body-md text-on-surface-variant">
-                Institutional throughput and department comparison
-              </p>
-            </div>
-            <div className="flex items-center gap-sm">
-              <span className="flex items-center gap-xs">
-                <span className="h-2 w-2 rounded-full bg-secondary" aria-hidden="true" />
-                <span className="text-[10px] font-bold uppercase text-outline">Credits</span>
-              </span>
-              <span className="flex items-center gap-xs">
-                <span className="h-2 w-2 rounded-full bg-primary-container" aria-hidden="true" />
-                <span className="text-[10px] font-bold uppercase text-outline">Projects</span>
-              </span>
-            </div>
-          </div>
-          <GrowthChart points={analytics.growth} />
-          <dl className="mt-lg grid grid-cols-2 gap-lg md:grid-cols-4">
-            {analytics.highlights.map((highlight) => (
-              <div key={highlight.label}>
-                <dt className="mb-xs text-label-md uppercase tracking-wider text-outline">{highlight.label}</dt>
-                <dd>
-                  <span className="block text-body-lg font-bold text-primary">{highlight.value}</span>
-                  <span className={`block text-[11px] ${TONE_TEXT[highlight.noteTone]}`}>{highlight.note}</span>
-                </dd>
               </div>
-            ))}
-          </dl>
-        </div>
-
-        <div className={`col-span-12 ${CARD} p-lg lg:col-span-4`}>
-          <h2 className="mb-md text-headline-sm text-primary">Dept. Comparison</h2>
-          <RadarChart axes={analytics.departmentRadar} />
-          <div className="mt-md space-y-xs">
-            {analytics.departmentPerformance.map((dept) => (
-              <div key={dept.label}>
-                <div className="flex items-center justify-between text-[11px]">
-                  <span className="font-medium text-on-surface-variant">{dept.label}</span>
-                  <span className="font-bold text-secondary">{dept.value}%</span>
-                </div>
-                <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-surface-container" aria-hidden="true">
-                  <div className="h-full bg-secondary" style={{ width: `${dept.value}%` }} />
-                </div>
+              <div className="flex items-center gap-sm">
+                <span className="flex items-center gap-xs">
+                  <span className="h-2 w-2 rounded-full bg-secondary" aria-hidden="true" />
+                  <span className="text-[10px] font-bold uppercase text-outline">Credits</span>
+                </span>
+                <span className="flex items-center gap-xs">
+                  <span className="h-2 w-2 rounded-full bg-primary-container" aria-hidden="true" />
+                  <span className="text-[10px] font-bold uppercase text-outline">Projects</span>
+                </span>
               </div>
-            ))}
+            </div>
+            <GrowthChart points={analytics.growth} />
+            <dl className="mt-lg grid grid-cols-2 gap-lg md:grid-cols-4">
+              {analytics.highlights.map((highlight) => (
+                <div key={highlight.label}>
+                  <dt className="mb-xs text-label-md uppercase tracking-wider text-outline">{highlight.label}</dt>
+                  <dd>
+                    <span className="block text-body-lg font-bold text-primary">{highlight.value}</span>
+                    <span className={`block text-[11px] ${TONE_TEXT[highlight.noteTone]}`}>{highlight.note}</span>
+                  </dd>
+                </div>
+              ))}
+            </dl>
           </div>
-        </div>
-      </section>
+
+          {analytics.departmentRadar.length > 0 && (
+            <div className={`col-span-12 ${CARD} p-lg lg:col-span-4`}>
+              <h2 className="mb-md text-headline-sm text-primary">Dept. Comparison</h2>
+              <RadarChart axes={analytics.departmentRadar} />
+              <div className="mt-md space-y-xs">
+                {analytics.departmentPerformance.map((dept) => (
+                  <div key={dept.label}>
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="font-medium text-on-surface-variant">{dept.label}</span>
+                      <span className="font-bold text-secondary">{dept.value}%</span>
+                    </div>
+                    <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-surface-container" aria-hidden="true">
+                      <div className="h-full bg-secondary" style={{ width: `${dept.value}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
     </div>
   )
 }

@@ -11,7 +11,7 @@ import uuid
 from collections import defaultdict
 from collections.abc import Sequence
 
-from sqlalchemy import Row, select
+from sqlalchemy import Row, func, select
 from sqlalchemy.orm import Session
 
 from app.common.enums import ApplicationStatus, SubmissionStage
@@ -86,6 +86,68 @@ def belongs_to_student(student_id):
     return Project.team_id.in_(_team_ids_of(student_id)) | Project.id.in_(
         _solo_project_ids_of(student_id)
     )
+
+
+def counts_for_students(
+    db: Session, *, institution_id: uuid.UUID, student_ids: set[uuid.UUID]
+) -> dict[uuid.UUID, int]:
+    """How many projects each of these students has, in one query.
+
+    The membership test is `belongs_to_student` correlated against `users`, so
+    this counts exactly what `list_for_student` would return — a directory page
+    asks once instead of once per row. Students with none are absent.
+    """
+    if not student_ids:
+        return {}
+    mine = (
+        select(func.count())
+        .select_from(Project)
+        .where(
+            Project.institution_id == institution_id,
+            Project.deleted_at.is_(None),
+            belongs_to_student(User.id),
+        )
+        .correlate(User)
+        .scalar_subquery()
+    )
+    stmt = select(User.id, mine).where(User.id.in_(student_ids))
+    return {student_id: int(count) for student_id, count in db.execute(stmt)}
+
+
+def counts_for_mentors(
+    db: Session, *, institution_id: uuid.UUID, mentor_ids: set[uuid.UUID]
+) -> dict[uuid.UUID, int]:
+    """How many projects each of these faculty mentors — the `list_for_mentor` count."""
+    if not mentor_ids:
+        return {}
+    stmt = (
+        select(Project.mentor_id, func.count())
+        .where(
+            Project.institution_id == institution_id,
+            Project.deleted_at.is_(None),
+            Project.mentor_id.in_(mentor_ids),
+        )
+        .group_by(Project.mentor_id)
+    )
+    return {mentor_id: int(count) for mentor_id, count in db.execute(stmt)}
+
+
+def counts_by_completion(db: Session, institution_id: uuid.UUID) -> tuple[int, int]:
+    """The institution's projects, split into (active, completed).
+
+    `completed_at` is written by the Credit Engine when it awards a completed
+    project — the projects module's one definition of finished, the same one the
+    faculty dashboard reads. Active is its complement, so the two always sum to
+    the live project count and neither can drift from the other.
+    """
+    completed = func.count().filter(Project.completed_at.is_not(None))
+    stmt = (
+        select(func.count() - completed, completed)
+        .select_from(Project)
+        .where(Project.institution_id == institution_id, Project.deleted_at.is_(None))
+    )
+    active, done = db.execute(stmt).one()
+    return int(active), int(done)
 
 
 def list_for_student(

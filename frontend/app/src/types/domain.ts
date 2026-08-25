@@ -945,7 +945,11 @@ export interface Solution {
   id: string
   name: string
   icon: string
-  status: SolutionStatus
+  /**
+   * Deployment state. Absent when nothing on the platform records one — the
+   * badge is then omitted rather than guessed.
+   */
+  status?: SolutionStatus
   description: string
   /** Filter category, e.g. 'Campus', 'AI', 'Research'. */
   category: string
@@ -972,7 +976,8 @@ export interface SolutionStats {
   liveSolutions: number
   contributors: string
   departments: number
-  campusUsers: string
+  /** Absent unless something measures usage; the hero shows an em dash. */
+  campusUsers?: string
 }
 
 export type NotificationKind = 'info' | 'success' | 'warning' | 'error'

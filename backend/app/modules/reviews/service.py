@@ -21,6 +21,7 @@ from app.common.enums import SelectionStatus, SubmissionStage, SubmissionStatus
 from app.common.errors import BusinessRuleError, NotFoundError, ValidationError
 from app.core import authorize
 from app.modules.credits import service as credits
+from app.modules.notifications import service as notifications
 from app.modules.projects import repository as projects_repo
 from app.modules.projects import service as projects
 from app.modules.projects.models import Project, StageSubmission
@@ -64,6 +65,16 @@ SELECT_IS_POC_ONLY = (
     "Teams are selected for final development from the proof of concept review."
 )
 FEEDBACK_REQUIRED = "Explain the decision so the team knows what to do next."
+
+# How a verdict reads to the team it lands on. The tone is the engine's own
+# reading of the outcome — a rejection is not an "info" event to the people who
+# submitted the work — and the wording is the notification's, not the UI's.
+NOTICE_FOR: dict[Verdict, tuple[str, str]] = {
+    "approve": ("success", "approved"),
+    "select": ("success", "selected for final development"),
+    "changes": ("warning", "returned with changes requested"),
+    "reject": ("error", "rejected"),
+}
 
 
 def _mentored(db: Session, faculty: User, project_id: uuid.UUID) -> Project:
@@ -325,6 +336,25 @@ def decide(
             institution_id=faculty.institution_id,
             meta={"selection_status": selection.value, "stage": stage.value},
         )
+
+    # The team hears the verdict in the transaction that recorded it. The
+    # recipients are the project's current members, asked of the projects
+    # module — the reviewer is not among them, and this module keeps no roster.
+    kind, outcome = NOTICE_FOR[verdict]
+    members = projects.members_by_project(db, [project])[project.id]
+    notifications.notify_many(
+        db,
+        user_ids=[member.id for member in members],
+        institution_id=project.institution_id,
+        kind=kind,
+        title=f"{projects.STAGE_NOUN[stage].capitalize()} {outcome}",
+        message=f"{project.title} — reviewed by {faculty.name}.",
+        entity="project",
+        entity_id=str(project.id),
+        # Keyed on the verdict as well as the stage: a resubmission reviewed
+        # again is a new decision the team has not been told about.
+        event_key=f"review:{row.id}:{row.status.value}",
+    )
 
     db.commit()
     return projects.compose_journey(db, project)

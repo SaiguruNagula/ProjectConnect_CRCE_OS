@@ -10,6 +10,7 @@ from app.common.audit import AuditLog
 from app.modules.auth.models import RefreshToken
 from app.modules.credits.models import CreditAward, CreditRule, CreditTransaction
 from app.modules.institutions.models import Institution
+from app.modules.notifications.models import Notification
 from app.modules.problems.models import (
     Problem,
     ProblemBookmark,
@@ -29,6 +30,7 @@ __all__ = [
     "CreditTransaction",
     "FacultyProfile",
     "Institution",
+    "Notification",
     "Problem",
     "ProblemBookmark",
     "ProblemDraft",

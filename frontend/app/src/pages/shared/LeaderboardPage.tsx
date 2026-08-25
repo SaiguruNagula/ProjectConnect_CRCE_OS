@@ -44,7 +44,9 @@ export function LeaderboardPage() {
     [data],
   )
   const departments = useMemo(
-    () => Array.from(new Set(ranked.map((e) => e.department))).sort(),
+    // Members who have not set a department are still ranked; they just do not
+    // add a blank option to the filter.
+    () => Array.from(new Set(ranked.map((e) => e.department).filter(Boolean))).sort(),
     [ranked],
   )
   // Podium reflects the full ranking; the table below is search- and dept-filtered.

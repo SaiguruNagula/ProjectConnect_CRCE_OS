@@ -34,13 +34,14 @@ from tests.conftest import auth_header, make_problem, make_user
 from tests.test_credits import AWARD, TOTAL, approved_project, award, publish
 from tests.test_credits import seeded_rules as _seeded_rules
 from tests.test_faculty_credits import (
+    MENTOR_SHARE,
     MENTORSHIP,
-    MENTORSHIP_POINTS,
     PUBLISHED,
     PUBLISHED_POINTS,
     REVIEW,
     REVIEW_POINTS,
     create_problem,
+    share_of,
     sources,
 )
 from tests.test_integration import queries
@@ -190,7 +191,7 @@ def test_a_mentor_carries_a_problem_from_publication_to_a_published_solution(
     assert db.get(Project, uuid.UUID(project_id)).completed_at is not None
     assert get(client, student, "/api/v1/credits/summary")["total"] == TOTAL
 
-    earned = PUBLISHED_POINTS + REVIEW_POINTS * 3 + MENTORSHIP_POINTS
+    earned = PUBLISHED_POINTS + REVIEW_POINTS * 3 + MENTOR_SHARE
     summary = get(client, faculty, "/api/v1/credits/summary")
     assert summary["total"] == earned
 
@@ -471,7 +472,7 @@ def test_a_mentor_cannot_widen_their_own_scope_through_the_query_string(
         assert dirty.status_code == 200, f"{path}: {dirty.text}"
         assert clean.json()["data"] == dirty.json()["data"], path
 
-    assert rank_of(client, faculty)["credits"] == REVIEW_POINTS * 3 + MENTORSHIP_POINTS
+    assert rank_of(client, faculty)["credits"] == REVIEW_POINTS * 3 + MENTOR_SHARE
 
 
 # --- the Credit Engine owns every faculty number ------------------------------------------
@@ -486,7 +487,7 @@ def test_a_mentors_credits_are_the_same_number_on_every_surface(
     project_id = approved_project(client, student, faculty, problem)
     assert award(client, faculty, project_id).status_code == 200
 
-    earned = PUBLISHED_POINTS + REVIEW_POINTS * 3 + MENTORSHIP_POINTS
+    earned = PUBLISHED_POINTS + REVIEW_POINTS * 3 + MENTOR_SHARE
     summary = get(client, faculty, "/api/v1/credits/summary")
     history = get(client, faculty, "/api/v1/credits/history")
     categories = get(client, faculty, "/api/v1/credits/categories")
@@ -540,10 +541,13 @@ def test_no_faculty_event_pays_twice_however_often_the_journey_is_replayed(
     for wanted in (True, False, True):
         assert publish(client, faculty, project_id, wanted).status_code == 200
 
+    # The revision is the one thing here that is not repeat traffic: it re-scores
+    # the project, so the mentor's share is topped up by the difference — half of
+    # the 20 credits added — and never paid a second time in full.
     expected = (
         [(PUBLISHED, PUBLISHED_POINTS)]
         + [(REVIEW, REVIEW_POINTS)] * 3
-        + [(MENTORSHIP, MENTORSHIP_POINTS)]
+        + [(MENTORSHIP, MENTOR_SHARE), (MENTORSHIP, share_of(TOTAL + 20) - MENTOR_SHARE)]
     )
     assert sorted(sources(db, faculty)) == sorted(expected)
     assert get(client, faculty, "/api/v1/credits/summary")["total"] == sum(
@@ -572,7 +576,7 @@ def test_a_deactivated_rule_stops_paying_the_mentor_without_stopping_the_work(
     client: TestClient, db: Session, student, faculty, problem, seeded_rules
 ) -> None:
     for rule in seeded_rules:
-        if rule.event_type in ("REVIEW_COMPLETED", "MENTORED_PROJECT_COMPLETED"):
+        if rule.event_type in ("REVIEW_COMPLETED", "MENTOR_AWARD_SHARE"):
             rule.active = False
     db.flush()
 

@@ -50,20 +50,20 @@ export function StudentDashboard() {
   const findStat = (label: string) => stats.data?.find((s) => s.label === label)?.value
   const rank = findStat('Leaderboard')
   const credits = findStat('Total Credits')
+  const ranked = rank !== undefined && rank !== '—'
 
   return (
     <div className="mx-auto flex w-full max-w-container-max flex-col gap-lg">
       {/* Welcome header */}
       <section className="flex flex-col items-center gap-md text-center md:flex-row md:items-start md:text-left">
-        <div className="relative shrink-0">
+        {/* No tier badge: the platform ranks students, it does not band them,
+            so there is no percentile to print here. */}
+        <div className="shrink-0">
           <Avatar
             initials={initials(user?.name ?? 'S')}
             size="xl"
             className="rounded-xl border-2 border-primary-fixed md:h-32 md:w-32 md:text-3xl"
           />
-          <span className="absolute -bottom-2 -right-2 rounded-full border-2 border-surface-container-lowest bg-secondary px-2 py-base text-[10px] font-bold text-on-secondary">
-            TOP 1%
-          </span>
         </div>
         <div className="flex-1">
           <div className="flex flex-col items-center gap-xs md:flex-row md:items-baseline md:gap-sm">
@@ -76,9 +76,16 @@ export function StudentDashboard() {
               </span>
             )}
           </div>
+          {/* A student with no credits is not on the leaderboard yet, so the
+              sentence drops the rank rather than printing a placeholder one. */}
           <p className="mt-xs max-w-2xl text-body-lg text-on-surface-variant">
-            {greeting()}, {firstName}. You're ranked{' '}
-            <span className="font-bold text-secondary">{rank ?? '—'}</span> with{' '}
+            {greeting()}, {firstName}. You're{' '}
+            {ranked && (
+              <>
+                ranked <span className="font-bold text-secondary">{rank}</span> with{' '}
+              </>
+            )}
+            {!ranked && 'at '}
             <span className="font-bold text-secondary">{credits ?? '—'}</span> credits. Keep up the momentum!
           </p>
         </div>
@@ -90,26 +97,18 @@ export function StudentDashboard() {
           {/* Quick stats */}
           {stats.loading ? (
             <PageLoader />
+          ) : stats.error ? (
+            <EmptyState icon="error" title="Your stats could not be loaded" description={stats.error} />
           ) : (
             <div className="grid grid-cols-2 gap-sm md:grid-cols-4">
+              {/* Value only. A card shows a trend when something computes one;
+                  nothing does, so none of them claim a change. */}
               {stats.data?.map((s) => (
                 <Card key={s.label} className="flex flex-col gap-xs bg-surface-container-low transition-shadow hover:shadow-sm">
                   <p className="text-label-sm font-medium uppercase text-on-surface-variant">{s.label}</p>
                   <h3 className={`text-2xl font-bold ${s.label === 'Pending Tasks' ? 'text-error' : 'text-secondary'}`}>
                     {s.value}
                   </h3>
-                  {s.delta && (
-                    <p
-                      className={`flex items-center gap-1 text-xs ${
-                        s.delta.startsWith('+') ? 'text-[#1e7a3d]' : 'text-on-surface-variant'
-                      }`}
-                    >
-                      {s.delta.startsWith('+') && (
-                        <span className="material-symbols-outlined text-[14px]" aria-hidden="true">trending_up</span>
-                      )}
-                      {s.delta}
-                    </p>
-                  )}
                 </Card>
               ))}
             </div>

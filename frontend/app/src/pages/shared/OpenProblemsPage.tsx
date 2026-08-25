@@ -10,6 +10,7 @@
 import { useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useOpenProblems, PROBLEMS_PER_PAGE } from '@/hooks/useOpenProblems'
+import { useAuth } from '@/contexts/AuthContext'
 import { QUERY_PARAMS } from '@/constants/routes'
 import type { ProblemSort } from '@/types/domain'
 import { ProblemCard } from '@/features/problems/ProblemCard'
@@ -30,6 +31,11 @@ export function OpenProblemsPage() {
   const { query, setFilter, setPage, problems, departments, stats, page, totalPages, total, loading, error, reload } =
     useOpenProblems(searchParams.get(QUERY_PARAMS.SEARCH) ?? '')
   const [suggesting, setSuggesting] = useState(false)
+  // Suggesting and saving are student actions end to end: only a student may
+  // POST one, and only a student has a mentor to send it to. Showing them to
+  // anyone else offers a form whose only possible answer is a 403.
+  const { user } = useAuth()
+  const isStudent = user?.role === 'student'
 
   const firstOnPage = (page - 1) * PROBLEMS_PER_PAGE + 1
   const lastOnPage = Math.min(page * PROBLEMS_PER_PAGE, total)
@@ -84,9 +90,13 @@ export function OpenProblemsPage() {
                 {dept}
               </Chip>
             ))}
-            <Chip active={!!query.savedOnly} onClick={() => setFilter('savedOnly', !query.savedOnly)}>
-              Saved
-            </Chip>
+            {/* Saving is a student action, so for anyone else this filter can
+                only ever return nothing. */}
+            {isStudent && (
+              <Chip active={!!query.savedOnly} onClick={() => setFilter('savedOnly', !query.savedOnly)}>
+                Saved
+              </Chip>
+            )}
           </div>
 
           <div className="flex items-center gap-sm">
@@ -112,10 +122,12 @@ export function OpenProblemsPage() {
             </div>
 
             {/* Secondary to browsing: suggesting is the exception, not the path. */}
-            <Button variant="outline" size="sm" onClick={() => setSuggesting(true)}>
-              <span className="material-symbols-outlined text-[18px]" aria-hidden="true">add</span>
-              Suggest a Problem
-            </Button>
+            {isStudent && (
+              <Button variant="outline" size="sm" onClick={() => setSuggesting(true)}>
+                <span className="material-symbols-outlined text-[18px]" aria-hidden="true">add</span>
+                Suggest a Problem
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -157,7 +169,7 @@ export function OpenProblemsPage() {
         </>
       )}
 
-      <SuggestProblemDialog open={suggesting} onClose={() => setSuggesting(false)} />
+      <SuggestProblemDialog open={isStudent && suggesting} onClose={() => setSuggesting(false)} />
     </div>
   )
 }

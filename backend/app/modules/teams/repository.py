@@ -121,6 +121,21 @@ def member_count(db: Session, team_id: uuid.UUID) -> int:
     return db.execute(stmt).scalar_one()
 
 
+def active_count(db: Session, institution_id: uuid.UUID) -> int:
+    """Teams that still exist in this institution.
+
+    A team has no status column — it is live until it is soft-deleted, and that
+    is the whole of the lifecycle this module owns. Nothing here infers activity
+    from a project, a deadline or a last-seen date.
+    """
+    stmt = (
+        select(func.count())
+        .select_from(Team)
+        .where(Team.institution_id == institution_id, Team.deleted_at.is_(None))
+    )
+    return int(db.execute(stmt).scalar_one())
+
+
 def get_member(
     db: Session, *, team_id: uuid.UUID, student_id: uuid.UUID
 ) -> TeamMember | None:

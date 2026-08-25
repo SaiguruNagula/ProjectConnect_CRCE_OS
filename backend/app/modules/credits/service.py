@@ -35,6 +35,7 @@ from app.modules.credits.schemas import (
     CreditTransactionOut,
     NameValueOut,
 )
+from app.modules.notifications import service as notifications
 from app.modules.problems import repository as problems_repo
 from app.modules.projects import repository as projects_repo
 from app.modules.projects import service as projects
@@ -60,6 +61,52 @@ def _mentored(db: Session, faculty: User, project_id: uuid.UUID) -> Project:
         "Only the assigned mentor can award credits for this project.",
     )
     return project
+
+
+def _mentor_share(
+    db: Session, project: Project, award_row: CreditAward, now: datetime
+) -> dict[str, int | None]:
+    """Pay the mentor their percentage of the award, and report it for the audit.
+
+    The recipient is `projects.mentor_id` and the rate is the active
+    `MENTOR_AWARD_SHARE` rule — neither is a number this function or a request
+    body may choose. An institution that has not priced the event pays nothing.
+
+    Cumulative, then delta: the share is always `floor(total * rate / 100)` of
+    the *current* award, minus everything this project's awards have already
+    paid. A revision upwards adds the difference, a revision downwards posts a
+    negative line, and neither edits what was written before.
+    """
+    rule = repo.active_rule(db, UserRole.FACULTY, config.EVENT_MENTOR_SHARE, now)
+    rate = rule.percent_of_award if rule else None
+    if rate is None:
+        return {"share_rate": None}
+
+    cumulative = award_row.total * rate // 100
+    already_paid = repo.mentor_share_paid(
+        db, mentor_id=project.mentor_id, project_id=project.id
+    )
+    delta = cumulative - already_paid
+    if delta:
+        repo.add_transaction(
+            db,
+            CreditTransaction(
+                institution_id=project.institution_id,
+                user_id=project.mentor_id,
+                source=config.SOURCE_MENTORSHIP,
+                source_id=award_row.id,
+                points=delta,
+                description=project.title,
+                context="Mentorship",
+                created_at=now,
+            ),
+        )
+    return {
+        "share_rate": rate,
+        "share_cumulative": cumulative,
+        "share_already_paid": already_paid,
+        "share_delta": delta,
+    }
 
 
 def award(
@@ -139,22 +186,15 @@ def award(
             ),
         )
 
+    # The mentor's cut of the same award, in the same transaction. It is a
+    # share of what the team earned, so it is computed from the row the database
+    # just totalled — never from the components typed into the request.
+    share = _mentor_share(db, project, row, now)
+
     # UD-1: the award is what completes a project. A revision corrects the
     # credits, not the day the work finished.
     if project.completed_at is None:
         project.completed_at = now
-        # Completion is also the mentor's event. Their credit is priced by the
-        # rule table, never by the award they just typed, and it is emitted
-        # here — the one place a project becomes completed, so a later revision
-        # cannot pay them twice.
-        earn(
-            db,
-            faculty,
-            event_type="MENTORED_PROJECT_COMPLETED",
-            source_id=project.id,
-            description=project.title,
-            context="Mentorship",
-        )
 
     record_audit(
         db,
@@ -167,6 +207,7 @@ def award(
             "project_id": str(project.id),
             "total": row.total,
             "recipient_count": len(members),
+            **share,
         }
         if previous is None
         else {
@@ -174,8 +215,39 @@ def award(
             "previous_total": previous.total,
             "total": row.total,
             "delta": points,
+            **share,
         },
     )
+
+    # Telling people, in the same transaction that credited them. `points` is
+    # the delta this award posted, which is what a revision actually changed —
+    # the engine still owns the number, this only repeats it.
+    notifications.notify_many(
+        db,
+        user_ids=[member.id for member in members],
+        institution_id=project.institution_id,
+        kind="success",
+        title="Credits awarded" if previous is None else "Credits revised",
+        message=f"{points:+d} credits for {project.title}.",
+        entity="credit_award",
+        entity_id=str(row.id),
+        # A revision writes a new award row, so a corrected award notifies again.
+        event_key=f"credit.award:{row.id}",
+    )
+    share_delta = share.get("share_delta")
+    if share_delta:
+        notifications.notify(
+            db,
+            user_id=project.mentor_id,
+            institution_id=project.institution_id,
+            kind="success",
+            title="Mentorship credits",
+            message=f"{share_delta:+d} credits for mentoring {project.title}.",
+            entity="credit_award",
+            entity_id=str(row.id),
+            event_key=f"credit.share:{row.id}",
+        )
+
     db.commit()
     return projects.compose_journey(db, project)
 
@@ -206,7 +278,9 @@ def earn(
     commit, so the event and its credit land together or not at all.
     """
     rule = repo.active_rule(db, user.role, event_type, datetime.now(UTC))
-    if rule is None:
+    # A percentage rule prices a share of an award, which only `award()` knows.
+    # There is nothing for a flat event to pay here.
+    if rule is None or rule.points is None:
         return None
     source = config.EVENT_LABELS.get(event_type, event_type)
     if repo.transaction_exists(db, user_id=user.id, source=source, source_id=source_id):
@@ -232,6 +306,20 @@ def earn(
         actor_id=user.id,
         institution_id=user.institution_id,
         meta={"event_type": event_type, "points": rule.points, "source_id": str(source_id)},
+    )
+    # Keyed on the ledger row, which `transaction_exists` above already made
+    # unique per (user, source, source_id) — so a replayed event notifies once
+    # for the same reason it pays once.
+    notifications.notify(
+        db,
+        user_id=user.id,
+        institution_id=user.institution_id,
+        kind="success",
+        title="Credits earned",
+        message=f"{rule.points:+d} credits — {context or source}: {description}.",
+        entity="credit_transaction",
+        entity_id=str(row.id),
+        event_key=f"credit.earn:{row.id}",
     )
     return row
 
@@ -277,6 +365,13 @@ def categories(db: Session, user: User) -> list[CreditCategoryOut]:
 
 
 def rules(db: Session) -> list[CreditRuleOut]:
+    """The flat-priced rules — the list is "what an event is worth in credits".
+
+    A percentage rule has no such number until an award exists, and domain.ts
+    `CreditRule.points` is a required number, so the mentor's share is not a row
+    on this list. It is documented in the ADR and visible where it is paid: the
+    mentor's own ledger.
+    """
     return [
         CreditRuleOut(
             id=rule.id,
@@ -285,6 +380,7 @@ def rules(db: Session) -> list[CreditRuleOut]:
             description=rule.description,
         )
         for rule in repo.active_rules(db, datetime.now(UTC))
+        if rule.points is not None
     ]
 
 

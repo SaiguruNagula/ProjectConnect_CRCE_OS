@@ -18,11 +18,15 @@ from app.common.errors import register_error_handlers
 from app.core.config import get_settings
 from app.core.logging import configure_logging
 from app.db.session import engine
+from app.modules.audit.router import router as audit_router
 from app.modules.auth.router import router as auth_router
 from app.modules.credits.router import router as credits_router
+from app.modules.dashboard.router import router as dashboard_router
 from app.modules.health.router import router as health_router
+from app.modules.institutions.router import public_router as campus_impact_router
 from app.modules.institutions.router import router as institutions_router
 from app.modules.leaderboard.router import router as leaderboard_router
+from app.modules.notifications.router import router as notifications_router
 from app.modules.portfolio.router import router as portfolio_router
 from app.modules.problems.router import router as problems_router
 from app.modules.profiles.router import router as profiles_router
@@ -96,6 +100,9 @@ def create_app() -> FastAPI:
         health_router,
         auth_router,
         institutions_router,
+        # Anonymous, and the only such route outside health and auth: the
+        # institution's own public headline counts (Phase 14).
+        campus_impact_router,
         users_router,
         profiles_router,
         problems_router,
@@ -106,6 +113,12 @@ def create_app() -> FastAPI:
         leaderboard_router,
         portfolio_router,
         solutions_router,
+        # Cross-cutting: every module above raises into notifications and writes
+        # to the audit log; neither reads back into them.
+        notifications_router,
+        audit_router,
+        # Last: it reads every module above and is read by none of them.
+        dashboard_router,
     ):
         app.include_router(module_router, prefix=settings.api_v1_prefix)
     return app

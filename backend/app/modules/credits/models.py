@@ -126,14 +126,28 @@ class CreditRule(UUIDPrimaryKey, Base):
 
     One engine for students and faculty. Rules are rows so the pilot can retune
     them without a deploy; they are read-only over the API.
+
+    Two ways to price an event, exactly one per rule: `points` is a flat amount,
+    `percent_of_award` a whole-number share of the award that triggered it. The
+    mentor's share of a project award is the only percentage rule in V1.
     """
 
     __tablename__ = "credit_rules"
-    __table_args__ = (Index("ix_credit_rules_role_active", "role", "active"),)
+    __table_args__ = (
+        Index("ix_credit_rules_role_active", "role", "active"),
+        CheckConstraint(
+            "(points IS NULL) <> (percent_of_award IS NULL)", name="price_exclusive"
+        ),
+        CheckConstraint(
+            "percent_of_award IS NULL OR percent_of_award BETWEEN 0 AND 100",
+            name="percent_is_a_percentage",
+        ),
+    )
 
     role: Mapped[UserRole] = mapped_column(ROLE_ENUM)
     event_type: Mapped[str] = mapped_column(String(60))
-    points: Mapped[int] = mapped_column(Integer)
+    points: Mapped[int | None] = mapped_column(Integer)
+    percent_of_award: Mapped[int | None] = mapped_column(Integer)
     description: Mapped[str] = mapped_column(String(200))
     active: Mapped[bool] = mapped_column(Boolean, default=True)
     effective_from: Mapped[datetime] = mapped_column(

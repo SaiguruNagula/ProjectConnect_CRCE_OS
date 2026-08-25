@@ -35,14 +35,22 @@ AWARD = {
 }
 TOTAL = sum(AWARD.values())
 
-# The V1 rules the migration seeds. Tests build their schema from the models,
-# so the rows are inserted here instead — see the phase 5a migration.
+# The V1 rules the migrations seed, as (role, event, points, percent, active).
+# Tests build their schema from the models, so the rows are inserted here
+# instead — see the phase 5a and percent-of-award migrations. The flat mentorship rule
+# is seeded inactive because the mentor's share of the award replaced it, and it
+# is kept rather than dropped because the credits it paid still name it.
 SEEDED_RULES = (
-    (UserRole.STUDENT, "PROJECT_COMPLETION", 300),
-    (UserRole.FACULTY, "REVIEW_COMPLETED", 80),
-    (UserRole.FACULTY, "MENTORED_PROJECT_COMPLETED", 60),
-    (UserRole.FACULTY, "PROBLEM_PUBLISHED", 10),
+    (UserRole.STUDENT, "PROJECT_COMPLETION", 300, None, True),
+    (UserRole.FACULTY, "REVIEW_COMPLETED", 80, None, True),
+    (UserRole.FACULTY, "MENTORED_PROJECT_COMPLETED", 60, None, False),
+    (UserRole.FACULTY, "PROBLEM_PUBLISHED", 10, None, True),
+    (UserRole.FACULTY, "MENTOR_AWARD_SHARE", None, 50, True),
 )
+
+# What `GET /credits/rules` shows: the active rules that price an event in
+# credits. A percentage of an award is not one of them.
+LISTED_RULES = tuple(rule for rule in SEEDED_RULES if rule[2] is not None and rule[4])
 
 
 @pytest.fixture
@@ -52,9 +60,13 @@ def seeded_rules(db: Session) -> list[CreditRule]:
             role=role,
             event_type=event,
             points=points,
-            description=f"{event} is worth {points} credits.",
+            percent_of_award=percent,
+            active=active,
+            description=f"{event} is worth {points} credits."
+            if points is not None
+            else f"{event} is worth {percent}% of the award.",
         )
-        for role, event, points in SEEDED_RULES
+        for role, event, points, percent, active in SEEDED_RULES
     ]
     db.add_all(rows)
     db.flush()
@@ -499,10 +511,18 @@ def test_the_database_allows_one_live_award_per_project(
 
 
 def test_an_award_that_fails_halfway_leaves_nothing_behind(
-    client: TestClient, db: Session, monkeypatch, student, faculty, problem
+    client: TestClient, db: Session, monkeypatch, student, faculty, problem, seeded_rules
 ) -> None:
-    """The award, every ledger line, the completion and the audit share one transaction."""
+    """The award, every ledger line, the completion and the audit share one transaction.
+
+    Every ledger line means the mentor's share too, so the rules are seeded here:
+    a half-written award that paid the mentor but not the team is the failure
+    this test exists to rule out.
+    """
     project_id = approved_project(client, student, faculty, problem)
+    # The three review credits the approval already paid, which the award neither
+    # adds to nor takes away from.
+    before = db.query(CreditTransaction).count()
 
     def flaky(session, **kwargs):
         raise RuntimeError("audit unavailable")
@@ -514,7 +534,7 @@ def test_an_award_that_fails_halfway_leaves_nothing_behind(
     db.rollback()
 
     assert db.query(CreditAward).count() == 0
-    assert db.query(CreditTransaction).count() == 0
+    assert db.query(CreditTransaction).count() == before
     assert db.get(Project, uuid.UUID(project_id)).completed_at is None
 
 
@@ -609,13 +629,15 @@ def test_the_rules_are_configuration_rows_not_code(
         "/api/v1/credits/rules", headers=auth_header(client, student.email)
     ).json()["data"]
 
-    assert [rule["points"] for rule in rules] == [300, 80, 60, 10]
+    assert [rule["points"] for rule in rules] == [300, 80, 10]
     assert [rule["source"] for rule in rules] == [
         "Project Completion",
         "Faculty Review",
-        "Mentorship",
         "Problem Published",
     ]
+    # The mentor's share is a percentage of an award, not a number of credits,
+    # and the retired flat mentorship rule is inactive: neither is on the list.
+    assert "Mentorship" not in [rule["source"] for rule in rules]
 
 
 def test_the_pipeline_is_what_is_still_with_faculty(
@@ -663,7 +685,7 @@ def test_faculty_read_the_same_ledger_routes(client: TestClient, seeded_rules, f
     assert summary.json()["data"]["level_name"] == "Newcomer"
     # Faculty earn from rules, not from submissions.
     assert pipeline.json()["data"] == []
-    assert len(rules.json()["data"]) == len(SEEDED_RULES)
+    assert len(rules.json()["data"]) == len(LISTED_RULES)
 
 
 # --- publication ----------------------------------------------------------------------

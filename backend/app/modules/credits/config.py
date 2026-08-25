@@ -40,12 +40,19 @@ LEVELS: tuple[tuple[int, str], ...] = (
 # The ledger `source` for a project award — the label the student reads.
 SOURCE_PROJECT_COMPLETION = "Project Completion"
 
+# The mentor's cut of that award, and the ledger source it is written under —
+# the same source the flat rule it replaced used, so a mentor's history reads
+# as one continuous line of mentorship work.
+EVENT_MENTOR_SHARE = "MENTOR_AWARD_SHARE"
+SOURCE_MENTORSHIP = "Mentorship"
+
 # Rule event → the label used on the ledger and the rules list.
 EVENT_LABELS: dict[str, str] = {
     "PROJECT_COMPLETION": SOURCE_PROJECT_COMPLETION,
     "PROBLEM_PUBLISHED": "Problem Published",
     "REVIEW_COMPLETED": "Faculty Review",
-    "MENTORED_PROJECT_COMPLETED": "Mentorship",
+    "MENTORED_PROJECT_COMPLETED": SOURCE_MENTORSHIP,
+    EVENT_MENTOR_SHARE: SOURCE_MENTORSHIP,
 }
 
 # Presentation only: which card a source falls under, and its Material icon.
@@ -54,7 +61,7 @@ CATEGORIES: dict[str, tuple[str, str]] = {
     SOURCE_PROJECT_COMPLETION: ("Projects", "code"),
     "Problem Published": ("Innovation", "lightbulb"),
     "Faculty Review": ("Campus", "location_city"),
-    "Mentorship": ("Mentorship", "group"),
+    SOURCE_MENTORSHIP: ("Mentorship", "group"),
 }
 UNCATEGORISED = ("Other", "workspace_premium")
 

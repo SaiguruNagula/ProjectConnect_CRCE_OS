@@ -16,6 +16,7 @@ from app.common.audit import record_audit
 from app.common.enums import InvitationStatus, JoinRequestStatus, SelectionStatus
 from app.common.errors import BusinessRuleError, NotFoundError
 from app.core import authorize
+from app.modules.notifications import service as notifications
 from app.modules.problems import repository as problems_repo
 from app.modules.projects.models import Project
 from app.modules.teams import repository as repo
@@ -303,7 +304,7 @@ def request_to_join(
     if _open_spots(db, team) == 0:
         raise BusinessRuleError("This team has no open slots.")
 
-    repo.add_join_request(
+    request = repo.add_join_request(
         db,
         TeamJoinRequest(
             team_id=team.id, student_id=student.id, message=payload.message.strip()
@@ -316,6 +317,19 @@ def request_to_join(
         entity_id=str(team.id),
         actor_id=student.id,
         institution_id=student.institution_id,
+    )
+    # The lead is the one who has to answer it, so the lead is the one told.
+    # The duplicate-request guard above already makes this once per student.
+    notifications.notify(
+        db,
+        user_id=team.leader_id,
+        institution_id=team.institution_id,
+        kind="info",
+        title="Join request received",
+        message=f"{student.name} asked to join {team.name}.",
+        entity="team",
+        entity_id=str(team.id),
+        event_key=f"team.join_requested:{request.id}",
     )
     db.commit()
     return _view(db, team, student)
@@ -382,6 +396,19 @@ def respond_to_join_request(
         actor_id=lead.id,
         institution_id=lead.institution_id,
         meta={"student_id": str(request.student_id)},
+    )
+    # The student who asked is the one waiting on the answer.
+    notifications.notify(
+        db,
+        user_id=request.student_id,
+        institution_id=team.institution_id,
+        kind="success" if accept else "info",
+        title="Join request accepted" if accept else "Join request declined",
+        message=f"{team.name} — answered by {lead.name}.",
+        entity="team",
+        entity_id=str(team.id),
+        # The PENDING guard above means a request is answered exactly once.
+        event_key=f"team.join_answered:{request.id}",
     )
     db.commit()
     return list_join_requests(db, lead)

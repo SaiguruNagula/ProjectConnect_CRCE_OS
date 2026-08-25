@@ -7,6 +7,7 @@
 import type { ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useProblemDetails } from '@/hooks/useProblemDetails'
+import { useAuth } from '@/contexts/AuthContext'
 import type { Difficulty, Problem, ProblemAttachment, ProblemMilestone } from '@/types/domain'
 import { QUERY_PARAMS, ROUTES, withQuery } from '@/constants/routes'
 import { Card } from '@/components/ui/Card'
@@ -38,6 +39,10 @@ const ATTACHMENT_ICON: Record<string, string> = {
 export function ProblemDetailsPage() {
   const { id = '' } = useParams()
   const navigate = useNavigate()
+  // Applying and saving are student actions — a mentor reading their own
+  // problem is not a candidate for it, and the backend says so with a 403.
+  const { user } = useAuth()
+  const isStudent = user?.role === 'student'
   const {
     problem,
     projects,
@@ -88,22 +93,24 @@ export function ProblemDetailsPage() {
           <Badge tone={difficulty.tone}>{problem.difficulty}</Badge>
           <Badge tone={status.tone}>{status.label}</Badge>
           {applied && <Badge tone="primary">Applied {applied === 'team' ? 'as a team' : 'solo'}</Badge>}
-          <button
-            type="button"
-            onClick={toggleBookmark}
-            disabled={busy}
-            aria-pressed={problem.bookmarked}
-            className="ml-auto inline-flex items-center gap-1 rounded-lg border border-outline-variant px-2.5 py-1 text-label-md font-medium text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:opacity-60"
-          >
-            <span
-              className="material-symbols-outlined text-[18px]"
-              style={{ fontVariationSettings: problem.bookmarked ? "'FILL' 1" : undefined }}
-              aria-hidden="true"
+          {isStudent && (
+            <button
+              type="button"
+              onClick={toggleBookmark}
+              disabled={busy}
+              aria-pressed={problem.bookmarked}
+              className="ml-auto inline-flex items-center gap-1 rounded-lg border border-outline-variant px-2.5 py-1 text-label-md font-medium text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:opacity-60"
             >
-              bookmark
-            </span>
-            {problem.bookmarked ? 'Saved' : 'Save'}
-          </button>
+              <span
+                className="material-symbols-outlined text-[18px]"
+                style={{ fontVariationSettings: problem.bookmarked ? "'FILL' 1" : undefined }}
+                aria-hidden="true"
+              >
+                bookmark
+              </span>
+              {problem.bookmarked ? 'Saved' : 'Save'}
+            </button>
+          )}
         </div>
         <ActionBanner tone="error" message={actionError} onDismiss={dismissError} />
         <h1 className="max-w-3xl text-headline-lg tracking-tight text-on-surface">{problem.title}</h1>
@@ -233,15 +240,21 @@ export function ProblemDetailsPage() {
             <span className="font-black uppercase text-on-surface-variant">Status:</span>
             <Badge tone={status.tone}>{status.label}</Badge>
           </div>
-          <Button
-            variant="secondary"
-            size="lg"
-            className="hover:shadow-lg active:scale-[0.98]"
-            onClick={() => navigate(teamFormationPath)}
-            disabled={closed}
-          >
-            {closed ? 'Applications Closed' : applied ? 'Manage my application' : 'Apply with a team'}
-          </Button>
+          {isStudent ? (
+            <Button
+              variant="secondary"
+              size="lg"
+              className="hover:shadow-lg active:scale-[0.98]"
+              onClick={() => navigate(teamFormationPath)}
+              disabled={closed}
+            >
+              {closed ? 'Applications Closed' : applied ? 'Manage my application' : 'Apply with a team'}
+            </Button>
+          ) : (
+            <p className="text-label-md text-on-surface-variant">
+              {problem.applicantsCount} application{problem.applicantsCount === 1 ? '' : 's'} so far
+            </p>
+          )}
         </div>
       </div>
     </div>

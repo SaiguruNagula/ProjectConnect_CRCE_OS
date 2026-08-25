@@ -135,29 +135,40 @@ function AnalyticsView({ analytics }: { analytics: InstitutionAnalytics }) {
 
       {/* Innovation health + headline KPIs */}
       <div className="mb-lg grid gap-md lg:grid-cols-12">
-        <section
-          aria-labelledby="innovation-health"
-          className={`relative flex flex-col justify-between overflow-hidden p-lg lg:col-span-4 ${CARD}`}
-        >
-          <span className="pointer-events-none absolute right-0 top-0 p-md opacity-10" aria-hidden="true">
-            <span className="material-symbols-outlined text-8xl">insights</span>
-          </span>
-          <div>
-            <h2 id="innovation-health" className="mb-xs text-label-md uppercase tracking-wider text-outline">
-              Innovation Health
-            </h2>
-            <p className="mb-sm font-display text-[40px] leading-tight">{analytics.health.status}</p>
-          </div>
-          <p className="flex flex-wrap items-center gap-xs">
-            <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-sm py-1 text-[#065F46]">
-              <span className="material-symbols-outlined text-sm" aria-hidden="true">trending_up</span>
-              <span className="font-mono text-label-md">{analytics.health.change}</span>
+        {/* The health headline is a standing and a movement against a
+            comparison window. Nothing computes either — no snapshot of a past
+            quarter is kept — so the hero is hidden and the totals take the full
+            row rather than a verdict being guessed. Phase 13. */}
+        {analytics.health.status && (
+          <section
+            aria-labelledby="innovation-health"
+            className={`relative flex flex-col justify-between overflow-hidden p-lg lg:col-span-4 ${CARD}`}
+          >
+            <span className="pointer-events-none absolute right-0 top-0 p-md opacity-10" aria-hidden="true">
+              <span className="material-symbols-outlined text-8xl">insights</span>
             </span>
-            <span className="text-body-md text-outline">{analytics.health.caption}</span>
-          </p>
-        </section>
+            <div>
+              <h2 id="innovation-health" className="mb-xs text-label-md uppercase tracking-wider text-outline">
+                Innovation Health
+              </h2>
+              <p className="mb-sm font-display text-[40px] leading-tight">{analytics.health.status}</p>
+            </div>
+            <p className="flex flex-wrap items-center gap-xs">
+              <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-sm py-1 text-[#065F46]">
+                <span className="material-symbols-outlined text-sm" aria-hidden="true">trending_up</span>
+                <span className="font-mono text-label-md">{analytics.health.change}</span>
+              </span>
+              <span className="text-body-md text-outline">{analytics.health.caption}</span>
+            </p>
+          </section>
+        )}
 
-        <section aria-label="Institution totals" className="grid grid-cols-2 gap-sm md:grid-cols-4 lg:col-span-8">
+        <section
+          aria-label="Institution totals"
+          className={`grid grid-cols-2 gap-sm md:grid-cols-4 ${
+            analytics.health.status ? 'lg:col-span-8' : 'lg:col-span-12'
+          }`}
+        >
           {analytics.summary.map((metric) => (
             <div key={metric.id} className={`flex flex-col justify-center p-md ${CARD}`}>
               <span className="material-symbols-outlined mb-xs text-secondary" aria-hidden="true">
@@ -289,31 +300,35 @@ function AnalyticsView({ analytics }: { analytics: InstitutionAnalytics }) {
           domain, no service and no notification fan-out, so it could only ever
           have been a form that discarded its input. Restore it with the
           announcements API. */}
-      <div className="mt-lg">
-        <button
-          type="button"
-          onClick={() => setReportsOpen(true)}
-          className="group flex items-center justify-between gap-md rounded-xl border border-outline-variant bg-surface-container-lowest p-lg text-left transition-colors hover:bg-surface-container-low"
-        >
-          <span className="flex items-center gap-md">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-surface-container">
-              <span className="material-symbols-outlined" aria-hidden="true">download</span>
-            </span>
-            <span>
-              <span className="block text-headline-sm">Institution Report</span>
-              <span className="block text-body-md text-outline">
-                Export department analytics as a spreadsheet.
+      {/* Every report the drawer offers exports the department table, which has
+          no canonical source yet — the button would download a header row. */}
+      {analytics.departments.length > 0 && (
+        <div className="mt-lg">
+          <button
+            type="button"
+            onClick={() => setReportsOpen(true)}
+            className="group flex items-center justify-between gap-md rounded-xl border border-outline-variant bg-surface-container-lowest p-lg text-left transition-colors hover:bg-surface-container-low"
+          >
+            <span className="flex items-center gap-md">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-surface-container">
+                <span className="material-symbols-outlined" aria-hidden="true">download</span>
+              </span>
+              <span>
+                <span className="block text-headline-sm">Institution Report</span>
+                <span className="block text-body-md text-outline">
+                  Export department analytics as a spreadsheet.
+                </span>
               </span>
             </span>
-          </span>
-          <span
-            className="material-symbols-outlined transition-transform group-hover:translate-x-1"
-            aria-hidden="true"
-          >
-            chevron_right
-          </span>
-        </button>
-      </div>
+            <span
+              className="material-symbols-outlined transition-transform group-hover:translate-x-1"
+              aria-hidden="true"
+            >
+              chevron_right
+            </span>
+          </button>
+        </div>
+      )}
 
       {reportsOpen && (
         <ReportsDrawer

@@ -202,6 +202,39 @@ def test_a_submitted_idea_waits_in_the_idea_queue(
     assert [member["id"] for member in card["members"]] == [str(student.id)]
 
 
+def test_applying_alone_puts_nothing_in_the_queue(
+    client: TestClient, db: Session, student, faculty, problem
+) -> None:
+    """The queue carries submitted work only.
+
+    Applying opens the project with the idea still in draft (ADR-1), and the
+    mentor is already assigned — so it is tempting to read an empty queue as a
+    broken link between the two modules. It is not: the student has written
+    nothing yet. Submitting the idea is what makes it a review.
+    """
+    project_id = open_project(client, student, problem)
+    headers = auth_header(client, faculty.email)
+
+    queues = client.get("/api/v1/reviews/queues", headers=headers).json()["data"]
+    assert queues["idea"] == queues["poc"] == queues["final"] == queues["completed"] == []
+
+    submit(client, student, project_id, SubmissionStage.IDEA)
+
+    after = client.get("/api/v1/reviews/queues", headers=headers).json()["data"]
+    assert [item["id"] for item in after["idea"]] == [project_id]
+
+
+def test_applying_assigns_the_problems_author_as_mentor(
+    client: TestClient, db: Session, student, faculty, problem
+) -> None:
+    """Without this the submitted idea would land in nobody's queue (ADR-3)."""
+    project_id = open_project(client, student, problem)
+
+    project = db.get(Project, uuid.UUID(project_id))
+    assert project is not None
+    assert project.mentor_id == problem.created_by == faculty.id
+
+
 def test_each_stage_waits_in_its_own_queue(
     client: TestClient, student, faculty, problem
 ) -> None:

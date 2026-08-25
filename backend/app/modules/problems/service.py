@@ -23,6 +23,7 @@ from app.common.enums import (
 from app.common.errors import BusinessRuleError, NotFoundError, ValidationError
 from app.core import authorize
 from app.modules.credits import service as credits
+from app.modules.notifications import service as notifications
 from app.modules.problems import repository as repo
 from app.modules.problems.models import Problem, ProblemDraft, ProblemSuggestion
 from app.modules.problems.schemas import (
@@ -391,6 +392,21 @@ def save_suggestion(
         institution_id=student.institution_id,
         meta={"mentor_id": str(mentor.id)},
     )
+    if submit:
+        # The nominated mentor is the only person who can decide it. Keyed on
+        # the suggestion, so a student who resubmits the same one does not
+        # queue a second notice for the same pending decision.
+        notifications.notify(
+            db,
+            user_id=mentor.id,
+            institution_id=student.institution_id,
+            kind="info",
+            title="Suggestion awaiting your review",
+            message=f"{student.name} nominated you to review {suggestion.title}.",
+            entity="problem_suggestion",
+            entity_id=str(suggestion.id),
+            event_key=f"suggestion.submitted:{suggestion.id}",
+        )
     db.commit()
     return _suggestion_out(suggestion, mentor_name=mentor.name, author_name=student.name)
 
@@ -469,6 +485,22 @@ def decide_suggestion(
             "decision": payload.decision,
             "published_problem_id": str(published.id) if published else None,
         },
+    )
+    # The student who suggested it hears the decision. Approval points at the
+    # published problem, because that is the thing there is now to look at.
+    notifications.notify(
+        db,
+        user_id=suggestion.student_id,
+        institution_id=suggestion.institution_id,
+        kind="success" if approved else "warning",
+        title="Suggestion published"
+        if approved
+        else f"Suggestion {payload.decision.replace('_', ' ')}",
+        message=f"{suggestion.title} — reviewed by {mentor.name}.",
+        entity="problem" if published else "problem_suggestion",
+        entity_id=str(published.id) if published else str(suggestion.id),
+        # The PENDING_MENTOR_REVIEW guard above means one decision per suggestion.
+        event_key=f"suggestion.decided:{suggestion.id}",
     )
     db.commit()
 

@@ -1,16 +1,20 @@
 /**
- * Authentication context + hook — DEMO implementation.
+ * Authentication context + hook.
  * Context object and consumer hook only (no component); provider lives in
- * providers/AuthProvider.tsx. Demo auth swaps a role locally — no backend.
+ * providers/AuthProvider.tsx.
  */
 import { createContext, useContext } from 'react'
-import type { Role, User } from '@/types'
+import type { User } from '@/types'
 
 export interface AuthContextValue {
   user: User | null
   isAuthenticated: boolean
-  /** Demo login: sign in as a representative user for the given role. */
-  login: (role: Role) => void
+  /**
+   * Sign in against the backend. Resolves with the signed-in user — the caller
+   * needs its role to route, and reading it from state would race the render.
+   * Rejects with the ApiError the request failed on.
+   */
+  login: (email: string, password: string) => Promise<User>
   logout: () => void
 }
 

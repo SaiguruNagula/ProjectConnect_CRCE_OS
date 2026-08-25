@@ -26,6 +26,7 @@ from app.common.errors import BusinessRuleError, NotFoundError
 from app.core import authorize
 from app.modules.credits import repository as credits_repo
 from app.modules.credits.schemas import CreditAwardOut
+from app.modules.notifications import service as notifications
 from app.modules.problems import repository as problems_repo
 from app.modules.projects import repository as repo
 from app.modules.projects.models import Application, Project, StageSubmission
@@ -532,6 +533,20 @@ def apply_to_problem(
             "project_id": str(project.id),
             "team_id": str(team.id) if team else None,
         },
+    )
+    # The mentor hears that someone picked their problem up. The review queues
+    # only carry submitted work, so without this the application is invisible to
+    # faculty until the idea itself arrives.
+    notifications.notify(
+        db,
+        user_id=problem.created_by,
+        institution_id=student.institution_id,
+        kind="info",
+        title="New application to your problem",
+        message=f"{student.name} applied to {problem.title}.",
+        entity="project",
+        entity_id=str(project.id),
+        event_key=f"application.created:{application.id}",
     )
     db.commit()
     return views(db, [project])[0]

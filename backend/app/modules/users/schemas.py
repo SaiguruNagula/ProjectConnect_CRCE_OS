@@ -22,6 +22,35 @@ class UserOut(BaseModel):
     status: UserStatus
 
 
+class DirectoryUserOut(UserOut):
+    """A directory row: the account, plus what the person has done with it.
+
+    `credits` comes from the Credit Engine and `projects` from the projects
+    module — neither number is computed here, and neither is stored on the user.
+    """
+
+    department: str | None
+    institution: str
+    credits: int
+    projects: int
+
+
+class UsersOverviewOut(BaseModel):
+    """The institution's headcount, counted in the database.
+
+    Counts only. How they are labelled and coloured is the frontend's, and a
+    figure with no canonical source (growth trends, verification backlogs) is
+    absent rather than estimated.
+    """
+
+    total: int
+    students: int
+    faculty: int
+    principals: int
+    pending: int
+    suspended: int
+
+
 class UserCreate(BaseModel):
     """Internal/admin creation payload — no self-service signup in the pilot."""
 

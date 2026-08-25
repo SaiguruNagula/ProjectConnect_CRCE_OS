@@ -1515,6 +1515,33 @@ which today is trivially true because no such call exists.**
   `DEPLOYMENT_ID` and sets `institutions.status` — and requires no schema
   redesign and no change to how authentication reads that status.
 
+**Reaffirmed in Phase 14 (2026-08-20).** Phase 14 was briefed as "SaaS /
+multi-institution" and its literal reading — shared tenant database,
+platform-operator role, cross-institution reads, a provisioning API,
+inter-institution ranking — is the alternative this ADR rejects. The conflict
+was raised as a decision rather than resolved in code, and the decision was to
+keep ADR-9 unreversed. This ADR is **not superseded**; there is no ADR-11.
+
+What Phase 14 built inside it: `GET /institutions` (the caller's own
+institution, one row), `PATCH /institutions/me` (profile self-service) and the
+anonymous `GET /analytics/campus-impact` (four aggregate integers over ACTIVE
+institutions). What it declined to build, and why each is this ADR's direct
+consequence rather than a deferral:
+
+| Asked for | Not built because |
+|---|---|
+| Institution provisioning API | Creating a college is creating a *deployment*. It stays at installation, in `scripts/create_admin.py`. |
+| Platform-operator role | `UserRole` has four institution roles and gains no fifth. An operator with authority over institutions is the control plane this ADR refuses. |
+| Institution status management from the console | `status` gates authentication. A suspended institution cannot sign in, so it cannot un-suspend itself; that is the mechanism working. |
+| Institution count / platform snapshot | Counting institutions needs institutions this deployment cannot see. |
+| Inter-institution ranking | Permanently closed, not deferred: ranking needs a second tenant, and a second tenant is a second database. |
+
+The audit also confirmed the isolation this ADR relies on: no route accepts a
+client-supplied `institution_id` as authority, every tenant-owned query derives
+scope from `current_user.institution_id`, and cross-institution reads answer 404.
+`backend/tests/test_institutions_phase14.py` exercises both directions with the
+two-institution fixtures.
+
 **Alternatives Considered**
 
 - **Shared multi-tenant installation** (one database, many institutions).
@@ -1533,6 +1560,102 @@ which today is trivially true because no such call exists.**
   deployment is a property of the installation, not of a row. An environment
   value cannot be duplicated by a bad restore into another box's database, and
   it needs no migration.
+
+---
+
+## ADR-10 — Faculty Project Award Share
+
+**Status:** ACCEPTED (2026-08-16)
+
+**Context**
+
+ADR-5 priced mentorship as a flat `MENTORED_PROJECT_COMPLETED` rule: 60 credits
+whenever a mentored project completed, regardless of how good the project was.
+Faculty rankings therefore measured how many projects a mentor finished, not
+what those projects were worth, while the mentor is the person who decides the
+award. Mentorship is also the one faculty event whose value is already
+quantified elsewhere — `credit_awards.total`, the number the mentor has just
+justified across five rubric components.
+
+The alternative under discussion, a faculty "reputation score" (review quality,
+feedback depth, approval rate, on-time review, innovation contribution), would
+have been a second scoring system with no verified inputs behind it.
+
+**Decision**
+
+Mentoring a project to completion is priced as a percentage of that project's
+credit award. Four sub-decisions, all final:
+
+- **Replace, do not stack.** The award share replaces the flat fee.
+  `MENTORED_PROJECT_COMPLETED` is set `active = false`; the row is preserved so
+  history stays readable. The two rewards never both pay.
+- **The base is the award, not the payout.** The share is a percentage of
+  `credit_awards.total`, never of the sum of the students' ledger lines. A
+  100-credit award pays the mentor 50 credits whether the team has one member
+  or six.
+- **The rate is configuration.** `credit_rules` gains a nullable
+  `percent_of_award`; `points` becomes nullable, with
+  `CHECK ((points IS NULL) <> (percent_of_award IS NULL))` so every rule prices
+  its event exactly one way. The seeded faculty rule `MENTOR_AWARD_SHARE` is
+  50%, with the existing `active` / `effective_from` / `effective_to`
+  semantics. No percentage appears in application code.
+- **Cumulative, then delta, rounded down.**
+  `cumulative = floor(total * rate / 100)`;
+  `already_paid = SUM(points)` of the mentor's `Mentorship` transactions keyed
+  to this project's awards; `delta = cumulative - already_paid`. A non-zero
+  delta writes exactly one row (`user_id = projects.mentor_id`,
+  `source = "Mentorship"`, `source_id = <current award id>`); a zero delta
+  writes nothing. A revision from 100 → 120 → 101 → 200 pays
+  `+50, +10, −10, +50` and leaves the mentor holding `floor(200 × 50 / 100)`.
+
+The share is emitted inside `award()`, in the same transaction as the students'
+credits, so the whole award lands or none of it does. The recipient is read
+from `projects.mentor_id` — never from a request body — and the base is the
+database's stored `total`, never the components typed into the request.
+
+Two things this decision explicitly does **not** authorise:
+
+- **No faculty reputation engine.** No reputation table, no
+  `/faculty/me/reputation`, and no seeded Review Quality / Feedback Depth /
+  Approval Rate / On-time Review / Mentorship Score / Innovation Contribution
+  values. The faculty leaderboard remains `SUM(credit_transactions.points)`.
+- **No public portfolio route.** "Public" in V1 means visible to authenticated
+  members of the same institution, not to the internet. There is no
+  `GET /portfolio/{userId}` and no portfolio customization API beyond what
+  already exists; institution isolation (ADR-2) still applies to every read.
+
+**Consequences**
+
+- Faculty credits now track the quality of what was mentored, on one ledger,
+  with no second scoring path. Leaderboard and portfolio remain pure read
+  models over `credit_transactions` and were not modified.
+- Student credits are untouched: the students' lines, their totals, and their
+  leaderboard scores are exactly what they were before this change.
+- History is not rewritten. Existing `MENTORED_PROJECT_COMPLETED` transactions
+  stay as they are and are not backfilled to the new scheme; `already_paid` is
+  keyed on award ids, so those older rows can never be double-counted or
+  clawed back.
+- A mentor's own share scales with the award they choose. The existing award
+  ceiling (`base_credits`-derived) is what bounds it; there is no separate cap.
+- `GET /credits/rules` lists flat-priced rules only. A percentage has no credit
+  value until an award exists, and `CreditRule.points` in the frozen
+  `domain.ts` is a required number, so the share is not a row on that list. It
+  is visible where it is paid: the mentor's ledger.
+- `earn()` ignores percentage rules by construction (`rule.points is None`), so
+  no flat-event path can accidentally pay a share.
+
+**Alternatives Considered**
+
+- **Stacking the share on top of the flat 60.** Rejected: two rewards for one
+  event, and the flat component would keep rewarding volume over quality.
+- **Sharing the students' payout instead of the award total.** Rejected: the
+  mentor's credit would depend on team size, so mentoring a solo project would
+  be worth six times mentoring a six-person one.
+- **Hardcoding 50% in `award()`.** Rejected: rules are data, not code (ADR-5).
+- **Recomputing and editing the mentor's earlier transaction on revision.**
+  Rejected: the ledger is append-only; corrections are compensating rows.
+- **A faculty reputation score.** Rejected: a second source of truth for
+  faculty standing, built on numbers no verified activity produces.
 
 ---
 
@@ -1597,6 +1720,168 @@ Full records with context, consequences, and alternatives: §15 above.
 | 2026-08-12 | No central licence server in the pilot; local `institutions.status` only | A network licence check would lock a college out of its own data during a vendor or network outage | Architecturally prepared, not built: adding a registry later is additive | CRCE OS Team |
 
 Full records with context, consequences, and alternatives: §15 above.
+
+---
+
+## Credit Engine Amendment — Faculty Credit Policy (2026-08-16)
+
+An amendment to the Credit Engine, not a phase of its own. It changes how one
+existing faculty rule is priced; it adds no module, endpoint or roadmap step.
+
+| Date | Decision | Reason | Impact | Approved By |
+|------|----------|--------|--------|-------------|
+| 2026-08-16 | ADR-10: mentorship is paid as a share of the credit award, replacing the flat `MENTORED_PROJECT_COMPLETED` fee | Faculty credit should track what was mentored, not how many projects finished | `credit_rules.percent_of_award` added; `MENTOR_AWARD_SHARE` = 50% seeded; flat rule set inactive but preserved | CRCE OS Team |
+| 2026-08-16 | The share is a percentage of `credit_awards.total`, paid cumulative-then-delta with floor rounding | Mentor credit must not vary with team size, and the ledger is append-only | One `Mentorship` row per award when the delta is non-zero; revisions post the difference, positive or negative; no history rewritten or backfilled | CRCE OS Team |
+| 2026-08-16 | No faculty reputation engine and no public portfolio route in V1 | A reputation score would be a second source of truth with no verified inputs; "public" means institution-visible, not internet-visible | `/faculty/me/reputation` and `GET /portfolio/{userId}` remain unimplemented; leaderboard and portfolio stay ledger-derived | CRCE OS Team |
+
+Full record with context, consequences, and alternatives: §15 above.
+
+---
+
+## Student Dashboard (2026-08-16)
+
+Phase 6. An aggregation module: one endpoint, no table, no migration, no new
+business rule. Full field-by-field record in BACKEND_ARCHITECTURE.md §26.
+
+| Date | Decision | Reason | Impact | Approved By |
+|------|----------|--------|--------|-------------|
+| 2026-08-16 | `GET /dashboard/student` reads each counter from the module that owns it — balance from the Credit Engine, rank from the Leaderboard, membership from the projects repository | A dashboard that recomputes a number becomes a second source of truth for it | No credit sum, ranking or completion rule exists in `modules/dashboard`; its one query counts changes-requested submissions | CRCE OS Team |
+| 2026-08-16 | "Pending Tasks" means stage submissions returned `CHANGES_REQUESTED` plus `PENDING` team invitations to the student | There is no `Task` entity and no deadline in v1; these are the only persisted records of work awaiting the student, and neither derives from a clock | The count is deterministic; no `Task` table, `due_date` column or deadline system was added | CRCE OS Team |
+| 2026-08-16 | An unranked student's rank is `null`, and no deadline, trend or delta is served at all | A tier badge, a "+4%" or a due date with no source is fabricated data, whatever the mock showed | The dashboard cards lost their deltas and the "TOP 1%" badge; `deadlines()` returns `[]` and the Urgent Reviews rail degrades to its empty state | CRCE OS Team |
+| 2026-08-16 | The frontend swap point composes `{ ...mockRepositories, ...apiRepositories }` | A repository is live exactly when its backend exists; the app is never half-migrated in a way a page can see | `repositories/api/` holds the dashboard only; the mocks stay intact for development | CRCE OS Team |
+
+---
+
+## Student Complete Workflow (2026-08-17)
+
+Phase 7. An integration phase: the student journey moves from mock data onto the
+existing endpoints. No module, table, migration or business rule was added.
+Repository-by-repository record in BACKEND_ARCHITECTURE.md §28–§29.
+
+| Date | Decision | Reason | Impact | Approved By |
+|------|----------|--------|--------|-------------|
+| 2026-08-17 | The whole snake_case ↔ camelCase translation is one generic key converter (`api/case.ts`), not a mapper per endpoint | The read schemas already mirror `types/domain.ts` field for field, so per-endpoint mappers would be sixty copies of one rename, each free to drift | Every API repository is a thin call plus `camelize`/`decamelize`; `tests/test_api_casing.py` asserts the invariant the converter rests on across the whole OpenAPI schema | CRCE OS Team |
+| 2026-08-17 | Eight repositories went live; `reviews`, `facultyProfile`, `notifications`, `admin` and `analytics` stay on the mock | A repository is live exactly when its backend exists, and the review queue is faculty surface — Phase 8, not this one | The student journey — problems, teams, projects, stages, credits, leaderboard, portfolio, solutions — reads and writes real data; no faculty review functionality was built | CRCE OS Team |
+| 2026-08-17 | Where a live endpoint serves less than the mock did, the field comes back empty and the UI degrades; nothing is composed to fill the gap | A seeded skill list or a fabricated deployment badge is the same fabrication whether it comes from a mock or from a repository | Portfolio prose, hall of fame, verified skills and timeline render empty; `Solution.status` and `campusUsers` became optional and are omitted; an unranked portfolio shows `—`, not `#0` | CRCE OS Team |
+| 2026-08-17 | Portfolio rank is read from the leaderboard board the user appears on; portfolio customization stays in-session | The leaderboard is already the Credit Engine's ranking surface, so reading it introduces no second ranking; no customization endpoint exists to make authoritative | `portfolio` composes two live reads and delegates `getCustomization`/`updateCustomization` to the mock; Portfolio remains read-only, Profile remains the only editing surface | CRCE OS Team |
+
+---
+
+## Faculty Dashboard (2026-08-18)
+
+Phase 8. The faculty sibling of Phase 6: one endpoint, no table, no migration, no
+new business rule. `GET /dashboard/faculty`, faculty-only, no parameters.
+
+| Date | Decision | Reason | Impact | Approved By |
+|------|----------|--------|--------|-------------|
+| 2026-08-18 | "Credits Awarded" means credits this mentor *gave out* — `SUM(credit_awards.total)` over their live awards — not their own balance | The rail measures mentoring output; the mentor's balance is already the number their Credits page shows, and showing it twice under two names would make one of them wrong | One read accessor added to the Credit Engine repository (`awarded_total_by`); superseded revisions are excluded, so a revised award counts once at its new value | CRCE OS Team |
+| 2026-08-18 | Three of the four metrics are counted off one canonical list — the projects the projects module says this person mentors | A dashboard that asks its own question of the database gets its own answer, and eventually a different one from the module that owns the fact | `projects_mentored` is that list's length, `students_guided` its deduplicated roster via `members_by_project`, `solutions_published` its `Project.published` flag; the dashboard defines no membership, publication or lifecycle rule | CRCE OS Team |
+| 2026-08-18 | The Pending Review Queue and Recent Activity stay mock-backed | `GET /reviews/queues` exists but wiring the frontend `reviews` repository is Faculty Complete Workflow, not this phase; no canonical activity source exists at all | The impact rail is live while the review queue and activity feed still read the mock — visible on one page, and preferable to a dashboard that quietly reports two kinds of truth as one | CRCE OS Team |
+
+---
+
+## Faculty Complete Workflow (2026-08-18)
+
+Phase 9. The only phase so far that added no backend at all: the Review Engine's
+five routes, their schemas and their rules were already complete and untouched.
+The gap was one missing file on the frontend — `reviews` was the last repository
+the faculty workflow needed and the only one still on the mock.
+
+| Date | Decision | Reason | Impact | Approved By |
+|------|----------|--------|--------|-------------|
+| 2026-08-18 | No new endpoint, no migration, no UI change — one API repository | `ReviewRepository` already declared all five methods with the right signatures, and every endpoint the faculty workflow needs already existed; the pages, hooks and components were written against that interface and never knew which side answered | The queue, the pending count, the review detail and all five actions went live by adding `reviews: reviewsApiRepository` to `apiRepositories` | CRCE OS Team |
+| 2026-08-18 | The three queue-schema mismatches are renamed at the repository, not in components | `id`/`attachment_count`/nullable `problem_title` differ from the domain type; translating in the panel would spread the wire format across the UI and make a backend rename a multi-file change | One `toQueueItem` function owns the difference; a contract test asserts the exact field set the backend sends | CRCE OS Team |
+| 2026-08-18 | The decision body is built field-by-field, so `reviewedBy` cannot reach the wire | The panel's form carries a reviewer field and `ReviewDecisionIn` sets `extra="forbid"`; forwarding the form wholesale would be both a 422 and an attempt to name one's own reviewer | The reviewer is always the token's subject; a test posts `reviewed_by` and asserts 422 with the submission unmoved | CRCE OS Team |
+| 2026-08-18 | Every mutation re-renders from the returned `ProjectJourney`, not from an optimistic guess | The verdict's meaning — what it unlocks, what it awards, whether it publishes — belongs to the Review and Credit Engines; a frontend that predicts it has invented a second copy of the rules | Actions feel a round-trip slower and are always right; `useFacultyReview` already reloaded on success, so nothing changed to get this | CRCE OS Team |
+| 2026-08-18 | Going live drops the mock's student-facing notifications on decide/award/publish | No notification backend exists until Phase 12, and firing them from the frontend would put a platform event in the browser | A student is no longer told in-app that their stage was reviewed; a real regression, accepted rather than faked, and closed by Phase 12 | CRCE OS Team |
+
+---
+
+## Admin (2026-08-19)
+
+Phase 10. The admin UI was drawn as a multi-institution SaaS console; the
+backend is single-tenant by construction. Of the three pages, one — the user
+directory — describes something this platform actually owns, and that is the
+only one that went live. The other two were left on the mock rather than given a
+tenant architecture Phase 14 has not designed yet.
+
+| Date | Decision | Reason | Impact | Approved By |
+|------|----------|--------|--------|-------------|
+| 2026-08-19 | `GET /users` was widened, not replaced by a new `/admin` router | The endpoint already existed with the right route, the right admin-only gate and the right token-derived scope; a second directory route would have been a second reader of the same table, and an `/admin` module would have owned state the users module owns | Zero new routers, zero renamed routes, and `test_authorization.py` keeps covering the directory unchanged | CRCE OS Team |
+| 2026-08-19 | `credits` and `projects` each grew a batched accessor instead of the users module summing them | A directory row shows a balance and a project count, but neither is the users module's to define; copying `SUM(credit_transactions.points)` into `users/service.py` would have been a second source of truth, and asking per row would have been an N+1 | `credits.repository.balances_of` and `projects.repository.counts_for_students/counts_for_mentors` — one query each, definitions unmoved, the service only composes | CRCE OS Team |
+| 2026-08-19 | `GET /users/overview` is the one new endpoint | The KPI tiles count the whole institution, but the directory is capped at `MAX_LIMIT=100`, so counting the loaded page would be wrong past the cap and would put the count in the browser | Six integers from two `GROUP BY`s; declared above `/users/{user_id}` so the path is not parsed as a uuid | CRCE OS Team |
+| 2026-08-19 | The KPI tiles' fabricated figures were dropped, not recomputed | `'14,320 users'`, `'+2.4% vs LY'`, a verification backlog, `'Auth Gateway 99.99%'` and two audit lines had no canonical source; inventing backend calculations to keep the panels full is how a dashboard starts lying | Real counts in the tiles; the verification centre, identity health and audit log return empty and the page hides those three sections | CRCE OS Team |
+| 2026-08-19 | The API admin repository spreads the mock before overriding two methods | `repositories/index.ts` spreads at repository level, so registering `admin` replaces the mock object whole — the six unbuilt methods would have gone undefined and broken two working pages | `{ ...mockRepositories.admin, users, usersOverview }`; the composition root was left exactly as it was | CRCE OS Team |
+| 2026-08-19 | Institution management stays on the mock — it is Phase 14, not Phase 10 | Creating institutions, assigning principals and suspending tenants is provisioning for a multi-tenant platform; the backend has no writer, no list and deliberately 404s foreign ids, and building one here would have decided the SaaS architecture as a side effect of an admin page | Admin Institutions and the platform snapshot are unchanged and still mock-backed; the single-tenant boundary is intact | CRCE OS Team |
+| 2026-08-19 | The directory's institution filter now offers one option, and that is correct | One token means one tenant, so every row shows the caller's own institution — the mock showed four because it was pretending to be a SaaS | An honest single-tenant directory instead of a filter implying data the admin cannot see | CRCE OS Team |
+
+---
+
+## Principal / Institution (2026-08-19)
+
+Phase 11. The principal's two pages were drawn as an analytics console, and most
+of what they show belongs to Phase 13 or Phase 14. Going live shrank them
+visibly — half the tiles and four whole sections are gone rather than filled
+with plausible figures. That is the trade, taken deliberately: a principal who
+cannot trust one number on the page cannot trust any of them.
+
+| Date | Decision | Reason | Impact | Approved By |
+|------|----------|--------|--------|-------------|
+| 2026-08-19 | `GET /dashboard/principal` was added rather than an `analytics` module | The UI needs seven institution-wide counts and no endpoint in the platform returned a single one; a new module named for the thing Phase 13 will build would have been that phase arriving early | One read-only route, `require_role(PRINCIPAL)`, no parameters, scoped by the token — the third sibling of the student and faculty dashboards | CRCE OS Team |
+| 2026-08-19 | `GET /users` and `/users/overview` stayed admin-exclusive | Relaxing an admin gate to ADMIN+PRINCIPAL would have given a second role the user directory to answer a question about counts; the principal's console shows numbers, not people | `test_principal.py` asserts a principal still gets 403 from both, so a future widening cannot pass silently | CRCE OS Team |
+| 2026-08-19 | The aggregation owns nothing; every count came from the module that owns the thing counted | A second definition of "active project", "open problem" or "a credit" is the one thing a dashboard must never introduce | Four batched accessors added to their owners (`counts_by_completion`, `open_count`, `active_count`, `institution_total`); `counts_by_role` was reused as it stood | CRCE OS Team |
+| 2026-08-19 | Department health, the growth chart, the radar and the highlights were emptied, not computed | Nothing attributes a project, a credit or a review to a department — there is no `Project.department`, and a problem's department is its author's, not its team's. No monthly snapshot is kept either | Both pages hide those sections; Phase 13 decides the attribution rule and the comparison window | CRCE OS Team |
+| 2026-08-19 | The innovation health headline, institution rank, patents, publications and collaborations were dropped | A standing and a percentage need a past quarter to compare against; a rank needs another institution; the last three have no domain at all | The health hero is hidden and the totals take the full row; the rank tile is gone until Phase 14 can see more than one tenant | CRCE OS Team |
+| 2026-08-19 | "Problems Solved" is not on the page, and `open_problems` filters on status anyway | `ProblemStatus.CLOSED` and `IN_PROGRESS` have no writer anywhere in `app/`, so a closed count would be a permanent zero — but the filter is still written, and tested against a row placed there directly, so it is correct the day a writer exists | Completed projects carry the "solved" tile instead, from the Credit Engine's `completed_at` | CRCE OS Team |
+| 2026-08-19 | The API analytics repository spreads the mock before overriding `institution` | `repositories/index.ts` spreads at repository level, so registering `analytics` replaces the mock whole — `campusImpact` would have gone undefined and broken the Landing, About and Innovation Hub pages | `{ ...mockRepositories.analytics, institution }`; the composition root was left as it was | CRCE OS Team |
+| 2026-08-19 | The tenant boundary was not touched | Phase 11 is a read of the caller's own institution; multi-institution provisioning is Phase 14's architecture, not a side effect of giving the principal a dashboard | No cross-tenant read, no new parameter, no migration — Alembic head unchanged | CRCE OS Team |
+
+---
+
+## Notifications + Audit (2026-08-19)
+
+Phase 12. The audit half was already built: `audit_logs` has existed since the
+foundation and twenty-five call sites across auth, problems, teams, projects,
+reviews and credits have been writing to it all along. So the phase added no
+audit table, no audit column and no audit write — only the two reads the UI
+asks for. Notifications were the opposite: nothing persisted them anywhere, and
+the one thing they need that an audit row must never have is mutable read
+state.
+
+| Date | Decision | Reason | Impact | Approved By |
+|------|----------|--------|--------|-------------|
+| 2026-08-19 | Notifications got their own table instead of reusing `audit_logs` | An audit row records who acted; a notification records who must be told, and those are usually different people — a review decision writes one audit row and notifies every team member. An audit row is also immutable by design, and putting `read_at` on it would destroy the single property it exists to keep | One migration, `b2f4c9e1a730`, one table, one index; `audit_logs` unchanged | CRCE OS Team |
+| 2026-08-19 | Only problems, teams, reviews and credits raise notifications | The bell's own empty state promises exactly those four. Adding a notification to every mutation is technically easy and is how a feed becomes noise nobody reads | Seven events: review decided, credits awarded, credits revised, mentor share, credits earned, join requested, join answered, suggestion submitted, suggestion decided. Publication, applications and drafts raise none | CRCE OS Team |
+| 2026-08-19 | `notify()` joins the caller's transaction, exactly as `record_audit()` does | A notification for an action that rolled back is a lie, and moving the business write into the notifications module would make it a second owner of the thing it reports on | `db.add` only; the module that performed the action still commits. Modules import notifications; notifications imports no module, so the dependency graph stays acyclic without an event bus | CRCE OS Team |
+| 2026-08-19 | Idempotency is a nullable `event_key` under `UNIQUE(user_id, event_key)` | Frontend retries must not spam a feed, and a distributed event system to prevent that would be far larger than the problem | Keys name the row that caused the event (`review:{submission_id}:{status}`, `credit.award:{award_id}`), so a genuine re-decision notifies again while a retry does not. Null keys stay distinct in Postgres, so a keyless event is never blocked | CRCE OS Team |
+| 2026-08-19 | The notification row carries no `link` | A backend has no business knowing this app's URL shape | `entity` + `entity_id` travel instead; the API repository builds the route. Credit notifications reach both a team and their mentor, and no one page serves both, so they open nothing rather than sending half their readers to a 403 | CRCE OS Team |
+| 2026-08-19 | Two audit endpoints, split by action prefix, not one endpoint with a filter | `/audit/activity` and `/audit/users` are two different permissions — staff can see what the institution built, only an admin can see who failed to sign in. `?kind=` would put an authorization boundary in a query parameter | `require_role(FACULTY, ADMIN, PRINCIPAL)` and `require_role(ADMIN)`; the split matches `login.`/`logout`/`token.` by prefix, so a new auth action files itself | CRCE OS Team |
+| 2026-08-19 | Students read neither audit feed | Everything in the activity feed is already visible to a student through the module that owns it, as their own view of it. No student page asks for everyone's actions, and widening a gate to fill a panel is how a tenant boundary erodes | `test_audit.py` asserts 403 for a student on both routes | CRCE OS Team |
+| 2026-08-19 | `metadata` does not leave the backend, and the activity feed names a kind of thing rather than a title | `common/audit.record_audit` records identifiers and outcomes only — deliberately, so the log can never leak a request body. There is no title in the table to render, and inventing one would be fabrication | The feed reads "Dr. Neha Kulkarni approved a stage in a project". Action codes are phrased in `features/audit/phrases.ts`, which is where every other bit of wording already lives | CRCE OS Team |
+| 2026-08-19 | The admin identity panel shows no target column | An identity event is about the account that acted, and that account is already the actor | `UserAuditEntry.target` is empty; the row reads "Priya Nair signed in". A failed sign-in with no matching account reads "An unknown account failed to sign in" | CRCE OS Team |
+
+---
+
+## Analytics + Reports (2026-08-20)
+
+Phase 13. The audit that opened the phase found the opposite of what the UI
+suggested: most of the analytics console had no canonical source at all, and the
+one section everyone assumed was missing a data model — the department
+breakdown — turned out to be attributable from a required column that has
+existed since the foundation. So the phase added three fields to an endpoint
+that already existed, no table, no migration and no module.
+
+| Date | Decision | Reason | Impact | Approved By |
+|------|----------|--------|--------|-------------|
+| 2026-08-20 | A project's department is its **problem's** department | `problems.department` is `NOT NULL` and indexed, it is what the catalog filters by, and the Credit Engine already stamps award transactions `context = "Dept. of {problem.department}"`. The platform was already using this rule; analytics only reads it | The breakdown needed no migration. `users.department` is nullable and is the person's own, so attributing by mentor or team lead would have been a second rule and would have forced a fabricated department for students who have none | CRCE OS Team |
+| 2026-08-20 | No `/analytics` module and no new endpoint — three fields were added to `GET /dashboard/principal` | Both principal views already read one aggregate through one hook, behind one `require_role(PRINCIPAL)` gate. A second endpoint would have duplicated an authorization boundary to match the name of a page | Zero new routers, zero new gates, zero new tenancy surface. §26's speculative `/analytics/institution` is superseded | CRCE OS Team |
+| 2026-08-20 | The six-month growth series is counted from real timestamps; **no snapshot or history table was created** | `credit_transactions` is append-only by construction (ADR-5) and `projects.created_at` is written once and never moved, so the history the chart needs is already stored. A snapshot table would have added a second source of truth for numbers that can be recomputed exactly | `credits.repository.monthly_points` and `dashboard.repository.monthly_projects`, both `GROUP BY date_trunc('month', ...)`. Alembic head unchanged at `b2f4c9e1a730` | CRCE OS Team |
+| 2026-08-20 | Both month truncations run on `timezone('UTC', created_at)` | Both columns are `timestamptz`; left alone, `date_trunc` cuts the month at the session timezone, so the same ledger could report two different Julys depending on who asked | One deterministic series, and a test that backdates a row into an earlier month and requires it to appear there | CRCE OS Team |
+| 2026-08-20 | The response carries counts; completion rate, success rate, the health dot and the critical-backlog flag are computed in the frontend repository | A threshold is an editorial line, not a fact. `admin.repository.ts` already turns headcounts into percentages and tones at exactly that layer | `HEALTHY_SUCCESS_RATE = 60` and `CRITICAL_BACKLOG = 10` live in `analytics.repository.ts`; changing either changes a colour and nothing else | CRCE OS Team |
+| 2026-08-20 | Empty means empty: `growth` is `[]` when nothing happened in the window and `avg_review_days` is `null` until something is reviewed | Six flat zeros assert half a year the institution has not lived through, and a zero turnaround claims an instant verdict. A department that has published a problem but seen no project is a real row of zeros and stays in the table | The pages hide the growth section and the highlight rather than drawing them empty | CRCE OS Team |
+| 2026-08-20 | The department radar and its performance meters stay empty, and the card is now hidden rather than merely unreachable | Four of the five drawn axes (industry relevance, research output, patents, collaboration) measure nothing the platform records. `RadarChart` divides by `axes.length`, so an empty array would have rendered `NaN` coordinates once the growth section unhid the row | `PrincipalDashboard.tsx` gates the radar card on `departmentRadar.length`, and the growth card spans 12 columns without it | CRCE OS Team |
+| 2026-08-20 | Reports export the live department table as CSV; no report-generation engine was built | The report categories were labels. A canonical current-state table can be exported honestly today; a PDF pipeline and historical reports are infrastructure this phase did not need | The drawer is now reachable because `departments` is populated; the format choice remains dropped until an export endpoint exists | CRCE OS Team |
+| 2026-08-20 | `campusImpact`, the admin platform snapshot and the institutions console were left untouched | All three are cross-tenant or pre-auth reads. Phase 14 introduces multi-institution; widening a query here would have done it early and badly | Still mock-backed, exactly as Phase 10 left them | CRCE OS Team |
 
 ---
 

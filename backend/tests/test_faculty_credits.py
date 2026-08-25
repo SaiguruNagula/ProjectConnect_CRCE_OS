@@ -21,13 +21,15 @@ from app.modules.projects.models import Project
 from tests.conftest import auth_header, make_user
 from tests.test_credits import (
     AWARD,
+    TOTAL,
     approved_project,
     award,
     ledger,
+    team_project,
 )
 from tests.test_credits import seeded_rules as _seeded_rules
 from tests.test_problems import VALID_PROBLEM
-from tests.test_reviews import FEEDBACK, decide, pending_idea, submit
+from tests.test_reviews import EVALUATION, FEEDBACK, decide, pending_idea, submit
 from tests.test_suggestions import create_suggestion
 
 # The Phase 5A rule table, reused as-is. Bound under its fixture name here so
@@ -41,7 +43,27 @@ MENTORSHIP = "Mentorship"
 # The rule points, restated so a change to the seed has to be deliberate here too.
 PUBLISHED_POINTS = 10
 REVIEW_POINTS = 80
-MENTORSHIP_POINTS = 60
+
+# Mentorship is not a flat rule any more: the mentor is paid `MENTOR_AWARD_SHARE`
+# percent of what the project was awarded, rounded down. The flat rule it
+# replaced is seeded inactive and kept only so its history reads back.
+SHARE_EVENT = "MENTOR_AWARD_SHARE"
+SHARE_RATE = 50
+FLAT_MENTORSHIP_EVENT = "MENTORED_PROJECT_COMPLETED"
+FLAT_MENTORSHIP_POINTS = 60
+
+
+def share_of(total: int) -> int:
+    return total * SHARE_RATE // 100
+
+
+def worth(total: int) -> dict[str, int]:
+    """An award of exactly `total`, all of it in one component."""
+    return dict.fromkeys(AWARD, 0) | {"innovation": total}
+
+
+# The share of the default 250-credit award used across the faculty tests.
+MENTOR_SHARE = share_of(TOTAL)
 
 
 def sources(db: Session, user) -> list[tuple[str, int]]:
@@ -210,32 +232,88 @@ def test_final_approval_alone_does_not_pay_the_mentorship(
     assert db.get(Project, uuid.UUID(project_id)).completed_at is None
 
 
-def test_the_completing_award_pays_the_mentor(
+def test_the_completing_award_pays_the_mentor_a_share_of_it(
     client: TestClient, db: Session, student, faculty, problem, seeded_rules
 ) -> None:
+    """Half of what the project was awarded, rather than a flat fee."""
     project_id = approved_project(client, student, faculty, problem)
 
     assert award(client, faculty, project_id).status_code == 200
-    assert mentorships(db, faculty) == [(MENTORSHIP, MENTORSHIP_POINTS)]
+    assert mentorships(db, faculty) == [(MENTORSHIP, MENTOR_SHARE)]
 
 
-def test_revising_an_award_does_not_pay_the_mentor_again(
+def test_the_share_is_a_cut_of_the_award_not_of_what_the_team_received(
+    client: TestClient, db: Session, student, other_student, faculty, problem, seeded_rules
+) -> None:
+    """Every member is credited the whole award, and the mentor still gets one half.
+
+    A bigger team is not a bigger bill: the base is `credit_awards.total`.
+    """
+    project_id = team_project(client, student, other_student, problem)
+    for stage, decision, extra in (
+        (SubmissionStage.IDEA, "approve", {}),
+        (SubmissionStage.POC, "select", FEEDBACK),
+        (SubmissionStage.FINAL, "approve", {"evaluation": EVALUATION}),
+    ):
+        submit(client, student, project_id, stage)
+        decide(client, faculty, project_id, stage, decision, **extra)
+
+    assert award(client, faculty, project_id).status_code == 200
+
+    assert [row.points for row in ledger(db, student)] == [TOTAL]
+    assert [row.points for row in ledger(db, other_student)] == [TOTAL]
+    assert mentorships(db, faculty) == [(MENTORSHIP, MENTOR_SHARE)]
+
+
+def test_an_odd_award_rounds_the_share_down(
     client: TestClient, db: Session, student, faculty, problem, seeded_rules
 ) -> None:
-    """A correction re-scores the student; the project only completes once."""
+    """101 credits of work is a 50-credit share — never 50.5, never 51."""
+    project_id = approved_project(client, student, faculty, problem)
+
+    assert award(client, faculty, project_id, **worth(101)).status_code == 200
+
+    assert mentorships(db, faculty) == [(MENTORSHIP, 50)]
+
+
+def test_a_revision_pays_the_difference_in_either_direction(
+    client: TestClient, db: Session, student, faculty, problem, seeded_rules
+) -> None:
+    """The share is cumulative: what the award is worth now, less what it paid.
+
+    A revision is a correction, not a second mentorship, and a correction can go
+    down as easily as up. Nothing already written is edited.
+    """
+    project_id = approved_project(client, student, faculty, problem)
+
+    for total in (100, 120, 101, 200):
+        assert award(client, faculty, project_id, **worth(total)).status_code == 200
+
+    assert mentorships(db, faculty) == [
+        (MENTORSHIP, 50),  # floor(100 × 50%)
+        (MENTORSHIP, 10),  # 60 owed, 50 paid
+        (MENTORSHIP, -10),  # 50 owed, 60 paid
+        (MENTORSHIP, 50),  # 100 owed, 50 paid
+    ]
+    assert sum(points for _, points in mentorships(db, faculty)) == share_of(200)
+
+
+def test_replaying_an_award_does_not_pay_the_mentor_twice(
+    client: TestClient, db: Session, student, faculty, problem, seeded_rules
+) -> None:
     project_id = approved_project(client, student, faculty, problem)
     award(client, faculty, project_id)
 
-    revised = award(client, faculty, project_id, innovation=AWARD["innovation"] - 40)
+    replay = award(client, faculty, project_id)
 
-    assert revised.status_code == 200, revised.text
-    assert mentorships(db, faculty) == [(MENTORSHIP, MENTORSHIP_POINTS)]
+    assert replay.status_code == 409
+    assert mentorships(db, faculty) == [(MENTORSHIP, MENTOR_SHARE)]
 
 
-def test_the_mentor_credit_is_the_rule_not_the_award(
+def test_the_rate_is_the_rule_and_the_base_is_the_award(
     client: TestClient, db: Session, student, faculty, problem, seeded_rules
 ) -> None:
-    """A mentor who awards generously does not pay themselves more for it."""
+    """A mentor cannot set the percentage; only the award it applies to."""
     project_id = approved_project(client, student, faculty, problem)
 
     # 390 of the 400 this problem allows, against a default award of 250.
@@ -244,7 +322,54 @@ def test_the_mentor_credit_is_the_rule_not_the_award(
     )
 
     assert generous.status_code == 200, generous.text
-    assert mentorships(db, faculty) == [(MENTORSHIP, MENTORSHIP_POINTS)]
+    assert mentorships(db, faculty) == [(MENTORSHIP, share_of(390))]
+
+
+def test_without_an_active_share_rule_the_mentor_is_paid_nothing(
+    client: TestClient, db: Session, student, faculty, problem, seeded_rules
+) -> None:
+    """An unpriced event is free, never an error — the award still completes."""
+    for rule in seeded_rules:
+        if rule.event_type == SHARE_EVENT:
+            rule.active = False
+    db.flush()
+    project_id = approved_project(client, student, faculty, problem)
+
+    assert award(client, faculty, project_id).status_code == 200
+
+    assert mentorships(db, faculty) == []
+    assert db.get(Project, uuid.UUID(project_id)).completed_at is not None
+
+
+def test_the_flat_mentorship_rule_it_replaced_never_pays_again(
+    client: TestClient, db: Session, student, faculty, problem, seeded_rules
+) -> None:
+    """REPLACE, not stack: the old rule has no emitter left, switched on or not."""
+    for rule in seeded_rules:
+        if rule.event_type == FLAT_MENTORSHIP_EVENT:
+            rule.active = True
+    db.flush()
+    project_id = approved_project(client, student, faculty, problem)
+
+    assert award(client, faculty, project_id).status_code == 200
+
+    assert mentorships(db, faculty) == [(MENTORSHIP, MENTOR_SHARE)]
+    assert (MENTORSHIP, FLAT_MENTORSHIP_POINTS) not in mentorships(db, faculty)
+
+
+def test_a_mentor_at_another_college_is_never_the_recipient(
+    client: TestClient, db: Session, institution_b, student, faculty, problem, seeded_rules
+) -> None:
+    """The share follows `projects.mentor_id`, and the project is not theirs to award."""
+    outsider = make_user(
+        db, institution=institution_b, email="rao@other.edu", role=UserRole.FACULTY
+    )
+    project_id = approved_project(client, student, faculty, problem)
+
+    assert award(client, outsider, project_id).status_code == 404
+
+    assert ledger(db, outsider) == []
+    assert mentorships(db, faculty) == []
 
 
 # --- one transaction ----------------------------------------------------------------

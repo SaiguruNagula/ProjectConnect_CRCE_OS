@@ -178,8 +178,8 @@ export function AdminUsersPage() {
         </section>
       )}
 
-      {/* Verification center */}
-      {overview.data && (
+      {/* Verification center — hidden while no verification workflow feeds it. */}
+      {overview.data && overview.data.verificationQueue.length > 0 && (
         <section className="space-y-3">
           <h3 className="flex items-center gap-2 text-[13px] font-bold">
             <span className="material-symbols-outlined text-secondary" aria-hidden="true">verified_user</span>
@@ -325,7 +325,7 @@ export function AdminUsersPage() {
 
         {/* Right rail */}
         <section className="space-y-6 lg:col-span-4">
-          {overview.data && (
+          {overview.data && overview.data.identityHealth.length > 0 && (
             <div className={`${CARD} p-4`}>
               <h3 className="mb-4 flex items-center gap-2 text-sm font-bold text-emerald-600">
                 <span className="material-symbols-outlined" aria-hidden="true">analytics</span>
@@ -339,7 +339,7 @@ export function AdminUsersPage() {
             </div>
           )}
 
-          {overview.data && (
+          {overview.data && overview.data.auditLog.length > 0 && (
             <div className={`${CARD} flex flex-col overflow-hidden`}>
               <div className="flex items-center justify-between border-b border-outline-variant p-4">
                 <h3 className="text-sm font-bold">Audit Log</h3>

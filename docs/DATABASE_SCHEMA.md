@@ -953,11 +953,16 @@ Fields:
 
 Defines scoring rules.
 
+A rule prices its event exactly one way: flat `points`, or `percent_of_award`
+as a percentage of a `credit_awards.total` (ADR-10). Exactly one of the two is
+set. Implemented columns: see BACKEND_ARCHITECTURE.md §12.
+
 Fields:
 
 - id
 - activity
 - points
+- percent_of_award
 - role
 - is_active
 
@@ -1069,6 +1074,20 @@ Fields:
 - notification_type
 - is_read
 - created_at
+
+Built in Phase 12 with different names, and one column more. The recipient is
+`user_id`, the type is `kind`, and read state is `read_at` (null means unread)
+rather than a boolean, so a feed can be ordered by when it was seen. `entity`
+and `entity_id` name what the notification came from — the frontend turns that
+into a route, so there is no `link` column. `institution_id` carries the tenant.
+
+The extra column is `event_key`, nullable, under
+`UNIQUE(user_id, event_key)`: the natural key of the event that raised the row,
+so a retried request cannot notify the same person twice. Null keys stay
+distinct in Postgres, which is what keeps an event with no one-shot meaning
+from being blocked.
+
+Index: `(user_id, created_at)` — the bell reads one user, newest first.
 
 ---
 
@@ -1685,6 +1704,20 @@ The following tables may be introduced in future versions.
 - institutions
 - campuses
 - institution_admins
+
+`institutions` is not future work — it shipped in Phase 2 and every tenant-owned
+table carries `institution_id` from V1 (ADR-2). Its columns are recorded in
+BACKEND_ARCHITECTURE.md §12 alongside the rest of the as-built schema.
+
+`campuses` and `institution_admins` describe a shared installation serving many
+colleges, which ADR-9 rejects: one college is one deployment is one database is
+one institution. Phase 14 audited this list and built neither. It added no table
+and no column — `GET /institutions`, `PATCH /institutions/me` and
+`GET /analytics/campus-impact` all read and write the existing `institutions`
+row, and the phase carries **no migration**. Two fields on that row are
+deliberately not writable through the API: `status` (set at installation) and
+`principal_verified` (cleared by the service when `principal_email` changes,
+never set by a request).
 
 ---
 

@@ -17,7 +17,13 @@ from math import ceil
 from sqlalchemy import ColumnElement, Select, func, or_, select
 from sqlalchemy.orm import Session
 
-from app.common.enums import ApplicationStatus, ProblemSuggestionStatus, UserRole, UserStatus
+from app.common.enums import (
+    ApplicationStatus,
+    ProblemStatus,
+    ProblemSuggestionStatus,
+    UserRole,
+    UserStatus,
+)
 from app.modules.problems.models import (
     Problem,
     ProblemBookmark,
@@ -235,6 +241,19 @@ def stats(db: Session, institution_id: uuid.UUID) -> CatalogStats:
         .where(Team.deleted_at.is_(None), *scope)
     ).scalar_one()
     return CatalogStats(problems=problems, departments=department_count, teams=with_teams)
+
+
+def open_count(db: Session, institution_id: uuid.UUID) -> int:
+    """Problems still open, by `Problem.status` — this module's own lifecycle flag.
+
+    Not `stats().problems`, which counts the whole catalog regardless of status.
+    """
+    stmt = select(func.count(Problem.id)).where(
+        Problem.institution_id == institution_id,
+        Problem.deleted_at.is_(None),
+        Problem.status == ProblemStatus.OPEN,
+    )
+    return int(db.execute(stmt).scalar_one())
 
 
 def add(db: Session, problem: Problem) -> Problem:

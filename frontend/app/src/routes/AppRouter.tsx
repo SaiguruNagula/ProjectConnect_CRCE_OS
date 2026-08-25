@@ -1,13 +1,16 @@
 /**
  * Application router.
  *
- * Groups routes by layout (Public/Shared → role workspaces) per ARCHITECTURE.md.
+ * Groups routes by access rather than by chrome: the public site, the shared
+ * pages every signed-in role reads, the two shared pages that belong to one
+ * role, and the four role workspaces. SiteLayout supplies the chrome for the
+ * first three and follows the session; ProtectedRoute supplies the guard.
  * Child paths are relative to their layout parent; canonical absolute paths live
  * in ROUTES (constants/routes.ts). Every route renders a real page.
  */
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ROUTES } from '@/constants/routes'
-import { PublicLayout } from '@/layouts/PublicLayout'
+import { SiteLayout } from '@/layouts/SiteLayout'
 import { StudentLayout } from '@/layouts/StudentLayout'
 import { FacultyLayout } from '@/layouts/FacultyLayout'
 import { AdminLayout } from '@/layouts/AdminLayout'
@@ -41,23 +44,46 @@ import { PrincipalAnalyticsPage } from '@/pages/principal/PrincipalAnalyticsPage
 export function AppRouter() {
   return (
     <Routes>
-      {/* Public + Shared modules */}
-      <Route element={<PublicLayout />}>
+      {/* The public site: the only pages that ask the backend for nothing. */}
+      <Route element={<SiteLayout />}>
         <Route index element={<LandingPage />} />
         <Route path="about" element={<AboutPage />} />
         <Route path="login" element={<LoginPage />} />
-        <Route path="innovation-hub" element={<InnovationHubPage />} />
-        <Route path="open-problems" element={<OpenProblemsPage />} />
-        <Route path="problem/:id" element={<ProblemDetailsPage />} />
-        <Route path="team" element={<TeamFormationPage />} />
-        <Route path="review" element={<ReviewEnginePage />} />
-        <Route path="solutions" element={<SolutionsHubPage />} />
-        <Route path="leaderboard" element={<LeaderboardPage />} />
-        <Route path="portfolio/:id" element={<PortfolioPage />} />
-        {/* Credit Engine is documented as /credits (MIGRATION_MAP) but the ledger
-            is per-student, so it lives in the student workspace. Keep the
-            documented path working rather than duplicating the page. */}
-        <Route path="credits" element={<Navigate to={ROUTES.STUDENT.CREDITS} replace />} />
+      </Route>
+
+      {/* Shared pages. Every one of them reads an endpoint that requires a
+          token, so they are signed-in pages that four workspaces share — not
+          public ones. Anonymous visitors are sent to log in rather than to an
+          "Authentication required." error. */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<SiteLayout />}>
+          <Route path="innovation-hub" element={<InnovationHubPage />} />
+          <Route path="open-problems" element={<OpenProblemsPage />} />
+          <Route path="problem/:id" element={<ProblemDetailsPage />} />
+          <Route path="solutions" element={<SolutionsHubPage />} />
+          <Route path="leaderboard" element={<LeaderboardPage />} />
+          <Route path="portfolio/:id" element={<PortfolioPage />} />
+          {/* Credit Engine is documented as /credits (MIGRATION_MAP) but the ledger
+              is per-student, so it lives in the student workspace. Keep the
+              documented path working rather than duplicating the page. */}
+          <Route path="credits" element={<Navigate to={ROUTES.STUDENT.CREDITS} replace />} />
+        </Route>
+      </Route>
+
+      {/* Team Formation is the student half of applying — every action on it
+          POSTs as a student — so the documented path is student-only. */}
+      <Route element={<ProtectedRoute allow="student" />}>
+        <Route element={<SiteLayout />}>
+          <Route path="team" element={<TeamFormationPage />} />
+        </Route>
+      </Route>
+
+      {/* Likewise the documented Review Engine path: the queues it loads are
+          the mentor's own, and the backend gives anyone else a 403. */}
+      <Route element={<ProtectedRoute allow="faculty" />}>
+        <Route element={<SiteLayout />}>
+          <Route path="review" element={<ReviewEnginePage />} />
+        </Route>
       </Route>
 
       {/* Student workspace */}

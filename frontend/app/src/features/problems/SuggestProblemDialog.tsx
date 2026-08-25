@@ -144,7 +144,8 @@ export function SuggestProblemDialog({ open, onClose }: { open: boolean; onClose
               <option value="">{loading ? 'Loading mentors…' : 'Select a mentor'}</option>
               {mentors.map((mentor) => (
                 <option key={mentor.id} value={mentor.id}>
-                  {mentor.name} · {mentor.department}
+                  {/* No separator for a mentor who has set no department. */}
+                  {mentor.department ? `${mentor.name} · ${mentor.department}` : mentor.name}
                 </option>
               ))}
             </select>

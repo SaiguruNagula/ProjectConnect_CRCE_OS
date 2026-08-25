@@ -841,7 +841,7 @@ export function AdminInstitutionsPage() {
       </section>
 
       {/* System audit log */}
-      {overview && (
+      {overview && overview.auditLog.length > 0 && (
         <section className="space-y-3">
           <h3 className="flex items-center gap-2 text-[13px] font-bold">
             <span className="material-symbols-outlined text-secondary" aria-hidden="true">history</span>

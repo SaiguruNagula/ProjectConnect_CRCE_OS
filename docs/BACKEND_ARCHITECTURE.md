@@ -129,6 +129,21 @@ Priority order applied: frontend implementation > backend (none) > schema (none)
 | `ProjectRoadmap.md` | Aspirational | Phasing intent | Not a contract |
 | `UI_UX_GUIDELINES.md` | Valid, frontend-only | — | Not backend-relevant |
 
+**Phase numbering is NOT shared between documents.** Four schemes exist and
+none supersedes another, because they number different things:
+
+| Scheme | Where | Numbers what | Example of the clash |
+|---|---|---|---|
+| Product roadmap | the product owner's frozen roadmap; git commit subjects `phase 5a`…`phase 5e` | product domains delivered to users | Phase 6 = Student Dashboard, Phase 8 = Faculty Dashboard |
+| `ProjectRoadmap.md` §6 | that doc only | the original pre-implementation plan | Phase 8 = Admin Modules, Phase 10 = Credit Engine |
+| §43 of this document | this doc only | backend build order | Phase 7 = credits/leaderboard/portfolio, Phase 9 = frontend integration |
+| `Claude.md` §17 | that doc only | steps within *one* feature | Phase 6 = Testing, Phase 8 = Completion |
+
+A phase number is meaningless without its scheme. **Cite the scheme or cite the
+module.** Never invent a number between two product phases (there is no "Phase
+8.5"): work that changes an existing module is an amendment to that module's
+phase, recorded as an ADR.
+
 **Canonical decision on conflicts:** the four-stage journey
 (Idea → PoC → Selection → Final) **replaces** the project-workspace/task/
 milestone model everywhere. Any doc referencing tasks, milestones, project file
@@ -179,7 +194,7 @@ Do not build any.
 |---|---|
 | `student` | Browse problems, bookmark, suggest problems, apply solo/team, create/manage/leave teams, author & submit stages, edit own profile, curate own portfolio, view own credits |
 | `faculty` | Create/publish problems + drafts, review nominated suggestions, review stages, select teams, award credits, publish to Solutions Hub, edit own faculty profile |
-| `admin` | User directory, institution directory (create/edit/verify/suspend), platform dashboard |
+| `admin` | User directory, own institution's profile (read + edit). Not create, verify or suspend, and not a platform operator — one deployment, one institution (ADR-9, §16) |
 | `principal` | Institution dashboard + analytics (read-only), report exports (client-side) |
 
 One primary role per user (DECISIONS.md §6). No role hierarchies, no custom
@@ -337,7 +352,7 @@ Required schema (entities justified by current frontend functionality):
 
 | Entity | Justified by |
 |---|---|
-| `institutions` | Admin Institutions console (`AdminInstitution`, status verify/suspend) + tenancy mandate |
+| `institutions` | Admin Institutions console (`AdminInstitution`, profile self-service) + tenancy mandate. `status` is set at installation, not from the console (§16) |
 | `departments` | Problem department, profiles, analytics breakdowns |
 | `users` (role enum, institution_id) | Auth, directory, all ownership |
 | `refresh_tokens` | JWT + refresh (DECISIONS §6) |
@@ -461,9 +476,14 @@ credit_transactions(id, institution_id, user_id, source, source_id NULL,
   points int, description, context, created_at,
   UNIQUE(user_id, source, source_id) /* idempotency — no duplicate award */)
 
-credit_rules(id, role role_enum, event_type, points int, description,
-  active bool DEFAULT true, effective_from, effective_to NULL) /* ADR-5:
-  seeded config, one engine for students AND faculty */
+credit_rules(id, role role_enum, event_type, points int NULL,
+  percent_of_award int NULL, description,
+  active bool DEFAULT true, effective_from, effective_to NULL,
+  CHECK ((points IS NULL) <> (percent_of_award IS NULL)),
+  CHECK (percent_of_award IS NULL OR percent_of_award BETWEEN 0 AND 100))
+  /* ADR-5: seeded config, one engine for students AND faculty.
+     ADR-10: a rule prices an event EITHER as flat points OR as a percentage
+     of a credit award — never both, never neither. */
 
 portfolio_customizations(user_id PK/FK, published bool, headline, introduction,
   featured_skills text[], sections jsonb)
@@ -598,13 +618,19 @@ plus the `LoginPage` gaining email/password fields. Everything else consumes
 - Every list/read query in institution-owned domains appends
   `WHERE institution_id = :caller_institution` from the JWT — centralized in a
   repository-layer helper, not repeated ad hoc.
-- Admin role operates **across** institutions (platform operator); principal is
-  scoped to their own. Public surfaces (open problems, leaderboard, portfolio,
-  solutions) are single-institution in the pilot; when multi-tenant, they scope
-  by the institution in context (ADR-2, ACCEPTED — isolation is mandatory
-  from V1, never postponed to the SaaS version).
-- Pilot ships with ONE seeded institution (CRCE); the boundary is enforced from
-  day one so college #2 is a row, not a refactor.
+- Admin is an **institution** role, not a platform operator — corrected in
+  Phase 14, which audited every route and found no cross-institution read to
+  keep. Admin and principal are both scoped to their own institution; admin
+  administers it (directory, profile), principal measures it. Public surfaces
+  (open problems, leaderboard, portfolio, solutions) are single-institution
+  because the deployment is (ADR-9), and they scope by the institution in
+  context regardless (ADR-2 — isolation is mandatory from V1, never postponed).
+- A deployment ships with ONE institution, provisioned at installation by
+  `scripts/create_admin.py`. There is no create-institution API and no platform
+  role to hold one: college #2 is a second deployment with its own database
+  (ADR-9), not a second row here. The `institution_id` scope is still enforced
+  on every query, and the two-institution fixtures in `conftest.py` are what
+  prove it.
 
 ---
 
@@ -755,9 +781,19 @@ VERIFIED ACTIVITY (final approval + award) ─► credit_awards (event)
   same transaction ledger — never a second credit system. Rules are
   seeded/configurable rows in `credit_rules` (§12), not hardcoded logic. V1
   faculty events are only those the current product represents:
-  `PROBLEM_PUBLISHED`, `REVIEW_COMPLETED`, `MENTORED_PROJECT_COMPLETED`.
+  `PROBLEM_PUBLISHED`, `REVIEW_COMPLETED`, `MENTOR_AWARD_SHARE`
+  (**ADR-10**, which replaces the flat `MENTORED_PROJECT_COMPLETED`).
   Research publications, industry collaboration, and student-success impact
   are future rule rows, not V1 code.
+- Mentor share (**ADR-10, ACCEPTED**): completing an award also pays the
+  project's mentor `floor(credit_awards.total * percent_of_award / 100)`,
+  emitted inside `award()` in the same transaction, on the same ledger, under
+  the existing `Mentorship` source. Recipient is always `projects.mentor_id`;
+  the rate is always the active `MENTOR_AWARD_SHARE` rule. Revisions post the
+  cumulative difference (positive or negative) rather than editing history.
+  `GET /credits/rules` lists flat-priced rules only — a percentage has no
+  credit value until an award exists, and `CreditRule.points` in the frozen
+  `domain.ts` is a required number.
 - **The Credit Engine is the ONLY authoritative mechanism for awarding
   credits.** Leaderboard, portfolio, dashboards, and analytics MUST NOT
   calculate credits independently or invent separate totals — they read the
@@ -794,6 +830,21 @@ team events → members; review decisions → team members; suggestion decisions
 author. No email, no push, no preference matrix in v1 — the frontend has a bell
 panel only.
 
+Built in Phase 12, narrower than the list above. The bell's own empty state
+names its scope — problems, teams, reviews and credits — and only those four
+raise a notification; a mutation nobody is waiting on does not. The module owns
+one table and one writer, `notifications.service.notify()`, which mirrors
+`common/audit.record_audit`: it adds a row to the caller's session and the
+caller's transaction commits it, so a notification cannot exist for an action
+that rolled back. Dependency direction is one-way — modules import
+notifications, notifications imports no module — so there is no bus, no broker
+and no cycle. Idempotency is a nullable `event_key` under
+`UNIQUE(user_id, event_key)`, keyed on the row that caused the event, so a
+retried request notifies once and a genuine second decision notifies again.
+
+The row carries no `link`: URL shape is the frontend's, and the API repository
+builds the route from `entity`/`entity_id`.
+
 ---
 
 ## 26. Analytics
@@ -816,8 +867,261 @@ derived by SQL at request time (pilot scale makes this trivial):
   Metrics with no v1 source (uptime %, latency) are served from the health
   endpoint or omitted-with-defaults — **do not fabricate a metrics pipeline**.
 
-Dashboards (`GET /dashboard/stats|activity|deadlines|credit-trend`) are simple
-role-parameterized derived reads.
+Dashboards are simple derived reads and own no facts of their own. Built in
+phase 6:
+
+`GET /dashboard/student` → the four counters on the Student Dashboard, for the
+authenticated caller only (student role; no `{userId}` form exists, so there is
+no other student's dashboard to ask for). Every number is fetched from the
+module that owns it:
+
+| Field | Owner | Definition |
+|---|---|---|
+| `total_credits` | Credit Engine | `credits.repository.balance` — the ledger sum, corrections included. Never re-summed here. |
+| `rank` | Leaderboard | The caller's own row out of `leaderboard.service.board`. `null` when the board does not list them (no ledger rows) — an unranked student has no rank, and neither `0` nor last place is a decision the platform ever made. |
+| `active_projects` | Projects | Projects the student belongs to (team or solo, via `projects.repository.belongs_to_student`) with `completed_at IS NULL`. `completed_at` is written by the Credit Engine award and nothing else (UD-1), so this introduces no new project status. |
+| `pending_tasks` | Projects + Teams | See below. |
+
+**Pending Tasks.** There is no `Task` entity and no deadline anywhere in v1, so
+the count is the persisted state that already records work waiting on *this*
+student: stage submissions on their projects with status `CHANGES_REQUESTED` (a
+reviewer asked for a revision), plus team invitations addressed to their email
+still `PENDING`. Nothing is derived from a clock, so the same database always
+gives the same number. `Project.selection_status == CHANGES_REQUESTED` is not
+counted — the enum member has no writer.
+
+The other `DashboardRepository` reads on the frontend (`activity`,
+`creditTrend`, `departmentDistribution`) belong to later phases and still read
+mock data; `deadlines` returns an empty list, because a due date is exactly the
+kind of value a dashboard must not invent.
+
+Built in phase 8:
+
+`GET /dashboard/faculty` → the four impact cards on the Faculty Dashboard, for
+the authenticated caller only (faculty role; no parameters at all, so no
+`faculty_id` or `institution_id` can be supplied and none is read). Three of the
+four are counted off one canonical list — `projects.repository.list_for_mentor`,
+the projects module's own answer to "what does this person mentor" — rather than
+from three queries of the dashboard's devising:
+
+| Field | Owner | Definition |
+|---|---|---|
+| `projects_mentored` | Projects | The length of `list_for_mentor`, the same list `GET /projects` returns to a faculty caller. |
+| `students_guided` | Projects | Distinct student ids across `projects.service.members_by_project` for that list — a team's members, or the lone applicant on a solo project. A student mentored on three projects counts once. |
+| `credits_awarded` | Credit Engine | `credits.repository.awarded_total_by` — `SUM(credit_awards.total)` where `awarded_by` is the caller and `superseded_at IS NULL`. What this mentor *gave out*, not their own balance; a revised award counts once, at its new value. |
+| `solutions_published` | Projects | Mentored projects carrying `Project.published`, the one publication flag, written only by the publication endpoint. Approved is not published. |
+
+`credit_awards` carries no `institution_id`, so the accessor joins `projects`
+and filters on `institution_id` with `deleted_at IS NULL`: a cross-tenant award
+cannot be summed even if `awarded_by` matched.
+
+The Pending Review Queue and Recent Activity on that page are **not** part of
+this. Phase 9 made the queue live off `GET /reviews/queues` (below); Recent
+Activity still reads `dashboard.activity` on the mock, so one panel on that page
+remains mock-backed.
+
+Built in phase 9:
+
+No endpoint — the Review Engine's five routes already existed and none changed.
+What was missing was the frontend seam, so `repositories/api/reviews.repository.ts`
+now carries `reviews.queues/detail/decide/awardCredits/setPublication` to
+`GET /reviews/queues`, `GET /reviews/{id}`, `POST /reviews/{id}/{stage}`,
+`POST /projects/{id}/credits` and `POST /projects/{id}/publication`. Three wire
+names are renamed at that one boundary and nowhere else: `id` → `projectId`,
+`attachment_count` → `attachments`, and `problem_title` falls back to
+`project_title` for the card's heading. The decision body is sent flat and
+without `reviewedBy` — `ReviewDecisionIn` forbids extras and the reviewer is the
+token's subject. All three mutating endpoints answer with the whole
+`ProjectJourney`, so the panel re-renders from the response rather than guessing
+what a verdict unlocked.
+
+Built in phase 10:
+
+The admin surface is three pages, and only one of them describes something this
+backend owns. `GET /users` already existed and stayed the same route, the same
+admin-only gate and the same token-derived scope; what it returns was widened
+from `UserOut` to `DirectoryUserOut` so a directory row carries the four fields
+the page shows beside the account:
+
+| Field | Owner | Definition |
+| --- | --- | --- |
+| `department` | Users | `users.department`, the column the portfolio already reads. Null until its owner sets one. |
+| `institution` | Institutions | `institutions.repository.get_by_id(...).name` — one lookup for the page, because one token means one tenant. |
+| `credits` | Credit Engine | `credits.repository.balances_of` — the same `SUM(credit_transactions.points)` as `balance`, grouped for a page instead of asked per row. |
+| `projects` | Projects | `projects.repository.counts_for_students` (the `belongs_to_student` test correlated against `users`) for a student, `counts_for_mentors` for a mentor. An admin or principal plays neither part and counts zero. |
+
+`users/service.py` composes those four; it computes none of them, and no module
+outside the owning one writes their definition down.
+
+One endpoint was added: `GET /users/overview`, the institution's headcount by
+role and by status. It exists because `GET /users` is capped at `MAX_LIMIT=100`,
+so a page counted in the browser would be wrong past the cap — the count belongs
+where the rows are. It is declared **before** `GET /users/{user_id}` so the path
+is not read as a malformed uuid. It returns six integers and nothing else:
+labels, tones and bars are the frontend's.
+
+Everything else the admin pages draw — the verification centre, identity health,
+the audit log, the platform snapshot and the whole institution console — has no
+canonical source here and was left on the mock or returned empty rather than
+computed. Cross-institution reads in particular are a **Phase 14** boundary:
+this backend is single-tenant by construction, `GET /institutions/{id}` answers
+404 for any tenant but the caller's, and Phase 10 did not weaken that.
+
+Built in phase 11:
+
+The principal's two pages read one aggregate, and it had no backend at all —
+there is no `analytics` module, and nothing in the platform returned an
+institution-wide count of anything. One endpoint was added: `GET
+/dashboard/principal`, the third sibling of the student and faculty dashboards,
+`require_role(PRINCIPAL)`, read-only, no parameters, scoped by the token.
+
+It is in the dashboard module rather than a new analytics one because it is the
+same thing the other two routes are — a read model that owns no facts. An
+`analytics` module would be Phase 13 arriving early, and a widened `GET /users`
+would have handed the admin directory to a second role, which §7 does not.
+
+| Field | Owner | Definition |
+| --- | --- | --- |
+| `institution_name` | Institutions | `institutions.repository.get_by_id(...).full_name` — the formal name, for a console heading. |
+| `students`, `faculty` | Users | `users.repository.counts_by_role`, the accessor the admin overview already reads. |
+| `active_projects`, `completed_projects` | Projects | `projects.repository.counts_by_completion`, split on `completed_at` — the Credit Engine's write, the module's one definition of finished. Complements of one count, so they cannot drift. |
+| `open_problems` | Problems | `problems.repository.open_count`, `status == OPEN`. Not `stats().problems`, which counts the catalog regardless of status. |
+| `active_teams` | Teams | `teams.repository.active_count`. A team has no status column; it is live until soft-deleted. |
+| `total_credits` | Credit Engine | `credits.repository.institution_total` — `SUM(credit_transactions.points)` for the tenant, netted of corrections like every other balance (ADR-5). |
+
+Nothing else on those two pages has a canonical source, and nothing else was
+invented to fill them. Absent, and hidden by the pages rather than estimated:
+the innovation health headline, every trend badge and highlight, the growth
+series, approvals, institution decisions, publications, patents, industry
+collaborations, and the whole department breakdown — no rule anywhere attributes
+a project, a credit or a review to a department, and writing one here would be
+an analytics engine in a dashboard. Those are **Phase 13**. The institutional
+rank needs to see other institutions; Phase 14 closed it permanently rather than
+building it (ADR-9), and the tenant boundary was not widened by a line. `ProblemStatus.CLOSED` and `IN_PROGRESS`
+have no writer anywhere in `app/`, so a "problems solved" figure would have been
+a permanent zero and is not on the page.
+
+Built in phase 13:
+
+**No new endpoint, and no `/analytics` module.** The two principal views already
+read one aggregate through one hook, and `GET /dashboard/principal` is that
+aggregate. Three fields were added to its response; no router, no gate and no
+tenancy surface was added with them. An `/analytics/institution` endpoint would
+have duplicated an existing authorization boundary to match the name of a page.
+
+| Field | Owner | Definition |
+| --- | --- | --- |
+| `departments[]` | Problems (the list) + Projects, Credit Engine, Review Engine (the counts) | One row per department in `problems.repository.departments`, each carrying `active_projects`, `completed_projects`, `pending_reviews`, `decided_reviews`, `approved_reviews` and `credits`. |
+| `growth[]` | Projects + Credit Engine | The last six calendar months, oldest first, as `{month: 'YYYY-MM', credits, projects}` — counted off `credit_transactions.created_at` and `projects.created_at`. Empty when nothing happened in the window. |
+| `avg_review_days` | Review Engine | Mean `reviewed_at - submitted_at` over decided stage submissions. `null` until something has been reviewed. |
+
+**Department attribution.** A project has no department column and never had
+one. A problem does: `problems.department` is `NOT NULL` and indexed
+(`ix_problems_institution_id_status_department`), it is what the catalog filters
+by, and the Credit Engine already stamps each award transaction
+`context = "Dept. of {problem.department}"`. So a project's department is its
+*problem's* department — the rule the platform was already using, not a new one.
+`users.department` is a different dimension (the person's own, nullable) and is
+deliberately not used here: attributing a project to its mentor's or its team
+lead's department would have been a second, competing rule, and would have
+forced a fabricated department for the students who have none.
+
+**History is real, so no snapshot table was created.** `credit_transactions` is
+append-only by construction (ADR-5) and `projects.created_at` is written once
+and never moved, so a six-month series is counted from rows the database already
+holds. Nothing is interpolated, projected or back-filled. `date_trunc` is
+applied to `timezone('UTC', created_at)` in both accessors, because both columns
+are `timestamptz` and an untruncated cut would follow the session timezone — the
+same ledger could otherwise report two different Julys. **No migration.**
+
+**Counts on the wire, ratios in the frontend.** Completion rate, success rate,
+the department health dot and the "critical backlog" flag are computed in
+`repositories/api/analytics.repository.ts`, beside the thresholds and tones the
+admin overview already keeps there. The backend ships facts; a threshold is an
+editorial line and does not belong in a schema.
+
+**Ownership.** The aggregation imports rather than restates: `reviews.PENDING`
+and `reviews.STATUS_FOR` decide what pending and decided mean,
+`credits.repository.points_by_project` keeps the transaction→award join inside
+the Credit Engine (the same join `mentor_share_paid` already used),
+`problems.repository.departments` supplies the department list, and
+`projects.completed_at` still decides what finished means. The cross-cutting
+grouping lives in `dashboard/repository.py`, which already housed reads over
+tables another module owns.
+
+Still empty, still hidden by the pages rather than estimated: the innovation
+health index (no rubric exists), governance approvals and institution decisions
+(no domain), publications, patents and industry collaborations (no domain), the
+department radar and its performance meters (four of the five drawn axes measure
+nothing the platform records) and the institutional rank (closed permanently in
+Phase 14 — a deployment has one institution to rank). The
+report drawer exports the live department table as CSV; there is still no
+report-generation endpoint and no PDF, which is why the format choice is not
+offered.
+
+`dashboard.creditTrend` and `dashboard.departmentDistribution` remain on the
+mock and have **no page consumers** — nothing renders them, so nothing was wired.
+`analytics.campusImpact` is public and pre-auth; Phase 14 made it live.
+
+Built in phase 14:
+
+Phase 14 was briefed as "SaaS / multi-institution" and began as an audit, which
+found the brief's literal reading — a shared tenant database, a platform-operator
+role, cross-institution reads — in direct conflict with ADR-9 (ACCEPTED). The
+conflict was raised rather than resolved unilaterally, and the decision taken was
+to honour ADR-9: institution **self-service** plus one **public aggregate**, no
+control plane. Nothing about tenancy was rebuilt; the audit found no missing
+scope, no client-supplied institution id anywhere, and no `db.get()` that escapes
+the boundary, so the phase is additive only. **No migration, no new module, no
+new role, no new authorization axis.**
+
+| Method + Path | Auth | Notes |
+|---|---|---|
+| `GET /institutions` | admin | The console directory. Returns a list of exactly one — the caller's own institution — because a deployment has one. Takes no parameters; an `institution_id` in the query is ignored, not honoured. |
+| `PATCH /institutions/me` | admin | Edits the caller's own institution profile. `/me` is the only target there is: no `/{id}` form exists, so the route cannot be pointed at another tenant. |
+| `GET /analytics/campus-impact` | **public** | Four labelled integers over ACTIVE institutions, for the pre-auth marketing pages. The only anonymous route outside `/health` and `/auth`. |
+
+Admin, not principal, on the first two: editing an institution's profile is an
+administrative act. The principal reads the same institution's *numbers* through
+`GET /dashboard/principal` and is unchanged.
+
+| Field | Owner | Definition |
+| --- | --- | --- |
+| the profile columns | Institutions | `InstitutionOut` over the row itself — the module's existing read schema, reused whole. |
+| `principal` | Institutions | `institutions.principal_name` / `principal_email` / `principal_verified`, nested to match the frozen frontend model. `null` until a principal is named. |
+| `students`, `faculty` | Users | `users.repository.counts_by_role` — the same accessor the admin overview and the principal dashboard read. |
+| `projects` | Projects | `projects.repository.counts_by_completion`, summed. Active plus completed is every project the institution has. |
+| `credits` | Credit Engine | `credits.repository.institution_total` (ADR-5). |
+
+Every count is an existing canonical accessor called by the service; none is
+re-derived here, and the Phase 14 tests assert each one equals what its owning
+repository returns rather than a literal.
+
+**What `PATCH /institutions/me` will not write.** `InstitutionUpdate` lists the
+profile fields and nothing else — `id`, `institution_id`, `status`, `tier` and
+`principal_verified` are absent from the schema, so a request carrying them is
+not partially applied, it is ignored. Changing `principal_email` clears
+`principal_verified`: a verification is about a person, and the person changed.
+A `code` already taken by another row is `BusinessRuleError` (409), not a
+constraint violation. The update writes an `institution.updated` audit row
+naming the fields touched.
+
+**Why `/analytics/campus-impact` cannot leak.** Not by filtering, by
+construction: `service.campus_impact` returns `list[CampusMetricOut]` and
+`CampusMetricOut` is a label and an int. There is no field on the response that
+could carry a name, an address, a project, a credit belonging to a person, an
+audit row or a notification, whatever the query did. Only ACTIVE institutions
+are counted, and an installation with none returns `[]` — every consumer hides
+its bar rather than drawing zeros.
+
+Deliberately not built, and not deferred either: institution provisioning
+(installation-time, `scripts/create_admin.py`, and converting it to an API would
+be the control plane ADR-9 rejects), institution status changes from an
+institution console (a suspended institution cannot sign in, so it cannot
+un-suspend itself — that is the point), the platform snapshot, the institution
+count, and the inter-institution rank. The three frontend actions with no
+backend reject with a message through the existing error banner rather than
+writing to the mock, because the page around them now shows real data.
 
 ---
 
@@ -848,8 +1152,12 @@ Transport contract — **already implemented by `api/client.ts`; match it exactl
   has_previous } }`. Note: the problem catalog uses its own richer
   `ProblemCatalogPage` shape inside `data` — serve it as the mock does.
 - snake_case JSON keys server-side; the API repositories on the frontend map to
-  the camelCase domain types (they are written when integration starts — the
-  swap seam is `repositories/index.ts`).
+  the camelCase domain types. Because the read schemas mirror `types/domain.ts`
+  field for field, that mapping is a key rename and nothing else: one converter
+  (`api/case.ts`, `camelize`/`decamelize`) serves every endpoint instead of a
+  hand-written mapper per repository. It holds only while every field name is
+  reversibly snake_case — no `total_2`, no `problemId` — which
+  `tests/test_api_casing.py` asserts over the whole OpenAPI schema.
 - OpenAPI docs auto-generated at `/api/v1/docs` (disabled or auth-gated in prod).
 - Layering per Claude.md §10: `api (routers) → services → repositories → models`.
   Routers hold zero business logic; services own transactions and rules;
@@ -892,7 +1200,38 @@ needs correct envelopes and messages.)
 | `/admin/dashboard` | admin | Platform snapshot | `admin.dashboard` | aggregates + audit_logs |
 | `/admin/users` | admin | Directory + panels | `admin.users`, `admin.usersOverview` | users + aggregates |
 | `/admin/institutions` | admin | Governance | `admin.institutionDirectory/institutionsOverview/saveInstitution/setInstitutionStatus` | institutions |
-| `/principal/dashboard` `/principal/analytics` | principal | Executive views | `analytics.institution` (shared aggregate), `admin.institutions` (dept breakdown) | derived |
+| `/principal/dashboard` `/principal/analytics` | principal | Executive views | `analytics.institution` (shared aggregate), `leaderboard.students/faculty` | `GET /dashboard/principal` |
+
+**Integration state.** `repositories/index.ts` composes
+`{ ...mockRepositories, ...apiRepositories }`, so a repository is live exactly
+when its backend exists. Live: `admin`, `analytics`, `credits`, `dashboard`,
+`leaderboard`, `portfolio`, `problems`, `profile`, `projects`, `reviews`,
+`solutions`. Still mock-backed: `facultyProfile`, `notifications`. Four live
+repositories are partial where the backend deliberately serves less than the
+mock did, and each returns empty rather than invented data:
+
+- `portfolio.get` composes `GET /portfolio/me` with the leaderboard the user is
+  listed on for their rank. `PortfolioOut` carries no prose, hall of fame,
+  verified skills or timeline, so those sections come back empty; an unranked
+  user is rank `0` and the page shows `—`. `getCustomization` stays on the mock
+  because no customization endpoint exists.
+- `solutions.list` composes the card's presentation fields (icon, CTA, credits
+  meta) in the repository; `status` and `campusUsers` are optional on the domain
+  type and omitted, because nothing on the platform records a deployment state
+  or a usage count.
+- `admin` is live for `users` and `usersOverview` only. The spread in
+  `repositories/index.ts` replaces a repository whole, not method by method, so
+  `repositories/api/admin.repository.ts` spreads the mock first and overrides
+  those two — the platform snapshot and institution console keep their mock
+  until Phase 14 gives them a backend. `usersOverview` returns an empty
+  verification queue, identity health and audit log, and the page hides those
+  panels rather than showing invented ones.
+- `analytics` is live for `institution` only; `campusImpact` (Landing, About,
+  Innovation Hub) keeps the mock, so this repository spreads the mock first for
+  the same reason `admin` does. `institution` maps `GET /dashboard/principal`
+  onto the tiles the two principal pages already draw and returns an empty
+  health headline, approvals, decisions, growth, highlights, departments and
+  radar. Both pages hide those sections; nothing is estimated to fill them.
 
 ---
 
@@ -935,6 +1274,24 @@ decisions, application accept, team selection, every review decision, credit
 awards, publication, admin user/institution changes. No request bodies, no
 tokens, no passwords in metadata. The admin dashboard's log/audit panels read
 from this table.
+
+The table and its writers have existed since the foundation; Phase 12 added
+only the reads, in `app/modules/audit/` — a read model with no writer of its
+own. Two endpoints rather than one filtered endpoint, because they are two
+permissions: `GET /audit/activity` (faculty, admin, principal) is what the
+institution built, `GET /audit/users` (admin) is who signed in. The split is by
+action prefix (`login.`, `logout`, `token.`), so an auth action added later
+files itself. Both are scoped to the caller's own institution by the token and
+neither takes an `institution_id`; there is no cross-institution read, which
+would be a platform-operator surface and that role does not exist before
+Phase 14.
+
+`metadata` does not leave the backend. The read model returns the action code,
+the entity, its id, the actor's name and the timestamp; the wording of an
+action code is presentation and lives in the frontend
+(`features/audit/phrases.ts`). That is also why the activity feed names the
+kind of thing acted on rather than its title — the log records identifiers, not
+titles, and inventing one would be fabrication.
 
 ## 33. Security Architecture
 
@@ -1120,7 +1477,8 @@ backend/
       portfolio/            composition + customization
       solutions/
       notifications/
-      analytics/            institution + campus aggregates, dashboards
+      analytics/            institution + campus aggregates
+      dashboard/            per-role read models composed from the modules above
       admin/                consoles, audit reads
     common/                 envelope helpers, pagination, audit writer, errors
   alembic/versions/
@@ -1243,6 +1601,22 @@ faculty events: `PROBLEM_PUBLISHED`, `REVIEW_COMPLETED`,
 Duplicate awards prevented by the unique event key; corrections are
 compensating transactions. Leaderboard, portfolio, dashboards, and analytics
 read from the engine and never compute credits independently. (§12, §23, §24)
+Superseded in part by **ADR-10**: the flat `MENTORED_PROJECT_COMPLETED` rule is
+now inactive and mentorship is priced as a share of the award.
+
+**ADR-10 — Faculty project award share (ACCEPTED, 2026-08-16).**
+Mentoring a project to completion pays the mentor a percentage of the credit
+award instead of a flat fee. `credit_rules` gains `percent_of_award`; the
+seeded faculty rule `MENTOR_AWARD_SHARE` is 50%. The share is emitted inside
+`award()`, computed as `floor(credit_awards.total * rate / 100)` of the whole
+award (never the sum of the students' lines, so it does not vary with team
+size), minus what this project's earlier awards already paid the mentor. The
+delta — positive or negative — is a single new ledger row keyed
+`(mentor, "Mentorship", award.id)`. Nothing historical is edited or
+backfilled; `MENTORED_PROJECT_COMPLETED` is preserved as an inactive rule row.
+No faculty reputation table, no `/faculty/me/reputation`, no public portfolio
+route: leaderboard and portfolio stay ledger-derived read models. (§12, §23,
+DECISIONS.md §15)
 
 ## 48. Claude Opus Implementation Contract
 

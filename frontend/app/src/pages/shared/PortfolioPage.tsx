@@ -258,7 +258,8 @@ export function PortfolioPage() {
       {/* Key metrics */}
       <section className="grid grid-cols-2 gap-sm md:grid-cols-4">
         <Metric label="Total Credits" value={data.totalCredits.toLocaleString()} />
-        <Metric label="Global Rank" value={`#${data.globalRank}`} />
+        {/* Unranked until the ledger has something to rank: no #0. */}
+        <Metric label="Global Rank" value={data.globalRank > 0 ? `#${data.globalRank}` : '—'} />
         <Metric label="Verified Solutions" value={String(data.verifiedSolutionsCount)} />
         <Metric label="Projects Built" value={String(data.projectsBuilt)} />
       </section>

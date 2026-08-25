@@ -4,7 +4,7 @@
  * — hero, search/toggle, quick filters, featured problems, campus solutions,
  * innovation pipeline, suggest CTA and a stats bar — but every rail now reads
  * the same problems, solutions and campus metrics as the rest of the app via
- * useInnovationHub. The top nav and footer come from PublicLayout.
+ * useInnovationHub. The top nav and footer come from SiteLayout.
  */
 import { Link } from 'react-router-dom'
 import { useInnovationHub } from '@/hooks/useInnovationHub'
@@ -329,7 +329,7 @@ function SolutionTile({ solution }: { solution: Solution }) {
             {solution.icon}
           </span>
         </div>
-        <SolutionStatusBadge status={solution.status} />
+        {solution.status && <SolutionStatusBadge status={solution.status} />}
       </div>
       <h3 className="mb-xs font-headline-sm text-headline-sm">{solution.name}</h3>
       <p className="mb-lg flex-1 text-body-md text-on-surface-variant">{solution.description}</p>

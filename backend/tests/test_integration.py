@@ -32,6 +32,7 @@ from app.modules.reviews.schemas import ReviewDecisionIn
 from tests.conftest import auth_header, make_problem, make_user
 from tests.test_credits import TOTAL, award, publish
 from tests.test_credits import seeded_rules as _seeded_rules
+from tests.test_faculty_credits import MENTOR_SHARE
 from tests.test_leaderboard import credit
 from tests.test_portfolio import counting, make_project
 from tests.test_problems import VALID_PROBLEM
@@ -42,8 +43,9 @@ from tests.test_solutions import LIVE_URL, STORED_URL, hub, stats, submit_final
 seeded_rules = _seeded_rules
 
 # What the seeded rules pay a mentor for one project carried end to end: the
-# problem they published, three stage reviews, and the completion itself.
-MENTOR_TOTAL = 10 + 80 * 3 + 60
+# problem they published, three stage reviews, and half of the award that
+# completed it.
+MENTOR_TOTAL = 10 + 80 * 3 + MENTOR_SHARE
 
 
 def approved_deployment(client: TestClient, student, faculty, problem) -> str:

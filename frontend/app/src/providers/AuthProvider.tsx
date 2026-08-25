@@ -1,24 +1,27 @@
 /**
- * Authentication provider — DEMO implementation.
+ * Authentication provider.
  *
- * Persists a chosen demo user in localStorage so refreshes keep you signed in.
- * `login(role)` selects a representative user; there is no password.
+ * `login` posts real credentials to /api/v1/auth/login and keeps the returned
+ * user and tokens in localStorage, so a refresh keeps you signed in.
  *
- * This provider is the sole owner of the access token: it pushes the current
- * token into the API client on every session change, so nothing else needs to
- * know about auth state. Demo sessions have no token, which is why every read
- * still goes through the mock repositories. Swapping in real JWT auth means
- * replacing `login` with `POST /api/v1/auth/login` and storing the returned
- * token — the useAuth() contract and every consumer stay unchanged.
+ * This provider is the sole owner of the session: it pushes the current access
+ * token into the API client, so nothing else needs to know about auth state. It
+ * also registers the client's two session hooks — renew and sign-out — so an
+ * expired access token is renewed in one place rather than ending the session,
+ * and only a session that cannot be renewed sends the user back to the login
+ * page. Both are registered at module scope, not in an effect: a page's own
+ * data effects run before the provider's, and the very first request of a
+ * reloaded tab must already carry the stored token.
  */
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { AuthContext, type AuthContextValue } from '@/contexts/AuthContext'
-import type { Role, User } from '@/types'
-import { setAccessToken } from '@/api/client'
-import { DEMO_USERS } from '@/mocks/users'
+import type { User } from '@/types'
+import { setAccessToken, setRefreshHandler, setUnauthorizedHandler } from '@/api/client'
+import * as authApi from '@/api/auth'
 
-const STORAGE_KEY = 'crce_demo_user'
+const STORAGE_KEY = 'crce_user'
 const TOKEN_KEY = 'crce_access_token'
+const REFRESH_KEY = 'crce_refresh_token'
 
 function readStoredUser(): User | null {
   try {
@@ -29,26 +32,68 @@ function readStoredUser(): User | null {
   }
 }
 
+function store(session: authApi.Session): void {
+  localStorage.setItem(TOKEN_KEY, session.accessToken)
+  localStorage.setItem(REFRESH_KEY, session.refreshToken)
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(session.user))
+  setAccessToken(session.accessToken)
+}
+
+function clearStorage(): void {
+  localStorage.removeItem(STORAGE_KEY)
+  localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(REFRESH_KEY)
+  setAccessToken(null)
+}
+
+// Restore the token before the first render, so no page can out-race it.
+setAccessToken(readStoredUser() ? localStorage.getItem(TOKEN_KEY) : null)
+
+/**
+ * Renew the access token from the stored refresh token. The backend rotates,
+ * so the new pair replaces the old one; a refusal means the session is really
+ * over and the client falls through to the sign-out hook.
+ */
+async function renew(): Promise<string | null> {
+  const refreshToken = localStorage.getItem(REFRESH_KEY)
+  if (!refreshToken) return null
+  try {
+    const session = await authApi.refresh(refreshToken)
+    store(session)
+    return session.accessToken
+  } catch {
+    return null
+  }
+}
+
+setRefreshHandler(renew)
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(readStoredUser)
 
-  // Restore the token on boot and keep the API client in sync with the session.
-  useEffect(() => {
-    setAccessToken(user ? localStorage.getItem(TOKEN_KEY) : null)
-  }, [user])
-
-  const login = useCallback((role: Role) => {
-    const demoUser = DEMO_USERS[role]
-    setUser(demoUser)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(demoUser))
+  const login = useCallback(async (email: string, password: string) => {
+    const session = await authApi.login(email, password)
+    store(session)
+    setUser(session.user)
+    return session.user
   }, [])
 
   const logout = useCallback(() => {
+    // Revoke the refresh token server-side before dropping it: forgetting a
+    // fourteen-day token locally does not stop anyone else from using it.
+    const refreshToken = localStorage.getItem(REFRESH_KEY)
+    if (refreshToken) void authApi.logout(refreshToken).catch(() => undefined)
+    clearStorage()
     setUser(null)
-    setAccessToken(null)
-    localStorage.removeItem(STORAGE_KEY)
-    localStorage.removeItem(TOKEN_KEY)
   }, [])
+
+  // The client's sign-out hook. An effect is soon enough for this one: it only
+  // fires after a renewal has already been tried and refused, which is a
+  // network round trip away.
+  useEffect(() => {
+    setUnauthorizedHandler(logout)
+    return () => setUnauthorizedHandler(null)
+  }, [logout])
 
   const value = useMemo<AuthContextValue>(
     () => ({ user, isAuthenticated: user !== null, login, logout }),

@@ -1,9 +1,15 @@
 /**
- * Admin Institutions state — loads the partner-institution directory and its
- * summary panels, owns the search/filter logic, and persists governance actions
- * (create, edit, status change) through adminService. The page renders; it never
- * talks to a service or repository directly
- * (Component → Hook → Service → Repository → API).
+ * Admin Institutions state — loads the institution directory and its summary
+ * panels, owns the search/filter logic, and persists governance actions through
+ * adminService. The page renders; it never talks to a service or repository
+ * directly (Component → Hook → Service → Repository → API).
+ *
+ * Since Phase 14 the directory is one row — the caller's own institution, which
+ * is the only one this deployment has (ADR-9) — and of the three actions only
+ * edit reaches a backend. Create and status change reject in the repository, and
+ * `run` puts the message they throw into `actionError` for the page's banner.
+ * The filters stay: they are the frozen page's, and a one-row list is a case
+ * they already handle.
  */
 import { useCallback, useMemo, useState } from 'react'
 import { useAsync } from '@/hooks/useAsync'

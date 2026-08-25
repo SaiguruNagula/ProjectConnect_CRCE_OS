@@ -7,8 +7,9 @@ from sqlalchemy.orm import Session
 
 from app.common.enums import SelectionStatus, SubmissionStage, SubmissionStatus
 from app.modules.projects.models import Project, StageSubmission
-from tests.conftest import auth_header
+from tests.conftest import auth_header, make_user
 from tests.test_applications import IDEA, apply
+from tests.test_teams import create_team
 
 POC = {
     "description": "A working prototype recognises five volunteers at the door.",
@@ -193,6 +194,39 @@ def test_only_members_reach_a_project(
         ).status_code
         == 200
     )
+
+
+def test_a_teammate_reaches_the_workspace_but_a_stranger_does_not(
+    client: TestClient, db: Session, institution_a, student, other_student, faculty, problem
+) -> None:
+    team = create_team(client, student, problem)
+    lead = auth_header(client, student.email)
+    client.post(
+        f"/api/v1/teams/{team['id']}/join-requests",
+        json={"message": "I have shipped two computer-vision projects already."},
+        headers=auth_header(client, other_student.email),
+    )
+    pending = client.get("/api/v1/teams/mine/join-requests", headers=lead).json()["data"]
+    client.post(f"/api/v1/teams/join-requests/{pending[0]['id']}/accept", headers=lead)
+    project_id = apply(client, student, problem, team_id=team["id"]).json()["data"]["id"]
+
+    teammate = auth_header(client, other_student.email)
+    assert client.get(f"/api/v1/projects/{project_id}", headers=teammate).status_code == 200
+    assert (
+        client.get(f"/api/v1/projects/{project_id}/journey", headers=teammate).status_code
+        == 200
+    )
+    assert (
+        client.put(
+            f"/api/v1/projects/{project_id}/idea", json=IDEA, headers=teammate
+        ).status_code
+        == 200
+    )
+
+    stranger = make_user(db, institution=institution_a, email="rohan.deshmukh@crce.edu")
+    db.commit()
+    outsider = auth_header(client, stranger.email)
+    assert client.get(f"/api/v1/projects/{project_id}", headers=outsider).status_code == 403
 
 
 def test_lists_are_scoped_to_the_caller(

@@ -196,7 +196,7 @@ function FeaturedCard({ solution }: { solution: Solution }) {
         </span>
         <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/20 to-transparent p-lg">
           <div className="mb-xs flex items-center gap-xs">
-            <SolutionStatusBadge status={solution.status} variant="solid" />
+            {solution.status && <SolutionStatusBadge status={solution.status} variant="solid" />}
             {solution.highlightTag && (
               <span className="rounded bg-white/20 px-xs py-[2px] text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md">
                 {solution.highlightTag}

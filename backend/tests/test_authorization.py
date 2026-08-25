@@ -161,3 +161,93 @@ def test_non_admin_cannot_read_another_user_in_the_same_institution(client: Test
         headers=auth_header(client, users["student_a"].email),
     )
     assert response.status_code == 403
+
+
+# --- Scenario B (continued): one table per role-exclusive action ---------------
+#
+# Phase 14.7. The frontend now hides Apply, Bookmark and Suggest a Problem from
+# everyone but students, and the router refuses the same three to everyone but
+# students. Hiding is the courtesy; this table is the rule. Every write a single
+# role owns is listed once, and every other role is pushed at it.
+#
+# The ids are deliberately random: the role gate is a dependency, so it answers
+# before any handler looks a row up. A wrong role therefore gets 403 and never
+# 404, which is also how the frontend can tell "not yours" from "not there".
+
+ANY_ID = uuid.uuid4()
+
+ROLE_EXCLUSIVE: list[tuple[str, str, str]] = [
+    # student — the whole application and team-formation journey
+    ("student", "post", f"/api/v1/problems/{ANY_ID}/applications"),
+    ("student", "delete", f"/api/v1/problems/{ANY_ID}/applications/me"),
+    ("student", "put", f"/api/v1/problems/{ANY_ID}/bookmark"),
+    ("student", "delete", f"/api/v1/problems/{ANY_ID}/bookmark"),
+    ("student", "post", "/api/v1/problem-suggestions"),
+    ("student", "put", f"/api/v1/problem-suggestions/{ANY_ID}"),
+    ("student", "put", f"/api/v1/projects/{ANY_ID}/idea"),
+    ("student", "put", f"/api/v1/projects/{ANY_ID}/proof-of-concept"),
+    ("student", "put", f"/api/v1/projects/{ANY_ID}/final"),
+    ("student", "get", "/api/v1/teams"),
+    ("student", "post", "/api/v1/teams"),
+    ("student", "get", "/api/v1/teams/invitations"),
+    ("student", "get", "/api/v1/teams/mine/join-requests"),
+    ("student", "post", f"/api/v1/teams/{ANY_ID}/join-requests"),
+    ("student", "get", "/api/v1/dashboard/student"),
+    ("student", "get", "/api/v1/students/me/profile"),
+    # faculty — authoring problems and every review decision
+    ("faculty", "post", "/api/v1/problems"),
+    ("faculty", "get", "/api/v1/problems/drafts"),
+    ("faculty", "post", "/api/v1/problems/drafts"),
+    ("faculty", "post", f"/api/v1/problem-suggestions/{ANY_ID}/decision"),
+    ("faculty", "get", "/api/v1/reviews/queues"),
+    ("faculty", "get", f"/api/v1/reviews/{ANY_ID}"),
+    ("faculty", "post", f"/api/v1/reviews/{ANY_ID}/idea"),
+    ("faculty", "post", f"/api/v1/projects/{ANY_ID}/credits"),
+    ("faculty", "post", f"/api/v1/projects/{ANY_ID}/publication"),
+    ("faculty", "get", "/api/v1/dashboard/faculty"),
+    ("faculty", "get", "/api/v1/faculty/me/profile"),
+    # admin — the directory and the audit trail
+    ("admin", "get", "/api/v1/users"),
+    ("admin", "get", "/api/v1/users/overview"),
+    ("admin", "get", "/api/v1/audit/users"),
+    # principal
+    ("principal", "get", "/api/v1/dashboard/principal"),
+]
+
+OTHER_ROLES = {
+    "student": ["faculty_a", "admin_a", "principal_a"],
+    "faculty": ["student_a", "admin_a", "principal_a"],
+    "admin": ["student_a", "faculty_a", "principal_a"],
+    "principal": ["student_a", "faculty_a", "admin_a"],
+}
+
+
+def test_a_role_exclusive_action_refuses_every_other_role(client: TestClient, users):
+    headers = {name: auth_header(client, user.email) for name, user in users.items()}
+
+    for owner, method, path in ROLE_EXCLUSIVE:
+        for actor in OTHER_ROLES[owner]:
+            response = client.request(method.upper(), path, json={}, headers=headers[actor])
+            assert response.status_code == 403, f"{actor} {method} {path}: {response.text}"
+            assert response.json()["error_code"] == "FORBIDDEN"
+
+
+def test_the_owning_role_is_not_stopped_by_the_role_gate(client: TestClient, users):
+    """The other half of the table: it denies by role, not by default.
+
+    What comes back may well be 404 or 422 — these are random ids and empty
+    bodies. Anything but 403 means the gate opened for the role that owns it.
+    """
+    headers = {name: auth_header(client, user.email) for name, user in users.items()}
+
+    for owner, method, path in ROLE_EXCLUSIVE:
+        response = client.request(method.upper(), path, json={}, headers=headers[f"{owner}_a"])
+        assert response.status_code != 403, f"{owner} {method} {path}: {response.text}"
+
+
+def test_a_role_exclusive_action_is_closed_to_anonymous_callers(client: TestClient):
+    """401, not 403 — the frontend ends the session on one and never on the other."""
+    for _owner, method, path in ROLE_EXCLUSIVE:
+        response = client.request(method.upper(), path, json={})
+        assert response.status_code == 401, f"{method} {path}: {response.text}"
+        assert response.json()["error_code"] == "UNAUTHENTICATED"

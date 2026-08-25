@@ -3,7 +3,7 @@
  * chrome components. Entries follow the per-role navigation defined in
  * UI_UX_GUIDELINES.md §20. Icon names are Material Symbols (Stitch parity).
  */
-import type { NavItem } from '@/types'
+import type { NavItem, Role } from '@/types'
 import { ROUTES, buildPath } from '@/constants/routes'
 
 export const PUBLIC_NAV: NavItem[] = [
@@ -46,4 +46,24 @@ export const PRINCIPAL_NAV: NavItem[] = [
   { label: 'Analytics', to: ROUTES.PRINCIPAL.ANALYTICS, icon: 'analytics' },
   { label: 'Leaderboard', to: ROUTES.SHARED.LEADERBOARD, icon: 'leaderboard' },
 ]
+
+/**
+ * Where a role belongs when it has not asked for anywhere in particular: after
+ * signing in, after being turned away from another role's workspace, and behind
+ * the brand mark. One map, so the four places agree.
+ */
+export const ROLE_HOME: Record<Role, string> = {
+  student: ROUTES.STUDENT.DASHBOARD,
+  faculty: ROUTES.FACULTY.DASHBOARD,
+  admin: ROUTES.ADMIN.DASHBOARD,
+  principal: ROUTES.PRINCIPAL.DASHBOARD,
+}
+
+/** The workspace navigation a role carries — including onto the shared pages. */
+export const ROLE_NAV: Record<Role, NavItem[]> = {
+  student: STUDENT_NAV,
+  faculty: FACULTY_NAV,
+  admin: ADMIN_NAV,
+  principal: PRINCIPAL_NAV,
+}
 
