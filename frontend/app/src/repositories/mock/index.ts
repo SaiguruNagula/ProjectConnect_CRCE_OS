@@ -698,13 +698,30 @@ const projects: ProjectRepository = {
       applicationStatus: input.teamId ? 'team' : 'solo',
     }
     problemStore = problemStore.map((p) => (p.id === problemId ? updated : p))
+    const team = input.teamId ? teamStore.find((t) => t.id === input.teamId) : undefined
+    // The Idea stage exists from the start but stays a draft — applying is not
+    // submitting it, same as the live API (`saveIdea` is still a separate step).
+    const project: ProjectRecord = {
+      id: `pr-${Date.now()}`,
+      title: existing.title,
+      summary: input.ideaSummary.trim(),
+      status: 'active',
+      progress: 0,
+      mentorName: existing.facultyName,
+      problemId: existing.id,
+      teamId: team?.id,
+      members: team?.members ?? [
+        { id: profileStore.userId, name: profileStore.name, role: 'Team Lead', avatarInitials: profileStore.avatarInitials },
+      ],
+    }
+    projectStore = [project, ...projectStore]
     raise(
       'success',
       'Application submitted',
       `Your application to ${updated.title} is with ${updated.facultyName}.`,
       buildPath(ROUTES.SHARED.PROBLEM_DETAILS, { id: problemId }),
     )
-    return resolve(updated)
+    return resolve(withStage(project))
   },
   withdrawApplication: (problemId) => {
     // DELETE /api/v1/problems/{id}/applications/me

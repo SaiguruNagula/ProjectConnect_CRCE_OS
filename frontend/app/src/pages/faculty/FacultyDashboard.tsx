@@ -39,11 +39,13 @@ export function FacultyDashboard() {
   const q = reviews.data
   const pending = q ? [...q.idea, ...q.poc, ...q.final] : []
 
-  // The faculty's own problems (fall back to open problems if none match this user).
+  // The faculty's own problems only — `problems.list()` is the institution-wide open
+  // catalog (also used to browse other faculty's postings elsewhere), so it must never
+  // stand in for "mine" here. A faculty member with none yet sees the empty state below.
   const own = (problems.data ?? []).filter(
     (p) => (user?.id && p.facultyId === user.id) || p.facultyName === user?.name,
   )
-  const activeProblems = (own.length ? own : (problems.data ?? []).filter((p) => p.status !== 'closed')).slice(0, 4)
+  const activeProblems = own.slice(0, 4)
   const mentored = (projects.data ?? []).slice(0, 3)
 
   return (

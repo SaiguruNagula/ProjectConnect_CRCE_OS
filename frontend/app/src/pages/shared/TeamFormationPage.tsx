@@ -11,7 +11,7 @@ import { useState, type ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTeamFormation } from '@/hooks/useTeamFormation'
 import { buildPath, QUERY_PARAMS, ROUTES } from '@/constants/routes'
 import type { JoinRequest, Team, TeamMember } from '@/types/domain'
@@ -36,6 +36,7 @@ type TeamForm = z.infer<typeof teamSchema>
 
 export function TeamFormationPage() {
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const {
     problem,
     myTeam,
@@ -416,7 +417,14 @@ export function TeamFormationPage() {
         team={myTeam}
         busy={busy}
         onClose={() => setApplyMode(null)}
-        onSubmit={(details) => apply(applyMode === 'team', details)}
+        // Applying opens the project, and the project is where the idea is
+        // written and submitted — the faculty queue only ever shows submitted
+        // work. Leaving the student here is what left ideas sitting in draft.
+        onSubmit={async (details) => {
+          const projectId = await apply(applyMode === 'team', details)
+          if (projectId) navigate(buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: projectId }))
+          return projectId !== null
+        }}
       />
     </div>
   )

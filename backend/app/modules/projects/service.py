@@ -109,9 +109,16 @@ def _stage_state(row: StageSubmission | None, reviewer: str | None) -> StageStat
 
 
 def _unlocked(journey: _Journey) -> list[JourneyStage]:
-    """Each stage opens once the previous one has left draft; Final needs selection."""
+    """Each stage opens once the previous one has left draft; Final needs selection.
+
+    A rejected idea is terminal (§9) and has nothing downstream to show, so it
+    keeps PoC locked. PoC's own rejection is different: it settles Selection to
+    `not_selected` in the same transaction (reviews.service._settle_selection),
+    so Selection is exactly where that terminal verdict is surfaced — PoC
+    leaving draft is still enough for Selection to open.
+    """
     stages: list[JourneyStage] = ["idea"]
-    if journey.idea is not SubmissionStatus.DRAFT:
+    if journey.idea not in (SubmissionStatus.DRAFT, SubmissionStatus.REJECTED):
         stages.append("poc")
     if journey.poc is not SubmissionStatus.DRAFT:
         stages.append("selection")
@@ -121,8 +128,8 @@ def _unlocked(journey: _Journey) -> list[JourneyStage]:
 
 
 def _current_stage(journey: _Journey) -> JourneyStage:
-    """Work owed comes before work waiting."""
-    if journey.idea in NEEDS_WORK:
+    """Work owed comes before work waiting; a rejected idea is where the journey stops."""
+    if journey.idea in NEEDS_WORK or journey.idea is SubmissionStatus.REJECTED:
         return "idea"
     if journey.poc in NEEDS_WORK:
         return "poc"
@@ -606,6 +613,8 @@ def _guard(journey: _Journey, stage: SubmissionStage) -> None:
     noun = STAGE_NOUN[stage]
     if stage is SubmissionStage.POC and journey.idea is SubmissionStatus.DRAFT:
         raise BusinessRuleError("Submit your idea before the proof of concept.")
+    if stage is SubmissionStage.POC and journey.idea is SubmissionStatus.REJECTED:
+        raise BusinessRuleError("Your idea was rejected; this project cannot continue.")
     if stage is SubmissionStage.FINAL and journey.selection is not SelectionStatus.SELECTED:
         raise BusinessRuleError(
             "Only teams selected for final development can submit a final project."

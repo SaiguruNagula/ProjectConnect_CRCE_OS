@@ -590,6 +590,28 @@ def test_a_rejected_stage_is_never_resubmitted(
     )
 
 
+def test_a_rejected_idea_keeps_the_proof_of_concept_locked(
+    client: TestClient, student, faculty, problem
+) -> None:
+    """Rejection is terminal (§9): a rejected idea has nothing downstream to open."""
+    project_id = pending_idea(client, student, problem)
+
+    decision = decide(client, faculty, project_id, SubmissionStage.IDEA, "reject", **FEEDBACK)
+    journey = decision.json()["data"]
+    blocked = client.put(
+        f"/api/v1/projects/{project_id}/proof-of-concept?submit=true",
+        json=POC,
+        headers=auth_header(client, student.email),
+    )
+
+    assert journey["unlocked_stages"] == ["idea"]
+    assert journey["current_stage"] == "idea"
+    assert blocked.status_code == 409
+    assert blocked.json()["message"] == (
+        "Your idea was rejected; this project cannot continue."
+    )
+
+
 def test_an_approved_stage_is_settled(client: TestClient, student, faculty, problem) -> None:
     project_id = pending_idea(client, student, problem)
     decide(client, faculty, project_id, SubmissionStage.IDEA, "approve")

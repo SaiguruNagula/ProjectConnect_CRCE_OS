@@ -81,23 +81,35 @@ export function useTeamFormation(problemId?: string) {
   const reloadProblems = problems.reload
   const reloadTeams = teamsQuery.reload
 
-  const run = useCallback(
-    async (action: () => Promise<unknown>, message: string, fallback: string, after: () => void) => {
+  /** Runs a mutation and returns what it resolved to, or null on failure. */
+  const runValue = useCallback(
+    async <T,>(
+      action: () => Promise<T>,
+      message: string,
+      fallback: string,
+      after: () => void,
+    ): Promise<T | null> => {
       setBusy(true)
       setActionError(null)
       try {
-        await action()
+        const value = await action()
         setActionMessage(message)
         after()
-        return true
+        return value
       } catch (e) {
         setActionError(e instanceof Error ? e.message : fallback)
-        return false
+        return null
       } finally {
         setBusy(false)
       }
     },
     [],
+  )
+
+  const run = useCallback(
+    (action: () => Promise<unknown>, message: string, fallback: string, after: () => void) =>
+      runValue(action, message, fallback, after).then((value) => value !== null),
+    [runValue],
   )
 
   const createTeam = useCallback(
@@ -144,10 +156,11 @@ export function useTeamFormation(problemId?: string) {
    * Apply to the problem in context. `asTeam` picks the route — the student's
    * own team, or solo — and `details` carries the idea being proposed.
    */
+  /** Resolves to the created project's id so the caller can open it, or null on failure. */
   const apply = useCallback(
     (asTeam: boolean, details: Omit<ApplicationInput, 'teamId'>) => {
-      if (!activeProblemId) return Promise.resolve(false)
-      return run(
+      if (!activeProblemId) return Promise.resolve(null)
+      return runValue(
         () =>
           projectsService.applyToProblem(activeProblemId, {
             ...details,
@@ -156,9 +169,9 @@ export function useTeamFormation(problemId?: string) {
         asTeam ? `Applied as ${myTeam?.name ?? 'your team'}.` : 'Applied individually.',
         'Could not submit the application. Please try again.',
         reloadProblems,
-      )
+      ).then((project) => project?.id ?? null)
     },
-    [activeProblemId, myTeam, run, reloadProblems],
+    [activeProblemId, myTeam, runValue, reloadProblems],
   )
 
   const withdraw = useCallback(() => {

@@ -130,7 +130,7 @@ export interface ProjectRepository {
   /** Accept or decline an invitation; returns the remaining pending invitations. */
   respondToInvitation(invitationId: string, accept: boolean): Promise<Invitation[]>
   /** Apply to a problem, solo or as a team, with the idea being proposed. */
-  applyToProblem(problemId: string, input: ApplicationInput): Promise<Problem>
+  applyToProblem(problemId: string, input: ApplicationInput): Promise<Project>
   /** Withdraw an application before the guide reviews it. */
   withdrawApplication(problemId: string): Promise<Problem>
   /** The four-stage submission journey for one project. */

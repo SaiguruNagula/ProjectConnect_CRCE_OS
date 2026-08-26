@@ -256,6 +256,16 @@ def open_count(db: Session, institution_id: uuid.UUID) -> int:
     return int(db.execute(stmt).scalar_one())
 
 
+def ids_by_author(
+    db: Session, *, institution_id: uuid.UUID, author_id: uuid.UUID
+) -> list[uuid.UUID]:
+    """A faculty member's own problem ids — `ix_problems_created_by_status` serves this."""
+    stmt = select(Problem.id).where(
+        Problem.institution_id == institution_id, Problem.created_by == author_id
+    )
+    return list(db.execute(stmt).scalars().all())
+
+
 def add(db: Session, problem: Problem) -> Problem:
     db.add(problem)
     db.flush()

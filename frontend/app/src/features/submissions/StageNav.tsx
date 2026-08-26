@@ -9,11 +9,16 @@ import { cn } from '@/utils/cn'
 import { STAGES, STAGE_STATUS, statusOf } from './status'
 
 /** Why a stage cannot be opened yet — Stage 1 is never locked. */
-const LOCK_REASON: Record<SubmissionStage, string> = {
-  idea: '',
-  poc: 'Unlocks once you submit your idea.',
-  selection: 'Unlocks once you submit your proof of concept.',
-  final: 'Unlocks only for teams selected for final development.',
+function lockReason(journey: ProjectJourney, stage: SubmissionStage): string {
+  if (stage === 'poc') {
+    // A rejected idea is terminal (backend `_unlocked`) — PoC never opens.
+    return journey.idea.status === 'rejected'
+      ? 'Your idea was rejected — this project cannot continue.'
+      : 'Unlocks once you submit your idea.'
+  }
+  if (stage === 'selection') return 'Unlocks once you submit your proof of concept.'
+  if (stage === 'final') return 'Unlocks only for teams selected for final development.'
+  return ''
 }
 
 interface StageNavProps {
@@ -64,7 +69,7 @@ export function StageNav({ journey, active, onSelect }: StageNavProps) {
               </span>
               <Badge tone={meta.tone}>{meta.label}</Badge>
               <span className="text-label-sm leading-snug text-on-surface-variant">
-                {unlocked ? stage.blurb : LOCK_REASON[stage.value]}
+                {unlocked ? stage.blurb : lockReason(journey, stage.value)}
               </span>
             </button>
           </li>

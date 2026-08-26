@@ -104,6 +104,19 @@ def test_activity_carries_business_actions_and_not_sign_ins(
     assert not any(action.startswith(("login.", "logout", "token.")) for action in listed)
 
 
+def test_a_faculty_activity_feed_is_scoped_to_their_own_problems(
+    client: TestClient, db: Session, student, faculty, problem, institution_a
+) -> None:
+    """A faculty member with no problems of their own sees none of a peer's."""
+    other_faculty = make_user(
+        db, institution=institution_a, email="rohan.deshpande@crce.edu", role=UserRole.FACULTY
+    )
+    create_team(client, student, problem)
+
+    assert "team.created" in actions(client, faculty, ACTIVITY)
+    assert "team.created" not in actions(client, other_faculty, ACTIVITY)
+
+
 def test_identity_carries_sign_ins_and_not_business_actions(
     client: TestClient, db: Session, student, problem, institution_a
 ) -> None:

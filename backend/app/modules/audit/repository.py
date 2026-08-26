@@ -60,3 +60,30 @@ def list_identity(db: Session, institution_id: uuid.UUID) -> Sequence[tuple[Audi
     """Authentication and session history for the institution."""
     stmt = _scoped(institution_id).where(_identity_match())
     return db.execute(stmt).all()
+
+
+def list_faculty_activity(
+    db: Session,
+    institution_id: uuid.UUID,
+    *,
+    faculty_id: uuid.UUID,
+    owned_ids: Sequence[uuid.UUID],
+) -> Sequence[tuple[AuditLog, str | None]]:
+    """A faculty member's own slice: their actions, plus activity on their
+    problems and projects. `owned_ids` is the caller's problem + project ids —
+    entries name the acted-on row either as `entity_id` directly (e.g. a
+    project publish) or under a handful of well-known `meta` keys (e.g. an
+    application's `problem_id`, a submission's `project_id`).
+    """
+    owned = [str(i) for i in owned_ids]
+    match = AuditLog.actor_id == faculty_id
+    if owned:
+        match = or_(
+            match,
+            AuditLog.entity_id.in_(owned),
+            AuditLog.meta["problem_id"].astext.in_(owned),
+            AuditLog.meta["project_id"].astext.in_(owned),
+        )
+    match = or_(match, AuditLog.meta["mentor_id"].astext == str(faculty_id))
+    stmt = _scoped(institution_id).where(~_identity_match(), match)
+    return db.execute(stmt).all()

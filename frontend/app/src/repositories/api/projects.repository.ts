@@ -6,10 +6,11 @@
  * split is the backend's; this contract has always been the student's single
  * "my work" surface, so it stays one object.
  *
- * Two methods return something the endpoint does not: applying and withdrawing
- * both answer with the project (or nothing), while the pages that call them
- * re-render a problem card. Both re-read the problem afterwards rather than
- * patching a local copy — the backend owns `applicationStatus`.
+ * Withdrawing returns something the endpoint does not: the problem, re-read
+ * afterwards rather than patched locally, since the backend owns
+ * `applicationStatus`. Applying is the opposite case — `POST .../applications`
+ * already answers with the created project, so callers get it straight from
+ * the response instead of a second round trip.
  */
 import { ApiError, apiClient } from '@/api/client'
 import { camelize, decamelize } from '@/api/case'
@@ -105,8 +106,11 @@ export const projectsApiRepository: ProjectRepository = {
   },
 
   applyToProblem: async (problemId: string, input: ApplicationInput) => {
-    await apiClient.post(`/problems/${problemId}/applications`, decamelize(input))
-    return fetchProblem(problemId)
+    const { data } = await apiClient.post<unknown>(
+      `/problems/${problemId}/applications`,
+      decamelize(input),
+    )
+    return camelize<Project>(data)
   },
   withdrawApplication: async (problemId: string) => {
     await apiClient.delete(`/problems/${problemId}/applications/me`)
