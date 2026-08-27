@@ -20,7 +20,7 @@ import type { PortfolioRepository } from '@/repositories/types'
 import type { Role } from '@/types'
 import type { LeaderboardEntry, Portfolio, Project } from '@/types/domain'
 
-/** GET /portfolio/me. */
+/** GET /portfolio/me or /portfolio/{userId}. */
 interface PortfolioBody {
   userId: string
   name: string
@@ -33,8 +33,8 @@ interface PortfolioBody {
   projects: Project[]
 }
 
-async function compose(): Promise<Portfolio> {
-  const body = camelize<PortfolioBody>((await apiClient.get<unknown>('/portfolio/me')).data)
+async function compose(userId: string): Promise<Portfolio> {
+  const body = camelize<PortfolioBody>((await apiClient.get<unknown>(`/portfolio/${userId}`)).data)
   // The board this person is actually ranked on — students and faculty earn
   // from the same engine but are listed separately.
   const path = body.role === 'faculty' ? 'faculty' : 'students'
@@ -71,16 +71,7 @@ async function compose(): Promise<Portfolio> {
 }
 
 export const portfolioApiRepository: PortfolioRepository = {
-  get: async (userId: string) => {
-    const portfolio = await compose()
-    if (userId !== 'me' && userId !== portfolio.userId) {
-      // `GET /portfolio/{userId}` is deliberately unimplemented: a visitor's
-      // view is gated on visibility flags that do not exist yet, so the page
-      // shows its error state rather than a portfolio nobody consented to.
-      throw new Error('Public portfolios are not available yet.')
-    }
-    return portfolio
-  },
+  get: (userId: string) => compose(userId),
   // No backend owner: the curation layer edits sections (research, hackathons,
   // credentials) that have no canonical source, behind a `published` flag for a
   // public portfolio route that does not exist. It stays in-session.

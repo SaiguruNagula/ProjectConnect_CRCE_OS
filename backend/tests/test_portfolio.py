@@ -151,12 +151,18 @@ def test_there_is_no_portfolio_write_api(client: TestClient, student) -> None:
 
 
 def test_the_forbidden_portfolio_routes_do_not_exist(client: TestClient, student) -> None:
-    """A portfolio is derived, so there is nothing to generate, rebuild or search."""
+    """A portfolio is derived, so there is nothing to generate, rebuild or search — the
+    only path a caller can GET besides `/me` is another user's id."""
     headers = auth_header(client, student.email)
-    for path in ("", str(uuid.uuid4()), "search", "me/customization", "me/export"):
+    assert client.get(
+        f"/api/v1/portfolio/{uuid.uuid4()}", headers=headers
+    ).status_code == 404
+    for path in ("", "me/customization", "me/export"):
         assert client.get(f"/api/v1/portfolio/{path}", headers=headers).status_code == 404
-    for path in ("refresh", "rebuild", "generate", "export"):
-        assert client.post(f"/api/v1/portfolio/{path}", headers=headers).status_code == 404
+    # These read as verbs, but `{user_id}` only accepts a GET — Starlette matches the
+    # path before the method, so the right refusal for a write verb here is 405.
+    for path in ("refresh", "rebuild", "generate", "export", "search"):
+        assert client.post(f"/api/v1/portfolio/{path}", headers=headers).status_code == 405
 
 
 def test_the_endpoint_takes_no_parameters(
@@ -442,6 +448,58 @@ def test_another_mentors_work_is_not_counted(
 
     assert page["projects"] == []
     assert page["stats"]["problems_published"] == 0
+
+
+# --- viewing someone else's portfolio ------------------------------------------------
+
+
+def test_a_signed_in_user_can_view_a_faculty_members_portfolio(
+    client: TestClient, db: Session, student, faculty, problem
+) -> None:
+    """A profile is universal: a faculty member with no verified solutions of
+    their own is still a real page, not a dead end."""
+    make_project(db, problem=problem, mentor=faculty, student=student)
+
+    response = client.get(
+        f"/api/v1/portfolio/{faculty.id}", headers=auth_header(client, student.email)
+    )
+
+    assert response.status_code == 200
+    page = response.json()["data"]
+    assert page["user_id"] == str(faculty.id)
+    assert page["role"] == UserRole.FACULTY.value
+    assert page["stats"]["problems_published"] == 1
+
+
+def test_a_faculty_member_can_view_a_students_portfolio(
+    client: TestClient, student, faculty
+) -> None:
+    page = client.get(
+        f"/api/v1/portfolio/{student.id}", headers=auth_header(client, faculty.email)
+    ).json()["data"]
+
+    assert page["user_id"] == str(student.id)
+    assert page["role"] == UserRole.STUDENT.value
+
+
+def test_viewing_a_missing_user_is_a_404(client: TestClient, student) -> None:
+    response = client.get(
+        f"/api/v1/portfolio/{uuid.uuid4()}", headers=auth_header(client, student.email)
+    )
+
+    assert response.status_code == 404
+
+
+def test_a_user_in_another_institution_cannot_be_viewed(
+    client: TestClient, db: Session, institution_b, student
+) -> None:
+    outsider = make_user(db, institution=institution_b, email="outsider@other.edu")
+
+    response = client.get(
+        f"/api/v1/portfolio/{outsider.id}", headers=auth_header(client, student.email)
+    )
+
+    assert response.status_code == 404
 
 
 # --- tenancy ------------------------------------------------------------------------

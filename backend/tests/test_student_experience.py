@@ -438,7 +438,14 @@ def test_an_anonymous_caller_reaches_no_student_surface(client: TestClient) -> N
 
 
 def test_no_student_surface_crosses_the_institution_boundary(
-    client: TestClient, db: Session, institution_b, student, faculty, problem, seeded_rules
+    client: TestClient,
+    db: Session,
+    institution_a,
+    institution_b,
+    student,
+    faculty,
+    problem,
+    seeded_rules,
 ) -> None:
     """Student A's work is invisible to institution B, in both directions.
 
@@ -446,7 +453,12 @@ def test_no_student_surface_crosses_the_institution_boundary(
     learn that another tenant's project, team or problem exists at all.
     """
 
-    team = create_team(client, student, problem)
+    # A separate problem for the team below — a student cannot both lead a team
+    # and apply solo for the same problem (ADR: one mode per problem).
+    team_problem = make_problem(
+        db, institution=institution_a, author=faculty, title="Campus Water Metering"
+    )
+    team = create_team(client, student, team_problem)
     project_id = approved_project(client, student, faculty, problem)
     assert award(client, faculty, project_id).status_code == 200
     assert publish(client, faculty, project_id).status_code == 200

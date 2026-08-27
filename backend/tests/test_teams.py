@@ -59,6 +59,53 @@ def test_one_team_per_student_per_problem(client: TestClient, student, problem) 
     assert response.json()["message"] == "You are already on a team for this problem."
 
 
+def apply_solo(client: TestClient, student, problem) -> dict:
+    return client.post(
+        f"/api/v1/problems/{problem.id}/applications",
+        json={
+            "idea_summary": "Face recognition that runs entirely on the classroom device.",
+            "approach": "Train a small model, then deploy it to a Raspberry Pi at the door.",
+        },
+        headers=auth_header(client, student.email),
+    ).json()
+
+
+def test_a_solo_applicant_cannot_create_a_team_for_the_same_problem(
+    client: TestClient, student, problem
+) -> None:
+    apply_solo(client, student, problem)
+
+    response = client.post(
+        "/api/v1/teams",
+        json={
+            "problem_id": str(problem.id),
+            "name": "Team Beta",
+            "pitch": "Trying to switch to a team after applying solo.",
+            "looking_for": [],
+        },
+        headers=auth_header(client, student.email),
+    )
+
+    assert response.status_code == 409
+    assert "already applied individually" in response.json()["message"]
+
+
+def test_a_solo_applicant_cannot_join_a_team_for_the_same_problem(
+    client: TestClient, student, other_student, problem
+) -> None:
+    team = create_team(client, student, problem)
+    apply_solo(client, other_student, problem)
+
+    response = client.post(
+        f"/api/v1/teams/{team['id']}/join-requests",
+        json=JOIN_MESSAGE,
+        headers=auth_header(client, other_student.email),
+    )
+
+    assert response.status_code == 409
+    assert "already applied individually" in response.json()["message"]
+
+
 def test_a_student_may_lead_teams_on_different_problems(
     client: TestClient, db: Session, institution_a, faculty, student, problem
 ) -> None:

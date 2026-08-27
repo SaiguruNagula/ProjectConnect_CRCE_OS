@@ -123,6 +123,20 @@ def test_a_team_may_reapply_after_withdrawing(client: TestClient, student, probl
     assert again.json()["data"]["id"] != first
 
 
+def test_a_team_member_cannot_also_apply_solo(
+    client: TestClient, student, problem
+) -> None:
+    """Solo and team participation are mutually exclusive on the same problem."""
+    create_team(client, student, problem)
+
+    response = apply(client, student, problem)
+
+    assert response.status_code == 409
+    assert response.json()["message"] == (
+        "You are already on a team for this problem — apply through your team instead."
+    )
+
+
 def test_applying_with_another_teams_id_is_refused(
     client: TestClient, db: Session, institution_a, faculty, student, other_student, problem
 ) -> None:

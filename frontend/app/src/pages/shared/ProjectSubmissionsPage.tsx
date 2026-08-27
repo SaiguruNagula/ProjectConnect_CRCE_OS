@@ -9,7 +9,7 @@
  * projectsService, so this page only chooses which stage to render.
  */
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { useProjectJourney } from '@/hooks/useProjectJourney'
 import { buildPath, ROUTES } from '@/constants/routes'
 import type { SubmissionStage } from '@/types/domain'
@@ -27,6 +27,10 @@ import { stageMeta } from '@/features/submissions/status'
 
 export function ProjectSubmissionsPage() {
   const { id } = useParams()
+  // Set by TeamFormationPage's applySolo — a one-time onboarding note in place
+  // of the popup that used to stand between applying and the Idea stage.
+  const location = useLocation()
+  const [welcome, setWelcome] = useState((location.state as { welcome?: string } | null)?.welcome ?? null)
   const {
     journey,
     loading,
@@ -115,6 +119,7 @@ export function ProjectSubmissionsPage() {
 
       <StageNav journey={journey} active={active} onSelect={setPicked} />
 
+      <ActionBanner tone="success" message={welcome} onDismiss={() => setWelcome(null)} />
       <ActionBanner tone="success" message={actionMessage} onDismiss={dismissMessage} />
       <ActionBanner tone="error" message={actionError} onDismiss={dismissError} />
 

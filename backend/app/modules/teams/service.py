@@ -18,6 +18,7 @@ from app.common.errors import BusinessRuleError, NotFoundError
 from app.core import authorize
 from app.modules.notifications import service as notifications
 from app.modules.problems import repository as problems_repo
+from app.modules.projects import repository as projects_repo
 from app.modules.projects.models import Project
 from app.modules.teams import repository as repo
 from app.modules.teams.models import Team, TeamInvitation, TeamJoinRequest, TeamMember
@@ -38,6 +39,12 @@ from app.modules.teams.schemas import (
 from app.modules.users.models import User
 
 ALREADY_ON_A_TEAM = "You are already on a team for this problem."
+# Solo and team participation are mutually exclusive per problem (mirrors the
+# team-vs-team guard above, for the solo-vs-team direction).
+ALREADY_APPLIED_SOLO = (
+    "You have already applied individually to this problem — withdraw that "
+    "application before joining a team for it."
+)
 
 
 def _status(project: Project | None) -> TeamStatus:
@@ -153,6 +160,10 @@ def create_team(db: Session, student: User, payload: CreateTeamInput) -> TeamOut
         db, student_id=student.id, problem_id=problem.id
     ):
         raise BusinessRuleError(ALREADY_ON_A_TEAM)
+    if projects_repo.active_application(
+        db, problem_id=problem.id, student_id=student.id
+    ):
+        raise BusinessRuleError(ALREADY_APPLIED_SOLO)
 
     team = repo.add_team(
         db,
@@ -297,6 +308,10 @@ def request_to_join(
         db, student_id=student.id, problem_id=team.problem_id
     ):
         raise BusinessRuleError(ALREADY_ON_A_TEAM)
+    if projects_repo.active_application(
+        db, problem_id=team.problem_id, student_id=student.id
+    ):
+        raise BusinessRuleError(ALREADY_APPLIED_SOLO)
     if team.id in repo.requested_team_ids(
         db, student_id=student.id, team_ids={team.id}
     ):
@@ -375,6 +390,12 @@ def respond_to_join_request(
             db, student_id=request.student_id, problem_id=team.problem_id
         ):
             raise BusinessRuleError("That student is already on a team for this problem.")
+        if projects_repo.active_application(
+            db, problem_id=team.problem_id, student_id=request.student_id
+        ):
+            raise BusinessRuleError(
+                "That student has already applied individually to this problem."
+            )
         # Seating the student and answering the request are one unit of work.
         repo.add_member(
             db,
@@ -458,6 +479,10 @@ def respond_to_invitation(
             db, student_id=student.id, problem_id=team.problem_id
         ):
             raise BusinessRuleError(ALREADY_ON_A_TEAM)
+        if projects_repo.active_application(
+            db, problem_id=team.problem_id, student_id=student.id
+        ):
+            raise BusinessRuleError(ALREADY_APPLIED_SOLO)
         repo.add_member(
             db,
             TeamMember(

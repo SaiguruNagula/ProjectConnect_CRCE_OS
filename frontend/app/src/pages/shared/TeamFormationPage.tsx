@@ -62,9 +62,11 @@ export function TeamFormationPage() {
   } = useTeamFormation(searchParams.get(QUERY_PARAMS.PROBLEM) ?? undefined)
 
   const [showCreate, setShowCreate] = useState(false)
-  // The team whose join dialog is open, and which application route is open.
+  // The team whose join dialog is open. Team application still asks for the
+  // idea being proposed via ApplyDialog; solo application does not — see
+  // applySolo below.
   const [joinTarget, setJoinTarget] = useState<Team | null>(null)
-  const [applyMode, setApplyMode] = useState<'solo' | 'team' | null>(null)
+  const [applyingAsTeam, setApplyingAsTeam] = useState(false)
 
   const applied = problem?.applicationStatus && problem.applicationStatus !== 'none'
     ? problem.applicationStatus
@@ -90,6 +92,22 @@ export function TeamFormationPage() {
     if (ok) {
       setShowCreate(false)
       reset()
+    }
+  }
+
+  // Solo application asks for nothing: a popup here reads as the Idea itself,
+  // and the idea belongs to the Idea stage the student lands on next. The
+  // idea/approach the backend still requires to open the project are filled
+  // with a placeholder that stage overwrites the moment it's submitted.
+  const applySolo = async () => {
+    const projectId = await apply(false, {
+      ideaSummary: `Solo application to ${problem?.title ?? 'this problem'}`,
+      approach: 'To be detailed in the Idea stage.',
+    })
+    if (projectId) {
+      navigate(buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: projectId }), {
+        state: { welcome: "You're in. Start by submitting your Idea so your project can enter the review workflow." },
+      })
     }
   }
 
@@ -217,6 +235,9 @@ export function TeamFormationPage() {
                     key={team.id}
                     team={team}
                     busy={busy}
+                    // A solo applicant already has a live application on this problem —
+                    // joining a team here would only bounce off the backend guard.
+                    blockedBySolo={applied === 'solo'}
                     onJoin={() => setJoinTarget(team)}
                   />
                 ))}
@@ -303,7 +324,7 @@ export function TeamFormationPage() {
                     myTeamName ? `Submit ${myTeamName} for this project.` : 'Create or join a team first.'
                   }
                 >
-                  <Button size="sm" disabled={!myTeam || busy} onClick={() => setApplyMode('team')}>
+                  <Button size="sm" disabled={!myTeam || busy} onClick={() => setApplyingAsTeam(true)}>
                     Apply as Team
                   </Button>
                 </ActionRow>
@@ -311,9 +332,13 @@ export function TeamFormationPage() {
                 <ActionRow
                   icon="person"
                   title="Apply solo"
-                  description="Work independently and let faculty review your application."
+                  description={
+                    myTeam
+                      ? 'Already on a team for this problem — apply through your team instead.'
+                      : 'Work independently and let faculty review your application.'
+                  }
                 >
-                  <Button size="sm" variant="outline" disabled={busy} onClick={() => setApplyMode('solo')}>
+                  <Button size="sm" variant="outline" disabled={busy || !!myTeam} onClick={applySolo}>
                     Apply Solo
                   </Button>
                 </ActionRow>
@@ -411,17 +436,16 @@ export function TeamFormationPage() {
       />
 
       <ApplyDialog
-        open={applyMode !== null}
-        mode={applyMode ?? 'solo'}
+        open={applyingAsTeam}
         problemTitle={problem.title}
         team={myTeam}
         busy={busy}
-        onClose={() => setApplyMode(null)}
+        onClose={() => setApplyingAsTeam(false)}
         // Applying opens the project, and the project is where the idea is
         // written and submitted — the faculty queue only ever shows submitted
         // work. Leaving the student here is what left ideas sitting in draft.
         onSubmit={async (details) => {
-          const projectId = await apply(applyMode === 'team', details)
+          const projectId = await apply(true, details)
           if (projectId) navigate(buildPath(ROUTES.STUDENT.PROJECT_DETAILS, { id: projectId }))
           return projectId !== null
         }}
@@ -521,7 +545,17 @@ function AvatarStack({ members }: { members: TeamMember[] }) {
   )
 }
 
-function TeamCard({ team, busy, onJoin }: { team: Team; busy: boolean; onJoin: () => void }) {
+function TeamCard({
+  team,
+  busy,
+  blockedBySolo,
+  onJoin,
+}: {
+  team: Team
+  busy: boolean
+  blockedBySolo: boolean
+  onJoin: () => void
+}) {
   const requested = !!team.joinRequested
   const full = team.openSpots === 0
   return (
@@ -535,8 +569,14 @@ function TeamCard({ team, busy, onJoin }: { team: Team; busy: boolean; onJoin: (
         <span className="font-mono text-label-md font-medium text-secondary">
           {team.openSpots} {team.openSpots === 1 ? 'spot' : 'spots'} open
         </span>
-        <Button size="sm" disabled={requested || full || busy} onClick={onJoin}>
-          {requested ? 'Request Sent' : full ? 'Team Full' : 'Join Team'}
+        <Button size="sm" disabled={requested || full || blockedBySolo || busy} onClick={onJoin}>
+          {requested
+            ? 'Request Sent'
+            : blockedBySolo
+              ? 'Applied Solo'
+              : full
+                ? 'Team Full'
+                : 'Join Team'}
         </Button>
       </div>
     </Card>

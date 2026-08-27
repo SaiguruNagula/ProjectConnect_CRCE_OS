@@ -221,10 +221,15 @@ def test_another_institution_cannot_reach_this_dashboard(
         db, institution=institution_b, email="asha.rane@vjti.edu", role=UserRole.FACULTY
     )
     their_problem = make_problem(db, institution=institution_b, author=their_faculty)
+    # A separate problem for the team invite below — a leader cannot both apply
+    # solo and lead a team for the same problem (ADR: one mode per problem).
+    their_other_problem = make_problem(
+        db, institution=institution_b, author=their_faculty, title="Campus Energy Dashboard"
+    )
 
     credit(db, outsider, 5000)
     open_project(client, outsider, their_problem)
-    invite(client, outsider, student, their_problem)
+    invite(client, outsider, student, their_other_problem)
     credit(db, student, 100)
 
     mine = dashboard(client, student)

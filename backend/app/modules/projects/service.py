@@ -492,6 +492,12 @@ def apply_to_problem(
         )
         if repo.active_team_project(db, problem_id=problem.id, team_id=team.id):
             raise BusinessRuleError("Your team has already applied to this problem.")
+    elif teams_repo.membership_for_problem(db, student_id=student.id, problem_id=problem.id):
+        # Solo and team participation are mutually exclusive per problem: a
+        # student already on a team here applies through that team, not solo.
+        raise BusinessRuleError(
+            "You are already on a team for this problem — apply through your team instead."
+        )
 
     project = repo.add_project(
         db,

@@ -1,8 +1,9 @@
 /**
- * Applying to an open problem — solo or as a team. Both routes ask for the same
- * thing (the idea and how it will be approached); the team route additionally
- * shows the roster being submitted, which comes from the team and is never
- * re-typed here.
+ * Applying to an open problem as a team, showing the roster being submitted
+ * (from the team, never re-typed here). Solo application skips this dialog
+ * entirely — a form here reads as the Idea submission itself, and the actual
+ * idea belongs to the Idea stage the student lands on next (TeamFormationPage
+ * `applySolo`).
  */
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -25,8 +26,6 @@ const EMPTY: ApplyForm = { ideaSummary: '', approach: '', attachmentUrl: '' }
 
 interface ApplyDialogProps {
   open: boolean
-  /** 'team' submits the student's team; 'solo' submits them alone. */
-  mode: 'solo' | 'team'
   problemTitle: string
   team: Team | null
   busy: boolean
@@ -34,17 +33,7 @@ interface ApplyDialogProps {
   onSubmit: (details: Omit<ApplicationInput, 'teamId'>) => Promise<boolean>
 }
 
-export function ApplyDialog({
-  open,
-  mode,
-  problemTitle,
-  team,
-  busy,
-  onClose,
-  onSubmit,
-}: ApplyDialogProps) {
-  const asTeam = mode === 'team'
-
+export function ApplyDialog({ open, problemTitle, team, busy, onClose, onSubmit }: ApplyDialogProps) {
   const {
     register,
     handleSubmit,
@@ -74,11 +63,11 @@ export function ApplyDialog({
     <Dialog
       open={open}
       onClose={close}
-      title={asTeam ? 'Apply as a team' : 'Apply solo'}
+      title="Apply as a team"
       description={`Applying to ${problemTitle}. Faculty review every application before a team starts work.`}
     >
       <form noValidate id="apply-form" className="flex flex-col gap-md" onSubmit={handleSubmit(submit)}>
-        {asTeam && team && (
+        {team && (
           <div className="flex flex-col gap-xs rounded-xl bg-surface-container-low p-sm">
             <span className="text-label-md font-semibold text-on-surface">Applying as {team.name}</span>
             <ul className="flex flex-wrap gap-sm">
@@ -107,7 +96,7 @@ export function ApplyDialog({
         </Field>
 
         <Field
-          label={asTeam ? 'Proof of Concept' : 'Attachment'}
+          label="Proof of Concept"
           optional
           hint="Link to anything that supports your application."
           error={errors.attachmentUrl?.message}
@@ -118,7 +107,7 @@ export function ApplyDialog({
 
       <div className="mt-md flex flex-wrap items-center gap-sm border-t border-outline-variant pt-md">
         <Button type="submit" form="apply-form" disabled={busy}>
-          {busy ? 'Working…' : asTeam ? 'Apply as Team' : 'Apply Solo'}
+          {busy ? 'Working…' : 'Apply as Team'}
         </Button>
         <Button type="button" variant="ghost" disabled={busy} onClick={close}>
           Cancel

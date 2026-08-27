@@ -11,15 +11,19 @@ re-ranks or re-counts anything another module already decides.
 
 from __future__ import annotations
 
+import uuid
+
 from sqlalchemy.orm import Session
 
 from app.common.enums import UserRole
+from app.common.errors import NotFoundError
 from app.modules.credits import config
 from app.modules.credits import repository as credits_repo
 from app.modules.portfolio import repository as repo
 from app.modules.portfolio.schemas import PortfolioOut, PortfolioStatsOut
 from app.modules.projects import service as projects
 from app.modules.teams.schemas import initials
+from app.modules.users import repository as users_repo
 from app.modules.users.models import User
 
 
@@ -34,9 +38,7 @@ def _stats(db: Session, user: User, projects_completed: int) -> PortfolioStatsOu
     )
 
 
-def me(db: Session, user: User) -> PortfolioOut:
-    """The caller's own portfolio. There is no other institution to reach: every
-    query below is scoped by the token's institution and user id."""
+def _compose(db: Session, user: User) -> PortfolioOut:
     completed = repo.completed_projects(
         db, institution_id=user.institution_id, user_id=user.id, role=user.role
     )
@@ -56,3 +58,22 @@ def me(db: Session, user: User) -> PortfolioOut:
         stats=_stats(db, user, len(completed)),
         projects=projects.views(db, list(completed)),
     )
+
+
+def me(db: Session, user: User) -> PortfolioOut:
+    """The caller's own portfolio. There is no other institution to reach: every
+    query below is scoped by the token's institution and user id."""
+    return _compose(db, user)
+
+
+def get(db: Session, current_user: User, user_id: uuid.UUID) -> PortfolioOut:
+    """Anyone's portfolio, visible to every signed-in member of the same
+    institution — the same directory boundary teammates and mentors already
+    cross elsewhere (a problem's faculty author, a teammate's name and avatar).
+    A profile is universal across roles; a faculty member's is simply lighter
+    on verified project stats than a student's.
+    """
+    target = users_repo.get_by_id(db, user_id, institution_id=current_user.institution_id)
+    if target is None:
+        raise NotFoundError("User not found.")
+    return _compose(db, target)
